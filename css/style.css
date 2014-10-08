@@ -5,6 +5,14 @@
 	cursor: pointer;
 }
 
+.hidden {
+	display: none;
+}
+
+.visible {
+	display: block;
+}
+
 body {
 	background-color: #888888;
 }
@@ -12,6 +20,7 @@ body {
 canvas {
 	cursor: pointer;
 	background-color: #FFFFFF;
+	float: left;
 }
 
 .inspector {
