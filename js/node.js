@@ -1,14 +1,40 @@
+/**
+* @namespace sense4us
+*/
+
 var sense4us = sense4us || {};
 
+/**
+* Upon construction of this node object an html-element "div" will be created, unless
+* there's already an existing element with specified id.
+* This class facilitates the setting and getting node data-variables.
+* It does not store the data-variables locally, instead it sets and gets
+* them from the actual html-element.
+* @class node
+* @constructor
+* @param id {Integer} This integer must be a unique identifier for this created node.
+*/
 sense4us.node = function(id) {
 	var html_entity = sense4us.get_or_create_html_entity(id);
 
 	html_entity.setAttribute("class", "node");
 
 	var that = {
+		/**
+	    * Sets an attribute on the html-element with the specified value.
+	    * @method set
+	    * @param name {String} This parameter is converted into data-%name% before storing the attribute in the html element.
+	    * @param value
+	    */
 		set: function(name, value) {
 			html_entity.setAttribute("data-" + name, value);
 		},
+		/**
+	    * Retrieves the attribute value by the specified attribute name.
+	    * @method get
+	    * @param name {String} This parameter is converted into data-%name% before retrieving the attribute.
+        * @returns {String} Returns the attribute value.
+	    */
 		get: function(name) {
 			return html_entity.getAttribute("data-" + name);
 		},
