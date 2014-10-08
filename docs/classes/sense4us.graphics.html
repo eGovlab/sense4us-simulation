@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>sense4us.node - Sense4us Simulation Client</title>
+    <title>sense4us.graphics - Sense4us Simulation Client</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -86,7 +86,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>sense4us.node Class</h1>
+                        <h1>sense4us.graphics Class</h1>
 <div class="box meta">
     
 
@@ -94,7 +94,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/js_node.js.html#l7"><code>js&#x2F;node.js:7</code></a>
+            Defined in: <a href="../files/js_node_graphic.js.html#l7"><code>js&#x2F;node_graphic.js:7</code></a>
         </div>
     
 
@@ -106,105 +106,10 @@
 
 
 <div class="box intro">
-    <p>Upon construction of this node object an html-element &quot;div&quot; will be created, unless
-there&#39;s already an existing element with specified id.
-This class facilitates the setting and getting node data-variables.
-It does not store the data-variables locally, instead it sets and gets
-them from the actual html-element.</p>
+    <p>A class to create the graphic for different objects.</p>
 
 </div>
 
-
-    <div class="constructor">
-        <h2>Constructor</h2>
-        <div id="method_sense4us.node" class="method item">
-    <h3 class="name"><code>sense4us.node</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>id</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/js_node.js.html#l7"><code>js&#x2F;node.js:7</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">id</code>
-                        <span class="type">Integer</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>This integer must be a unique identifier for this created node.</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-    </div>
 
 
 <div id="classdocs" class="tabview">
@@ -230,14 +135,7 @@ them from the actual html-element.</p>
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_get">get</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item method">
-                                <a href="#method_set">set</a>
+                                <a href="#method_node">node</a>
 
                                 
                                 
@@ -259,8 +157,8 @@ them from the actual html-element.</p>
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_get" class="method item">
-    <h3 class="name"><code>get</code></h3>
+                    <div id="method_node" class="method item">
+    <h3 class="name"><code>node</code></h3>
 
     
         <div class="args">
@@ -268,120 +166,13 @@ them from the actual html-element.</p>
             
                 <li class="arg">
                     
-                        <code>name</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-        <span class="returns-inline">
-            <span class="type">String</span>
-        </span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/js_node.js.html#l32"><code>js&#x2F;node.js:32</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Retrieves the attribute value by the specified attribute name.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">name</code>
-                        <span class="type">String</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>This parameter is converted into data-%name% before retrieving the attribute.</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                        <span class="type">String</span>:
-                    
-                    <p>Returns the attribute value.</p>
-
-                
-            </div>
-        </div>
-    
-
-    
-</div>
-
-                
-                    <div id="method_set" class="method item">
-    <h3 class="name"><code>set</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>name</code>
+                        <code>node</code>
                     
                 </li>
             
                 <li class="arg">
                     
-                        <code>value</code>
+                        <code>stage</code>
                     
                 </li>
             
@@ -414,7 +205,7 @@ them from the actual html-element.</p>
             
         
         
-        <a href="../files/js_node.js.html#l23"><code>js&#x2F;node.js:23</code></a>
+        <a href="../files/js_node_graphic.js.html#l13"><code>js&#x2F;node_graphic.js:13</code></a>
         
         </p>
 
@@ -425,7 +216,7 @@ them from the actual html-element.</p>
     </div>
 
     <div class="description">
-        <p>Sets an attribute on the html-element with the specified value.</p>
+        <p>A function to create the graphic for nodes.</p>
 
     </div>
 
@@ -437,14 +228,14 @@ them from the actual html-element.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">name</code>
-                        <span class="type">String</span>
+                        <code class="param-name">node</code>
+                        <span class="type">Node</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>This parameter is converted into data-%name% before storing the attribute in the html element.</p>
+                        <p>The node for which to add graphics</p>
 
                     </div>
 
@@ -453,14 +244,15 @@ them from the actual html-element.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">value</code>
-                        <span class="type">Object</span>
+                        <code class="param-name">stage</code>
+                        <span class="type">createjs.Stage</span>
                     
 
                     
 
                     <div class="param-description">
-                         
+                        <p>The stage that the graphic is displayed on.</p>
+
                     </div>
 
                     

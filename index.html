@@ -18,8 +18,8 @@
 	<script src="js/events.js"></script>
 	<script src="js/node.js"></script>
 	<script src="js/init_easeljs.js"></script>
-	<script src="js/node_graphic.js"></script>
-	<script src="js/menu_graphic.js"></script>
+	<script src="js/graphics.js"></script>
+	<script src="js/handle_menu.js"></script>
 
 	<script>
 		function create_node() {
@@ -31,7 +31,7 @@
 		sense4us.init();
 		var node = sense4us.node("hej");
 		node.set("lol", "wat");
-		sense4us.node_graphic(node, sense4us.stage);
+		sense4us.graphics.node(node, sense4us.stage);
 	</script>
 </body>
 </html>
