@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>js/node_graphic.js - Sense4us Simulation Client</title>
+    <title>js/graphics.js - Sense4us Simulation Client</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -86,7 +86,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: js/node_graphic.js</h1>
+                        <h1 class="file-heading">File: js/graphics.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -134,6 +134,10 @@ sense4us.graphics.node = function(node, stage) {
 	stage.update();
 }
 
+/**
+* The graphic for the menu is stored in this attribute.
+* @attribute menu {Object}
+*/
 sense4us.graphics.menu = function() {
 	var menu = new createjs.Shape();
 	menu.graphics.beginFill(&quot;blue&quot;).drawCircle(0, 0, 50);

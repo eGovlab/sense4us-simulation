@@ -17,22 +17,22 @@
                 "sense4us": 1
             }
         },
-        "js/node.js": {
-            "name": "js/node.js",
+        "js/graphics.js": {
+            "name": "js/graphics.js",
             "modules": {},
             "classes": {
-                "sense4us.node": 1
+                "sense4us.graphics": 1
             },
             "fors": {},
             "namespaces": {
                 "sense4us": 1
             }
         },
-        "js/node_graphic.js": {
-            "name": "js/node_graphic.js",
+        "js/node.js": {
+            "name": "js/node.js",
             "modules": {},
             "classes": {
-                "sense4us.graphics": 1
+                "sense4us.node": 1
             },
             "fors": {},
             "namespaces": {
@@ -62,6 +62,19 @@
                 " sense4us.events.trigger(\"pizzaDelivered\", pizzaObject);"
             ]
         },
+        "sense4us.graphics": {
+            "name": "sense4us.graphics",
+            "shortname": "graphics",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "sense4us",
+            "file": "js/graphics.js",
+            "line": 7,
+            "description": "A class to create the graphic for different objects."
+        },
         "sense4us.node": {
             "name": "sense4us.node",
             "shortname": "node",
@@ -82,19 +95,6 @@
                     "type": "Integer"
                 }
             ]
-        },
-        "sense4us.graphics": {
-            "name": "sense4us.graphics",
-            "shortname": "graphics",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "namespace": "sense4us",
-            "file": "js/node_graphic.js",
-            "line": 7,
-            "description": "A class to create the graphic for different objects."
         }
     },
     "classitems": [
@@ -147,6 +147,43 @@
             "namespace": "sense4us"
         },
         {
+            "file": "js/graphics.js",
+            "line": 1,
+            "class": "sense4us.graphics",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/graphics.js",
+            "line": 13,
+            "description": "A function to create the graphic for nodes.",
+            "itemtype": "method",
+            "name": "node",
+            "params": [
+                {
+                    "name": "node",
+                    "description": "The node for which to add graphics",
+                    "type": "Node"
+                },
+                {
+                    "name": "stage",
+                    "description": "The stage that the graphic is displayed on.",
+                    "type": "createjs.Stage"
+                }
+            ],
+            "class": "sense4us.graphics",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/graphics.js",
+            "line": 45,
+            "description": "The graphic for the menu is stored in this attribute.",
+            "itemtype": "attribute",
+            "name": "menu",
+            "type": "Object",
+            "class": "sense4us.graphics",
+            "namespace": "sense4us"
+        },
+        {
             "file": "js/node.js",
             "line": 1,
             "class": "sense4us.node",
@@ -191,33 +228,6 @@
             },
             "class": "sense4us.node",
             "namespace": "sense4us"
-        },
-        {
-            "file": "js/node_graphic.js",
-            "line": 1,
-            "class": "sense4us.graphics",
-            "namespace": "sense4us"
-        },
-        {
-            "file": "js/node_graphic.js",
-            "line": 13,
-            "description": "A function to create the graphic for nodes.",
-            "itemtype": "method",
-            "name": "node",
-            "params": [
-                {
-                    "name": "node",
-                    "description": "The node for which to add graphics",
-                    "type": "Node"
-                },
-                {
-                    "name": "stage",
-                    "description": "The stage that the graphic is displayed on.",
-                    "type": "createjs.Stage"
-                }
-            ],
-            "class": "sense4us.graphics",
-            "namespace": "sense4us"
         }
     ],
     "warnings": [
@@ -231,11 +241,11 @@
         },
         {
             "message": "Missing item type",
-            "line": " js/node.js:1"
+            "line": " js/graphics.js:1"
         },
         {
             "message": "Missing item type",
-            "line": " js/node_graphic.js:1"
+            "line": " js/node.js:1"
         }
     ]
 }

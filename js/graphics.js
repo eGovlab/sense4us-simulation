@@ -42,6 +42,10 @@ sense4us.graphics.node = function(node, stage) {
 	stage.update();
 }
 
+/**
+* The graphic for the menu is stored in this attribute.
+* @attribute menu {Object}
+*/
 sense4us.graphics.menu = function() {
 	var menu = new createjs.Shape();
 	menu.graphics.beginFill("blue").drawCircle(0, 0, 50);
