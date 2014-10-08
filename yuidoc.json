@@ -1,0 +1,9 @@
+{
+    "name": "Sense4us Simulation Client",
+    "description": "Sense4us Simulation Client: a client for displaying simulations of policy changes.",
+    "version": "1.0.0",
+    "url": "",
+    "options": {
+        "outdir": "docs"
+    }
+}
