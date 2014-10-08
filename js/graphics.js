@@ -33,9 +33,17 @@ sense4us.graphics.node = function(node, stage) {
 
 	stage.addChild(dragger);
 
+	var mouseX = 0;
+	var mouseY = 0;
+	dragger.on("mousedown", function(evt) {
+		mouseX = evt.stageX - evt.currentTarget.x;
+		mouseY = evt.stageY - evt.currentTarget.y;
+	});
+
 	dragger.on("pressmove",function(evt) {
-		evt.currentTarget.x = evt.stageX;
-		evt.currentTarget.y = evt.stageY;
+		console.log(evt);
+		evt.currentTarget.x = evt.stageX - mouseX;
+		evt.currentTarget.y = evt.stageY - mouseY;
 		stage.update();   
 	});
 
