@@ -13,3 +13,8 @@ canvas {
 	cursor: pointer;
 	background-color: #FFFFFF;
 }
+
+.inspector {
+	background-color: #DDDDDD;
+	float: right;
+}
