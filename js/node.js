@@ -6,7 +6,9 @@ sense4us.node = function(id) {
 	if (!html_entity) {
 		html_entity = document.createElement("div");
 		html_entity.setAttribute("id", id);
-		document.body.appendChild(html_entity);
+		html_entity.setAttribute("data-id", id);
+		html_entity.setAttribute("class", "node");
+		document.getElementById("container").appendChild(html_entity);
 
 		console.log(html_entity);
 	}
@@ -17,6 +19,9 @@ sense4us.node = function(id) {
 		},
 		get: function(name) {
 			return html_entity.getAttribute("data-" + name);
+		},
+		get_element: function() {
+			return html_entity;
 		}
 	}
 

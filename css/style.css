@@ -1,0 +1,15 @@
+.node {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	cursor: pointer;
+}
+
+body {
+	background-color: #888888;
+}
+
+canvas {
+	cursor: pointer;
+	background-color: #FFFFFF;
+}
