@@ -19,16 +19,16 @@
 	<script src="js/events.js"></script>
 	<script src="js/node.js"></script>
 	<script src="js/init_easeljs.js"></script>
-	<script src="js/node_graphic.js"></script>
 	<script src="js/inspector.js"></script>
-	<script src="js/menu_graphic.js"></script>
+	<script src="js/graphics.js"></script>
+	<script src="js/handle_menu.js"></script>
 
 	<script>
 		function create_node() {
 			var node = sense4us.node();
 			node.set("name", "node_name");
 			node.set("value", "node_value");
-			sense4us.node_graphic(node, sense4us.stage);
+			sense4us.graphics.node(node, sense4us.stage);
 		}
 
 		sense4us.init();

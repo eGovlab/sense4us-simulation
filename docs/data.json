@@ -6,8 +6,30 @@
         "url": ""
     },
     "files": {
-        "js\\node.js": {
-            "name": "js\\node.js",
+        "js/events.js": {
+            "name": "js/events.js",
+            "modules": {},
+            "classes": {
+                "sense4us.events": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "sense4us": 1
+            }
+        },
+        "js/graphics.js": {
+            "name": "js/graphics.js",
+            "modules": {},
+            "classes": {
+                "sense4us.graphics": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "sense4us": 1
+            }
+        },
+        "js/node.js": {
+            "name": "js/node.js",
             "modules": {},
             "classes": {
                 "sense4us.node": 1
@@ -20,6 +42,39 @@
     },
     "modules": {},
     "classes": {
+        "sense4us.events": {
+            "name": "sense4us.events",
+            "shortname": "events",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "sense4us",
+            "file": "js/events.js",
+            "line": 7,
+            "description": "This is an event handler, meaning that we can bind a callback\nto an event.\nThis will then be called when we run the trigger-function.\nThis is basically a static function, so it's accessible from any place\nusing sense4us.",
+            "is_constructor": 1,
+            "example": [
+                " We want the function eatPizza(pizza) to be called\non the event \"pizzaDelivered\":",
+                " sense4us.events.bind(\"pizzaDelivered\", eatPizza);",
+                " To trigger the event:",
+                " sense4us.events.trigger(\"pizzaDelivered\", pizzaObject);"
+            ]
+        },
+        "sense4us.graphics": {
+            "name": "sense4us.graphics",
+            "shortname": "graphics",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "sense4us",
+            "file": "js/graphics.js",
+            "line": 7,
+            "description": "A class to create the graphic for different objects."
+        },
         "sense4us.node": {
             "name": "sense4us.node",
             "shortname": "node",
@@ -29,7 +84,7 @@
             "plugin_for": [],
             "extension_for": [],
             "namespace": "sense4us",
-            "file": "js\\node.js",
+            "file": "js/node.js",
             "line": 7,
             "description": "Upon construction of this node object an html-element \"div\" will be created, unless\nthere's already an existing element with specified id.\nThis class facilitates the setting and getting node data-variables.\nIt does not store the data-variables locally, instead it sets and gets\nthem from the actual html-element.",
             "is_constructor": 1,
@@ -44,14 +99,99 @@
     },
     "classitems": [
         {
-            "file": "js\\node.js",
+            "file": "js/events.js",
+            "line": 1,
+            "class": "sense4us.events",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/events.js",
+            "line": 25,
+            "description": "Bind a callback to an event. When the event is triggered, all callbacks\nbound to the event will be called.",
+            "itemtype": "method",
+            "name": "bind",
+            "params": [
+                {
+                    "name": "event",
+                    "description": "Name of the event.",
+                    "type": "String"
+                },
+                {
+                    "name": "callback",
+                    "description": "The callback to be called when event is triggered.",
+                    "type": "Function"
+                }
+            ],
+            "class": "sense4us.events",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/events.js",
+            "line": 36,
+            "description": "When an event is triggered, run all relevant callbacks with the data specified.",
+            "itemtype": "method",
+            "name": "trigger",
+            "params": [
+                {
+                    "name": "event",
+                    "description": "Name of the event that is triggered.",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "Object that is passed into the callback.",
+                    "type": "Object"
+                }
+            ],
+            "class": "sense4us.events",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/graphics.js",
+            "line": 1,
+            "class": "sense4us.graphics",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/graphics.js",
+            "line": 13,
+            "description": "A function to create the graphic for nodes.",
+            "itemtype": "method",
+            "name": "node",
+            "params": [
+                {
+                    "name": "node",
+                    "description": "The node for which to add graphics",
+                    "type": "Node"
+                },
+                {
+                    "name": "stage",
+                    "description": "The stage that the graphic is displayed on.",
+                    "type": "createjs.Stage"
+                }
+            ],
+            "class": "sense4us.graphics",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/graphics.js",
+            "line": 45,
+            "description": "The graphic for the menu is stored in this attribute.",
+            "itemtype": "attribute",
+            "name": "menu",
+            "type": "Object",
+            "class": "sense4us.graphics",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js/node.js",
             "line": 1,
             "class": "sense4us.node",
             "namespace": "sense4us"
         },
         {
-            "file": "js\\node.js",
-            "line": 29,
+            "file": "js/node.js",
+            "line": 23,
             "description": "Sets an attribute on the html-element with the specified value.",
             "itemtype": "method",
             "name": "set",
@@ -70,8 +210,8 @@
             "namespace": "sense4us"
         },
         {
-            "file": "js\\node.js",
-            "line": 38,
+            "file": "js/node.js",
+            "line": 32,
             "description": "Retrieves the attribute value by the specified attribute name.",
             "itemtype": "method",
             "name": "get",
@@ -93,11 +233,19 @@
     "warnings": [
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " js\\node.js:38"
+            "line": " js/node.js:32"
         },
         {
             "message": "Missing item type",
-            "line": " js\\node.js:1"
+            "line": " js/events.js:1"
+        },
+        {
+            "message": "Missing item type",
+            "line": " js/graphics.js:1"
+        },
+        {
+            "message": "Missing item type",
+            "line": " js/node.js:1"
         }
     ]
 }

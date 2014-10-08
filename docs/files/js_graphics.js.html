@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>js/node.js - Sense4us Simulation Client</title>
+    <title>js/graphics.js - Sense4us Simulation Client</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -86,7 +86,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: js/node.js</h1>
+                        <h1 class="file-heading">File: js/graphics.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -97,46 +97,73 @@
 var sense4us = sense4us || {};
 
 /**
-* Upon construction of this node object an html-element &quot;div&quot; will be created, unless
-* there&#x27;s already an existing element with specified id.
-* This class facilitates the setting and getting node data-variables.
-* It does not store the data-variables locally, instead it sets and gets
-* them from the actual html-element.
-* @class node
-* @constructor
-* @param id {Integer} This integer must be a unique identifier for this created node.
+* A class to create the graphic for different objects.
+* @class graphics
 */
-sense4us.node = function(id) {
-	var html_entity = sense4us.get_or_create_html_entity(id);
+sense4us.graphics = sense4us.graphics || {};
 
-	html_entity.setAttribute(&quot;class&quot;, &quot;node&quot;);
+/**
+* A function to create the graphic for nodes.
+* @method node
+* @param node {Node} The node for which to add graphics
+* @param stage {createjs.Stage} The stage that the graphic is displayed on.
+*/
+sense4us.graphics.node = function(node, stage) {
+	var circle = new createjs.Shape();
+	circle.graphics.beginFill(&quot;red&quot;).drawCircle(0, 0, 50);
+	circle.addEventListener(&quot;click&quot;, function(event) { sense4us.select_object(node); });
+
+	var label = new createjs.Text(node.get(&quot;id&quot;), &quot;bold 14px Arial&quot;, &quot;#FFFFFF&quot;);
+	label.textAlign = &quot;center&quot;;
+	label.y = -7;
+
+	var dragger = new createjs.Container();
+	dragger.x = dragger.y = 100;
+	dragger.addChild(circle, label);
+
+	node.graphic = dragger;
+
+	stage.addChild(dragger);
+
+	dragger.on(&quot;pressmove&quot;,function(evt) {
+		evt.currentTarget.x = evt.stageX;
+		evt.currentTarget.y = evt.stageY;
+		stage.update();   
+	});
+
+	stage.update();
+}
+
+/**
+* The graphic for the menu is stored in this attribute.
+* @attribute menu {Object}
+*/
+sense4us.graphics.menu = function() {
+	var menu = new createjs.Shape();
+	menu.graphics.beginFill(&quot;blue&quot;).drawCircle(0, 0, 50);
+	menu.set({x: 0, y: 50});
 
 	var that = {
-		/**
-	    * Sets an attribute on the html-element with the specified value.
-	    * @method set
-	    * @param name {String} This parameter is converted into data-%name% before storing the attribute in the html element.
-	    * @param value
-	    */
-		set: function(name, value) {
-			html_entity.setAttribute(&quot;data-&quot; + name, value);
+		update: function(parent, stage) {
+			if (menu.parent != null) {
+				menu.parent.removeChild(menu);
+			}
+
+			parent.addChild(menu);
+
+			stage.update();
 		},
-		/**
-	    * Retrieves the attribute value by the specified attribute name.
-	    * @method get
-	    * @param name {String} This parameter is converted into data-%name% before retrieving the attribute.
-        * @returns {String} Returns the attribute value.
-	    */
-		get: function(name) {
-			return html_entity.getAttribute(&quot;data-&quot; + name);
-		},
-		get_element: function() {
-			return html_entity;
+		clear: function(stage) {
+			if (menu.parent != null) {
+				menu.parent.removeChild(menu);
+			}
+
+			stage.update();
 		}
 	};
 
 	return that;
-}
+}();
     </pre>
 </div>
 
