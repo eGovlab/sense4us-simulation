@@ -1,17 +1,9 @@
 var sense4us = sense4us || {};
 
 sense4us.node = function(id) {
-	var html_entity = document.getElementById(id);
+	var html_entity = sense4us.get_or_create_html_entity(id);
 
-	if (!html_entity) {
-		html_entity = document.createElement("div");
-		html_entity.setAttribute("id", id);
-		html_entity.setAttribute("data-id", id);
-		html_entity.setAttribute("class", "node");
-		document.getElementById("container").appendChild(html_entity);
-
-		console.log(html_entity);
-	}
+	html_entity.setAttribute("class", "node");
 
 	var that = {
 		set: function(name, value) {
@@ -23,7 +15,7 @@ sense4us.node = function(id) {
 		get_element: function() {
 			return html_entity;
 		}
-	}
+	};
 
 	return that;
 }

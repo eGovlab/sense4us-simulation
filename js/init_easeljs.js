@@ -11,4 +11,6 @@ sense4us.init = function() {
 
 	// enable touch interactions if supported on the current device:
 	createjs.Touch.enable(sense4us.stage);
+
+	//sense4us.stage.enableMouseOver(20);
 }
