@@ -27,6 +27,7 @@ sense4us.graphics.node = function(node, stage) {
 	var dragger = new createjs.Container();
 	dragger.x = dragger.y = 100;
 	dragger.addChild(circle, label);
+	dragger.type = "node";
 
 	node.graphic = dragger;
 
@@ -76,6 +77,11 @@ sense4us.graphics.node = function(node, stage) {
 * @attribute menu {Object}
 */
 sense4us.graphics.menu = function() {
+	var line = new createjs.Shape();
+	line.graphics.beginStroke("green");
+	line.graphics.moveTo(0, 0);
+	line.graphics.endStroke();
+
 	var circle = new createjs.Shape();
 	circle.graphics.beginFill("blue").drawCircle(0, 0, 20);
 
@@ -86,7 +92,7 @@ sense4us.graphics.menu = function() {
 	label.mouseEnabled = false;
 
 	var menu = new createjs.Container();
-	menu.addChild(circle, label);
+	menu.addChild(line, circle, label);
 	menu.set({x: 0, y: 50});
 
 	var startX = 0;
@@ -106,13 +112,24 @@ sense4us.graphics.menu = function() {
 
 	menu.on("pressup", function(evt) {
 		evt.stopPropagation();
+
+			line.graphics.clear();
 		if (moved) {
-			objects = menu.parent.getObjectsUnderPoint(evt.currentTarget.x, evt.currentTarget.y);
+			console.log();
+			var objects = sense4us.stage.getObjectsUnderPoint(evt.stageX, evt.stageY);
 
 			var colliding_object = null;
 			for (var pos in objects) {
 				var object = objects[pos];
-				if (object.id == circle.id || object.id == sense4us.selected_object.graphic.id) {
+				while (object.parent != null && object.parent != sense4us.stage) {
+					object = object.parent;
+				}
+
+				if (object.type != "node") {
+					continue;
+				}
+
+				if (object.id == menu.id || object.id == sense4us.selected_object.graphic.id) {
 					continue;
 				}
 
@@ -121,7 +138,14 @@ sense4us.graphics.menu = function() {
 			}
 
 			if (colliding_object) {
-				console.log(colliding_object);
+				var line2 = new createjs.Shape();
+				line2.graphics.clear();
+				line2.graphics.setStrokeStyle(5);
+				line2.graphics.beginStroke("green");
+				line2.graphics.moveTo(menu.parent.x, menu.parent.y);
+				line2.graphics.lineTo(colliding_object.x, colliding_object.y);
+				line2.graphics.endStroke();
+				sense4us.stage.addChild(line2);
 			}
 
 			menu.x = startX;
@@ -148,6 +172,12 @@ sense4us.graphics.menu = function() {
 			evt.currentTarget.y = new_y;
 			moved = true;
 
+			line.graphics.clear();
+			line.graphics.setStrokeStyle(5);
+			line.graphics.beginStroke("green");
+			line.graphics.moveTo(0, 0);
+			line.graphics.lineTo(-new_x, -new_y);
+			line.graphics.endStroke();
 
 			// @TODO: Fix this ugly shit
 			sense4us.stage.update();
