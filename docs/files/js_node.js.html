@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>js/node.js - Sense4us Simulation Client</title>
+    <title>js\node.js - Sense4us Simulation Client</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/sense4us.graphics.html">sense4us.graphics</a></li>
             
+                <li><a href="../classes/sense4us.inspector.html">sense4us.inspector</a></li>
+            
                 <li><a href="../classes/sense4us.node.html">sense4us.node</a></li>
             
             </ul>
@@ -86,7 +88,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: js/node.js</h1>
+                        <h1 class="file-heading">File: js\node.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -106,7 +108,13 @@ var sense4us = sense4us || {};
 * @constructor
 * @param id {Integer} This integer must be a unique identifier for this created node.
 */
+
 sense4us.node = function(id) {
+	if (id == null) {
+		sense4us.temp_id = sense4us.temp_id || 0;
+		id = &quot;newnode-&quot; + sense4us.temp_id;
+		sense4us.temp_id++;
+	}
 	var html_entity = sense4us.get_or_create_html_entity(id);
 
 	html_entity.setAttribute(&quot;class&quot;, &quot;node&quot;);

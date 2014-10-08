@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>js\graphics.js - Sense4us Simulation Client</title>
+    <title>js\inspector.js - Sense4us Simulation Client</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -88,7 +88,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: js\graphics.js</h1>
+                        <h1 class="file-heading">File: js\inspector.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -99,73 +99,51 @@
 var sense4us = sense4us || {};
 
 /**
-* A class to create the graphic for different objects.
-* @class graphics
+* This is a static class that provides the inspector-panel to view and
+* change the properties of objects in the simulation.
+* @class inspector
+* @constructor
 */
-sense4us.graphics = sense4us.graphics || {};
 
-/**
-* A function to create the graphic for nodes.
-* @method node
-* @param node {Node} The node for which to add graphics
-* @param stage {createjs.Stage} The stage that the graphic is displayed on.
-*/
-sense4us.graphics.node = function(node, stage) {
-	var circle = new createjs.Shape();
-	circle.graphics.beginFill(&quot;red&quot;).drawCircle(0, 0, 50);
-
-	var label = new createjs.Text(node.get(&quot;id&quot;), &quot;bold 14px Arial&quot;, &quot;#FFFFFF&quot;);
-	label.textAlign = &quot;center&quot;;
-	label.y = -7;
-
-	var dragger = new createjs.Container();
-	dragger.x = dragger.y = 100;
-	dragger.addChild(circle, label);
-	dragger.addEventListener(&quot;click&quot;, function(event) { sense4us.select_object(node); });
-
-	node.graphic = dragger;
-
-	stage.addChild(dragger);
-
-	dragger.on(&quot;pressmove&quot;,function(evt) {
-		evt.currentTarget.x = evt.stageX;
-		evt.currentTarget.y = evt.stageY;
-		stage.update();   
-	});
-
-	stage.update();
-}
-
-/**
-* The graphic for the menu is stored in this attribute.
-* @attribute menu {Object}
-*/
-sense4us.graphics.menu = function() {
-	var menu = new createjs.Shape();
-	menu.graphics.beginFill(&quot;blue&quot;).drawCircle(0, 0, 50);
-	menu.set({x: 0, y: 50});
+sense4us.inspector = function() {
+	var inspectingObject = null;
 
 	var that = {
-		update: function(parent, stage) {
-			if (menu.parent != null) {
-				menu.parent.removeChild(menu);
-			}
-
-			parent.addChild(menu);
-
-			stage.update();
-		},
-		clear: function(stage) {
-			if (menu.parent != null) {
-				menu.parent.removeChild(menu);
-			}
-
-			stage.update();
+		/**
+	    * Selects an object to inspect using the inspector-panel.
+	    * @method inspect
+	    * @param object {Object} This parameter defines the object we want to inspect.
+	    */
+		inspect: function(object) {
+			sense4us.inspector.inspectingObject = object;
+			console.log(&quot;inspecting element: &quot; + sense4us.inspector.inspectingObject);
 		}
-	};
+	}
 
 	return that;
 }();
+
+/**
+* Event that fires when an object have been selected.
+* This triggers the inspector-panel change focus onto the
+* newly selected object and its properties.
+* @event object_selected
+* @param {Object} object The selected object
+*/
+sense4us.events.bind(&quot;object_selected&quot;, function(object) {
+	sense4us.inspector.inspect(object);
+});
+
+/**
+* Event that fires when an object have been deselected.
+* This triggers the inspector-panel remove focus of the previously selected object.
+* @event object_deselected
+* @param {Object} object The deselected object
+*/
+sense4us.events.bind(&quot;object_deselected&quot;, function(object) {
+	sense4us.inspector.inspect(null);
+});
+
     </pre>
 </div>
 

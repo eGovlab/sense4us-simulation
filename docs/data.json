@@ -6,8 +6,8 @@
         "url": ""
     },
     "files": {
-        "js/events.js": {
-            "name": "js/events.js",
+        "js\\events.js": {
+            "name": "js\\events.js",
             "modules": {},
             "classes": {
                 "sense4us.events": 1
@@ -17,8 +17,8 @@
                 "sense4us": 1
             }
         },
-        "js/graphics.js": {
-            "name": "js/graphics.js",
+        "js\\graphics.js": {
+            "name": "js\\graphics.js",
             "modules": {},
             "classes": {
                 "sense4us.graphics": 1
@@ -28,8 +28,19 @@
                 "sense4us": 1
             }
         },
-        "js/node.js": {
-            "name": "js/node.js",
+        "js\\inspector.js": {
+            "name": "js\\inspector.js",
+            "modules": {},
+            "classes": {
+                "sense4us.inspector": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "sense4us": 1
+            }
+        },
+        "js\\node.js": {
+            "name": "js\\node.js",
             "modules": {},
             "classes": {
                 "sense4us.node": 1
@@ -51,7 +62,7 @@
             "plugin_for": [],
             "extension_for": [],
             "namespace": "sense4us",
-            "file": "js/events.js",
+            "file": "js\\events.js",
             "line": 7,
             "description": "This is an event handler, meaning that we can bind a callback\nto an event.\nThis will then be called when we run the trigger-function.\nThis is basically a static function, so it's accessible from any place\nusing sense4us.",
             "is_constructor": 1,
@@ -71,9 +82,23 @@
             "plugin_for": [],
             "extension_for": [],
             "namespace": "sense4us",
-            "file": "js/graphics.js",
+            "file": "js\\graphics.js",
             "line": 7,
             "description": "A class to create the graphic for different objects."
+        },
+        "sense4us.inspector": {
+            "name": "sense4us.inspector",
+            "shortname": "inspector",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "sense4us",
+            "file": "js\\inspector.js",
+            "line": 7,
+            "description": "This is a static class that provides the inspector-panel to view and\nchange the properties of objects in the simulation.",
+            "is_constructor": 1
         },
         "sense4us.node": {
             "name": "sense4us.node",
@@ -84,7 +109,7 @@
             "plugin_for": [],
             "extension_for": [],
             "namespace": "sense4us",
-            "file": "js/node.js",
+            "file": "js\\node.js",
             "line": 7,
             "description": "Upon construction of this node object an html-element \"div\" will be created, unless\nthere's already an existing element with specified id.\nThis class facilitates the setting and getting node data-variables.\nIt does not store the data-variables locally, instead it sets and gets\nthem from the actual html-element.",
             "is_constructor": 1,
@@ -99,13 +124,13 @@
     },
     "classitems": [
         {
-            "file": "js/events.js",
+            "file": "js\\events.js",
             "line": 1,
             "class": "sense4us.events",
             "namespace": "sense4us"
         },
         {
-            "file": "js/events.js",
+            "file": "js\\events.js",
             "line": 25,
             "description": "Bind a callback to an event. When the event is triggered, all callbacks\nbound to the event will be called.",
             "itemtype": "method",
@@ -126,7 +151,7 @@
             "namespace": "sense4us"
         },
         {
-            "file": "js/events.js",
+            "file": "js\\events.js",
             "line": 36,
             "description": "When an event is triggered, run all relevant callbacks with the data specified.",
             "itemtype": "method",
@@ -147,13 +172,13 @@
             "namespace": "sense4us"
         },
         {
-            "file": "js/graphics.js",
+            "file": "js\\graphics.js",
             "line": 1,
             "class": "sense4us.graphics",
             "namespace": "sense4us"
         },
         {
-            "file": "js/graphics.js",
+            "file": "js\\graphics.js",
             "line": 13,
             "description": "A function to create the graphic for nodes.",
             "itemtype": "method",
@@ -174,7 +199,7 @@
             "namespace": "sense4us"
         },
         {
-            "file": "js/graphics.js",
+            "file": "js\\graphics.js",
             "line": 45,
             "description": "The graphic for the menu is stored in this attribute.",
             "itemtype": "attribute",
@@ -184,14 +209,68 @@
             "namespace": "sense4us"
         },
         {
-            "file": "js/node.js",
+            "file": "js\\inspector.js",
+            "line": 1,
+            "class": "sense4us.inspector",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js\\inspector.js",
+            "line": 18,
+            "description": "Selects an object to inspect using the inspector-panel.",
+            "itemtype": "method",
+            "name": "inspect",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "This parameter defines the object we want to inspect.",
+                    "type": "Object"
+                }
+            ],
+            "class": "sense4us.inspector",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js\\inspector.js",
+            "line": 32,
+            "description": "Event that fires when an object have been selected.\nThis triggers the inspector-panel change focus onto the\nnewly selected object and its properties.",
+            "itemtype": "event",
+            "name": "object_selected",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "The selected object",
+                    "type": "Object"
+                }
+            ],
+            "class": "sense4us.inspector",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js\\inspector.js",
+            "line": 43,
+            "description": "Event that fires when an object have been deselected.\nThis triggers the inspector-panel remove focus of the previously selected object.",
+            "itemtype": "event",
+            "name": "object_deselected",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "The deselected object",
+                    "type": "Object"
+                }
+            ],
+            "class": "sense4us.inspector",
+            "namespace": "sense4us"
+        },
+        {
+            "file": "js\\node.js",
             "line": 1,
             "class": "sense4us.node",
             "namespace": "sense4us"
         },
         {
-            "file": "js/node.js",
-            "line": 23,
+            "file": "js\\node.js",
+            "line": 29,
             "description": "Sets an attribute on the html-element with the specified value.",
             "itemtype": "method",
             "name": "set",
@@ -210,8 +289,8 @@
             "namespace": "sense4us"
         },
         {
-            "file": "js/node.js",
-            "line": 32,
+            "file": "js\\node.js",
+            "line": 38,
             "description": "Retrieves the attribute value by the specified attribute name.",
             "itemtype": "method",
             "name": "get",
@@ -233,19 +312,23 @@
     "warnings": [
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " js/node.js:32"
+            "line": " js\\node.js:38"
         },
         {
             "message": "Missing item type",
-            "line": " js/events.js:1"
+            "line": " js\\events.js:1"
         },
         {
             "message": "Missing item type",
-            "line": " js/graphics.js:1"
+            "line": " js\\graphics.js:1"
         },
         {
             "message": "Missing item type",
-            "line": " js/node.js:1"
+            "line": " js\\inspector.js:1"
+        },
+        {
+            "message": "Missing item type",
+            "line": " js\\node.js:1"
         }
     ]
 }
