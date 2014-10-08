@@ -19,15 +19,13 @@
 
 	<script>
 		function create_node() {
-			var node = sense4us.node("hej");
+			var node = sense4us.node(0);
 			node.set("lol", "wat");
 			sense4us.node_graphic(node, sense4us.stage);
 		}
 
 		sense4us.init();
-		var node = sense4us.node("hej");
-		node.set("lol", "wat");
-		sense4us.node_graphic(node, sense4us.stage);
+		create_node();
 	</script>
 </body>
 </html>
