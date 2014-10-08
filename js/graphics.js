@@ -27,7 +27,6 @@ sense4us.graphics.node = function(node, stage) {
 	var dragger = new createjs.Container();
 	dragger.x = dragger.y = 100;
 	dragger.addChild(circle, label);
-	dragger.addEventListener("click", function(event) { sense4us.select_object(node); });
 
 	node.graphic = dragger;
 
@@ -35,16 +34,38 @@ sense4us.graphics.node = function(node, stage) {
 
 	var mouseX = 0;
 	var mouseY = 0;
+	var show_menu = false;
 	dragger.on("mousedown", function(evt) {
+		show_menu = true;
 		mouseX = evt.stageX - evt.currentTarget.x;
 		mouseY = evt.stageY - evt.currentTarget.y;
+
+	});
+
+	dragger.on("pressup", function(evt) {
+		if (show_menu) {
+			sense4us.select_object(node);
+		}
+		show_menu = false;
 	});
 
 	dragger.on("pressmove",function(evt) {
-		console.log(evt);
-		evt.currentTarget.x = evt.stageX - mouseX;
-		evt.currentTarget.y = evt.stageY - mouseY;
-		stage.update();   
+		var new_x = evt.stageX - mouseX;
+		var new_y = evt.stageY - mouseY;
+
+		var difference_x = new_x - evt.currentTarget.x;
+		var difference_y = new_y - evt.currentTarget.y;
+
+		if (difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
+			//if (sense4us.selected_object != node) {
+				evt.currentTarget.x = new_x;
+				evt.currentTarget.y = new_y;
+
+				stage.update();
+			//}
+
+			show_menu = false;
+		}
 	});
 
 	stage.update();
@@ -55,9 +76,83 @@ sense4us.graphics.node = function(node, stage) {
 * @attribute menu {Object}
 */
 sense4us.graphics.menu = function() {
-	var menu = new createjs.Shape();
-	menu.graphics.beginFill("blue").drawCircle(0, 0, 50);
+	var circle = new createjs.Shape();
+	circle.graphics.beginFill("blue").drawCircle(0, 0, 20);
+
+	var label = new createjs.Text("L", "bold 14px Arial", "#FFFFFF");
+	label.textAlign = "center";
+	label.y = -7;
+
+	label.mouseEnabled = false;
+
+	var menu = new createjs.Container();
+	menu.addChild(circle, label);
 	menu.set({x: 0, y: 50});
+
+	var startX = 0;
+	var startY = 0;
+	var mouseX = 0;
+	var mouseY = 0;
+	var moved = false;
+
+	menu.on("mousedown", function(evt) {
+		evt.stopPropagation();
+		moved = false;
+		startX = evt.currentTarget.x;
+		startY = evt.currentTarget.y;
+		mouseX = evt.stageX - evt.currentTarget.x;
+		mouseY = evt.stageY - evt.currentTarget.y;
+	});
+
+	menu.on("pressup", function(evt) {
+		evt.stopPropagation();
+		if (moved) {
+			objects = menu.parent.getObjectsUnderPoint(evt.currentTarget.x, evt.currentTarget.y);
+
+			var colliding_object = null;
+			for (var pos in objects) {
+				var object = objects[pos];
+				if (object.id == circle.id || object.id == sense4us.selected_object.graphic.id) {
+					continue;
+				}
+
+				colliding_object = object;
+				break;
+			}
+
+			if (colliding_object) {
+				console.log(colliding_object);
+			}
+
+			menu.x = startX;
+			menu.y = startY;
+
+			// @TODO: Fix this ugly shit
+			sense4us.stage.update();
+		}
+
+		moved = false;
+	});
+
+	menu.on("pressmove", function(evt) {
+		evt.stopPropagation();
+
+		var new_x = evt.stageX - mouseX;
+		var new_y = evt.stageY - mouseY;
+
+		var difference_x = new_x - evt.currentTarget.x;
+		var difference_y = new_y - evt.currentTarget.y;
+
+		if (difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
+			evt.currentTarget.x = new_x;
+			evt.currentTarget.y = new_y;
+			moved = true;
+
+
+			// @TODO: Fix this ugly shit
+			sense4us.stage.update();
+		}
+	});
 
 	var that = {
 		update: function(parent, stage) {
