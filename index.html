@@ -5,16 +5,29 @@
 		Example
 	</title>
 	<script src="js/easeljs-0.7.1.min.js"></script>
+	<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-	<canvas id="canvas"></canvas>
-	<script src="js/example.js"></script>
+	<div id="container">
+		<canvas id="canvas" width="1500" height="800"></canvas>
+		<input type="button" onclick="create_node();" value="Create node" />
+	</div>
+
 	<script src="js/node.js"></script>
+	<script src="js/init_easeljs.js"></script>
+	<script src="js/node_graphic.js"></script>
 
 	<script>
-		var node = sense4us.node("hej");
+		function create_node() {
+			var node = sense4us.node("hej");
+			node.set("lol", "wat");
+			sense4us.node_graphic(node, sense4us.stage);
+		}
 
+		sense4us.init();
+		var node = sense4us.node("hej");
 		node.set("lol", "wat");
+		sense4us.node_graphic(node, sense4us.stage);
 	</script>
 </body>
 </html>
