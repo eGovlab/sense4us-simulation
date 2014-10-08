@@ -10,6 +10,7 @@
 <body>
 	<div id="container">
 		<canvas id="canvas" width="1500" height="800"></canvas>
+		<div class="inspector">Inspector</div>
 		<input type="button" onclick="create_node();" value="Create node" />
 	</div>
 
@@ -18,20 +19,20 @@
 	<script src="js/events.js"></script>
 	<script src="js/node.js"></script>
 	<script src="js/init_easeljs.js"></script>
+	<script src="js/inspector.js"></script>
 	<script src="js/graphics.js"></script>
 	<script src="js/handle_menu.js"></script>
 
 	<script>
 		function create_node() {
-			var node = sense4us.node("hej");
-			node.set("lol", "wat");
-			sense4us.node_graphic(node, sense4us.stage);
+			var node = sense4us.node();
+			node.set("name", "node_name");
+			node.set("value", "node_value");
+			sense4us.graphics.node(node, sense4us.stage);
 		}
 
 		sense4us.init();
-		var node = sense4us.node("hej");
-		node.set("lol", "wat");
-		sense4us.graphics.node(node, sense4us.stage);
+		create_node();
 	</script>
 </body>
 </html>

@@ -14,7 +14,13 @@ var sense4us = sense4us || {};
 * @constructor
 * @param id {Integer} This integer must be a unique identifier for this created node.
 */
+
 sense4us.node = function(id) {
+	if (id == null) {
+		sense4us.temp_id = sense4us.temp_id || 0;
+		id = "newnode-" + sense4us.temp_id;
+		sense4us.temp_id++;
+	}
 	var html_entity = sense4us.get_or_create_html_entity(id);
 
 	html_entity.setAttribute("class", "node");

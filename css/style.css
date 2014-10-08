@@ -22,3 +22,8 @@ canvas {
 	background-color: #FFFFFF;
 	float: left;
 }
+
+.inspector {
+	background-color: #DDDDDD;
+	float: right;
+}
