@@ -32,12 +32,14 @@ sense4us.graphics.node = function(node, stage) {
 	node.graphic = dragger;
 
 	stage.addChild(dragger);
+	stage.update();
 
 	var mouseX = 0;
 	var mouseY = 0;
 	var show_menu = false;
 	dragger.on("mousedown", function(evt) {
 		show_menu = true;
+		// Set mouseX & mouseY to the mouse position relative to the clicked object
 		mouseX = evt.stageX - evt.currentTarget.x;
 		mouseY = evt.stageY - evt.currentTarget.y;
 
@@ -57,19 +59,15 @@ sense4us.graphics.node = function(node, stage) {
 		var difference_x = new_x - evt.currentTarget.x;
 		var difference_y = new_y - evt.currentTarget.y;
 
-		if (difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
-			//if (sense4us.selected_object != node) {
-				evt.currentTarget.x = new_x;
-				evt.currentTarget.y = new_y;
+		if (!show_menu || difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
+			evt.currentTarget.x = new_x;
+			evt.currentTarget.y = new_y;
 
-				stage.update();
-			//}
+			stage.update();
 
 			show_menu = false;
 		}
 	});
-
-	stage.update();
 }
 
 /**

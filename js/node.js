@@ -34,6 +34,7 @@ sense4us.node = function(id) {
 	    */
 		set: function(name, value) {
 			html_entity.setAttribute("data-" + name, value);
+			that[name] = that.get(name);
 		},
 		/**
 	    * Retrieves the attribute value by the specified attribute name.
