@@ -23,6 +23,7 @@ sense4us.inspector = function() {
 		inspect: function(object) {
 			sense4us.inspector.inspectingObject = object;
 			console.log("inspecting object: " + sense4us.inspector.inspectingObject);
+			sense4us.inspector.generateHTML();
 		},
 
 		/**
@@ -36,9 +37,11 @@ sense4us.inspector = function() {
 				var property = sense4us.inspector.inspectingObject[property_name];
 				// This if-statement will filter out all object properties which are functions and objects.
 				if (!(property instanceof Function) && !(property instanceof Object)) {
-					html += "<p>" + property_name + ": " + property + "</p>";
+					html += "<p>" + property_name + ": ";
+					html += "<input type='text' value='"+property+"'></input>";
 				}
 			}
+			$( "div.inspector" ).html(html);
 			return html;
 		}
 	}
