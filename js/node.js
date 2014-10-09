@@ -33,7 +33,12 @@ sense4us.node = function(id) {
 	    * @param value
 	    */
 		set: function(name, value) {
-			html_entity.setAttribute("data-" + name, value);
+			if (name != "id") {
+				html_entity.setAttribute("data-" + name, value);
+			} else {
+				html_entity.setAttribute(name, value);
+			}
+
 			that[name] = that.get(name);
 		},
 		/**
@@ -43,12 +48,18 @@ sense4us.node = function(id) {
         * @returns {String} Returns the attribute value.
 	    */
 		get: function(name) {
-			return html_entity.getAttribute("data-" + name);
+			if (name != "id") {
+				return html_entity.getAttribute("data-" + name);
+			} else {
+				return html_entity.getAttribute(name);
+			}
 		},
 		get_element: function() {
 			return html_entity;
 		}
 	};
+
+	that.set("id", html_entity.getAttribute("id"));
 
 	return that;
 }

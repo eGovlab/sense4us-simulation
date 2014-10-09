@@ -20,7 +20,7 @@ sense4us.graphics.node = function(node, stage) {
 	var circle = new createjs.Shape();
 	circle.graphics.beginFill("red").drawCircle(0, 0, 50);
 
-	var label = new createjs.Text(node.get("id"), "bold 14px Arial", "#FFFFFF");
+	var label = new createjs.Text(node.id, "bold 14px Arial", "#FFFFFF");
 	label.textAlign = "center";
 	label.y = -7;
 
