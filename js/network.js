@@ -11,20 +11,22 @@ var sense4us = sense4us || {};
 */
 
 sense4us.network = function() {
-	var socket = io.connect('http://localhost:3001');
-	socket.on('network_receive_object', function (data) {
-		console.log("Network: Received this object: " + data);
-	});
+	var socket = io.connect('http://localhost:3701');
 
 	var that = {
-		handleMessage: function(object) {
-
-		},
+		sendData: function(evt, data) {
+			console.log("Network.sending: " + data);
+			socket.emit(evt, data);
+		}
 	}
+
+	socket.on('network_client_connected', function (data) {
+		console.log("Client connected to server successfully(socket.io)");
+	});
 
 	return that;
 }();
 
 sense4us.events.bind("network_send_object", function(object) {
-	console.log("Network: Send this object: " + object);
+	sense4us.network.sendData("network_send_data", object);
 });
