@@ -1,0 +1,2 @@
+GET "/client" modelfetcher:fetch_client
+GET "/model/:fetch" modelfetcher:fetch_model

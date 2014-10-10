@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Example
+	</title>
+	<script src="/easeljs-NEXT.min.js"></script>
+	<script src="/jquery-1.11.1.js"></script>
+	<script src="/socket.io.js"></script>
+	<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+	<div id="container">
+		<canvas id="canvas" width="1500" height="800"></canvas>
+		<div class="inspector">Inspector</div>
+		<input type="button" onclick="create_node();" value="Create node" />
+	</div>
+
+	<script src="/get_or_create_html_entity.js"></script>
+	<script src="/select_object.js"></script>
+	<script src="/events.js"></script>
+	<script src="/node.js"></script>
+	<script src="/init_easeljs.js"></script>
+	<script src="/network.js"></script>
+	<script src="/inspector.js"></script>
+	<script src="/graphics.js"></script>
+	<script src="/handle_menu.js"></script>
+
+	<script>
+		function create_node() {
+			var node = sense4us.node();
+			node.set("name", "node_name");
+			node.set("value", "node_value");
+			sense4us.graphics.node(node, sense4us.stage);
+
+			return node;
+		}
+
+		sense4us.init();
+		create_node();
+	</script>
+</body>
+</html>
