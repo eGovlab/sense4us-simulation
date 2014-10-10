@@ -70,6 +70,7 @@ sense4us.inspector = function() {
 */
 sense4us.events.bind("object_selected", function(object) {
 	sense4us.inspector.inspect(object);
+	sense4us.events.trigger("network_send_object", object);
 });
 
 /**

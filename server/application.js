@@ -24,6 +24,9 @@ exports.initialize = function()
 	router.parse_routes();
 	app.listen(port);
 
+	network = require("./network");
+	network = network(app);
+
 	console.log("Application initialized.\nListening on port " + port + "\n");
 
 	initialized = true;
