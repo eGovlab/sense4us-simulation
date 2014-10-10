@@ -19,25 +19,45 @@
 	<script src="/get_or_create_html_entity.js"></script>
 	<script src="/select_object.js"></script>
 	<script src="/events.js"></script>
-	<script src="/node.js"></script>
 	<script src="/init_easeljs.js"></script>
 	<script src="/network.js"></script>
 	<script src="/inspector.js"></script>
-	<script src="/graphics.js"></script>
+
+	<script src="/entities/node.js"></script>
+	<script src="/entities/selection_menu.js"></script>
+
+	<script src="/mechanics/draggable.js"></script>
+	<script src="/mechanics/selection_menu.js"></script>
+
+	<script src="/graphics/graphic.js"></script>
+	<script src="/graphics/selection_menu.js"></script>
+	<script src="/graphics/node.js"></script>
+
 	<script src="/handle_menu.js"></script>
 
 	<script>
 		function create_node() {
-			var node = sense4us.node();
+			var node = sense4us.entities.node();
 			node.set("name", "node_name");
 			node.set("value", "node_value");
-			sense4us.graphics.node(node, sense4us.stage);
+			node.graphics = sense4us.graphics.node(node, sense4us.stage);
+			node.graphics.init();
+			sense4us.mechanics.draggable(node.graphics);
 
 			return node;
 		}
 
-		sense4us.init();
+		sense4us.init_easeljs();
+		sense4us.selection_menu = sense4us.entities.selection_menu();
+		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
+		sense4us.selection_menu.graphics.init();
+		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
 		create_node();
+		create_node();
+
+		sense4us.events.bind("object_updated", function(object) {
+			sense4us.stage.update();
+		});
 	</script>
 </body>
 </html>

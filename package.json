@@ -5,7 +5,9 @@
 	"dependencies": {
 		"socket.io": "latest",
 		"express": "latest",
-		"fs": "latest"
+		"fs": "latest",
+		"ejs": "latest",
+		"line-by-line": "latest"
 	},
 	"author": "Robin Swenson, Anton Haughey, Jona Ekenberg"
 }

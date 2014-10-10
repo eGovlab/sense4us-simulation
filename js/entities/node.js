@@ -1,8 +1,10 @@
 /**
-* @namespace sense4us
+* @namespace sense4us.entities
 */
 
 var sense4us = sense4us || {};
+
+sense4us.entities = sense4us.entities || {};
 
 /**
 * Upon construction of this node object an html-element "div" will be created, unless
@@ -15,7 +17,7 @@ var sense4us = sense4us || {};
 * @param id {Integer} This integer must be a unique identifier for this created node.
 */
 
-sense4us.node = function(id) {
+sense4us.entities.node = function(id) {
 	if (id == null) {
 		sense4us.temp_id = sense4us.temp_id || 0;
 		id = "newnode-" + sense4us.temp_id;
