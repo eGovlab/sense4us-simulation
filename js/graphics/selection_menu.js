@@ -43,6 +43,10 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 		stage.update();
 	}
 
+	that.container.circle = function() {
+		return circle;
+	}()
+
 	that.init = function() {}
 
 	stage.update();

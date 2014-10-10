@@ -1,0 +1,13 @@
+{
+	"name": "sense4us-simulation-client",
+	"version": "0.0.0",
+	"description": "Backend to fetch data from the sense4us REST API.",
+	"dependencies": {
+		"socket.io": "latest",
+		"express": "latest",
+		"fs": "latest",
+		"ejs": "latest",
+		"line-by-line": "latest"
+	},
+	"author": "Robin Swenson, Anton Haughey, Jona Ekenberg"
+}

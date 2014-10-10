@@ -1,3 +1,6 @@
 To generate the code documentation:
 1. Install YUIDoc (http://yui.github.io/yuidoc/)
 2. Go to the root of the project and execute cmdline: "yuidoc ."
+
+Start Nodejs
+1. 'node backend.js' from the directory. Most paths work from current working directory, unfortunately. Will fix!!!

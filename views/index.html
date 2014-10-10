@@ -4,9 +4,9 @@
 	<title>
 		Example
 	</title>
-	<script src="js/easeljs-NEXT.min.js"></script>
-	<script src="js/jquery-1.11.1.js"></script>
-	<link rel="stylesheet" href="css/style.css" />
+	<script src="/easeljs-NEXT.min.js"></script>
+	<script src="/jquery-1.11.1.js"></script>
+	<link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 	<div id="container">
@@ -15,23 +15,23 @@
 		<input type="button" onclick="create_node();" value="Create node" />
 	</div>
 
-	<script src="js/get_or_create_html_entity.js"></script>
-	<script src="js/select_object.js"></script>
-	<script src="js/events.js"></script>
-	<script src="js/init_easeljs.js"></script>
-	<script src="js/inspector.js"></script>
+	<script src="/get_or_create_html_entity.js"></script>
+	<script src="/select_object.js"></script>
+	<script src="/events.js"></script>
+	<script src="/init_easeljs.js"></script>
+	<script src="/inspector.js"></script>
 
-	<script src="js/entities/node.js"></script>
-	<script src="js/entities/selection_menu.js"></script>
+	<script src="/entities/node.js"></script>
+	<script src="/entities/selection_menu.js"></script>
 
-	<script src="js/mechanics/draggable.js"></script>
-	<script src="js/mechanics/selection_menu.js"></script>
+	<script src="/mechanics/draggable.js"></script>
+	<script src="/mechanics/selection_menu.js"></script>
 
-	<script src="js/graphics/graphic.js"></script>
-	<script src="js/graphics/selection_menu.js"></script>
-	<script src="js/graphics/node.js"></script>
+	<script src="/graphics/graphic.js"></script>
+	<script src="/graphics/selection_menu.js"></script>
+	<script src="/graphics/node.js"></script>
 
-	<script src="js/handle_menu.js"></script>
+	<script src="/handle_menu.js"></script>
 
 	<script>
 		function create_node() {
@@ -50,6 +50,7 @@
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
 		sense4us.selection_menu.graphics.init();
 		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
+		create_node();
 		create_node();
 
 		sense4us.events.bind("object_updated", function(object) {

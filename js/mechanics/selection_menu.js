@@ -43,7 +43,7 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 					continue;
 				}
 
-				if (object.id == container.id || object.id == sense4us.selected_object.graphics.id) {
+				if (object.id == container.circle.id || object.id == sense4us.selected_object.graphics.container.id) {
 					continue;
 				}
 
@@ -52,6 +52,7 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 			}
 
 			if (colliding_object) {
+				console.log(objects);
 				var line2 = new createjs.Shape();
 				line2.graphics.clear();
 				line2.graphics.setStrokeStyle(5);
