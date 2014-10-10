@@ -10,7 +10,7 @@ sense4us.entities.selection_menu = function(id) {
 	var id = id;
 
 	var that = {
-		update: function(parent, stage) {
+		set_selected_object: function(parent, stage) {
 			if (that.graphics.container.parent != null) {
 				that.graphics.container.parent.removeChild(that.graphics.container);
 			}

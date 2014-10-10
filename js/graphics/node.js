@@ -22,6 +22,7 @@ sense4us.graphics.node = function(entity, stage) {
 
 	that.container.type = "node";
 	that.container.addChild(circle, label);
+	that.container.x = that.container.y = 100;
 
 	stage.update();
 

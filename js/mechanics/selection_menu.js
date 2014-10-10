@@ -52,7 +52,7 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 			}
 
 			if (colliding_object) {
-				console.log(objects);
+/*				console.log(objects);
 				var line2 = new createjs.Shape();
 				line2.graphics.clear();
 				line2.graphics.setStrokeStyle(5);
@@ -60,7 +60,9 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 				line2.graphics.moveTo(container.parent.x, container.parent.y);
 				line2.graphics.lineTo(colliding_object.x, colliding_object.y);
 				line2.graphics.endStroke();
-				sense4us.stage.addChild(line2);
+				sense4us.stage.addChild(line2);*/
+
+				create_link(sense4us.selected_object, colliding_object.graphic_object.entity);
 			}
 
 			container.x = startX;

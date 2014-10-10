@@ -58,6 +58,14 @@ sense4us.entities.node = function(id) {
 		},
 		get_element: function() {
 			return html_entity;
+		},
+		update_lines: function() {
+			if (that.lines) {
+				for (var pos in that.lines) {
+					var line = that.lines[pos];
+					line.graphics.update_line();
+				}
+			}
 		}
 	};
 

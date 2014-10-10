@@ -11,13 +11,9 @@ sense4us.graphics = sense4us.graphics || {};
 */
 sense4us.graphics.graphic = function(entity, stage) {
 	var container = new createjs.Container();
-	container.x = container.y = 100;
+	container.x = container.y = 0;
 
 	var that = {
-		init: function() {
-			stage.addChild(container);
-			stage.update();
-		},
 		container: function() {
 			return container;
 		}(),
@@ -25,6 +21,8 @@ sense4us.graphics.graphic = function(entity, stage) {
 			return entity;
 		}()
 	}
+
+	container.graphic_object = that;
 
 	return that;
 }

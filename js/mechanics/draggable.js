@@ -43,6 +43,9 @@ sense4us.mechanics.draggable = function(graphic_object) {
 		if (!show_menu || difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
 			evt.currentTarget.x = new_x;
 			evt.currentTarget.y = new_y;
+
+			graphic_object.entity.set("x", new_x);
+			graphic_object.entity.set("y", new_y);
 			
 			sense4us.events.trigger("object_updated", graphic_object.entity);
 
