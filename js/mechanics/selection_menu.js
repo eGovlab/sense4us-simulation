@@ -16,7 +16,7 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 	var container = graphic_object.container;
 
 	container.on("mousedown", function(evt) {
-		evt.stopPropagation();
+		console.log("LOL");
 		moved = false;
 		startX = evt.currentTarget.x;
 		startY = evt.currentTarget.y;
@@ -52,16 +52,6 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 			}
 
 			if (colliding_object) {
-/*				console.log(objects);
-				var line2 = new createjs.Shape();
-				line2.graphics.clear();
-				line2.graphics.setStrokeStyle(5);
-				line2.graphics.beginStroke("green");
-				line2.graphics.moveTo(container.parent.x, container.parent.y);
-				line2.graphics.lineTo(colliding_object.x, colliding_object.y);
-				line2.graphics.endStroke();
-				sense4us.stage.addChild(line2);*/
-
 				create_link(sense4us.selected_object, colliding_object.graphic_object.entity);
 			}
 

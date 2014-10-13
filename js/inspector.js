@@ -17,7 +17,7 @@ sense4us.inspector = function() {
 	/**
     * Generates and returns the HTML content of the inspector panel.
     * The HTML content varies depending upon what object is being inspected.
-    * Any changes made using the inspector-panel will trigger an "object_updated" event.
+    * Any changes made using the inspector-panel will trigger an "update" event.
     * @method generateHTML
     * @private
     * @returns {String} The html content of the inspector panel
@@ -52,7 +52,7 @@ sense4us.inspector = function() {
 			if (html) {
 				$("#" + inspectingObject.id + "-form").find("input").change(function(event) {
 					inspectingObject.set($(this).prop("name"), $(this).val());
-					sense4us.events.trigger("object_updated", inspectingObject);
+					inspectingObject.events.trigger("update", inspectingObject);
 				});
 			}
 		},

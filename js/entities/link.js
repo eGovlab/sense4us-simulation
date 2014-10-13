@@ -32,12 +32,24 @@ sense4us.entities.link = function(id, start, end) {
 		return {x: end.x, y: end.y};
 	}
 
+	that.events = function() {
+		return sense4us.entities.link.events;
+	}()
+
 	that.set("id", that.get_element().getAttribute("id"));
 
-	start.lines = start.lines || [];
-	start.lines.push(that);
-	end.lines = start.lines || [];
-	end.lines.push(that);
+	start.links.push(that);
+	end.links.push(that);
 
 	return that;
 }
+
+sense4us.bless_with_events(sense4us.entities.link);
+
+sense4us.entities.link.events.bind("update", function(link) {
+	if (link.hasOwnProperty("graphics")) {
+		link.graphics.update();
+	}
+
+	sense4us.events.trigger("object_updated", link);
+});
