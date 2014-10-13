@@ -1,18 +1,46 @@
-module.exports = function(server)
+module.exports = function()
 {
-	//var io = require('socket.io')(server);
+	var callbacks = [], create_callback;
 
-	var that = {
-		io: require('socket.io')(server)
+	create_callback = function(key)
+	{
+		var callback = function(object) {
+			console.log("Using callback", key)
+			callbacks[key](this, object);
+		};
+
+		return callback;
 	};
 
-	that.io.on('connection', function(socket) {
-	    socket.emit('network_client_connected', { state: 'successful' });
+	var that = {
+		start: function(server)
+		{
+			var io = require('socket.io')(server);
 
-	    socket.on('network_send_data', function (data) {
-			console.log("Network.received: " + data);
-	    })
-	});
+			io.on('connection', function(socket)
+			{
+				for(var key in callbacks)
+				{
+					if(!callbacks.hasOwnProperty(key))
+						continue;
+
+					socket.on(key, create_callback(key));
+					console.log("Added " + key + " to new connection.");
+				}
+			});
+		},
+
+		add_listen: function(identifier, func)
+		{
+			if(typeof func !== "function" || callbacks[identifier] !== undefined)
+				return false;
+
+			callbacks[identifier] = func;
+			console.log("network: Successfully added " + identifier);
+
+			return true;
+		}
+	};
 
 	return that;
-}
+}();
