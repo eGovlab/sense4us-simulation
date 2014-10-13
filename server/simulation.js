@@ -9,7 +9,7 @@
 */
 module.exports = function()
 {
-	var simulation_nodes = [];
+	var simulation_nodes = {};
 	var simulation_links = [];
 
 	/**
@@ -31,8 +31,7 @@ module.exports = function()
 			fire: function(sigFire)
 			{
 				that.sig = that.sig + sigFire;
-				for (var linkIndex = 0; linkIndex < that.links.length; ++linkIndex) {
-
+				for (var linkIndex = 0; linkIndex < that.links.length; linkIndex++) {
 					that.links[linkIndex].fire(sigFire);
 				}
 			}
@@ -80,11 +79,15 @@ module.exports = function()
     */
 	setup_simulation_network = function(nodes, links)
 	{
+		// Clear the arrays storing simulation_nodes and simulation_links.
+		simulation_nodes = {};
+		simulation_links = [];
+
 		// Create simulation nodes of all existing nodes
 		for (var nodeIndex = 0; nodeIndex < nodes.length; ++nodeIndex) {
 			var node = nodes[nodeIndex];
 			var simulation_node = create_simulation_node(node["id"], node["sig"], node["fire"]);
-			simulation_nodes.push(simulation_node);
+			simulation_nodes[simulation_node.id] = simulation_node; //.push(simulation_node);
 		}
 
 		// Create simulation links of all existing links
@@ -118,13 +121,13 @@ module.exports = function()
 			setup_simulation_network(nodes, links);
 
 			// Simulate firing of all nodes
-			for (var nodeIndex = 0; nodeIndex < nodes.length; ++nodeIndex) {
+			for (var nodeIndex in simulation_nodes) {
 				var simulation_node = simulation_nodes[nodeIndex];
 				simulation_node.fire(simulation_node["sigFire"]);
 			}
 
-/*			// Print how much signal each node have after the firing
-			for (var nodeIndex = 0; nodeIndex < simulation_nodes.length; ++nodeIndex) {
+			// Print how much signal each node have after the firing
+/*			for (var nodeIndex in simulation_nodes) {
 				var simulation_node = simulation_nodes[nodeIndex];
 				console.log("node.id: " + simulation_node["id"] + ", sig: " + simulation_node["sig"]);
 			}
