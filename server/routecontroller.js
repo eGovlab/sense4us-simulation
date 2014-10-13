@@ -5,6 +5,29 @@ module.exports = function(express_controller)
 	var lr = undefined;
 	var express = express_controller;
 
+	var test = require("./testunit");
+	test = test();
+
+	test.add_test("is_module_function", function(object)
+	{
+		if(object.length !== 2)
+			return false;
+
+		if(test.test_objects([object[0]],["is_module"]))
+		{
+			var mod = require("./"+object[0]);
+			mod = mod();
+		}
+
+		if(!test.test_objects([mod[object[1]]],["is_function"]))
+			return false;
+
+		return true;
+	});
+
+	var ex = require("./exception");
+	ex = ex("routecontroller");
+
 	function initialize()
 	{
 		if(initialized)
@@ -35,7 +58,7 @@ module.exports = function(express_controller)
 		return needle_indexes;
 	}
 
-	function get_class(string)
+	function get_module(string)
 	{
 		try
 		{
@@ -73,64 +96,55 @@ module.exports = function(express_controller)
 			var callback = line[2];
 
 			var accepted_methods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
-			if(accepted_methods.indexOf(method) === -1)
-			{
-				console.log("Invalid method");
-				return;
-			}
 
 			var route_regex = /^"[A-Za-z0-9\/:]+"$/gi;
-			if((n = route_regex.exec(route)) === null)
-			{
-				console.log(line[1] + ": Route syntax error");
-				return;
-			}
+			initial_route_regex = route_regex.exec(route);
 
 			route = route.replace(/^"([A-Za-z0-9\/:]+)"$/, "$1");
-
-			if(route === "")
-			{
-				console.log(line[1] + ": Route syntax error");
-				return;
-			}
-
-			if(routes.indexOf(route) !== -1)
-			{
-				console.log(route + ": Route already exists");
-				return;
-			}
-			else
-				routes.push(route);
 
 			var callback_regex = /^[a-zA-Z_]*:[a-zA-Z_]*$/gi;
 			callback = callback_regex.exec(callback);
 
-			if(callback === null)
+			var err = test.get_errors(
+			[
+				[[[accepted_methods, method]], ["in_array"]],
+				[[[routes, route]],["not_in_array"]],
+				[[initial_route_regex, callback],["is_not_null"]],
+				[[route],["is_not_empty"]]
+			]);
+
+			if(err.length > 0)
 			{
-				console.log(line[2] + ": Callback syntax error");
+				console.log(err);
 				return;
 			}
 
 			callback = callback[0];
+			var callback_array = callback.split(":");
+			if(callback_array.length !== 2)
+				ex.throw("Something bad did happen. Really bad.", "parse_routes");
 
-			if((callback = callback.split(":")).length === 2)
+			var callback_class = callback_array[0];
+			var callback_method = callback_array[1];
+
+			err = test.get_errors(
+			[
+				[[callback_array[0], callback_array[1]],["is_not_undefined"]],
+				[[callback_class],["is_module"]],
+				[[[callback_class, callback_method]],["is_module_function"]]
+			]);
+
+			if(err.length > 0)
 			{
-				var c;
-				if(!(c = get_class(callback[0])))
-				{
-					console.log(callback[0] + ": Does not exist as an object.")
-					return;
-				}
-
-				var function_name = callback[1];
-				if(typeof c[function_name] !== "function")
-				{
-					console.log(callback[0] + ":" + callback[1] + ": Function does not exist.");
-					return;
-				}
+				console.log(err);
+				return;
 			}
 
-			console.log("Initialized route: " + method + " " + route);
+			routes.push(route);
+
+			console.log("Initialized route: " + method + " " + route);			
+
+			var module = get_module(callback_class);
 
 			express.get(route, function(req, res)
 			{
@@ -142,7 +156,7 @@ module.exports = function(express_controller)
 				console.log("END REQUEST");
 				console.log("****************\n\n");
 
-				c[function_name](req, res);
+				module[callback_method](req, res);
 			});
 		});
 
