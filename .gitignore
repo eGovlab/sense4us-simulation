@@ -1,2 +1,5 @@
 docs/
 node_modules
+config.json
+cert.pem
+key.pem
