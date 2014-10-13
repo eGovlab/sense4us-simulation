@@ -26,8 +26,19 @@ exports.initialize = function()
 	var server = require('http').Server(app);
 	server.listen(port);
 
+	var f = function(socket)
+	{
+		console.log("wat");
+		socket.emit("wat", {wat: "wat"});
+	};
+
 	network = require("./network");
-	network = network(server);
+	//network = network(server);
+
+	if(!network.add_listen("network_send_data", f))
+		throw "Couldn't add 'network_send_data'";
+
+	network.start(server);
 
 	console.log("Application initialized.\nListening on port " + port + "\n");
 
