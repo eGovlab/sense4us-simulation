@@ -29,6 +29,10 @@ exports.initialize = function()
 	network = require("./network");
 	network = network(server);
 
+	simulation = require("./simulation");
+	simulation = simulation();
+	simulation.run();
+
 	console.log("Application initialized.\nListening on port " + port + "\n");
 
 	initialized = true;
