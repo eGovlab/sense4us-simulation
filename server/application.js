@@ -22,10 +22,12 @@ exports.initialize = function()
 	router = router(app);
 
 	router.parse_routes();
-	app.listen(port);
+
+	var server = require('http').Server(app);
+	server.listen(port);
 
 	network = require("./network");
-	network = network(app);
+	network = network(server);
 
 	console.log("Application initialized.\nListening on port " + port + "\n");
 

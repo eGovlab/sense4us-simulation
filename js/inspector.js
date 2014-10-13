@@ -37,7 +37,7 @@ sense4us.inspector = function() {
 		html += "</form>";
 
 		return html;
-	}
+	};
 
 	var that = {
 		/**
@@ -56,7 +56,7 @@ sense4us.inspector = function() {
 				});
 			}
 		},
-	}
+	};
 
 	return that;
 }();

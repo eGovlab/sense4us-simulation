@@ -11,14 +11,14 @@ var sense4us = sense4us || {};
 */
 
 sense4us.network = function() {
-	var socket = io.connect('http://localhost:3701');
+	var socket = io.connect('http://localhost:3700');
 
 	var that = {
 		sendData: function(evt, data) {
 			console.log("Network.sending: " + data);
 			socket.emit(evt, data);
 		}
-	}
+	};
 
 	socket.on('network_client_connected', function (data) {
 		console.log("Client connected to server successfully(socket.io)");
