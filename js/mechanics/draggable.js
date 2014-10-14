@@ -4,7 +4,7 @@
 
 var sense4us = sense4us || {};
 sense4us.mechanics = sense4us.mechanics || {};
-
+sense4us.mechanics.is_dragging = false;
 /**
 * A class to make objects draggable
 * @class draggable
@@ -18,9 +18,10 @@ sense4us.mechanics.draggable = function(graphic_object) {
 
 	container.on("mousedown", function(evt) {
 		show_menu = true;
+		sense4us.mechanics.is_dragging = true;
 		// Set mouseX & mouseY to the mouse position relative to the clicked object
-		mouseX = evt.stageX - evt.currentTarget.x;
-		mouseY = evt.stageY - evt.currentTarget.y;
+		mouseX = (evt.stageX / sense4us.stage.scaleX) - evt.currentTarget.x;
+		mouseY = (evt.stageY / sense4us.stage.scaleY) - evt.currentTarget.y;
 
 	});
 
@@ -29,11 +30,12 @@ sense4us.mechanics.draggable = function(graphic_object) {
 			sense4us.select_object(graphic_object.entity);
 		}
 		show_menu = false;
+		sense4us.mechanics.is_dragging = false;
 	});
 
 	container.on("pressmove", function(evt) {
-		var new_x = evt.stageX - mouseX;
-		var new_y = evt.stageY - mouseY;
+		var new_x = (evt.stageX / sense4us.stage.scaleX) - mouseX;
+		var new_y = (evt.stageY / sense4us.stage.scaleY) - mouseY;
 
 		var difference_x = new_x - evt.currentTarget.x;
 		var difference_y = new_y - evt.currentTarget.y;

@@ -19,8 +19,9 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 		moved = false;
 		startX = evt.currentTarget.x;
 		startY = evt.currentTarget.y;
-		mouseX = evt.stageX - evt.currentTarget.x;
-		mouseY = evt.stageY - evt.currentTarget.y;
+		mouseX = (evt.stageX / sense4us.stage.scaleX) - evt.currentTarget.x;
+		mouseY = (evt.stageY / sense4us.stage.scaleY) - evt.currentTarget.y;
+		sense4us.mechanics.is_dragging = true;
 	});
 
 	container.on("pressup", function(evt) {
@@ -28,8 +29,8 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 
 		graphic_object.clear_line();
 		if (moved) {
-			console.log();
-			var objects = sense4us.stage.getObjectsUnderPoint(evt.stageX, evt.stageY);
+			var objects = sense4us.stage.getObjectsUnderPoint(((evt.stageX - sense4us.stage.x) / sense4us.stage.scaleX), ((evt.stageY - sense4us.stage.y) / sense4us.stage.scaleY));
+			console.log(evt.stageX, sense4us.stage.scaleX, sense4us.stage.x);
 
 			var colliding_object = null;
 			for (var pos in objects) {
@@ -58,6 +59,7 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 			container.y = startY;
 
 			// @TODO: Fix this ugly shit
+			sense4us.mechanics.is_dragging = false;
 			sense4us.stage.update();
 		}
 
@@ -67,8 +69,8 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 	container.on("pressmove", function(evt) {
 		evt.stopPropagation();
 
-		var new_x = evt.stageX - mouseX;
-		var new_y = evt.stageY - mouseY;
+		var new_x = (evt.stageX / sense4us.stage.scaleX) - mouseX;
+		var new_y = (evt.stageY / sense4us.stage.scaleY) - mouseY;
 
 		var difference_x = new_x - evt.currentTarget.x;
 		var difference_y = new_y - evt.currentTarget.y;
