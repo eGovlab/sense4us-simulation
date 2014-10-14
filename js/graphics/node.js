@@ -22,12 +22,15 @@ sense4us.graphics.node = function(entity, stage) {
 
 	that.container.type = "node";
 	that.container.addChild(circle, label);
+
 	that.container.x = that.container.y = 100;
+
 	that.update = function() {
 		label.text = entity.value;
-		that.container.x = entity.x;
-		that.container.y = entity.y;
+		that.container.x = parseInt(entity.x);
+		that.container.y = parseInt(entity.y);
 	}
+
 	entity.set("x", that.container.x);
 	entity.set("y", that.container.y);
 

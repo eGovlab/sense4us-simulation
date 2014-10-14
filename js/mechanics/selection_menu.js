@@ -16,7 +16,6 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 	var container = graphic_object.container;
 
 	container.on("mousedown", function(evt) {
-		console.log("LOL");
 		moved = false;
 		startX = evt.currentTarget.x;
 		startY = evt.currentTarget.y;

@@ -48,6 +48,19 @@ sense4us.bless_with_events = function(object) {
 				var callback = events_and_callbacks[event][pos];
 				callback(data);
 			}
+		},
+		unbind: function(event, callback_to_remove) {
+			if (events_and_callbacks[event] == null) {
+				return;
+			}
+
+			for (var pos in events_and_callbacks[event]) {
+				var callback = events_and_callbacks[event][pos];
+				if (callback == callback_to_remove) {
+					delete events_and_callbacks[event][pos];
+					console.log(events_and_callbacks[event]);
+				}
+			}
 		}
 	};
 

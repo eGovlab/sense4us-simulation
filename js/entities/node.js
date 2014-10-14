@@ -67,6 +67,7 @@ sense4us.entities.node = function(id) {
 	};
 
 	that.set("id", html_entity.getAttribute("id"));
+	html_entity.entity = that;
 
 	return that;
 }

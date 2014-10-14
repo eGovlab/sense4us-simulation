@@ -41,6 +41,7 @@ sense4us.mechanics.draggable = function(graphic_object) {
 		var difference_y = new_y - evt.currentTarget.y;
 
 		if (!show_menu || difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
+
 			graphic_object.entity.set("x", new_x);
 			graphic_object.entity.set("y", new_y);
 			
