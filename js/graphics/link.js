@@ -24,7 +24,6 @@ sense4us.graphics.link = function(entity, stage) {
 	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
 	var character_multiplier = 0.4;
-	var label_offset = 20;
 
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
@@ -54,13 +53,16 @@ sense4us.graphics.link = function(entity, stage) {
 	that.update = function() {
 		label.text = entity.co;
 
-		label.x = Math.sin(Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
-			entity.get_start().get_x() - entity.get_end().get_x()));
-		label.x = label.x * label_offset;
-		label.x = label.x * (1 + label.text.length) * character_multiplier;
-		label.y = -Math.cos(Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
-			entity.get_start().get_x() - entity.get_end().get_x()));
-		label.y = label.y * label_offset;
+		var link_rotation = Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
+			entity.get_start().get_x() - entity.get_end().get_x());
+
+		var label_offset_x = 20;
+		var label_offset_y = 20;
+		
+		label.x = Math.sin(link_rotation) * label_offset_x;
+		label.y = -Math.cos(link_rotation) * label_offset_y;
+
+		label.x = label.x * (label.text.length+1) * character_multiplier;
 		label.y -= font_size / 2;
 
 		that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
