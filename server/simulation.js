@@ -114,8 +114,9 @@ module.exports = function()
 	    * @method run
 		* @param nodes {Array} Array of nodes from the database.
 		* @param links {Array} Array of links from the database.
+		* @param dt {Int} Number of months/iterations to simulate(not yet used in the simulation)
 	    */
-		run: function(nodes, links)
+		run: function(nodes, links, dt)
 		{
 			// Setup the nodes and links connections
 			setup_simulation_network(nodes, links);
