@@ -137,6 +137,19 @@ module.exports = function()
 			return simulation_nodes;
 		}
 	};
+	network = require("./network");
+	network.add_listen("run_simulation", function(socket, arr)
+	{
+		// Extract nodes array from the received array
+		var nodes = arr[0];
+		var links = arr[1];
+
+		// Start simulation
+		var result_nodes = that.run(nodes, links, 1);
+
+		// Send back the results of the simulation to the client
+		socket.emit("run_simulation_completed", result_nodes);
+	});
 
 	return that;
 }
