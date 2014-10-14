@@ -13,7 +13,7 @@ sense4us.graphics.color = function() {
 		//border_line: "#39D",
 		//line: "#4AE",
 
-		border_circle: "#AF6",
+		border_circle: "#AE6",
 		//circle: "#4AE",
 
 		selection_border_circle: "#AF6",
@@ -24,10 +24,10 @@ sense4us.graphics.color = function() {
 	};
 
 	var gradient_colors = {
-		border_line: ["#AF6", "#AF6"],
-		line_positive: ["#0F0", "#000"],
-		line_negative: ["#F00", "#000"],
-		line_dead: ["#000", "#000"],
+		border_line: ["#AE6", "#AE6"],
+		line_positive: ["#8E1", "#120"],
+		line_negative: ["#E41", "#210"],
+		line_dead: ["#000", "#222"],
 
 		//border_circle: ["#4DF", "#4DF"],
 		circle: ["#691", "#8A2"]
@@ -37,8 +37,8 @@ sense4us.graphics.color = function() {
 	};
 
 	var properties = {
-		border_line_thickness: 12,
-		line_thickness: 7,
+		border_line_thickness: 14,
+		line_thickness: 11,
 
 		line_gradiant_radius_inner: 20,
 		line_gradiant_radius_outer: 20,
