@@ -18,16 +18,27 @@ sense4us.graphics.link = function(entity, stage) {
 	line.graphics.moveTo(0, 0);
 	line.graphics.endStroke();
 
+	var font_size = 14;
+	var label = new createjs.Text(entity.co, "bold " + font_size + "px Arial", color.get_color("label"));
+	label.textAlign = "center";
+	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+
+	var character_multiplier = 0.4;
+	var label_offset = 20;
+
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
-	that.container.addChild(border_line, line);
+	that.container.addChild(border_line, line, label);
+
+	that.container.x = 0;
+	that.container.y = 0;
 
 	var stroke_line = function(line, color_array, thickness)
 	{
-		var start_x = entity.get_start().x;
-		var start_y = entity.get_start().y;
-		var end_x = entity.get_end().x;
-		var end_y = entity.get_end().y;
+		var start_x = entity.get_start().get_x() - that.container.x;
+		var start_y = entity.get_start().get_y() - that.container.y;
+		var end_x = entity.get_end().get_x() - that.container.x;
+		var end_y = entity.get_end().get_y() - that.container.y;
 
 		line.graphics.clear();
 		line.graphics.setStrokeStyle(thickness);
@@ -41,6 +52,20 @@ sense4us.graphics.link = function(entity, stage) {
 	};
 
 	that.update = function() {
+		label.text = entity.co;
+
+		label.x = Math.sin(Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
+			entity.get_start().get_x() - entity.get_end().get_x()));
+		label.x = label.x * label_offset;
+		label.x = label.x * (1 + label.text.length) * character_multiplier;
+		label.y = -Math.cos(Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
+			entity.get_start().get_x() - entity.get_end().get_x()));
+		label.y = label.y * label_offset;
+		label.y -= font_size / 2;
+
+		that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
+		that.container.y = (entity.get_start().get_y() + entity.get_end().get_y()) * 0.5;
+
 		var co = entity.get("co");
 
 		if(co < 0)

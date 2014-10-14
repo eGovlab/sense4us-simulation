@@ -65,7 +65,13 @@ sense4us.entities.node = function(id) {
 		links: [],
 		events: function() {
 			return sense4us.entities.node.events;
-		}()
+		}(),
+		get_x: function() {
+			return parseInt(that.get("x"));
+		},
+		get_y: function() {
+			return parseInt(that.get("y"));
+		}
 	};
 
 	that.set("id", html_entity.getAttribute("id"));

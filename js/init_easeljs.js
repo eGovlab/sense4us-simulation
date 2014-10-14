@@ -54,12 +54,8 @@ sense4us.init_easeljs = function() {
 	}
 
 	stage.on("stagemousedown", function(e) {
-			var objects = sense4us.stage.getObjectsUnderPoint(((e.stageX - sense4us.stage.x) / stage.scaleX), ((e.stageY - sense4us.stage.y) / stage.scaleY));
-			console.log(e.stageX / stage.scaleX, sense4us.stage.scaleX, sense4us.stage.x, objects);
 		var offset = {x: stage.x - e.stageX, y: stage.y - e.stageY};
 		stage.addEventListener("stagemousemove",function(evt) {
-			var objects = stage.getObjectsUnderPoint((evt.stageX/stage.scaleX) - stage.x, (evt.stageY/stage.scaleY) - stage.y);
-
 			if (!sense4us.mechanics.is_dragging) {
 				stage.x = evt.stageX + offset.x;
 				stage.y = evt.stageY + offset.y;

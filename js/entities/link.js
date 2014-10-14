@@ -29,11 +29,11 @@ sense4us.entities.link = function(id, n1, n2, co, t) {
 	that.get_element().setAttribute("class", "link");
 
 	that.get_start = function() {
-		return {x: n1.x, y: n1.y};
+		return n1;
 	}
 
 	that.get_end = function() {
-		return {x: n2.x, y: n2.y};
+		return n2;
 	}
 
 	that.events = function() {
@@ -46,6 +46,7 @@ sense4us.entities.link = function(id, n1, n2, co, t) {
 	that.set("n2", n2.id);
 	that.set("co", co);
 	that.set("t", t);
+	that.set("type", "link");
 	n1.links.push(that);
 	n2.links.push(that);
 
