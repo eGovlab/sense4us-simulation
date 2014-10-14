@@ -14,7 +14,7 @@
 }
 
 body {
-	background-color: #888888;
+	background-color: #2a2a2a;
 }
 
 canvas {
@@ -37,4 +37,29 @@ html
 #canvas
 {
 	background-color: #2a2a2a;
+}
+
+.button {
+	border: none;
+	padding: 13px 20px 13px;
+	color: #fff;
+	text-decoration: none;
+	font-weight: bold;
+	line-height: 1;
+	-moz-border-radius: 25px;
+	-webkit-border-radius: 25px;
+	-moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	cursor: pointer;
+	margin: 15px;
+  -webkit-animation-name: greenPulse;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-iteration-count: infinite;
+}
+@-webkit-keyframes greenPulse {
+  from { background-color: #749a02; -webkit-box-shadow: 0 0 6px #91bd09; }
+  50% { background-color: #749a02; -webkit-box-shadow: 0 0 19px #91bd09; }
+  to { background-color: #749a02; -webkit-box-shadow: 0 0 6px #91bd09; }
 }
