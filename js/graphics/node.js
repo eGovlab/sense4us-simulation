@@ -38,7 +38,7 @@ sense4us.graphics.node = function(entity, stage) {
 	that.container.x = that.container.y = 100;
 
 	that.update = function() {
-		label.text = entity.value;
+		label.text = entity.signal;
 		that.container.x = parseInt(entity.x);
 		that.container.y = parseInt(entity.y);
 	}
