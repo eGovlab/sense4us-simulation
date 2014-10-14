@@ -115,6 +115,7 @@ module.exports = function()
 		* @param nodes {Array} Array of nodes from the database.
 		* @param links {Array} Array of links from the database.
 		* @param dt {Int} Number of months/iterations to simulate(not yet used in the simulation)
+		* @returns {Array} An Array of simulation nodes post simulation(they contain the result of the simulation)
 	    */
 		run: function(nodes, links, dt)
 		{
@@ -128,11 +129,12 @@ module.exports = function()
 			}
 
 			// Print how much signal each node have after the firing
-/*			for (var nodeIndex in simulation_nodes) {
+			for (var nodeIndex in simulation_nodes) {
 				var simulation_node = simulation_nodes[nodeIndex];
 				console.log("node.id: " + simulation_node["id"] + ", sig: " + simulation_node["sig"]);
 			}
-*/
+
+			return simulation_nodes;
 		}
 	};
 
