@@ -27,6 +27,7 @@
 	<script src="/entities/link.js"></script>
 	<script src="/entities/selection_menu.js"></script>
 
+	<script src="/mechanics/selectable.js"></script>
 	<script src="/mechanics/draggable.js"></script>
 	<script src="/mechanics/selection_menu.js"></script>
 
@@ -59,6 +60,7 @@
 
 			sense4us.stage.addChildAt(link.graphics.container, 0);
 			sense4us.stage.update();
+			sense4us.mechanics.selectable(link.graphics);
 
 			return link;
 		}
