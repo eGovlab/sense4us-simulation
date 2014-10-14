@@ -24,8 +24,10 @@ sense4us.graphics.color = function() {
 	};
 
 	var gradient_colors = {
-		border_line: ["#39D", "#39D"],
-		line: ["#F00", "#00F"],
+		border_line: ["#AF6", "#AF6"],
+		line_positive: ["#0F0", "#000"],
+		line_negative: ["#F00", "#000"],
+		line_dead: ["#000", "#000"],
 
 		//border_circle: ["#4DF", "#4DF"],
 		circle: ["#691", "#8A2"]
