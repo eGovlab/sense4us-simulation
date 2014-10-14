@@ -5,11 +5,15 @@ sense4us.init_easeljs = function() {
 	var canvas = document.getElementById("canvas");
 	var container = document.getElementById("container");
 
+	container.style.width = (document.body.clientWidth - 180).toString() + "px";
+
 	canvas.width = container.offsetWidth;
 	canvas.height = container.offsetHeight;
 
 	window.onresize = function()
 	{
+		container.style.width = (document.body.clientWidth - 180).toString() + "px";
+	
 		canvas.width = container.offsetWidth;
 		canvas.height = container.offsetHeight;
 
