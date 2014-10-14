@@ -6,6 +6,8 @@ var sense4us = sense4us || {};
 
 sense4us.entities = sense4us.entities || {};
 
+sense4us.entities.id_to_entity = sense4us.entities.id_to_entity || {}
+
 /**
 * Upon construction of this node object an html-element "div" will be created, unless
 * there's already an existing element with specified id.
@@ -59,17 +61,30 @@ sense4us.entities.node = function(id) {
 		get_element: function() {
 			return html_entity;
 		},
-		update_lines: function() {
-			if (that.lines) {
-				for (var pos in that.lines) {
-					var line = that.lines[pos];
-					line.graphics.update_line();
-				}
-			}
-		}
+		graphics: null,
+		links: [],
+		events: function() {
+			return sense4us.entities.node.events;
+		}()
 	};
 
 	that.set("id", html_entity.getAttribute("id"));
+	sense4us.entities.id_to_entity[that.id] = that;
 
 	return that;
 }
+
+sense4us.bless_with_events(sense4us.entities.node);
+
+sense4us.entities.node.events.bind("update", function(node) {
+	for (var pos in node.links) {
+		var link = node.links[pos];
+		link.events.trigger("update", link);
+	}
+
+	if (node.hasOwnProperty("graphics")) {
+		node.graphics.update();
+	}
+
+	sense4us.events.trigger("object_updated", node);
+});

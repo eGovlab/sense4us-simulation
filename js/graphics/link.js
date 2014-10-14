@@ -37,7 +37,7 @@ sense4us.graphics.link = function(entity, stage) {
 		line.graphics.endStroke();
 	};
 
-	that.update_line = function() {
+	that.update = function() {
 		stroke_line(border_line, "#39D", "#39D", 12);
 		stroke_line(line, "#F00", "#00F", 7);
 
@@ -50,7 +50,7 @@ sense4us.graphics.link = function(entity, stage) {
 		stage.update();
 	}
 
-	that.update_line();
+	that.update();
 
 	stage.update();
 

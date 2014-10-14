@@ -18,7 +18,7 @@ var sense4us = sense4us || {};
 * @example To trigger the event:
 * @example sense4us.events.trigger("pizzaDelivered", pizzaObject);
 */
-sense4us.events = function() {
+sense4us.bless_with_events = function(object) {
 	var events_and_callbacks = {};
 
 	var that = {
@@ -48,8 +48,24 @@ sense4us.events = function() {
 				var callback = events_and_callbacks[event][pos];
 				callback(data);
 			}
+		},
+		unbind: function(event, callback_to_remove) {
+			if (events_and_callbacks[event] == null) {
+				return;
+			}
+
+			for (var pos in events_and_callbacks[event]) {
+				var callback = events_and_callbacks[event][pos];
+				if (callback == callback_to_remove) {
+					delete events_and_callbacks[event][pos];
+					console.log(events_and_callbacks[event]);
+				}
+			}
 		}
 	};
 
-	return that;
-}();
+	object.events = that;
+};
+
+sense4us.events = {}
+sense4us.bless_with_events(sense4us);
