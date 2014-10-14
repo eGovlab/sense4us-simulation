@@ -21,7 +21,7 @@ sense4us.graphics.node = function(entity, stage) {
 		[0, 1], 0, 0, 50, 
 		-8, -8, 46).drawCircle(0, 0, color.get_property("circle_radius"));
 
-	var label = new createjs.Text(entity.id, "bold 14px Arial", color.get_color("label"));
+	var label = new createjs.Text(entity.signal, "bold 14px Arial", color.get_color("label"));
 	label.textAlign = "center";
 	label.y = -7;
 	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
