@@ -36,6 +36,9 @@ body, html{
 	height: inherit;
 	width: 14%;
 	text-align: center;
+
+	padding: 0;
+	margin: 0;
 }
 
 #container{
@@ -52,6 +55,7 @@ h5{
 	color: #FAFAFA;
 	background-color: inherit;
 	text-align: center;
+	margin-top: 4px;
 }
 
 input[type="text"]{
@@ -63,6 +67,11 @@ input[type="text"]{
 
 input[type="button"]{
 	background-color: #792;
+
+	width: 100%;
+	padding: 0;
+	margin: 0;
+
 	outline: none;
 	border: none;
 	padding: 13px 20px 13px;
@@ -70,14 +79,11 @@ input[type="button"]{
 	text-decoration: none;
 	font-weight: bold;
 	line-height: 1;
-	-moz-border-radius: 12px;
-	-webkit-border-radius: 12px;
 	-moz-box-shadow: inset 0 2px 4px rgba(170,255,102,0.5);
 	-webkit-box-shadow: inset 0 2px 4px rgba(170,255,102,0.5);
 	text-shadow: 0 0px 4px rgba(0,0,0,0.55);
 	border-bottom: 1px solid rgba(0,0,0,0.55);
 	cursor: pointer;
-	margin: 15px;	
 }
 
 html
