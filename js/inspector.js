@@ -64,10 +64,6 @@ sense4us.inspector = function() {
 	return that;
 }();
 
-var func = function(object) {
-	sense4us.inspector.inspect(object);
-}
-
 /**
 * Triggers when an object have been selected.
 * This triggers the inspector-panel change focus onto the
@@ -76,13 +72,7 @@ var func = function(object) {
 * @param {Object} object The selected object
 */
 sense4us.events.bind("object_selected", function(object) {
-	if (sense4us.inspector.getInspectedObject() != null) {
-		sense4us.inspector.getInspectedObject().events.unbind("update", func);
-	}
-
 	sense4us.inspector.inspect(object);
-
-	object.events.bind("update", func);
 
 	sense4us.events.trigger("network_send_object", object);
 });
@@ -95,6 +85,4 @@ sense4us.events.bind("object_selected", function(object) {
 */
 sense4us.events.bind("object_deselected", function(object) {
 	sense4us.inspector.inspect(null);
-
-	object.events.unbind("update", func);
 });
