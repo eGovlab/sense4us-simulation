@@ -54,7 +54,8 @@
 			var link = sense4us.entities.link(null, start, end);
 			link.graphics = sense4us.graphics.link(link, sense4us.stage);
 			link.graphics.update_line();
-			sense4us.stage.addChild(link.graphics.container);
+
+			sense4us.stage.addChildAt(link.graphics.container, 0);
 			sense4us.stage.update();
 
 			return link;
