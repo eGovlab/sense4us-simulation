@@ -22,7 +22,6 @@ sense4us.mechanics.draggable = function(graphic_object) {
 		// Set mouseX & mouseY to the mouse position relative to the clicked object
 		mouseX = (evt.stageX / sense4us.stage.scaleX) - evt.currentTarget.x;
 		mouseY = (evt.stageY / sense4us.stage.scaleY) - evt.currentTarget.y;
-
 	});
 
 	container.on("pressup", function(evt) {
@@ -30,6 +29,8 @@ sense4us.mechanics.draggable = function(graphic_object) {
 			sense4us.select_object(graphic_object.entity);
 		}
 		show_menu = false;
+
+		sense4us.events.trigger("object_released", graphic_object.entity);
 		sense4us.mechanics.is_dragging = false;
 	});
 
@@ -51,3 +52,8 @@ sense4us.mechanics.draggable = function(graphic_object) {
 		}
 	});
 }
+
+sense4us.events.bind("object_released", function(object)
+{
+	sense4us.inspector.inspect(object);
+});

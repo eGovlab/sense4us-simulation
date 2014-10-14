@@ -2,7 +2,24 @@ var sense4us = sense4us || {};
 
 sense4us.init_easeljs = function() {
 	//Draw a square on screen.
-	var canvas = document.getElementById('canvas');
+	var canvas = document.getElementById("canvas");
+	var container = document.getElementById("container");
+
+	container.style.width = (document.body.clientWidth - 180).toString() + "px";
+
+	canvas.width = container.offsetWidth;
+	canvas.height = container.offsetHeight;
+
+	window.onresize = function()
+	{
+		container.style.width = (document.body.clientWidth - 180).toString() + "px";
+	
+		canvas.width = container.offsetWidth;
+		canvas.height = container.offsetHeight;
+
+		sense4us.stage.update();
+	};
+
 	sense4us.stage = new createjs.Stage("canvas");
 
 	document.getElementById( "canvas" ).onmousedown = function(event){
@@ -37,12 +54,8 @@ sense4us.init_easeljs = function() {
 	}
 
 	stage.on("stagemousedown", function(e) {
-			var objects = sense4us.stage.getObjectsUnderPoint(((e.stageX - sense4us.stage.x) / stage.scaleX), ((e.stageY - sense4us.stage.y) / stage.scaleY));
-			console.log(e.stageX / stage.scaleX, sense4us.stage.scaleX, sense4us.stage.x, objects);
 		var offset = {x: stage.x - e.stageX, y: stage.y - e.stageY};
 		stage.addEventListener("stagemousemove",function(evt) {
-			var objects = stage.getObjectsUnderPoint((evt.stageX/stage.scaleX) - stage.x, (evt.stageY/stage.scaleY) - stage.y);
-
 			if (!sense4us.mechanics.is_dragging) {
 				stage.x = evt.stageX + offset.x;
 				stage.y = evt.stageY + offset.y;

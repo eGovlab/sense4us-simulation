@@ -154,7 +154,7 @@ module.exports = function(express_controller)
 				console.log("Route: " + route);
 				console.log("Bound to callback: " + line[2]);
 				console.log("END REQUEST");
-				console.log("****************\n\n");
+				console.log("****************");
 
 				module[callback_method](req, res);
 			});

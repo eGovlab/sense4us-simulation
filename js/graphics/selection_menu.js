@@ -19,10 +19,10 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 	line.graphics.endStroke();
 
 	var border_circle = new createjs.Shape();
-	border_circle.graphics.beginFill(color.get_color("selection_border_circle")).drawCircle(0, 0, 17);
+	border_circle.graphics.beginFill(color.get_color("selection_border_circle")).drawCircle(0, 0, color.get_property("selection_border_circle_radius"));
 
 	var circle = new createjs.Shape();
-	circle.graphics.beginFill(color.get_color("selection_circle")).drawCircle(0, 0, 15);
+	circle.graphics.beginFill(color.get_color("selection_circle")).drawCircle(0, 0, color.get_property("selection_circle_radius"));
 
 	var label = new createjs.Text("L", "bold 12px Arial", color.get_color("label"));
 	label.textAlign = "center";

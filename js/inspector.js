@@ -30,7 +30,7 @@ sense4us.inspector = function() {
 			var property = inspectingObject[property_name];
 			// This if-statement will filter out all object properties which are functions and objects.
 			if (!(property instanceof Function) && !(property instanceof Object)) {
-				html += "<p>" + property_name + ": ";
+				html += "<h5>" + property_name + "</h5>";
 				html += "<input type='text' name='"+property_name+"' value='"+property+"'></input>";
 			}
 		}
@@ -48,7 +48,10 @@ sense4us.inspector = function() {
 		inspect: function(object) {
 			inspectingObject = object;
 			var html = generateHTML();
-			$( "div.inspector" ).html(html);
+			var inspector = $("div #inspector");
+
+			inspector.html(html);
+
 			if (html) {
 				$("#" + inspectingObject.id + "-form").find("input").change(function(event) {
 					inspectingObject.set($(this).prop("name"), $(this).val());
