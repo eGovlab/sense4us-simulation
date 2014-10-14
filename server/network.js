@@ -5,7 +5,6 @@ module.exports = function()
 	create_callback = function(key)
 	{
 		var callback = function(object) {
-			console.log("Using callback", key)
 			callbacks[key](this, object);
 		};
 

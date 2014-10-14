@@ -10,11 +10,15 @@
 	<link rel="stylesheet" href="/style.css" />
 </head>
 <body>
+	<div id="menu">
 		<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
-	<div id="container">
-		<canvas id="canvas" width="1500" height="800"></canvas>
-		<div class="inspector">Inspector</div>
+		<div id="inspector">Inspector</div>
 	</div>
+	<div id="container">
+		<canvas id="canvas" height="1" width="1" ></canvas>
+	</div>
+
+	<div style="clear: left"></div>
 
 	<script src="/get_or_create_html_entity.js"></script>
 	<script src="/select_object.js"></script>
