@@ -19,15 +19,23 @@ sense4us.graphics.link = function(entity, stage) {
 	line.graphics.endStroke();
 
 	var font_size = 14;
+
+	var arrow_offset = 0;
+
 	var label = new createjs.Text(entity.co, "bold " + font_size + "px Arial", color.get_color("label"));
 	label.textAlign = "center";
 	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
 	var character_multiplier = 0.4;
 
+	
+	var arrow = new createjs.Text("<", "bold " + font_size + "px Arial", color.get_color("label"));
+	arrow.textAlign = "center";
+
+
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
-	that.container.addChild(border_line, line, label);
+	that.container.addChild(border_line, line, label, arrow);
 
 	that.container.x = 0;
 	that.container.y = 0;
@@ -67,6 +75,12 @@ sense4us.graphics.link = function(entity, stage) {
 
 		that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
 		that.container.y = (entity.get_start().get_y() + entity.get_end().get_y()) * 0.5;
+
+		arrow.x = Math.sin(link_rotation) * label_offset_x * 0.44;
+		arrow.y = -Math.cos(link_rotation) * label_offset_y * 0.44;
+
+		arrow.rotation = (link_rotation / Math.PI) * 180;
+
 		console.log(label.text);
 
 		var co = entity.get("co");
