@@ -79,8 +79,6 @@ input[type="button"]{
 	text-decoration: none;
 	font-weight: bold;
 	line-height: 1;
-	-moz-box-shadow: inset 0 2px 4px rgba(170,255,102,0.5);
-	-webkit-box-shadow: inset 0 2px 4px rgba(170,255,102,0.5);
 	text-shadow: 0 0px 4px rgba(0,0,0,0.55);
 	border-bottom: 1px solid rgba(0,0,0,0.55);
 	cursor: pointer;
