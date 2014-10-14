@@ -11,17 +11,26 @@ sense4us.graphics = sense4us.graphics || {};
 */
 
 sense4us.graphics.node = function(entity, stage) {
-	var circle = new createjs.Shape();
-	circle.graphics.beginFill("red").drawCircle(0, 0, 50);
+	var border_circle = new createjs.Shape();
+	border_circle.graphics.beginFill("#39D").drawCircle(0, 0, 52);
 
-	var label = new createjs.Text(entity.value, "bold 14px Arial", "#FFFFFF");
+	var circle = new createjs.Shape();
+	circle.graphics.beginRadialGradientFill(["#F00", "#00F"],
+		[0, 1], 25, 25, 50, 
+		-25, -25, 50).drawCircle(0, 0, 50);
+
+	var label = new createjs.Text(entity.id, "bold 14px Arial", "#FAFAFA");
 	label.textAlign = "center";
 	label.y = -7;
+
+	var circle_container = new createjs.Container();
+
+	circle_container.addChild(border_circle, circle, label);
 
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
 	that.container.type = "node";
-	that.container.addChild(circle, label);
+	that.container.addChild(circle_container);
 
 	that.container.x = that.container.y = 100;
 

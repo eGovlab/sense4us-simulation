@@ -27,3 +27,14 @@ canvas {
 	background-color: #DDDDDD;
 	float: right;
 }
+
+html
+{
+	background-color: #2a2a2a;
+	overflow: hidden;
+}
+
+#canvas
+{
+	background-color: #2a2a2a;
+}
