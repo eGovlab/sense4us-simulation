@@ -54,8 +54,8 @@
 			return node;
 		}
 
-		function create_link(start, end) {
-			var link = sense4us.entities.link(null, start, end);
+		function create_link(start, end, co, t) {
+			var link = sense4us.entities.link(null, start, end, co, t);
 			link.graphics = sense4us.graphics.link(link, sense4us.stage);
 
 			sense4us.stage.addChildAt(link.graphics.container, 0);
