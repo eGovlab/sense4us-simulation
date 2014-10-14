@@ -10,10 +10,14 @@ sense4us.entities = sense4us.entities || {};
 * @class link
 * @constructor
 * @param id {Integer} This integer must be a unique identifier for this created link.
+* @param n1 {Node} The node which this connection receives signals from
+* @param n2 {Node} The node which this connection transfers signals to
+* @param co {Float} The coefficient that alters the signal passing through this link.
+* @param t {Integer} The time-lag of this link.
 */
 
-sense4us.entities.link = function(id, start, end) {
-	console.log(start, end);
+sense4us.entities.link = function(id, n1, n2, co, t) {
+	console.log(n1, n2);
 
 	if (id == null) {
 		sense4us.temp_id = sense4us.temp_id || 0;
@@ -25,11 +29,11 @@ sense4us.entities.link = function(id, start, end) {
 	that.get_element().setAttribute("class", "link");
 
 	that.get_start = function() {
-		return {x: start.x, y: start.y};
+		return {x: n1.x, y: n1.y};
 	}
 
 	that.get_end = function() {
-		return {x: end.x, y: end.y};
+		return {x: n2.x, y: n2.y};
 	}
 
 	that.events = function() {
@@ -38,10 +42,12 @@ sense4us.entities.link = function(id, start, end) {
 
 	that.set("id", that.get_element().getAttribute("id"));
 
-	that.set("start", start.id);
-	that.set("end", end.id);
-	start.links.push(that);
-	end.links.push(that);
+	that.set("n1", n1.id);
+	that.set("n2", n2.id);
+	that.set("co", co);
+	that.set("t", t);
+	n1.links.push(that);
+	n2.links.push(that);
 
 	return that;
 }

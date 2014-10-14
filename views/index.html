@@ -10,7 +10,8 @@
 	<link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-		<input type="button" class="button" onclick="create_node();" value="Create node" />
+		<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
+		<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
 	<div id="container">
 		<canvas id="canvas" width="1500" height="800"></canvas>
 		<div class="inspector">Inspector</div>
@@ -42,10 +43,11 @@
 	<script src="/simulation.js"></script>
 
 	<script>
-		function create_node() {
-			var node = sense4us.entities.node();
+		function create_node(id, signal, signal_fire) {
+			var node = sense4us.entities.node(id);
 			node.set("name", "node_name");
-			node.set("value", "node_value");
+			node.set("signal", signal);
+			node.set("signal_fire", signal_fire);
 			node.graphics = sense4us.graphics.node(node, sense4us.stage);
 			sense4us.stage.addChild(node.graphics.container);
 			sense4us.stage.update();
@@ -54,8 +56,8 @@
 			return node;
 		}
 
-		function create_link(start, end) {
-			var link = sense4us.entities.link(null, start, end);
+		function create_link(start, end, co, t) {
+			var link = sense4us.entities.link(null, start, end, co, t);
 			link.graphics = sense4us.graphics.link(link, sense4us.stage);
 
 			sense4us.stage.addChildAt(link.graphics.container, 0);
@@ -70,8 +72,8 @@
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
 		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
 
-		var node2 = create_node();
-		var node3 = create_node();
+		var node2 = create_node(null, 0, 0);
+		var node3 = create_node(null, 0, 0);
 
 		sense4us.events.bind("object_updated", function(object) {
 			sense4us.stage.update();
