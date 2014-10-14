@@ -51,7 +51,7 @@ sense4us.graphics.link = function(entity, stage) {
 		{
 			stroke_line(line, color.get_gradient("line_positive"), color.get_property("line_thickness"));	
 		}
-		else if(co === 0)
+		else if(co == 0)
 		{
 			stroke_line(line, color.get_gradient("line_dead"), color.get_property("line_thickness"));	
 		}
