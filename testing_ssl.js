@@ -5,9 +5,9 @@ rest = rest();
 //rest.init();
 try
 {
-	rest.request("GET", "/simulator/nodes/crud/2", function(json)
+	rest.get_node(2, function(json)
 	{
-		console.log(json);
+		console.log("Returned:", json);
 	});
 }
 catch(err)
