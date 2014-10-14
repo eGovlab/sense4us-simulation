@@ -30,7 +30,6 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 		graphic_object.clear_line();
 		if (moved) {
 			var objects = sense4us.stage.getObjectsUnderPoint(((evt.stageX - sense4us.stage.x) / sense4us.stage.scaleX), ((evt.stageY - sense4us.stage.y) / sense4us.stage.scaleY));
-			console.log(evt.stageX, sense4us.stage.scaleX, sense4us.stage.x);
 
 			var colliding_object = null;
 			for (var pos in objects) {
