@@ -51,8 +51,11 @@ sense4us.inspector = function() {
 			$( "div.inspector" ).html(html);
 			if (html) {
 				$("#" + inspectingObject.id + "-form").find("input").change(function(event) {
-					inspectingObject.set($(this).prop("name"), $(this).val());
-					inspectingObject.events.trigger("update", inspectingObject);
+					//inspectingObject.set($(this).prop("name"), $(this).val());
+					//inspectingObject.events.trigger("update", inspectingObject);
+					var object = sense4us.entities.id_to_entity[inspectingObject.id];
+					object.set($(this).prop("name"), $(this).val());
+					object.events.trigger("update", inspectingObject);
 				});
 			}
 		},

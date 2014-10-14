@@ -6,6 +6,8 @@ var sense4us = sense4us || {};
 
 sense4us.entities = sense4us.entities || {};
 
+sense4us.entities.id_to_entity = sense4us.entities.id_to_entity || {}
+
 /**
 * Upon construction of this node object an html-element "div" will be created, unless
 * there's already an existing element with specified id.
@@ -67,7 +69,7 @@ sense4us.entities.node = function(id) {
 	};
 
 	that.set("id", html_entity.getAttribute("id"));
-	html_entity.entity = that;
+	sense4us.entities.id_to_entity[that.id] = that;
 
 	return that;
 }
