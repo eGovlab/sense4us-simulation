@@ -65,6 +65,7 @@ sense4us.graphics.link = function(entity, stage) {
 
 		that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
 		that.container.y = (entity.get_start().get_y() + entity.get_end().get_y()) * 0.5;
+		console.log(label.text);
 
 		var co = entity.get("co");
 

@@ -65,7 +65,7 @@ input[type="text"]{
 	color: #FAFAFA;
 }
 
-input[type="button"]{
+input[type="button"], .button {
 	background-color: #792;
 
 	width: 100%;

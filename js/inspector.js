@@ -34,6 +34,11 @@ sense4us.inspector = function() {
 				html += "<input type='text' name='"+property_name+"' value='"+property+"'></input>";
 			}
 		}
+
+		if (inspectingObject.type == "link") {
+			html += "<button class='button' id='switch'>Switch</button>";
+		}
+
 		html += "</form>";
 
 		return html;
@@ -55,6 +60,12 @@ sense4us.inspector = function() {
 			if (html) {
 				$("#" + inspectingObject.id + "-form").find("input").change(function(event) {
 					inspectingObject.set($(this).prop("name"), $(this).val());
+					inspectingObject.events.trigger("update", inspectingObject);
+				});
+
+				$("#switch").click(function(event) {
+					event.preventDefault();
+					inspectingObject.switch();
 					inspectingObject.events.trigger("update", inspectingObject);
 				});
 			}

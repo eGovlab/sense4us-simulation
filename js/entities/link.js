@@ -40,6 +40,15 @@ sense4us.entities.link = function(id, n1, n2, co, t) {
 		return sense4us.entities.link.events;
 	}()
 
+	that.switch = function() {
+		var temp = n1;
+		n1 = n2;
+		n2 = temp;
+		
+		that.set("n1", n1.id);
+		that.set("n2", n2.id);
+	}
+
 	that.set("id", that.get_element().getAttribute("id"));
 
 	that.set("n1", n1.id);
