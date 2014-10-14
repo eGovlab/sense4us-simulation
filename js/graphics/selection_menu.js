@@ -16,11 +16,13 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 	line.graphics.moveTo(0, 0);
 	line.graphics.endStroke();
 
+	var color = sense4us.graphics.color;
+
 	var border_circle = new createjs.Shape();
-	border_circle.graphics.beginFill("#162").drawCircle(0, 0, 12);
+	border_circle.graphics.beginFill(color.get_color("selection_border_circle")).drawCircle(0, 0, 12);
 
 	var circle = new createjs.Shape();
-	circle.graphics.beginFill("#AE4").drawCircle(0, 0, 10);
+	circle.graphics.beginFill(color.get_color("selection_circle")).drawCircle(0, 0, 10);
 
 	var label = new createjs.Text("L", "bold 12px Arial", "#220");
 	label.textAlign = "center";
@@ -33,7 +35,7 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 	that.container.set({x: -50, y: 50});
 	that.container.addChild(border_circle, circle, label);
 
-	var stroke_line = function(x, y, line, color_one, color_two, thickness)
+	var stroke_line = function(x, y, line, color_array, thickness)
 	{
 		var start_x = line.x;
 		var start_y = line.y;
@@ -41,7 +43,7 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 		line.graphics.clear();
 		line.graphics.setStrokeStyle(thickness);
 
-		line.graphics.beginRadialGradientStroke([color_one, color_two],
+		line.graphics.beginRadialGradientStroke(color_array,
 			[0, 1], start_x, start_y, 20, x, y, 20);
 
 		line.graphics.moveTo(0, 0);
@@ -53,8 +55,8 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 		if (that.container.parent) {
 			that.container.parent.addChildAt(border_line, line, 0);
 
-			stroke_line(x, y, border_line, "#39D", "#39D", 12);
-			stroke_line(x, y, line, "#F00", "#00F", 7);
+			stroke_line(x, y, border_line, color.get_gradient("border_line"), 12);
+			stroke_line(x, y, line, color.get_gradient("line"), 7);
 
 			stage.update();
 		}
