@@ -15,7 +15,7 @@ sense4us.graphics.link = function(entity, stage) {
 
 	that.container.addChild(line);
 
-	that.update_line = function() {
+	that.update = function() {
 		line.graphics.clear();
 		line.graphics.setStrokeStyle(5);
 		line.graphics.beginStroke("green");
@@ -32,7 +32,7 @@ sense4us.graphics.link = function(entity, stage) {
 		stage.update();
 	}
 
-	that.update_line();
+	that.update();
 
 	stage.update();
 

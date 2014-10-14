@@ -55,7 +55,6 @@
 		function create_link(start, end) {
 			var link = sense4us.entities.link(null, start, end);
 			link.graphics = sense4us.graphics.link(link, sense4us.stage);
-			link.graphics.update_line();
 			sense4us.stage.addChild(link.graphics.container);
 			sense4us.stage.update();
 
@@ -66,13 +65,11 @@
 		sense4us.selection_menu = sense4us.entities.selection_menu();
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
 		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
+
 		var node2 = create_node();
 		var node3 = create_node();
 
 		sense4us.events.bind("object_updated", function(object) {
-			if (object.hasOwnProperty("update_lines")) {
-				object.update_lines();
-			}
 			sense4us.stage.update();
 		});
 	</script>

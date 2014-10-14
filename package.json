@@ -7,7 +7,9 @@
 		"express": "latest",
 		"fs": "latest",
 		"ejs": "latest",
-		"line-by-line": "latest"
+		"line-by-line": "latest",
+		"tls": "latest",
+		"btoa": "latest"
 	},
 	"author": "Robin Swenson, Anton Haughey, Jona Ekenberg"
 }

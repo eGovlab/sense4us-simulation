@@ -17,7 +17,7 @@ sense4us.inspector = function() {
 	/**
     * Generates and returns the HTML content of the inspector panel.
     * The HTML content varies depending upon what object is being inspected.
-    * Any changes made using the inspector-panel will trigger an "object_updated" event.
+    * Any changes made using the inspector-panel will trigger an "update" event.
     * @method generateHTML
     * @private
     * @returns {String} The html content of the inspector panel
@@ -52,14 +52,21 @@ sense4us.inspector = function() {
 			if (html) {
 				$("#" + inspectingObject.id + "-form").find("input").change(function(event) {
 					inspectingObject.set($(this).prop("name"), $(this).val());
-					sense4us.events.trigger("object_updated", inspectingObject);
+					inspectingObject.events.trigger("update", inspectingObject);
 				});
 			}
 		},
+		getInspectedObject: function() {
+			return inspectingObject;
+		}
 	};
 
 	return that;
 }();
+
+var func = function(object) {
+	sense4us.inspector.inspect(object);
+}
 
 /**
 * Triggers when an object have been selected.
@@ -69,7 +76,14 @@ sense4us.inspector = function() {
 * @param {Object} object The selected object
 */
 sense4us.events.bind("object_selected", function(object) {
+	if (sense4us.inspector.getInspectedObject() != null) {
+		sense4us.inspector.getInspectedObject().events.unbind("update", func);
+	}
+
 	sense4us.inspector.inspect(object);
+
+	object.events.bind("update", func);
+
 	sense4us.events.trigger("network_send_object", object);
 });
 
@@ -81,4 +95,6 @@ sense4us.events.bind("object_selected", function(object) {
 */
 sense4us.events.bind("object_deselected", function(object) {
 	sense4us.inspector.inspect(null);
+
+	object.events.unbind("update", func);
 });
