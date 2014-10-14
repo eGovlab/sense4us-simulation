@@ -11,7 +11,7 @@ var sense4us = sense4us || {};
 */
 
 sense4us.network = function() {
-	var socket = io.connect('http://localhost:3700');
+	var socket = io.connect();
 
 	var that = {
 		socket: function() { return socket; }(),

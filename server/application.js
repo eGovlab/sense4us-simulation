@@ -13,9 +13,9 @@ exports.initialize = function()
 
 	cwd = process.cwd();
 
-	app.use(express.static(cwd + '/css'));
-	app.use(express.static(cwd + '/js'));
-	app.set("views", cwd + "/views");
+	app.use(express.static(cwd + '/public/css'));
+	app.use(express.static(cwd + '/public/js'));
+	app.set("views", cwd + "/public");
 	app.engine("html", require("ejs").renderFile);
 
 	router = require("./routecontroller");
