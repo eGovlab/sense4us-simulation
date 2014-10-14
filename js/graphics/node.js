@@ -14,16 +14,17 @@ sense4us.graphics.node = function(entity, stage) {
 	var color = sense4us.graphics.color;
 
 	var border_circle = new createjs.Shape();
-	border_circle.graphics.beginFill(color.get_color("border_circle")).drawCircle(0, 0, 52);
+	border_circle.graphics.beginFill(color.get_color("border_circle")).drawCircle(0, 0, color.get_property("border_circle_radius"));
 
 	var circle = new createjs.Shape();
 	circle.graphics.beginRadialGradientFill(color.get_gradient("circle"),
-		[0, 1], 25, 25, 50, 
-		-25, -25, 50).drawCircle(0, 0, 50);
+		[0, 1], 0, 0, 50, 
+		-8, -8, 46).drawCircle(0, 0, color.get_property("circle_radius"));
 
-	var label = new createjs.Text(entity.id, "bold 14px Arial", "#FAFAFA");
+	var label = new createjs.Text(entity.id, "bold 14px Arial", color.get_color("label"));
 	label.textAlign = "center";
 	label.y = -7;
+	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
 	var circle_container = new createjs.Container();
 

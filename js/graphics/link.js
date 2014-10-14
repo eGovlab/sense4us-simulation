@@ -7,7 +7,7 @@ sense4us.graphics = sense4us.graphics || {};
 
 sense4us.graphics.link = function(entity, stage) {
 	var color = sense4us.graphics.color;
-	
+
 	var border_line = new createjs.Shape();
 	border_line.graphics.beginStroke("#is_this_even_used");
 	border_line.graphics.moveTo(0, 0);
@@ -32,7 +32,7 @@ sense4us.graphics.link = function(entity, stage) {
 		line.graphics.clear();
 		line.graphics.setStrokeStyle(thickness);
 		line.graphics.beginRadialGradientStroke(color_array,
-			[0, 1], start_x, start_y, 20, end_x, end_y, 20);
+			[0, 0.5], start_x, start_y, color.get_property("line_gradiant_radius_inner"), end_x, end_y, color.get_property("line_gradiant_radius_outer"));
 
 		line.graphics.moveTo(start_x, start_y);
 		line.graphics.lineTo(end_x, end_y);
@@ -40,13 +40,14 @@ sense4us.graphics.link = function(entity, stage) {
 	};
 
 	that.update = function() {
-		stroke_line(border_line, color.get_gradient("border_line"), 12);
-		stroke_line(line, color.get_gradient("line"), 7);
+		stroke_line(border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
+		stroke_line(line, color.get_gradient("line"), color.get_property("line_thickness"));
 
 		stage.update();
 	}
 
 	that.clear_line = function() {
+		border_line.graphics.clear();
 		line.graphics.clear();
 
 		stage.update();
