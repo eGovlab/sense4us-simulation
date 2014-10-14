@@ -40,6 +40,7 @@ html
 }
 
 .button {
+	outline: none;
 	border: none;
 	padding: 13px 20px 13px;
 	color: #fff;
