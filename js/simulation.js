@@ -23,6 +23,14 @@ sense4us.simulation = function() {
 	return that;
 }();
 
-sense4us.network.socket.on("run_simulation_completed", function(object) {
-	console.log("The simluation have been completed", object);
+sense4us.network.socket.on("run_simulation_completed", function(nodes) {
+	console.log("The simluation have been completed", nodes);
+
+	for (var nodeIndex in nodes) {
+		var node = nodes[nodeIndex];
+		var node_entity = sense4us.entities.id_to_entity[node.id];
+
+		node_entity.set("value", node["sig"]);
+		node_entity.events.trigger("update", node_entity);
+	}
 });
