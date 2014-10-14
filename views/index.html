@@ -13,7 +13,7 @@
 	<div id="container">
 		<canvas id="canvas" width="1500" height="800"></canvas>
 		<div class="inspector">Inspector</div>
-		<input type="button" onclick="create_node();" value="Create node" />
+		<input type="button" onclick="create_node(null, 0, 0);" value="Create node" />
 	</div>
 
 	<script src="/get_or_create_html_entity.js"></script>
@@ -42,10 +42,11 @@
 	<script src="/simulation.js"></script>
 
 	<script>
-		function create_node() {
-			var node = sense4us.entities.node();
+		function create_node(id, signal, signal_fire) {
+			var node = sense4us.entities.node(id);
 			node.set("name", "node_name");
-			node.set("value", "node_value");
+			node.set("signal", signal);
+			node.set("signal_fire", signal_fire);
 			node.graphics = sense4us.graphics.node(node, sense4us.stage);
 			sense4us.stage.addChild(node.graphics.container);
 			sense4us.stage.update();
@@ -70,8 +71,8 @@
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
 		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
 
-		var node2 = create_node();
-		var node3 = create_node();
+		var node2 = create_node(null, 0, 0);
+		var node3 = create_node(null, 0, 0);
 
 		sense4us.events.bind("object_updated", function(object) {
 			sense4us.stage.update();

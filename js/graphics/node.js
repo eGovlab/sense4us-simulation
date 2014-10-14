@@ -21,7 +21,7 @@ sense4us.graphics.node = function(entity, stage) {
 		[0, 1], 25, 25, 50, 
 		-25, -25, 50).drawCircle(0, 0, 50);
 
-	var label = new createjs.Text(entity.id, "bold 14px Arial", "#FAFAFA");
+	var label = new createjs.Text(entity.signal, "bold 14px Arial", "#FAFAFA");
 	label.textAlign = "center";
 	label.y = -7;
 
@@ -37,7 +37,7 @@ sense4us.graphics.node = function(entity, stage) {
 	that.container.x = that.container.y = 100;
 
 	that.update = function() {
-		label.text = entity.value;
+		label.text = entity.signal;
 		that.container.x = parseInt(entity.x);
 		that.container.y = parseInt(entity.y);
 	}
