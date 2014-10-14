@@ -29,12 +29,11 @@ sense4us.graphics.link = function(entity, stage) {
 		var end_x = entity.get_end().x;
 		var end_y = entity.get_end().y;
 
-		console.log(entity.get("co"));
-
 		line.graphics.clear();
 		line.graphics.setStrokeStyle(thickness);
+		
 		line.graphics.beginRadialGradientStroke(color_array,
-			[0, 0.2], start_x, start_y, color.get_property("line_gradiant_radius_inner"), end_x, end_y, color.get_property("line_gradiant_radius_outer"));
+			[0, 1], start_x, start_y, color.get_property("line_gradiant_radius_inner"), end_x, end_y, color.get_property("line_gradiant_radius_outer"));
 
 		line.graphics.moveTo(start_x, start_y);
 		line.graphics.lineTo(end_x, end_y);
@@ -42,8 +41,22 @@ sense4us.graphics.link = function(entity, stage) {
 	};
 
 	that.update = function() {
+		var co = entity.get("co");
+
+		if(co < 0)
+		{
+			stroke_line(line, color.get_gradient("line_negative"), color.get_property("line_thickness"));	
+		}
+		else if(co > 0)
+		{
+			stroke_line(line, color.get_gradient("line_positive"), color.get_property("line_thickness"));	
+		}
+		else if(co === 0)
+		{
+			stroke_line(line, color.get_gradient("line_dead"), color.get_property("line_thickness"));	
+		}
+
 		stroke_line(border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
-		stroke_line(line, color.get_gradient("line"), color.get_property("line_thickness"));
 
 		stage.update();
 	}

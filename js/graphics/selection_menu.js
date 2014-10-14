@@ -57,7 +57,7 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 			that.container.parent.addChildAt(border_line, line, 0);
 
 			stroke_line(x, y, border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
-			stroke_line(x, y, line, color.get_gradient("line"), color.get_property("line_thickness"));
+			stroke_line(x, y, line, color.get_gradient("line_positive"), color.get_property("line_thickness"));
 
 			stage.update();
 		}
