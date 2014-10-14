@@ -1,16 +1,14 @@
 /**
-* @namespace sense4us
+* @namespace sense4us.mechanics
 */
 
 var sense4us = sense4us || {};
-
-/**
-* A class to create the mechanic for different objects.
-* @class mechanics
-*/
 sense4us.mechanics = sense4us.mechanics || {};
 
-
+/**
+* A class to make objects draggable
+* @class draggable
+*/
 sense4us.mechanics.draggable = function(graphic_object) {
 	var mouseX = 0;
 	var mouseY = 0;
