@@ -44,6 +44,9 @@ sense4us.graphics.color = function() {
 		border_circle_radius: 52,
 		circle_radius: 48,
 
+		selection_border_circle_radius: 17,
+		selection_circle_radius: 15,
+
 		label_shadow_blur: 6,
 		selection_label_shadow_blur: 4
 	};

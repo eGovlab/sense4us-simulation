@@ -29,10 +29,12 @@ sense4us.graphics.link = function(entity, stage) {
 		var end_x = entity.get_end().x;
 		var end_y = entity.get_end().y;
 
+		console.log(entity.get("co"));
+
 		line.graphics.clear();
 		line.graphics.setStrokeStyle(thickness);
 		line.graphics.beginRadialGradientStroke(color_array,
-			[0, 0.5], start_x, start_y, color.get_property("line_gradiant_radius_inner"), end_x, end_y, color.get_property("line_gradiant_radius_outer"));
+			[0, 0.2], start_x, start_y, color.get_property("line_gradiant_radius_inner"), end_x, end_y, color.get_property("line_gradiant_radius_outer"));
 
 		line.graphics.moveTo(start_x, start_y);
 		line.graphics.lineTo(end_x, end_y);

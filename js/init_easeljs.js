@@ -2,7 +2,20 @@ var sense4us = sense4us || {};
 
 sense4us.init_easeljs = function() {
 	//Draw a square on screen.
-	var canvas = document.getElementById('canvas');
+	var canvas = document.getElementById("canvas");
+	var container = document.getElementById("container");
+
+	canvas.width = container.offsetWidth;
+	canvas.height = container.offsetHeight;
+
+	window.onresize = function()
+	{
+		canvas.width = container.offsetWidth;
+		canvas.height = container.offsetHeight;
+
+		sense4us.stage.update();
+	};
+
 	sense4us.stage = new createjs.Stage("canvas");
 
 	document.getElementById( "canvas" ).onmousedown = function(event){
