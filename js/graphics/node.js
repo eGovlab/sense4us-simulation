@@ -11,11 +11,13 @@ sense4us.graphics = sense4us.graphics || {};
 */
 
 sense4us.graphics.node = function(entity, stage) {
+	var color = sense4us.graphics.color;
+
 	var border_circle = new createjs.Shape();
-	border_circle.graphics.beginFill("#39D").drawCircle(0, 0, 52);
+	border_circle.graphics.beginFill(color.get_color("border_circle")).drawCircle(0, 0, 52);
 
 	var circle = new createjs.Shape();
-	circle.graphics.beginRadialGradientFill(["#F00", "#00F"],
+	circle.graphics.beginRadialGradientFill(color.get_gradient("circle"),
 		[0, 1], 25, 25, 50, 
 		-25, -25, 50).drawCircle(0, 0, 50);
 
