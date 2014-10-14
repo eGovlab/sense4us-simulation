@@ -38,6 +38,8 @@ sense4us.entities.link = function(id, start, end) {
 
 	that.set("id", that.get_element().getAttribute("id"));
 
+	that.set("start", start.id);
+	that.set("end", end.id);
 	start.links.push(that);
 	end.links.push(that);
 
