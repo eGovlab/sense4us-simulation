@@ -81,8 +81,6 @@ sense4us.graphics.link = function(entity, stage) {
 
 		arrow.rotation = (link_rotation / Math.PI) * 180;
 
-		console.log(label.text);
-
 		var co = entity.get("co");
 
 		if(co < 0)
