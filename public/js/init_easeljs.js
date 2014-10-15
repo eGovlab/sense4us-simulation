@@ -42,6 +42,12 @@ sense4us.init_easeljs = function() {
 
 	var stage = sense4us.stage;
 
+	var img = new createjs.Bitmap("http://subtlepatterns.com/patterns/footer_lodyas.png");
+	var back = new createjs.Shape();
+	stage.addChild(back);
+	back.x = 0;
+	back.y = 0;
+
 	//sense4us.stage.enableMouseOver(20);
 
 	canvas.addEventListener("mousewheel", MouseWheelHandler, false);

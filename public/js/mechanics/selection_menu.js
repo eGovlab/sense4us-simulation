@@ -58,7 +58,6 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 			container.y = startY;
 
 			// @TODO: Fix this ugly shit
-			sense4us.mechanics.is_dragging = false;
 			sense4us.stage.update();
 		}
 

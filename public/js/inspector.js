@@ -81,6 +81,9 @@ sense4us.inspector = function() {
 		},
 		getInspectedObject: function() {
 			return inspectingObject;
+		},
+		update: function() {
+			that.inspect(inspectingObject);
 		}
 	};
 
@@ -108,4 +111,9 @@ sense4us.events.bind("object_selected", function(object) {
 */
 sense4us.events.bind("object_deselected", function(object) {
 	sense4us.inspector.inspect(null);
+});
+
+sense4us.events.bind("object_released", function(object)
+{
+	sense4us.inspector.update();
 });
