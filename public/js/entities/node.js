@@ -75,6 +75,7 @@ sense4us.entities.node = function(id) {
 	};
 
 	that.set("id", html_entity.getAttribute("id"));
+	that.set("notes", "empty notes");
 	that.set("type", "node");
 	sense4us.entities.id_to_entity[that.id] = that;
 

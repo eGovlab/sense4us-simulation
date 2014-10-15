@@ -21,14 +21,19 @@ sense4us.graphics.node = function(entity, stage) {
 		[0, 1], 0, 0, 50, 
 		-8, -8, 46).drawCircle(0, 0, color.get_property("circle_radius"));
 
-	var label = new createjs.Text(entity.signal, "bold 14px Arial", color.get_color("label"));
+	var label = new createjs.Text(entity.signal + " (" + entity.signal_fire + ")", "bold 14px Arial", color.get_color("label"));
 	label.textAlign = "center";
 	label.y = -7;
 	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
+	var name_label = new createjs.Text(entity.id, "bold 14px Arial", color.get_color("label"));
+	name_label.textAlign = "center";
+	name_label.y = -75;
+	name_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+
 	var circle_container = new createjs.Container();
 
-	circle_container.addChild(border_circle, circle, label);
+	circle_container.addChild(border_circle, circle, label, name_label);
 
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
@@ -38,7 +43,8 @@ sense4us.graphics.node = function(entity, stage) {
 	that.container.x = that.container.y = 100;
 
 	that.update = function() {
-		label.text = entity.signal;
+		label.text = entity.signal + " (" + entity.signal_fire + ")";
+		name_label.text = entity.id;
 		that.container.x = parseInt(entity.x);
 		that.container.y = parseInt(entity.y);
 	}

@@ -16,8 +16,6 @@ sense4us.network = function() {
 	var that = {
 		socket: function() { return socket; }(),
 		sendData: function(evt, data) {
-			console.log("Network event: " + evt);
-			console.log("Network data: " + data);
 			socket.emit(evt, data);
 		}
 	};

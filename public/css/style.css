@@ -58,11 +58,15 @@ h5{
 	margin-top: 4px;
 }
 
-input[type="text"]{
+input[type="text"], textarea {
 	display: inline-block;
 	background-color: #1A1A1A;
 	border: none;
 	color: #FAFAFA;
+}
+
+textarea {
+	height: 250px;
 }
 
 input[type="button"], .button {
@@ -95,3 +99,10 @@ html
 	background-color: #2a2a2a;
 }
 
+#edit_signal_fire {
+	width: 20px;
+}
+
+#edit_signal_fire input {
+	width: 20px;
+}

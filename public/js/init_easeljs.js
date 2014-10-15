@@ -1,5 +1,12 @@
 var sense4us = sense4us || {};
 
+sense4us.mousepos_to_stagepos = function(pos, stage) {
+	var x = (pos.x - stage.x) / stage.scaleX;
+	var y = (pos.y - stage.y) / stage.scaleY;
+
+	return {x: x, y: y};
+}
+
 sense4us.init_easeljs = function() {
 	//Draw a square on screen.
 	var canvas = document.getElementById("canvas");
@@ -54,16 +61,30 @@ sense4us.init_easeljs = function() {
 	}
 
 	stage.on("stagemousedown", function(e) {
+		var moved = false;
+
 		var offset = {x: stage.x - e.stageX, y: stage.y - e.stageY};
 		stage.addEventListener("stagemousemove",function(evt) {
-			if (!sense4us.mechanics.is_dragging) {
+			var click_pos = sense4us.mousepos_to_stagepos(e.stageX, e.stageY);
+			if (!stage.hitTest(click_pos)) {
 				stage.x = evt.stageX + offset.x;
 				stage.y = evt.stageY + offset.y;
 				stage.update();
+				moved = true;
 			}
 		});
+
 		stage.addEventListener("stagemouseup", function(){
 			stage.removeAllEventListeners("stagemousemove");
+
+			if (!moved) {
+				var click_pos = sense4us.mousepos_to_stagepos(e.stageX, e.stageY);
+				if (!stage.hitTest(click_pos) && sense4us.selected_object) {
+					console.log("LOL");
+					sense4us.selected_object = null;
+					sense4us.events.trigger("object_deselected");
+				}
+			}
 		});
 	});
 }
