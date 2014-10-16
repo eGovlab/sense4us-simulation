@@ -1,7 +1,6 @@
 /**
 * @namespace sense4us
 */
-
 var sense4us = sense4us || {};
 
 /**

@@ -1,3 +1,4 @@
+"use strict";
 var sense4us = sense4us || {};
 
 sense4us.get_or_create_html_entity = function(id, entity) {
