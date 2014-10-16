@@ -88,6 +88,10 @@ input[type="button"], .button {
 	cursor: pointer;
 }
 
+input[type="button"]:active, .button:active {
+	background-color: #681;
+}
+
 html
 {
 	background-color: #000000;
