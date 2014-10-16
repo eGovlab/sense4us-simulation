@@ -1,8 +1,15 @@
 var sense4us = sense4us || {};
 
 sense4us.mousepos_to_stagepos = function(pos, stage) {
-	var x = (pos.x - stage.x) / stage.scaleX;
-	var y = (pos.y - stage.y) / stage.scaleY;
+	var x = (pos.x / stage.scaleX) - stage.x;
+	var y = (pos.y / stage.scaleY) - stage.y;
+
+	return {x: x, y: y};
+}
+
+sense4us.stagepos_to_mousepos = function(pos, stage) {
+	var x = (pos.x) * stage.scaleX + stage.x;
+	var y = (pos.y) * stage.scaleY + stage.y;
 
 	return {x: x, y: y};
 }
@@ -62,19 +69,19 @@ sense4us.init_easeljs = function() {
 			zoom=1/1.1;
 		stage.scaleX=stage.scaleY*=zoom;
 
+		sense4us.events.trigger("stage_zoom", stage);
 		stage.update();
-
 	}
 
+	var moved = false;
 	stage.on("stagemousedown", function(e) {
-		var moved = false;
-
 		var offset = {x: stage.x - e.stageX, y: stage.y - e.stageY};
 		stage.addEventListener("stagemousemove",function(evt) {
 			var click_pos = sense4us.mousepos_to_stagepos(e.stageX, e.stageY);
 			if (!stage.hitTest(click_pos)) {
 				stage.x = evt.stageX + offset.x;
 				stage.y = evt.stageY + offset.y;
+				sense4us.events.trigger("stage_pan", stage);
 				stage.update();
 				moved = true;
 			}
@@ -82,6 +89,7 @@ sense4us.init_easeljs = function() {
 
 		stage.addEventListener("stagemouseup", function(){
 			stage.removeAllEventListeners("stagemousemove");
+			stage.removeAllEventListeners("stagemouseup");
 
 			if (!moved) {
 				var click_pos = sense4us.mousepos_to_stagepos(e.stageX, e.stageY);
@@ -91,6 +99,8 @@ sense4us.init_easeljs = function() {
 					sense4us.events.trigger("object_deselected");
 				}
 			}
+
+			moved = false;
 		});
 	});
 }

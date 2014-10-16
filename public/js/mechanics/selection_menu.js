@@ -73,7 +73,7 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 		var difference_x = new_x - evt.currentTarget.x;
 		var difference_y = new_y - evt.currentTarget.y;
 
-		if (difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
+		if (moved || difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
 			evt.currentTarget.x = new_x;
 			evt.currentTarget.y = new_y;
 			moved = true;
