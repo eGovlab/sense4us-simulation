@@ -30,7 +30,7 @@ sense4us.entities.entity = function(id) {
 	    * @param value
 	    */
 		set: function(name, value) {
-			if (name != "id") {
+			if (name != "id" && name != "class") {
 				html_entity.setAttribute("data-" + name, value);
 			} else {
 				html_entity.setAttribute(name, value);

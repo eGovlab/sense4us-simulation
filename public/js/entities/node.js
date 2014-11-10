@@ -33,7 +33,6 @@ sense4us.entities.node = function(id) {
 	that.set("notes", "empty notes");
 	that.set("type", "node");
 	that.set("class", "node");
-	
 
 	return that;
 }

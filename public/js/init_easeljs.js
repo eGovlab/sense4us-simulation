@@ -95,8 +95,9 @@ sense4us.init_easeljs = function() {
 				var click_pos = sense4us.mousepos_to_stagepos(e.stageX, e.stageY);
 				if (!stage.hitTest(click_pos) && sense4us.selected_object) {
 					console.log("LOL");
+					var selected_object = sense4us.selected_object;
 					sense4us.selected_object = null;
-					sense4us.events.trigger("object_deselected");
+					sense4us.events.trigger("object_deselected", selected_object);
 				}
 			}
 

@@ -28,8 +28,13 @@ sense4us.bless_with_events = function(object) {
 		* @param event {String} Name of the event.
 		* @param callback {Function} The callback to be called when event is triggered.
 		*/
-		bind: function(event, callback) {
+		bind: function(event, callback, callback_name) {
 			events_and_callbacks[event] = events_and_callbacks[event] || [];
+
+			if (callback_name) {
+				callback.name = callback_name;
+			}
+
 			events_and_callbacks[event].push(callback);
 		},
 		/**
@@ -48,14 +53,14 @@ sense4us.bless_with_events = function(object) {
 				callback(data);
 			}
 		},
-		unbind: function(event, callback_to_remove) {
+		unbind: function(event, callback_name) {
 			if (events_and_callbacks[event] == null) {
 				return;
 			}
 
 			for (var pos in events_and_callbacks[event]) {
 				var callback = events_and_callbacks[event][pos];
-				if (callback == callback_to_remove) {
+				if (callback.name == callback_name) {
 					delete events_and_callbacks[event][pos];
 					console.log(events_and_callbacks[event]);
 				}

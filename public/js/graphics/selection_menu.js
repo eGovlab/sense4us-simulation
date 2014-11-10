@@ -18,6 +18,9 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 	line.graphics.moveTo(0, 0);
 	line.graphics.endStroke();
 
+	var circle_container = new createjs.Container();
+	circle_container.set({x: -55, y: 65});
+
 	var border_circle = new createjs.Shape();
 	border_circle.graphics.beginFill(color.get_color("selection_border_circle")).drawCircle(0, 0, color.get_property("selection_border_circle_radius"));
 
@@ -31,10 +34,13 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 
 	label.mouseEnabled = false;
 
+	var input_field = sense4us.graphics.floating_input_field(entity, stage);
+
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
-	that.container.set({x: -55, y: 55});
-	that.container.addChild(border_circle, circle, label);
+	that.container.set({x: -7, y: -10});
+	circle_container.addChild(border_circle, circle, label);
+	that.container.addChild(input_field.container, circle_container);
 
 	var stroke_line = function(x, y, line, color_array, thickness)
 	{
@@ -56,10 +62,20 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 		if (that.container.parent) {
 			that.container.parent.addChildAt(border_line, line, 0);
 
-			stroke_line(x, y, border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
-			stroke_line(x, y, line, color.get_gradient("line_positive"), color.get_property("line_thickness"));
+			stroke_line(x + circle_container.x, y + circle_container.y, border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
+			stroke_line(x + circle_container.x, y + circle_container.y, line, color.get_gradient("line_positive"), color.get_property("line_thickness"));
 
 			stage.update();
+		}
+	}
+
+	that.update = function() {
+		if (that.container.parent) {
+			input_field.set_entity(that.container.parent.graphic_object.entity);
+			input_field.show();
+			input_field.update();
+		} else {
+			input_field.hide();
 		}
 	}
 

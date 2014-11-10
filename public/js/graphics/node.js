@@ -21,10 +21,17 @@ sense4us.graphics.node = function(entity, stage) {
 		[0, 1], 0, 0, 50, 
 		-8, -8, 46).drawCircle(0, 0, color.get_property("circle_radius"));
 
-	var label = new createjs.Text(entity.signal + " (" + entity.signal_fire + ")", "bold 14px Arial", color.get_color("label"));
-	label.textAlign = "center";
-	label.y = -7;
-	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+	var signal_label = new createjs.Text(entity.signal, "bold 14px Arial", color.get_color("label"));
+	signal_label.textAlign = "right";
+	signal_label.y = -7;
+	signal_label.x = -3;
+	signal_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+
+	var signal_fire_label = new createjs.Text("(" + entity.signal_fire + ")", "bold 14px Arial", color.get_color("label"));
+	signal_fire_label.textAlign = "left";
+	signal_fire_label.x = 3;
+	signal_fire_label.y = -7;
+	signal_fire_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
 	var name_label = new createjs.Text(entity.id, "bold 14px Arial", color.get_color("label"));
 	name_label.textAlign = "center";
@@ -33,7 +40,7 @@ sense4us.graphics.node = function(entity, stage) {
 
 	var circle_container = new createjs.Container();
 
-	circle_container.addChild(border_circle, circle, label, name_label);
+	circle_container.addChild(border_circle, circle, signal_label, signal_fire_label, name_label);
 
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
@@ -43,7 +50,8 @@ sense4us.graphics.node = function(entity, stage) {
 	that.container.x = that.container.y = 100;
 
 	that.update = function() {
-		label.text = entity.signal + " (" + entity.signal_fire + ")";
+		signal_label.text = entity.signal;
+		signal_fire_label.text = entity.signal_fire;
 		name_label.text = entity.id;
 		that.container.x = parseInt(entity.x);
 		that.container.y = parseInt(entity.y);
@@ -52,6 +60,7 @@ sense4us.graphics.node = function(entity, stage) {
 	entity.set("x", that.container.x);
 	entity.set("y", that.container.y);
 
+	that.update();
 	stage.update();
 
 	return that;

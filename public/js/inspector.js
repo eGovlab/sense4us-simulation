@@ -39,11 +39,11 @@ sense4us.inspector = function() {
 			}
 		}
 
+		html += "</form>";
+
 		if (inspectingObject.type == "link") {
 			html += "<button class='button' id='switch'>Switch</button>";
 		}
-
-		html += "</form>";
 
 		return html;
 	};

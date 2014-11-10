@@ -15,15 +15,33 @@ sense4us.entities.selection_menu = function(id) {
 				that.graphics.container.parent.removeChild(that.graphics.container);
 			}
 
-			entity.addChild(that.graphics.container);
+			entity.events.bind("update", function(object) {
+				that.graphics.update();
+			}, "update_selection_menu");
+
+			sense4us.events.bind("stage_pan", function(object) {
+				that.graphics.update();
+			}, "update_selection_menu");
+
+			sense4us.events.bind("stage_zoom", function(object) {
+				that.graphics.update();
+			}, "update_selection_menu");
+
+			entity.graphics.container.addChild(that.graphics.container);
+			that.graphics.update();
 			
 			sense4us.events.trigger("object_updated", that);
 		},
-		clear: function(stage) {
+		clear: function(entity, stage) {
 			if (that.graphics.container.parent != null) {
 				that.graphics.container.parent.removeChild(that.graphics.container);
 			}
 			
+			entity.events.unbind("update", "update_selection_menu");
+			sense4us.events.unbind("stage_pan", "update_selection_menu");
+			sense4us.events.unbind("stage_zoom", "update_selection_menu");
+			that.graphics.update();
+
 			sense4us.events.trigger("object_updated", that);
 		},
 		id: function() {

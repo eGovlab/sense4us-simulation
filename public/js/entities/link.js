@@ -42,14 +42,14 @@ sense4us.entities.link = function(id, node1, node2, co, t) {
 		node1 = node2;
 		node2 = temp;
 		
-		that.set("node1", node1.id);
-		that.set("node2", node2.id);
+		that.set("n1", node1.id);
+		that.set("n2", node2.id);
 	}
 
 
 	that.set("class", "link");
-	that.set("node1", node1.id);
-	that.set("node2", node2.id);
+	that.set("n1", node1.id);
+	that.set("n2", node2.id);
 	that.set("co", co);
 	that.set("t", t);
 	that.set("type", "link");
