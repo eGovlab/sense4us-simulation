@@ -52,7 +52,7 @@ sense4us.graphics.node = function(entity, stage) {
 	that.update = function() {
 		signal_label.text = entity.signal;
 		signal_fire_label.text = entity.signal_fire;
-		name_label.text = entity.id;
+		name_label.text = entity.name;
 		that.container.x = parseInt(entity.x);
 		that.container.y = parseInt(entity.y);
 	}

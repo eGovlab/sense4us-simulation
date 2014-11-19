@@ -17,7 +17,7 @@ sense4us.entities.id_to_entity = sense4us.entities.id_to_entity || {}
 sense4us.entities.entity = function(id) {
 	if (id == null) {
 		sense4us.temp_id = sense4us.temp_id || 0;
-		id = "entity-" + sense4us.temp_id;
+		var name = "entity-" + sense4us.temp_id;
 		sense4us.temp_id++;
 	}
 	var html_entity = sense4us.get_or_create_html_entity(id);

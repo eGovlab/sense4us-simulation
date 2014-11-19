@@ -28,8 +28,8 @@ sense4us.inspector = function() {
 		html += "<form id='" + inspectingObject.id + "-form'>";
 		for (var property_name in inspectingObject) {
 			var property = inspectingObject[property_name];
-			// This if-statement will filter out all object properties which are functions and objects.
-			if (!(property instanceof Function) && !(property instanceof Object)) {
+			// This if-statement will filter out all object properties which are functions, objects and id.
+			if (!(property instanceof Function) && !(property instanceof Object) && property_name != "id") {
 				html += "<h5>" + property_name + "</h5>";
 				if (property_name == "notes") {
 					html += "<textarea name='"+property_name+"'>"+property+"</textarea>";
