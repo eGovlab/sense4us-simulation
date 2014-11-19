@@ -29,7 +29,7 @@ sense4us.simulation = function() {
 			return {nodes: nodes, links: links};
 		},
 		run: function() {
-			var nodes_and_links = get_nodes_and_links();
+			var nodes_and_links = that.get_nodes_and_links();
 			sense4us.network.sendData("run_simulation", [nodes_and_links.nodes, nodes_and_links.links]);
 		}
 	};

@@ -23,7 +23,7 @@ sense4us.entities.node = function(id) {
 		sense4us.temp_id++;
 	}
 
-	var that = Object.create(sense4us.entities.entity(id));
+	var that = sense4us.entities.entity(id);
 
 	that.links = [];
 	that.events = (function() {

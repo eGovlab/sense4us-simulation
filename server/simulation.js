@@ -84,18 +84,18 @@ module.exports = function()
 		simulation_nodes = {};
 		simulation_links = [];
 
-		// Create simulation nodes of all existing nodes
-		for (var nodeIndex = 0; nodeIndex < nodes.length; ++nodeIndex) {
-			var node = nodes[nodeIndex];
-			var simulation_node = create_simulation_node(node["id"], node["signal"], node["signal_fire"]);
-			simulation_nodes[simulation_node.id] = simulation_node; //.push(simulation_node);
-		}
-
 		// Create simulation links of all existing links
 		for (var linkIndex = 0; linkIndex < links.length; ++linkIndex) {
 			var link = links[linkIndex];
 			var simulation_link = create_simulation_link(link["id"], link["n1"], link["n2"], link["co"]);
 			simulation_links.push(simulation_link);
+		}
+
+		// Create simulation nodes of all existing nodes
+		for (var nodeIndex = 0; nodeIndex < nodes.length; ++nodeIndex) {
+			var node = nodes[nodeIndex];
+			var simulation_node = create_simulation_node(node["id"], node["signal"], node["signal_fire"]);
+			simulation_nodes[simulation_node.id] = simulation_node; //.push(simulation_node);
 		}
 
 		// Let each node know their output links
@@ -115,10 +115,10 @@ module.exports = function()
 	    * @method run
 		* @param nodes {Array} Array of nodes from the database.
 		* @param links {Array} Array of links from the database.
-		* @param dt {Int} Number of months/iterations to simulate(not yet used in the simulation)
+		* @param delta_time {Int} Number of months/iterations to simulate(not yet used in the simulation)
 		* @returns {Array} An Array of simulation nodes post simulation(they contain the result of the simulation)
 	    */
-		run: function(nodes, links, dt)
+		run: function(nodes, links, delta_time)
 		{
 			// Setup the nodes and links connections
 			setup_simulation_network(nodes, links);
