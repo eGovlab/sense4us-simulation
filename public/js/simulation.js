@@ -1,9 +1,10 @@
+"use strict";
 
 var sense4us = sense4us || {};
 
 sense4us.simulation = function() {
 	var that = {
-		run: function() {
+		get_nodes_and_links: function() {
 			var nodes = [];
 			var links = [];
 
@@ -25,8 +26,11 @@ sense4us.simulation = function() {
 				}
 			}
 
-			console.log(nodes, links);
-			sense4us.network.sendData("run_simulation", [nodes, links]);
+			return {nodes: nodes, links: links};
+		},
+		run: function() {
+			var nodes_and_links = get_nodes_and_links();
+			sense4us.network.sendData("run_simulation", [nodes_and_links.nodes, nodes_and_links.links]);
 		}
 	};
 
