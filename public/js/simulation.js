@@ -23,14 +23,17 @@ sense4us.simulation = function() {
 					entity.t = parseFloat(entity.t);
 			    	links.push(entity);
 			        break;
-				}
+					}
 			}
 
 			return {nodes: nodes, links: links};
 		},
 		run: function() {
 			var nodes_and_links = that.get_nodes_and_links();
-			sense4us.network.sendData("run_simulation", [nodes_and_links.nodes, nodes_and_links.links]);
+			var timelag = document.getElementById("sense4us_timelag").value;
+			timelag = parseInt(timelag);
+
+			sense4us.network.sendData("run_simulation", [nodes_and_links.nodes, nodes_and_links.links, timelag]);
 		}
 	};
 
@@ -45,7 +48,7 @@ sense4us.network.socket.on("run_simulation_completed", function(nodes) {
 			var node = nodes[nodeIndex];
 			var node_entity = sense4us.entities.id_to_entity[node.id];
 
-			console.log(node, node_entity);
+			//console.log(node, node_entity);
 
 			node_entity.set("signal", node["signal"]);
 			node_entity.events.trigger("update", node_entity);

@@ -11,6 +11,7 @@ module.exports = function()
 {
 	var simulation_nodes = {};
 	var simulation_links = [];
+	var delta_time = 0;
 
 	/**
     * Creates a simulation node that has the possibility to fire
@@ -22,10 +23,10 @@ module.exports = function()
 	* @param signal_fire {Float} How much signal this node is set to transmit.
     * @returns {Object} An object that has additional functions for simulation purposes.
     */
-	create_simulation_node = function(id, signal, signal_fire) {
+	create_simulation_node = function(id, signal_fire) {
 		var that = {
 			id: id,
-			signal: signal,
+			signal: 0,
 			signal_fire: signal_fire,
 			links: [],
 			been_here: false,
@@ -42,9 +43,12 @@ module.exports = function()
 				that.been_here = false;
 				return false;
 			},
-			fire: function(signal_fire) {
+			fire: function(signal_fire, accumulated_time) {
+				if(signal_fire === 0)
+					return;
+
 				for (var linkIndex = 0; linkIndex < that.links.length; linkIndex++) {
-					that.links[linkIndex].fire(signal_fire);
+					that.links[linkIndex].fire(signal_fire, accumulated_time);
 				}
 			}
 		};
@@ -62,12 +66,13 @@ module.exports = function()
 	* @param co {Float} The coefficient that alters the signal passing through this link.
     * @returns {Object} An object that has additional functions for simulation purposes.
     */
-	create_simulation_link = function(id, n1, n2, co) {
+	create_simulation_link = function(id, n1, n2, co, t) {
 		var that = {
 			id: id,
 			n1: n1,
 			n2: n2,
 			co: co,
+			t: t,
 			output_node_object: undefined,
 			findLoop: function() {
 				if(that.output_node_object === undefined)
@@ -78,15 +83,19 @@ module.exports = function()
 
 				return false;
 			},
-			fire: function(signal_fire)
-			{
+			fire: function(signal_fire, accumulated_time) {
 				if(that.output_node_object === undefined)
 					throw that.id + ": Couldn't fire, output_node_object is undefined.";
 
-					// Calculate how much change is to be transferred over this link
+				if(that.t + accumulated_time > delta_time)
+					return;
+
+				accumulated_time = that.t + accumulated_time;
+
+				// Calculate how much change is to be transferred over this link
 				var signal_out = signal_fire * this.co;
 				that.output_node_object.signal = that.output_node_object.signal + signal_out;
-				that.output_node_object.fire(signal_out);
+				that.output_node_object.fire(signal_out, accumulated_time);
 			}
 		};
 		return that;
@@ -100,8 +109,7 @@ module.exports = function()
 	* @param nodes {Array} Array of nodes from the database.
 	* @param links {Array} Array of links from the database.
     */
-	setup_simulation_network = function(nodes, links)
-	{
+	setup_simulation_network = function(nodes, links) {
 		// Clear the arrays storing simulation_nodes and simulation_links.
 		simulation_nodes = {};
 		simulation_links = [];
@@ -111,14 +119,14 @@ module.exports = function()
 		// Create simulation links of all existing links
 		for (var linkIndex = 0; linkIndex < links.length; ++linkIndex) {
 			var link = links[linkIndex];
-			var simulation_link = create_simulation_link(link["id"], link["n1"], link["n2"], link["co"]);
+			var simulation_link = create_simulation_link(link["id"], link["n1"], link["n2"], link["co"], link["t"]);
 			simulation_links.push(simulation_link);
 		}
 
 		// Create simulation nodes of all existing nodes
 		for (var nodeIndex = 0; nodeIndex < nodes.length; ++nodeIndex) {
 			var node = nodes[nodeIndex];
-			var simulation_node = create_simulation_node(node["id"], node["signal"], node["signal_fire"]);
+			var simulation_node = create_simulation_node(node["id"], node["signal_fire"]);
 			simulation_nodes[simulation_node.id] = simulation_node; //.push(simulation_node);
 
 			if(node["signal_fire"] != 0)
@@ -152,8 +160,11 @@ module.exports = function()
 		* @param delta_time {Int} Number of months/iterations to simulate(not yet used in the simulation)
 		* @returns {Array} An Array of simulation nodes post simulation(they contain the result of the simulation)
 	    */
-		run: function(nodes, links, delta_time)
+		run: function(nodes, links, dt)
 		{
+			if(typeof dt === "number")
+				delta_time = dt;
+
 			// Setup the nodes and links connections
 			if(!setup_simulation_network(nodes, links))
 				return "There is a loop, you bugger.";
@@ -161,7 +172,7 @@ module.exports = function()
 			// Simulate firing of all nodes
 			for (var nodeIndex in simulation_nodes) {
 				var simulation_node = simulation_nodes[nodeIndex];
-				simulation_node.fire(simulation_node["signal_fire"]);
+				simulation_node.fire(simulation_node["signal_fire"], 0);
 			}
 
 			return simulation_nodes;
@@ -173,9 +184,10 @@ module.exports = function()
 		// Extract nodes array from the received array
 		var nodes = arr[0];
 		var links = arr[1];
+		var delta_time = arr[2];
 
 		// Start simulation
-		var result_nodes = that.run(nodes, links, 1);
+		var result_nodes = that.run(nodes, links, delta_time);
 
 		// Send back the results of the simulation to the client
 		socket.emit("run_simulation_completed", result_nodes);
