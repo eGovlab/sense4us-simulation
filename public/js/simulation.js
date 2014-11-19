@@ -38,13 +38,17 @@ sense4us.simulation = function() {
 }();
 
 sense4us.network.socket.on("run_simulation_completed", function(nodes) {
-	for (var nodeIndex in nodes) {
-		var node = nodes[nodeIndex];
-		var node_entity = sense4us.entities.id_to_entity[node.id];
+	if(typeof nodes == "string") {
+		console.log(nodes);
+	} else {
+		for (var nodeIndex in nodes) {
+			var node = nodes[nodeIndex];
+			var node_entity = sense4us.entities.id_to_entity[node.id];
 
-		console.log(node, node_entity);
+			console.log(node, node_entity);
 
-		node_entity.set("signal", node["signal"]);
-		node_entity.events.trigger("update", node_entity);
+			node_entity.set("signal", node["signal"]);
+			node_entity.events.trigger("update", node_entity);
+		}
 	}
 });

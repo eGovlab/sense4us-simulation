@@ -28,8 +28,21 @@ module.exports = function()
 			signal: signal,
 			signal_fire: signal_fire,
 			links: [],
-			fire: function(signal_fire)
-			{
+			been_here: false,
+			findLoop: function() {
+				if(that.been_here)
+					return true;
+				
+				that.been_here = true;
+				for(var i = 0; i < that.links.length; i++) {
+					if(that.links[i].findLoop())
+						return true;
+				}
+
+				that.been_here = false;
+				return false;
+			},
+			fire: function(signal_fire) {
 				for (var linkIndex = 0; linkIndex < that.links.length; linkIndex++) {
 					that.links[linkIndex].fire(signal_fire);
 				}
@@ -55,16 +68,25 @@ module.exports = function()
 			n1: n1,
 			n2: n2,
 			co: co,
-			nodes: [],
+			output_node_object: undefined,
+			findLoop: function() {
+				if(that.output_node_object === undefined)
+					throw that.id + ": Couldn't find loop, output_node_object is undefined.";
+
+				if(that.output_node_object.findLoop())
+					return true;
+
+				return false;
+			},
 			fire: function(signal_fire)
 			{
-				for (var nodeIndex = 0; nodeIndex < that.nodes.length; ++nodeIndex) {
+				if(that.output_node_object === undefined)
+					throw that.id + ": Couldn't fire, output_node_object is undefined.";
+
 					// Calculate how much change is to be transferred over this link
-					var signal_out = signal_fire * this.co;
-					var node_out = that.nodes[nodeIndex];
-					node_out.signal = node_out.signal + signal_out;
-					node_out.fire(signal_out);
-				}
+				var signal_out = signal_fire * this.co;
+				that.output_node_object.signal = that.output_node_object.signal + signal_out;
+				that.output_node_object.fire(signal_out);
 			}
 		};
 		return that;
@@ -84,6 +106,8 @@ module.exports = function()
 		simulation_nodes = {};
 		simulation_links = [];
 
+		fire_nodes = [];
+
 		// Create simulation links of all existing links
 		for (var linkIndex = 0; linkIndex < links.length; ++linkIndex) {
 			var link = links[linkIndex];
@@ -96,6 +120,9 @@ module.exports = function()
 			var node = nodes[nodeIndex];
 			var simulation_node = create_simulation_node(node["id"], node["signal"], node["signal_fire"]);
 			simulation_nodes[simulation_node.id] = simulation_node; //.push(simulation_node);
+
+			if(node["signal_fire"] != 0)
+				fire_nodes.push(simulation_node);
 		}
 
 		// Let each node know their output links
@@ -104,8 +131,15 @@ module.exports = function()
 			var simulation_node1 = simulation_nodes[simulation_link["n1"]];
 			var simulation_node2 = simulation_nodes[simulation_link["n2"]];
 			simulation_node1["links"].push(simulation_link);
-			simulation_link["nodes"].push(simulation_node2);
+			simulation_link.output_node_object = simulation_node2;
 		}
+
+		for (var fireIndex = 0; fireIndex < fire_nodes.length; fireIndex++) {
+			if(fire_nodes[fireIndex].findLoop())
+				return false;
+		}
+
+		return true;
 	}
 
 	var that = {
@@ -121,7 +155,8 @@ module.exports = function()
 		run: function(nodes, links, delta_time)
 		{
 			// Setup the nodes and links connections
-			setup_simulation_network(nodes, links);
+			if(!setup_simulation_network(nodes, links))
+				return "There is a loop, you bugger.";
 
 			// Simulate firing of all nodes
 			for (var nodeIndex in simulation_nodes) {
