@@ -88,7 +88,14 @@ input[type="button"], .button {
 	cursor: pointer;
 }
 
-input[type="button"]:active, .button:active {
+.button {
+	display: block;
+	color: #FAFAFA;
+	font: bold 14px Arial;
+	padding: 13px 0;
+}
+
+input[type="button"]:active, .button:active, .button:active {
 	background-color: #681;
 }
 
