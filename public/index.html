@@ -11,6 +11,7 @@
 </head>
 <body>
 	<div id="menu">
+		<input type="button" class="button" onclick="create_origin_node(null, 0, 0);" value="Create origin" />
 		<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
 		<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
 		<input id="sense4us_timelag" type="text" value="0" />
@@ -52,12 +53,28 @@
 	<script src="js/export_button.js"></script>
 
 	<script>
+		"use strict";
+
 		function create_node(id, signal, signal_fire) {
 			var node = sense4us.entities.node(id);
 			node.set("name", "node_name");
 			node.set("signal", signal);
 			node.set("signal_fire", signal_fire);
 			node.graphics = sense4us.graphics.node(node, sense4us.stage);
+			sense4us.stage.addChild(node.graphics.container);
+			sense4us.stage.update();
+			sense4us.mechanics.draggable(node.graphics);
+
+			return node;
+		}
+
+		function create_origin_node(id, signal, signal_fire) {
+			var node = sense4us.entities.node(id);
+			node.set("name", "node_name");
+			node.set("signal", signal);
+			node.set("signal_fire", signal_fire);
+			node.graphics = sense4us.graphics.node(node, sense4us.stage, "origin");
+			node.graphics.set_variable("signal_fire");
 			sense4us.stage.addChild(node.graphics.container);
 			sense4us.stage.update();
 			sense4us.mechanics.draggable(node.graphics);
