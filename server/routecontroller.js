@@ -81,14 +81,12 @@ module.exports = function(express_controller)
 
 		fd = new lr(path);
 
-		fd.on("error", function(err)
-		{
+		fd.on("error", function(err) {
 			console.log(err);			
 		});
 
 		var routes = [];
-		fd.on("line", function(line)
-		{
+		fd.on("line", function(line) {
 			line = line.split(" ");
 
 			var method = line[0];
@@ -134,8 +132,7 @@ module.exports = function(express_controller)
 				[[[callback_class, callback_method]],["is_module_function"]]
 			]);
 
-			if(err.length > 0)
-			{
+			if(err.length > 0) {
 				console.log(err);
 				return;
 			}
@@ -146,8 +143,12 @@ module.exports = function(express_controller)
 
 			var module = get_module(callback_class);
 
-			express.get(route, function(req, res)
-			{
+			method = method.toLowerCase();
+			var express_call = "get";
+			if(method != "get")
+				express_call = "post";
+
+			express[express_call](route, function(req, res) {
 				console.log("\n****************")
 				console.log("INCOMING REQUEST");
 				console.log("Method: " + method);

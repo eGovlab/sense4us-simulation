@@ -4,13 +4,17 @@
 	<title>
 		Sense4us Simulator
 	</title>
-	<script src="js/easeljs-NEXT.min.js"></script>
-	<script src="js/jquery-1.11.1.js"></script>
-	<script src="js/socket.io.js"></script>
-	<link rel="stylesheet" href="css/style.css" />
+	<script src="/js/easeljs-NEXT.min.js"></script>
+	<script src="/js/jquery-1.11.1.js"></script>
+	<script src="/js/socket.io.js"></script>
+	<link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
 	<div id="menu">
+		<form id="sense4us_import_json" action="/model">
+			<input type="file" />
+			<input type="submit" class="button" value="Import (.json)" />
+		</form>
 		<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
 		<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
 		<input id="sense4us_timelag" type="text" value="0" />
@@ -23,33 +27,34 @@
 
 	<div style="clear: left"></div>
 
-	<script src="js/get_or_create_html_entity.js"></script>
-	<script src="js/select_object.js"></script>
-	<script src="js/events.js"></script>
-	<script src="js/init_easeljs.js"></script>
-	<script src="js/network.js"></script>
-	<script src="js/inspector.js"></script>
+	<script src="/js/get_or_create_html_entity.js"></script>
+	<script src="/js/select_object.js"></script>
+	<script src="/js/events.js"></script>
+	<script src="/js/init_easeljs.js"></script>
+	<script src="/js/network.js"></script>
+	<script src="/js/inspector.js"></script>
 
-	<script src="js/entities/entity.js"></script>
-	<script src="js/entities/node.js"></script>
-	<script src="js/entities/link.js"></script>
-	<script src="js/entities/selection_menu.js"></script>
+	<script src="/js/entities/entity.js"></script>
+	<script src="/js/entities/node.js"></script>
+	<script src="/js/entities/link.js"></script>
+	<script src="/js/entities/selection_menu.js"></script>
 
-	<script src="js/mechanics/selectable.js"></script>
-	<script src="js/mechanics/draggable.js"></script>
-	<script src="js/mechanics/selection_menu.js"></script>
+	<script src="/js/mechanics/selectable.js"></script>
+	<script src="/js/mechanics/draggable.js"></script>
+	<script src="/js/mechanics/selection_menu.js"></script>
 
-	<script src="js/graphics/color.js"></script>
-	<script src="js/graphics/graphic.js"></script>
-	<script src="js/graphics/floating_input_field.js"></script>
-	<script src="js/graphics/selection_menu.js"></script>
-	<script src="js/graphics/link.js"></script>
-	<script src="js/graphics/node.js"></script>
+	<script src="/js/graphics/color.js"></script>
+	<script src="/js/graphics/graphic.js"></script>
+	<script src="/js/graphics/floating_input_field.js"></script>
+	<script src="/js/graphics/selection_menu.js"></script>
+	<script src="/js/graphics/link.js"></script>
+	<script src="/js/graphics/node.js"></script>
 
-	<script src="js/handle_menu.js"></script>
+	<script src="/js/handle_menu.js"></script>
 
-	<script src="js/simulation.js"></script>
-	<script src="js/export_button.js"></script>
+	<script src="/js/simulation.js"></script>
+	<script src="/js/export_button.js"></script>
+	<script src="/js/import_button.js"></script>
 
 	<script>
 		function create_node(id, signal, signal_fire) {
@@ -86,6 +91,10 @@
 
 		sense4us.events.bind("object_updated", function(object) {
 			sense4us.stage.update();
+		});
+
+		sense4us.events.bind("model_imported", function(nodes_and_links) {
+			console.log(nodes_and_links);
 		});
 	</script>
 </body>

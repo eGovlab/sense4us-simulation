@@ -1,2 +1,4 @@
+GET "/client/:c" modelfetcher:fetch_client_with_params
 GET "/client" modelfetcher:fetch_client
 GET "/model/:fetch" modelfetcher:fetch_model
+POST "/model" modelfetcher:import_model
