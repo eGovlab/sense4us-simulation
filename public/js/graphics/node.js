@@ -1,3 +1,5 @@
+"use strict";
+
 /**
 * @namespace sense4us.graphics
 */
@@ -10,16 +12,19 @@ sense4us.graphics = sense4us.graphics || {};
 * @class node
 */
 
-sense4us.graphics.node = function(entity, stage) {
+sense4us.graphics.node = function(entity, stage, color_name) {
+	color_name = color_name || "circle";
+	var selected_variable = "signal";
+
 	var color = sense4us.graphics.color;
 
 	var border_circle = new createjs.Shape();
-	border_circle.graphics.beginFill(color.get_color("border_circle")).drawCircle(0, 0, color.get_property("border_circle_radius"));
+	border_circle.graphics.beginFill(color.get_color("border_" + color_name)).drawCircle(0, 0, color.get_property("border_" + color_name + "_radius"));
 
 	var circle = new createjs.Shape();
-	circle.graphics.beginRadialGradientFill(color.get_gradient("circle"),
+	circle.graphics.beginRadialGradientFill(color.get_gradient(color_name),
 		[0, 1], 0, 0, 50, 
-		-8, -8, 46).drawCircle(0, 0, color.get_property("circle_radius"));
+		-8, -8, 46).drawCircle(0, 0, color.get_property(color_name + "_radius"));
 
 	var signal_label = new createjs.Text("THIS NOT BE USED", "bold 14px Arial", color.get_color("label"));
 	signal_label.textAlign = "center";
@@ -52,12 +57,16 @@ sense4us.graphics.node = function(entity, stage) {
 
 	that.update = function() {
 		//entity.signal
-		signal_label.text = (parseFloat(entity.signal)*100).toFixed(2) + "%";
+		signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(2) + "%";
 		//signal_fire_label.text = entity.signal_fire;
 		name_label.text = entity.name;
 		that.container.x = parseInt(entity.x);
 		that.container.y = parseInt(entity.y);
-	}
+	};
+
+	that.set_variable = function(name) {
+		selected_variable = name;
+	};
 
 	entity.set("x", that.container.x);
 	entity.set("y", that.container.y);
@@ -66,4 +75,4 @@ sense4us.graphics.node = function(entity, stage) {
 	stage.update();
 
 	return that;
-}
+};

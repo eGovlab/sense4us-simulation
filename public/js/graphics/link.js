@@ -1,3 +1,5 @@
+"use strict";
+
 /**
 * @namespace sense4us.graphics
 */
@@ -20,14 +22,15 @@ sense4us.graphics.link = function(entity, stage) {
 
 	var font_size = 14;
 
-	var arrow_offset = 0;
-
 	var label = new createjs.Text(entity.co, "bold " + font_size + "px Arial", color.get_color("label"));
 	label.textAlign = "center";
 	label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
-	var character_multiplier = 0.3;
+	var time_label = new createjs.Text(entity.t + "m", "bold " + font_size + "px Arial", color.get_color("label"));
+	time_label.textAlign = "center";
+	time_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
+	var character_multiplier = 0.3;
 	
 	var arrow = new createjs.Text("<", "bold " + font_size + "px Arial", color.get_color("label"));
 	arrow.textAlign = "center";
@@ -36,7 +39,7 @@ sense4us.graphics.link = function(entity, stage) {
 
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
-	that.container.addChild(border_line, line, label, arrow);
+	that.container.addChild(border_line, line, label, time_label, arrow);
 
 	that.container.x = 0;
 	that.container.y = 0;
@@ -61,6 +64,7 @@ sense4us.graphics.link = function(entity, stage) {
 
 	that.update = function() {
 		label.text = entity.co;
+		time_label.text = entity.t + "m";
 
 		var link_rotation = Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
 			entity.get_start().get_x() - entity.get_end().get_x());
@@ -73,6 +77,12 @@ sense4us.graphics.link = function(entity, stage) {
 
 		label.x = label.x * (String(label.text).length + 2) * character_multiplier;
 		label.y -= font_size / 2;
+		
+		time_label.x = Math.sin(link_rotation) * -label_offset_x;
+		time_label.y = -Math.cos(link_rotation) * -label_offset_y;
+
+		time_label.x = time_label.x * (String(time_label.text).length + 2) * character_multiplier;
+		time_label.y -= font_size / 2;
 
 		that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
 		that.container.y = (entity.get_start().get_y() + entity.get_end().get_y()) * 0.5;
@@ -92,7 +102,7 @@ sense4us.graphics.link = function(entity, stage) {
 		{
 			stroke_line(line, color.get_gradient("line_positive"), color.get_property("line_thickness"));	
 		}
-		else if(co == 0)
+		else if(co === 0)
 		{
 			stroke_line(line, color.get_gradient("line_dead"), color.get_property("line_thickness"));	
 		}
@@ -100,18 +110,18 @@ sense4us.graphics.link = function(entity, stage) {
 		stroke_line(border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
 
 		stage.update();
-	}
+	};
 
 	that.clear_line = function() {
 		border_line.graphics.clear();
 		line.graphics.clear();
 
 		stage.update();
-	}
+	};
 
 	that.update();
 
 	stage.update();
 
 	return that;
-}
+};

@@ -1,3 +1,5 @@
+"use strict";
+
 /**
 * @namespace sense4us
 */
@@ -19,6 +21,12 @@ sense4us.graphics.color = function() {
 		selection_border_circle: "#AF6",
 		selection_circle: "#691",
 
+		border_origin: "#FF9A52",
+		//origin: "#4AE",
+
+		selection_border_origin: "#AF6",
+		selection_origin: "#691",
+
 		label: "#FAFAFA",
 		label_shadow: "#130"
 	};
@@ -30,7 +38,8 @@ sense4us.graphics.color = function() {
 		line_dead: ["#000", "#222"],
 
 		//border_circle: ["#4DF", "#4DF"],
-		circle: ["#691", "#8A2"]
+		circle: ["#691", "#8A2"],
+		origin: ["#D45800", "#FF6A00"]
 
 		//selection_border_circle: ["#162", "#162"],
 		//selection_circle: ["#AE4", "#AE4"]
@@ -45,6 +54,9 @@ sense4us.graphics.color = function() {
 
 		border_circle_radius: 52,
 		circle_radius: 48,
+
+		border_origin_radius: 52,
+		origin_radius: 48,
 
 		selection_border_circle_radius: 17,
 		selection_circle_radius: 15,
