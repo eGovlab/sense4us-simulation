@@ -1,3 +1,5 @@
+"use strict";
+
 /**
 * @namespace sense4us
 */
@@ -19,10 +21,14 @@ sense4us.graphics.graphic = function(entity, stage) {
 		}(),
 		entity: function() {
 			return entity;
-		}()
-	}
+		}(),
+		destroy: function() {
+			stage.removeChild(container);
+			stage.update();
+		}
+	};
 
 	container.graphic_object = that;
 
 	return that;
-}
+};

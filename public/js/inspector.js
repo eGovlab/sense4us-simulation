@@ -1,3 +1,5 @@
+"use strict";
+
 /**
 * @namespace sense4us
 */
@@ -24,7 +26,7 @@ sense4us.inspector = function() {
     */
 	var generateHTML = function() {
 		if (!inspectingObject) return null;
-		html = "";
+		var html = "";
 		html += "<form id='" + inspectingObject.id + "-form'>";
 		for (var property_name in inspectingObject) {
 			var property = inspectingObject[property_name];
@@ -44,6 +46,8 @@ sense4us.inspector = function() {
 		if (inspectingObject.type == "link") {
 			html += "<button class='button' id='switch'>Switch</button>";
 		}
+
+		html += "<button class='button' id='delete'>Delete</button>";
 
 		return html;
 	};
@@ -76,6 +80,13 @@ sense4us.inspector = function() {
 					event.preventDefault();
 					inspectingObject.switch();
 					inspectingObject.events.trigger("update", inspectingObject);
+				});
+
+				$("#delete").click(function(event) {
+					event.preventDefault();
+					var entity = inspectingObject;
+					sense4us.deselect_object();
+					entity.destroy();
 				});
 			}
 		},

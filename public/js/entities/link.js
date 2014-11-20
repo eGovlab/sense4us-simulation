@@ -1,3 +1,5 @@
+"use strict";
+
 /**
 * @namespace sense4us.entities
 */
@@ -17,7 +19,7 @@ sense4us.entities = sense4us.entities || {};
 */
 
 sense4us.entities.link = function(id, node1, node2, co, t) {
-	if (id == null) {
+	if (id === null) {
 		sense4us.temp_id = sense4us.temp_id || 0;
 		id = "newline-" + sense4us.temp_id;
 		sense4us.temp_id++;
@@ -44,7 +46,23 @@ sense4us.entities.link = function(id, node1, node2, co, t) {
 		
 		that.set("n1", node1.id);
 		that.set("n2", node2.id);
-	}
+	};
+
+	that.destroy = function() {
+		var pos = node1.links.indexOf(that);
+		if (pos !== -1) {
+			node1.links.splice(pos, 1);
+		}
+
+		pos = node2.links.indexOf(that);
+		if (pos !== -1) {
+			node2.links.splice(pos, 1);
+		}
+
+		that.graphics.destroy();
+		
+		delete sense4us.entities.id_to_entity[that.id];
+	};
 
 
 	that.set("class", "link");
@@ -58,7 +76,7 @@ sense4us.entities.link = function(id, node1, node2, co, t) {
 	node2.links.push(that);
 
 	return that;
-}
+};
 
 sense4us.bless_with_events(sense4us.entities.link);
 
