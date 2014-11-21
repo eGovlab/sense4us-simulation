@@ -15,7 +15,7 @@ sense4us.graphics.floating_input_field = function(entity, stage) {
 	var that = Object.create(sense4us.graphics.graphic(entity, stage));
 
 	that.container.y = 3;
-	that.container.x = 10;
+	that.container.x = 0;
 
 	that.show = function() {
 		input_container.show();
@@ -30,7 +30,8 @@ sense4us.graphics.floating_input_field = function(entity, stage) {
 
 	that.update = function() {
 		var pos = that.container.localToGlobal(0, 0);
-		pos.x = pos.x + $("#menu").width();
+		pos.x = pos.x + $("#" + sense4us.stage.canvas.id).offset().left;
+		pos.y = pos.y + $("#" + sense4us.stage.canvas.id).offset().top;
 		input_container.height(14 * sense4us.stage.scaleY);
 		input_container.css("font-size", 14 * sense4us.stage.scaleY);
 		input_container.offset({left: pos.x, top: pos.y});

@@ -15,10 +15,26 @@ sense4us.graphics.graphic = function(entity, stage) {
 	var container = new createjs.Container();
 	container.x = container.y = 0;
 
+	var containers = {};
+
+	var last_mode = null;
+
 	var that = {
 		container: function() {
 			return container;
 		}(),
+		containers: function() {
+			return containers;
+		}(),
+		update: function() {
+			if (stage.mode != last_mode && that.containers.hasOwnProperty(stage.mode)) {
+				that.container.removeChild(that.containers.current);
+				that.containers.current = that.containers[stage.mode];
+				that.container.addChild(that.containers.current);
+			}
+
+			that.containers.current.update();
+		},
 		entity: function() {
 			return entity;
 		}(),
