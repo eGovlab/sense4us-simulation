@@ -25,6 +25,10 @@ body, html{
 	background-color: #2a2a2a;
 }
 
+.inner_menu {
+	display: none;
+}
+
 #canvas {
 	cursor: pointer;
 	background-color: #FFFFFF;
@@ -38,7 +42,6 @@ body, html{
 	text-align: center;
 
 	height: 100%;
-	overflow: auto;
 
 	padding: 0;
 	margin: 0;
@@ -85,7 +88,6 @@ input[type="button"], .button {
 	color: #fff;
 	text-decoration: none;
 	font-weight: bold;
-	line-height: 1;
 	text-shadow: 0 0px 4px rgba(0,0,0,0.55);
 	border-bottom: 1px solid rgba(0,0,0,0.55);
 	cursor: pointer;
@@ -96,6 +98,21 @@ input[type="button"], .button {
 	color: #FAFAFA;
 	font: bold 14px Arial;
 	padding: 13px 0;
+}
+
+#upper_menu .button {
+	float: left;
+	width: 200px;
+	border-left: 1px solid rgba(0,0,0,0.55);
+}
+
+#upper_menu h2 {
+	float: left;
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	padding: 7px 20px 7px;
+	color: #FFFFFF;
 }
 
 input[type="button"]:active, .button:active, .button:active {

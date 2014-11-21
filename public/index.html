@@ -11,13 +11,25 @@
 </head>
 <body>
 	<div id="menu">
-		<input type="button" class="button" onclick="create_origin_node(null, 0, 0);" value="Create origin" />
-		<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
-		<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
-		<input id="sense4us_timelag" type="text" value="0" />
+		<div class="inner_menu" id="edit_menu">
+			<input type="button" class="button" onclick="create_origin_node(null, 0, 0);" value="Create origin" />
+			<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
+		</div>
+
+		<div class="inner_menu" id="view_menu">
+			<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
+			<input id="sense4us_timelag" type="text" value="0" />
+		</div>
+
 		<div id="inspector"></div>
 	</div>
+
 	<div id="container">
+		<div id="upper_menu">
+			<h2>Mode:</h2>
+			<input type="button" class="button" onclick="sense4us.menu.open('edit');" value="Modeling" />
+			<input type="button" class="button" onclick="sense4us.menu.open('view');" value="Simulation" />
+		</div>
 		<canvas id="canvas" height="1" width="1" ></canvas>
 		<div style="position: absolute; display: none;" id="edit_signal_fire">Sense4us Simulator</div>
 	</div>
@@ -47,13 +59,16 @@
 	<script src="js/graphics/link.js"></script>
 	<script src="js/graphics/node.js"></script>
 
-	<script src="js/handle_menu.js"></script>
+	<script src="js/ui/handle_menu.js"></script>
 
 	<script src="js/simulation.js"></script>
-	<script src="js/export_button.js"></script>
+	<script src="js/ui/export_button.js"></script>
+	<script src="js/ui/menu.js"></script>
 
 	<script>
 		"use strict";
+
+		sense4us.menu.open("edit");
 
 		function create_node(id, signal, signal_fire) {
 			var node = sense4us.entities.node(id);
