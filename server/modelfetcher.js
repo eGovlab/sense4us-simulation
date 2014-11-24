@@ -29,8 +29,6 @@ module.exports = function()
 				var i = 0
 				var length = arr.length;
 
-				console.log("Size: ", arr.length);
-
 				var callback = function(iterator) {
 					var writable = true;
 
