@@ -12,12 +12,10 @@ sense4us.menu = {
 		this.opened_menu = $("#" + id + "_menu");
 		this.opened_menu.show();
 
-		if (sense4us.stage) {
-			sense4us.stage.mode = id;
-			for (var pos in sense4us.entities.id_to_entity) {
-				var e = sense4us.entities.id_to_entity[pos];
-				e.events.trigger("update", e);
-			}
+		sense4us.stage.mode = id;
+		for (var pos in sense4us.entities.id_to_entity) {
+			var e = sense4us.entities.id_to_entity[pos];
+			e.events.trigger("update", e);
 		}
 	}
 };
