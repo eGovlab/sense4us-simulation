@@ -11,17 +11,31 @@
 </head>
 <body>
 	<div id="menu">
-		<form id="sense4us_import_json" action="/model">
-			<input type="file" />
-			<input type="submit" class="button" value="Import (.json)" />
-		</form>
-		<input type="button" class="button" onclick="create_origin_node(null, 0, 0);" value="Create origin" />
-		<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
-		<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
-		<input id="sense4us_timelag" type="text" value="0" />
+		<div class="inner_menu" id="edit_menu">
+			<form id="sense4us_import_json" action="/model">
+				<input type="file" />
+				<input type="submit" class="button" value="Import (.json)" />
+			</form>
+			<input type="button" class="button" onclick="create_origin_node(null, 0, 0);" value="Create origin" />
+			<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
+			<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
+			<input id="sense4us_timelag" type="text" value="0" />
+		</div>
+
+		<div class="inner_menu" id="view_menu">
+			<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
+			<input id="sense4us_timelag" type="text" value="0" />
+		</div>
+		
 		<div id="inspector"></div>
 	</div>
+
 	<div id="container">
+		<div id="upper_menu">
+			<h2>Mode:</h2>
+			<input type="button" class="button" onclick="sense4us.menu.open('edit');" value="Modeling" />
+			<input type="button" class="button" onclick="sense4us.menu.open('view');" value="Simulation" />
+		</div>
 		<canvas id="canvas" height="1" width="1" ></canvas>
 		<div style="position: absolute; display: none;" id="edit_signal_fire">Sense4us Simulator</div>
 	</div>
@@ -56,9 +70,12 @@
 	<script src="/js/simulation.js"></script>
 	<script src="/js/export_button.js"></script>
 	<script src="/js/import_button.js"></script>
+	<script src="/js/ui/menu.js"></script>
 
 	<script>
 		"use strict";
+
+		var active_modes = ["edit"];
 
 		function create_node(id, signal, signal_fire) {
 			var node = sense4us.entities.node(id);
@@ -68,7 +85,7 @@
 			node.graphics = sense4us.graphics.node(node, sense4us.stage);
 			sense4us.stage.addChild(node.graphics.container);
 			sense4us.stage.update();
-			sense4us.mechanics.draggable(node.graphics);
+			sense4us.mechanics.draggable(node.graphics, active_modes);
 
 			return node;
 		}
@@ -99,6 +116,8 @@
 		}
 
 		sense4us.init_easeljs();
+
+		sense4us.menu.open("edit");
 		sense4us.selection_menu = sense4us.entities.selection_menu();
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
 		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);

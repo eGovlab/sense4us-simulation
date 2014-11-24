@@ -4,75 +4,109 @@
 * @namespace sense4us.graphics
 */
 
-var sense4us = sense4us || {};
-sense4us.graphics = sense4us.graphics || {};
+(function(ns) {
+	ns.graphics = ns.graphics || {};
 
-/**
-* A class to create the graphic for different nodes.
-* @class node
-*/
-
-sense4us.graphics.node = function(entity, stage, color_name) {
-	color_name = color_name || "circle";
-	var selected_variable = "signal";
-
-	var color = sense4us.graphics.color;
-
-	var border_circle = new createjs.Shape();
-	border_circle.graphics.beginFill(color.get_color("border_" + color_name)).drawCircle(0, 0, color.get_property("border_" + color_name + "_radius"));
-
-	var circle = new createjs.Shape();
-	circle.graphics.beginRadialGradientFill(color.get_gradient(color_name),
-		[0, 1], 0, 0, 50, 
-		-8, -8, 46).drawCircle(0, 0, color.get_property(color_name + "_radius"));
-
-	var signal_label = new createjs.Text("THIS NOT BE USED", "bold 14px Arial", color.get_color("label"));
-	signal_label.textAlign = "center";
-	signal_label.y = -7;
-	//signal_label.x = -3;
-	signal_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
-
-	/*var signal_fire_label = new createjs.Text("(" + entity.signal_fire + ")", "bold 14px Arial", color.get_color("label"));
-	signal_fire_label.textAlign = "left";
-	signal_fire_label.x = 3;
-	signal_fire_label.y = -7;
-	signal_fire_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+	/**
+	* A class to create the graphic for different nodes.
+	* @class node
 	*/
-	var name_label = new createjs.Text(entity.id, "bold 14px Arial", color.get_color("label"));
-	name_label.textAlign = "center";
-	name_label.y = -75;
-	name_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
-	var circle_container = new createjs.Container();
+	var create_edit_graphics = function(entity, container, color_name) {
+		var color = ns.graphics.color;
 
-	//circle_container.addChild(border_circle, circle, signal_label, signal_fire_label, name_label);
-	circle_container.addChild(border_circle, circle, signal_label, name_label);
+		var border_circle = new createjs.Shape();
+		border_circle.graphics.beginFill(color.get_color("border_" + color_name)).drawCircle(0, 0, color.get_property("border_" + color_name + "_radius"));
 
-	var that = Object.create(sense4us.graphics.graphic(entity, stage));
+		container.signal_label = new createjs.Text("yes is used", "bold 14px Arial", color.get_color("label"));
+		container.signal_label.textAlign = "center";
+		container.signal_label.x = 3;
+		container.signal_label.y = -7;
+		container.signal_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
-	that.container.type = "node";
-	that.container.addChild(circle_container);
+		container.name_label = new createjs.Text(entity.id, "bold 14px Arial", color.get_color("label"));
+		container.name_label.textAlign = "center";
+		container.name_label.y = -64;
+		container.name_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
-	that.container.x = that.container.y = 100;
-
-	that.update = function() {
-		//entity.signal
-		signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(2) + "%";
-		//signal_fire_label.text = entity.signal_fire;
-		name_label.text = entity.name;
-		that.container.x = parseInt(entity.x);
-		that.container.y = parseInt(entity.y);
+		container.addChild(container.signal_label, container.name_label);
 	};
 
-	that.set_variable = function(name) {
-		selected_variable = name;
+	var create_view_graphics = function(entity, container, color_name) {
+		var color = ns.graphics.color;
+
+		container.signal_label = new createjs.Text("yes is used", "bold 14px Arial", color.get_color("label"));
+		container.signal_label.textAlign = "center";
+		container.signal_label.y = -7;
+		container.signal_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+
+		container.name_label = new createjs.Text(entity.id, "bold 20px Arial", color.get_color("label"));
+		container.name_label.textAlign = "center";
+		container.name_label.y = -64;
+		container.name_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+
+		container.addChild(container.signal_label, container.name_label);
 	};
 
-	entity.set("x", that.container.x);
-	entity.set("y", that.container.y);
+	ns.graphics.node = function(entity, stage, color_name) {
+		var selected_variable = "signal";
+		color_name = color_name || "circle";
 
-	that.update();
-	stage.update();
+		var color = ns.graphics.color;
 
-	return that;
-};
+		var parent = ns.graphics.graphic(entity, stage);
+		var that = Object.create(parent);
+
+		that.containers.edit = new createjs.Container();
+		that.containers.edit.update = function() {
+			that.containers.edit.signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(1) + "%";
+			that.containers.edit.name_label.text = entity.name;
+		};
+
+		create_edit_graphics(entity, that.containers.edit, color_name);
+
+		that.containers.view = new createjs.Container();
+		that.containers.view.update = function() {
+			that.containers.view.signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(1) + "%";
+			that.containers.view.name_label.text = entity.name;
+		};
+
+		create_view_graphics(entity, that.containers.view, color_name);
+
+		that.container.type = "node";
+
+		that.container.x = that.container.y = 100;
+
+		that.containers.current = that.containers.edit;
+
+		var border_circle = new createjs.Shape();
+		border_circle.graphics.beginFill(color.get_color("border_" + color_name)).drawCircle(0, 0, color.get_property("border_" + color_name + "_radius"));
+
+		var circle = new createjs.Shape();
+		circle.graphics.beginRadialGradientFill(color.get_gradient(color_name),
+			[0, 1], 0, 0, 50, 
+			-8, -8, 46).drawCircle(0, 0, color.get_property(color_name + "_radius"));
+
+		that.container.addChild(border_circle, circle);
+		that.container.addChild(that.containers.current);
+
+		that.update = function() {
+			parent.update();
+
+			that.container.x = parseInt(entity.x);
+			that.container.y = parseInt(entity.y);
+		};
+
+		that.set_variable = function(name) {
+			selected_variable = name;
+		};
+
+		entity.set("x", that.container.x);
+		entity.set("y", that.container.y);
+
+		that.update();
+		stage.update();
+
+		return that;
+	};
+}(window.sense4us = window.sense4us || {}));

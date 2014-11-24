@@ -25,7 +25,7 @@ sense4us.entities.link = function(id, node1, node2, co, t) {
 		sense4us.temp_id++;
 	}
 
-	var that = Object.create(sense4us.entities.entity(id));
+	var that = sense4us.entities.entity(id);
 
 	that.get_start = function() {
 		return node1;

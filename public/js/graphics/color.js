@@ -52,11 +52,11 @@ sense4us.graphics.color = function() {
 		line_gradiant_radius_inner: 20,
 		line_gradiant_radius_outer: 20,
 
-		border_circle_radius: 52,
-		circle_radius: 48,
+		border_circle_radius: 40,
+		circle_radius: 36,
 
-		border_origin_radius: 52,
-		origin_radius: 48,
+		border_origin_radius: 40,
+		origin_radius: 36,
 
 		selection_border_circle_radius: 17,
 		selection_circle_radius: 15,
