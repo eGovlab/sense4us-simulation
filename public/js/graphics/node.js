@@ -50,7 +50,9 @@
 
 	ns.graphics.node = function(entity, stage, color_name) {
 		var selected_variable = "signal";
-		color_name = color_name || "circle";
+
+		if(!color_name || ["ORIGIN"].indexOf(color_name.toUpperCase()) === -1)
+			color_name = "circle";
 
 		var color = ns.graphics.color;
 
@@ -75,7 +77,15 @@
 
 		that.container.type = "node";
 
-		that.container.x = that.container.y = 100;
+		var x = entity.get_x();
+		var y = entity.get_y();
+		if(x === undefined || y === undefined) {
+			x = 100;
+			y = 100;
+		}
+
+		that.container.x = x;
+		that.container.y = y;
 
 		that.containers.current = that.containers.edit;
 

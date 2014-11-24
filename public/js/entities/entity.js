@@ -48,18 +48,20 @@ sense4us.entities.entity = function(id) {
 			if (name != "id") {
 				return html_entity.getAttribute("data-" + name);
 			} else {
-				return html_entity.getAttribute(name);
+				return html_entity.getAttribute(name) || undefined;
 			}
+
+			return undefined;
 		},
 		get_element: function() {
 			return html_entity;
 		},
 		graphics: null,
 		get_x: function() {
-			return parseInt(that.get("x"));
+			return parseInt(that.get("x")) || undefined;
 		},
 		get_y: function() {
-			return parseInt(that.get("y"));
+			return parseInt(that.get("y")) || undefined;
 		}
 	};
 

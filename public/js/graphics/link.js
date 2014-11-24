@@ -51,8 +51,13 @@
 			this.label.text = entity.co;
 			this.time_label.text = entity.t + "m";
 
-			var link_rotation = Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
-				entity.get_start().get_x() - entity.get_end().get_x());
+			var start_y = entity.get_start().get_y();
+			var end_y = entity.get_end().get_y();
+
+			var start_x = entity.get_start().get_x();
+			var end_x = entity.get_end().get_x();
+
+			var link_rotation = Math.atan2(start_y - end_y, start_x - end_x);
 
 			var label_offset_x = 20;
 			var label_offset_y = 20;

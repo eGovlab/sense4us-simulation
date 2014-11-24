@@ -51,7 +51,7 @@ sense4us.mechanics.selection_menu = function(graphic_object) {
 			}
 
 			if (colliding_object) {
-				create_link(sense4us.selected_object, colliding_object.graphic_object.entity, 1, 0);
+				sense4us.ui.create_link(sense4us.selected_object, colliding_object.graphic_object.entity, 1, 0);
 			}
 
 			container.x = startX;

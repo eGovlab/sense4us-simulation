@@ -16,17 +16,15 @@
 				<input type="file" />
 				<input type="submit" class="button" value="Import (.json)" />
 			</form>
-			<input type="button" class="button" onclick="create_origin_node(null, 0, 0);" value="Create origin" />
-			<input type="button" class="button" onclick="create_node(null, 0, 0);" value="Create node" />
-			<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
-			<input id="sense4us_timelag" type="text" value="0" />
+			<input type="button" class="button" onclick="sense4us.ui.create_origin_node(null, 0, 0);" value="Create origin" />
+			<input type="button" class="button" onclick="sense4us.ui.create_node(null, 0, 0);" value="Create node" />
 		</div>
 
 		<div class="inner_menu" id="view_menu">
 			<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
 			<input id="sense4us_timelag" type="text" value="0" />
 		</div>
-		
+
 		<div id="inspector"></div>
 	</div>
 
@@ -65,55 +63,21 @@
 	<script src="/js/graphics/link.js"></script>
 	<script src="/js/graphics/node.js"></script>
 
-	<script src="/js/handle_menu.js"></script>
+	<script src="/js/import/import_model.js"></script>
 
 	<script src="/js/simulation.js"></script>
-	<script src="/js/export_button.js"></script>
-	<script src="/js/import_button.js"></script>
+	
+	<script src="/js/ui/handle_menu.js"></script>
+	<script src="/js/ui/export_button.js"></script>
+	<script src="/js/ui/import_button.js"></script>
+	<script src="/js/ui/create_node_buttons.js"></script>
+	<script src="/js/ui/create_link.js"></script>
 	<script src="/js/ui/menu.js"></script>
 
 	<script>
 		"use strict";
 
 		var active_modes = ["edit"];
-
-		function create_node(id, signal, signal_fire) {
-			var node = sense4us.entities.node(id);
-			node.set("name", "node_name");
-			node.set("signal", signal);
-			node.set("signal_fire", signal_fire);
-			node.graphics = sense4us.graphics.node(node, sense4us.stage);
-			sense4us.stage.addChild(node.graphics.container);
-			sense4us.stage.update();
-			sense4us.mechanics.draggable(node.graphics, active_modes);
-
-			return node;
-		}
-
-		function create_origin_node(id, signal, signal_fire) {
-			var node = sense4us.entities.node(id);
-			node.set("name", "node_name");
-			node.set("signal", signal);
-			node.set("signal_fire", signal_fire);
-			node.graphics = sense4us.graphics.node(node, sense4us.stage, "origin");
-			node.graphics.set_variable("signal_fire");
-			sense4us.stage.addChild(node.graphics.container);
-			sense4us.stage.update();
-			sense4us.mechanics.draggable(node.graphics);
-
-			return node;
-		}
-
-		function create_link(start, end, co, t) {
-			var link = sense4us.entities.link(null, start, end, co, t);
-			link.graphics = sense4us.graphics.link(link, sense4us.stage);
-
-			sense4us.stage.addChildAt(link.graphics.container, 0);
-			sense4us.stage.update();
-			sense4us.mechanics.selectable(link.graphics);
-
-			return link;
-		}
 
 		sense4us.init_easeljs();
 
@@ -122,15 +86,11 @@
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
 		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
 
-		var node2 = create_node(null, 0, 0);
-		var node3 = create_node(null, 0, 0);
+		/*var node2 = create_node(null, 0, 0);
+		var node3 = create_node(null, 0, 0);*/
 
 		sense4us.events.bind("object_updated", function(object) {
 			sense4us.stage.update();
-		});
-
-		sense4us.events.bind("model_imported", function(nodes_and_links) {
-			console.log(nodes_and_links);
 		});
 	</script>
 </body>
