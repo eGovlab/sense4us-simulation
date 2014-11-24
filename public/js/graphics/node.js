@@ -37,10 +37,11 @@
 
 		container.signal_label = new createjs.Text("yes is used", "bold 14px Arial", color.get_color("label"));
 		container.signal_label.textAlign = "center";
+		container.signal_label.x = 3;
 		container.signal_label.y = -7;
 		container.signal_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
-		container.name_label = new createjs.Text(entity.id, "bold 20px Arial", color.get_color("label"));
+		container.name_label = new createjs.Text(entity.id, "bold 14px Arial", color.get_color("label"));
 		container.name_label.textAlign = "center";
 		container.name_label.y = -64;
 		container.name_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));

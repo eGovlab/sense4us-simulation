@@ -77,14 +77,13 @@
 	<script>
 		"use strict";
 
-		var active_modes = ["edit"];
-
+		// in which modes should "mechanic" components be enabled?
+		sense4us.active_modes = ["edit"];
 		sense4us.init_easeljs();
 
-		sense4us.menu.open("edit");
 		sense4us.selection_menu = sense4us.entities.selection_menu();
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
-		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
+		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics.dragging_thingy);
 
 		/*var node2 = create_node(null, 0, 0);
 		var node3 = create_node(null, 0, 0);*/
@@ -92,6 +91,8 @@
 		sense4us.events.bind("object_updated", function(object) {
 			sense4us.stage.update();
 		});
+
+		sense4us.menu.open("edit");
 	</script>
 </body>
 </html>

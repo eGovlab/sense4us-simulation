@@ -19,10 +19,6 @@ sense4us.mechanics.draggable = function(graphic_object, active_modes) {
 	var container = graphic_object.container;
 
 	container.on("mousedown", function(evt) {
-		if (active_modes !== undefined && active_modes.indexOf(sense4us.stage.mode) == -1) {
-			return;
-		}
-
 		show_menu = true;
 		// Set mouseX & mouseY to the mouse position relative to the clicked object
 		mouseX = (evt.stageX / sense4us.stage.scaleX) - evt.currentTarget.x;
@@ -39,10 +35,6 @@ sense4us.mechanics.draggable = function(graphic_object, active_modes) {
 	});
 
 	container.on("pressmove", function(evt) {
-		if (active_modes !== undefined && active_modes.indexOf(sense4us.stage.mode) == -1) {
-			return;
-		}
-		
 		var new_x = (evt.stageX / sense4us.stage.scaleX) - mouseX;
 		var new_y = (evt.stageY / sense4us.stage.scaleY) - mouseY;
 
@@ -50,13 +42,17 @@ sense4us.mechanics.draggable = function(graphic_object, active_modes) {
 		var difference_y = new_y - evt.currentTarget.y;
 
 		if (!show_menu || difference_x > 5 || difference_x < -5 || difference_y > 5 || difference_y < -5) {
+			show_menu = false;
+
+			if (active_modes !== undefined && active_modes.indexOf(sense4us.stage.mode) == -1) {		
+				graphic_object.entity.events.trigger("update", graphic_object.entity);
+				return;
+			}
 
 			graphic_object.entity.set("x", new_x);
 			graphic_object.entity.set("y", new_y);
 			
 			graphic_object.entity.events.trigger("update", graphic_object.entity);
-
-			show_menu = false;
 		}
 	});
 };

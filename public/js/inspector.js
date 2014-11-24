@@ -109,7 +109,9 @@ sense4us.inspector = function() {
 * @param {Object} object The selected object
 */
 sense4us.events.bind("object_selected", function(object) {
-	sense4us.inspector.inspect(object);
+	if (sense4us.active_modes.indexOf(sense4us.stage.mode) > -1) {
+		sense4us.inspector.inspect(object);
+	}
 
 	sense4us.events.trigger("network_send_object", object);
 });

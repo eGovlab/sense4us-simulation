@@ -1,3 +1,5 @@
+"use strict";
+
 var sense4us = sense4us || {};
 
 sense4us.mousepos_to_stagepos = function(pos, stage) {
@@ -5,14 +7,14 @@ sense4us.mousepos_to_stagepos = function(pos, stage) {
 	var y = (pos.y / stage.scaleY) - stage.y;
 
 	return {x: x, y: y};
-}
+};
 
 sense4us.stagepos_to_mousepos = function(pos, stage) {
 	var x = (pos.x) * stage.scaleX + stage.x;
 	var y = (pos.y) * stage.scaleY + stage.y;
 
 	return {x: x, y: y};
-}
+};
 
 sense4us.init_easeljs = function() {
 	//Draw a square on screen.
@@ -93,7 +95,7 @@ sense4us.init_easeljs = function() {
 		var offset = {x: stage.x - e.stageX, y: stage.y - e.stageY};
 		stage.addEventListener("stagemousemove",function(evt) {
 			var click_pos = sense4us.mousepos_to_stagepos(e.stageX, e.stageY);
-			if (!stage.hitTest(click_pos)) {
+			if (!stage.hitTest(click_pos) || sense4us.active_modes.indexOf(stage.mode) == -1) {
 				stage.x = evt.stageX + offset.x;
 				stage.y = evt.stageY + offset.y;
 				sense4us.events.trigger("stage_pan", stage);
@@ -118,4 +120,4 @@ sense4us.init_easeljs = function() {
 			moved = false;
 		});
 	});
-}
+};

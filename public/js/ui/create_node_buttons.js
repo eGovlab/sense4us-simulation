@@ -2,42 +2,10 @@
 	ns.ui = ns.ui || {};
 
 	ns.ui.create_node = function(id, signal, signal_fire, name, x, y) {
-		/*var node = sense4us.entities.node(id);
-
-		var template_name = "node_name";
-		if(name !== null && typeof name === "string")
-			template_name = name;
-
-		if(x !== undefined && y !== undefined) {
-			node.set("x", x);
-			node.set("y", y);
-		}
-
-		node.set("name", template_name);
-		node.set("signal", signal);
-		node.set("signal_fire", signal_fire);
-		node.graphics = sense4us.graphics.node(node, sense4us.stage);
-		sense4us.stage.addChild(node.graphics.container);
-		sense4us.stage.update();
-		sense4us.mechanics.draggable(node.graphics, active_modes);
-
-		return node;*/
-
 		return __create_node(id, signal, signal_fire, null, name, x, y);
 	}
 
 	ns.ui.create_origin_node = function(id, signal, signal_fire, name, x, y) {
-		/*var node = sense4us.entities.node(id);
-		node.set("name", "node_name");
-		node.set("signal", signal);
-		node.set("signal_fire", signal_fire);
-		node.graphics = sense4us.graphics.node(node, sense4us.stage, "origin");
-		node.graphics.set_variable("signal_fire");
-		sense4us.stage.addChild(node.graphics.container);
-		sense4us.stage.update();
-		sense4us.mechanics.draggable(node.graphics);
-
-		return node;*/
 		var node = __create_node(id, signal, signal_fire, "ORIGIN", name, x, y);
 		node.graphics.set_variable("signal_fire");
 		return node; 
@@ -68,7 +36,7 @@
 
 		sense4us.stage.addChild(node.graphics.container);
 		sense4us.stage.update();
-		sense4us.mechanics.draggable(node.graphics, active_modes);
+		sense4us.mechanics.draggable(node.graphics, sense4us.active_modes);
 
 		return node;
 	}

@@ -17,5 +17,9 @@ sense4us.menu = {
 			var e = sense4us.entities.id_to_entity[pos];
 			e.events.trigger("update", e);
 		}
+		
+		var selected_object = sense4us.selected_object;
+		sense4us.selected_object = null;
+		sense4us.events.trigger("object_deselected", selected_object);
 	}
 };
