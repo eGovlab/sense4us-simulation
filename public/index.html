@@ -89,6 +89,7 @@
 			node.set("name", "node_name");
 			node.set("signal", signal);
 			node.set("signal_fire", signal_fire);
+			node.set("node_type", "origin");
 			node.graphics = sense4us.graphics.node(node, sense4us.stage, "origin");
 			node.graphics.set_variable("signal_fire");
 			sense4us.stage.addChild(node.graphics.container);
@@ -121,7 +122,7 @@
 		sense4us.events.bind("object_updated", function(object) {
 			sense4us.stage.update();
 		});
-		
+
 		sense4us.menu.open("edit");
 	</script>
 </body>
