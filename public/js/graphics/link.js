@@ -14,7 +14,11 @@
 		container.label.textAlign = "center";
 		container.label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
-		container.addChild(container.label);
+		container.time_label = new createjs.Text(entity.t + "m", "bold " + font_size + "px Arial", color.get_color("label"));
+		container.time_label.textAlign = "center";
+		container.time_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
+
+		container.addChild(container.label, container.time_label);
 	};
 
 	ns.graphics.link = function(entity, stage) {
@@ -32,10 +36,6 @@
 
 		var font_size = 14;
 
-		var time_label = new createjs.Text(entity.t + "m", "bold " + font_size + "px Arial", color.get_color("label"));
-		time_label.textAlign = "center";
-		time_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
-
 		var character_multiplier = 0.3;
 		
 		var arrow = new createjs.Text("<", "bold " + font_size + "px Arial", color.get_color("label"));
@@ -49,7 +49,7 @@
 		that.containers.edit = new createjs.Container();
 		that.containers.edit.update = function() {
 			this.label.text = entity.co;
-			time_label.text = entity.t + "m";
+			this.time_label.text = entity.t + "m";
 
 			var link_rotation = Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
 				entity.get_start().get_x() - entity.get_end().get_x());
@@ -63,14 +63,11 @@
 			this.label.x = this.label.x * (String(this.label.text).length + 2) * character_multiplier;
 			this.label.y -= font_size / 2;
 			
-			time_label.x = Math.sin(link_rotation) * -label_offset_x;
-			time_label.y = -Math.cos(link_rotation) * -label_offset_y;
+			this.time_label.x = Math.sin(link_rotation) * -label_offset_x;
+			this.time_label.y = -Math.cos(link_rotation) * -label_offset_y;
 
-			time_label.x = time_label.x * (String(time_label.text).length + 2) * character_multiplier;
-			time_label.y -= font_size / 2;
-
-			that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
-			that.container.y = (entity.get_start().get_y() + entity.get_end().get_y()) * 0.5;
+			this.time_label.x = this.time_label.x * (String(this.time_label.text).length + 2) * character_multiplier;
+			this.time_label.y -= font_size / 2;
 
 			arrow.x = Math.sin(link_rotation) * label_offset_x * 0.44;
 			arrow.y = -Math.cos(link_rotation) * label_offset_y * 0.44;
@@ -82,22 +79,11 @@
 
 		that.containers.view = new createjs.Container();
 		that.containers.view.update = function() {
-			time_label.text = entity.t + "m";
-
 			var link_rotation = Math.atan2(entity.get_start().get_y() - entity.get_end().get_y(),
 				entity.get_start().get_x() - entity.get_end().get_x());
 
 			var label_offset_x = 20;
 			var label_offset_y = 20;
-			
-			time_label.x = Math.sin(link_rotation) * -label_offset_x;
-			time_label.y = -Math.cos(link_rotation) * -label_offset_y;
-
-			time_label.x = time_label.x * (String(time_label.text).length + 2) * character_multiplier;
-			time_label.y -= font_size / 2;
-
-			that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
-			that.container.y = (entity.get_start().get_y() + entity.get_end().get_y()) * 0.5;
 
 			arrow.x = Math.sin(link_rotation) * label_offset_x * 0.44;
 			arrow.y = -Math.cos(link_rotation) * label_offset_y * 0.44;
@@ -107,7 +93,7 @@
 
 		that.containers.current = that.containers.edit;
 
-		that.container.addChild(border_line, line, time_label, arrow);
+		that.container.addChild(border_line, line, arrow);
 		that.container.addChild(that.containers.current);
 
 		that.container.x = 0;
@@ -115,6 +101,9 @@
 
 		var stroke_line = function(line, color_array, thickness)
 		{
+			that.container.x = (entity.get_start().get_x() + entity.get_end().get_x()) * 0.5;
+			that.container.y = (entity.get_start().get_y() + entity.get_end().get_y()) * 0.5;
+
 			var start_x = entity.get_start().get_x() - that.container.x;
 			var start_y = entity.get_start().get_y() - that.container.y;
 			var end_x = entity.get_end().get_x() - that.container.x;
