@@ -24,7 +24,9 @@
 				data: data,
 				dataType: "json"
 			}).success(function(json) {
-				sense4us.events.trigger("model_imported", json);				
+				console.log(json);
+				if(typeof json === "object" && json["nodes"] !== undefined && json["links"] !== undefined)
+					sense4us.events.trigger("model_imported", json);				
 			});
 
 			return false;
