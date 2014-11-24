@@ -29,7 +29,7 @@
 		container.name_label.y = -64;
 		container.name_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
-		container.addChild(container.signal_label, container.name_label);
+		container.addChild(container.name_label);
 	};
 
 	var create_view_graphics = function(entity, container, color_name) {
