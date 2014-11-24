@@ -1,3 +1,5 @@
+"use strict";
+
 var sense4us = sense4us || {};
 
 sense4us.events.bind("object_selected", function(object) {
@@ -9,5 +11,7 @@ sense4us.events.bind("object_selected", function(object) {
 });
 
 sense4us.events.bind("object_deselected", function(object) {
-	sense4us.selection_menu.clear(object, sense4us.stage);
+	if (object) {
+		sense4us.selection_menu.clear(object, sense4us.stage);
+	}
 });
