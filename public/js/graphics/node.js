@@ -20,6 +20,7 @@
 
 		container.signal_label = new createjs.Text("yes is used", "bold 14px Arial", color.get_color("label"));
 		container.signal_label.textAlign = "center";
+		container.signal_label.x = 3;
 		container.signal_label.y = -7;
 		container.signal_label.shadow = new createjs.Shadow(color.get_color("label_shadow"), 0, 0, color.get_property("label_shadow_blur"));
 
@@ -58,7 +59,7 @@
 
 		that.containers.edit = new createjs.Container();
 		that.containers.edit.update = function() {
-			that.containers.edit.signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(2) + "%";
+			that.containers.edit.signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(1) + "%";
 			that.containers.edit.name_label.text = entity.name;
 		};
 
@@ -66,7 +67,7 @@
 
 		that.containers.view = new createjs.Container();
 		that.containers.view.update = function() {
-			that.containers.view.signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(2) + "%";
+			that.containers.view.signal_label.text = (parseFloat(entity[selected_variable])*100).toFixed(1) + "%";
 			that.containers.view.name_label.text = entity.name;
 		};
 
