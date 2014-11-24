@@ -14,6 +14,11 @@ module.exports = function()
 		},
 
 		import_model: function(req, res) {
+			if(parseInt(req.headers["content-length"]) > 1000000) {
+				res.end();
+				return;
+			}
+
 			var multiparty = require("multiparty");
 			var fs = require("fs");
 
@@ -21,30 +26,64 @@ module.exports = function()
 			var file;
 
 			var send_json = function(arr) {
-				for(var i = 0; i < arr.length; i++) {
-					res.send(arr[i]);
+				var i = 0
+				var length = arr.length;
+
+				console.log("Size: ", arr.length);
+
+				var callback = function(iterator) {
+					var writable = true;
+
+					try {
+						while(writable && iterator < length) {
+							writable = res.write(arr[iterator]);
+							iterator += 1;
+
+							if(iterator === length) {
+								return;
+							}
+						}
+					} catch(err) {
+						console.log("ERROR");
+					}
 				}
+
+				callback(i);
+
+				/*for(var i = 0; i < arr.length; i++) {
+					res.write(arr[i]);
+				}*/
 			};
 
+			var json_string = [];
 			form.on("part", function(part) {
 				if(part.filename !== null) {
 					part.on("readable", function() {
+						if(part.byteCount > 1000000) {
+							part.resume();
+							return;
+						}
+
 						part.setEncoding("utf8");
-						var json_string = [];
 						var chunk;
 						while((chunk = part.read()) !== null) {
-							console.log("Size: %d", chunk.length);	
 							json_string.push(chunk);
 						}
 
-						send_json(json_string);
+						part.resume();
 					});
+				} else {
+					part.resume();	
 				}
-
-				part.resume();
 			});
 
+			form.on("error", function() {
+				console.log("Error");
+				res.end();
+			})
+
 			form.on("close", function() {
+				send_json(json_string);
 				console.log("Responded and closed connection.");
 				res.end();
 			})
