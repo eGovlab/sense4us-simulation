@@ -5,9 +5,11 @@
 		Sense4us Simulator
 	</title>
 	<script src="/js/easeljs-NEXT.min.js"></script>
-	<script src="/js/jquery-1.11.1.js"></script>
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/jquery-ui/jquery-ui.min.js"></script>
 	<script src="/js/socket.io.js"></script>
 	<link rel="stylesheet" href="/css/style.css" />
+	<link rel="stylesheet" href="/js/jquery-ui/jquery-ui.min.css" />
 </head>
 <body>
 	<div id="menu">
@@ -22,7 +24,9 @@
 
 		<div class="inner_menu" id="view_menu">
 			<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
-			<input id="sense4us_timelag" type="text" value="0" />
+			<label for="sense4us_timelag_amount">Time lag:</label>
+			<input type="text" id="sense4us_timelag_amount" readonly readonly style="background-color: #2a2a2a; width: 40px; display: inline-block; border:0; color: #fff; font-weight: bold;" />
+			<div id="sense4us_timelag"></div>
 		</div>
 
 		<div id="inspector"></div>

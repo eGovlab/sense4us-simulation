@@ -42,10 +42,8 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 	that.containers.edit.addChild(border_circle, circle, label);
 	that.containers.edit.update = function(x, y) {
 		if (that.container.parent) {
-			input_field.set_entity(that.container.parent.graphic_object.entity);
-			input_field.show();
-			input_field.update();
-
+			input_field.hide();
+			
 			if (x !== undefined && y !== undefined) {
 				this.x = x;
 				this.y = y;
@@ -66,7 +64,7 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 	that.containers.view = new createjs.Container();
 	that.containers.view.update = function() {
 		if (that.container.parent) {
-			if (that.container.parent.graphic_object.entity.get("node_type") == "origin") {
+			if (that.container.parent.graphic_object.entity.get("draw_type") === "ORIGIN") {
 				input_field.set_entity(that.container.parent.graphic_object.entity);
 				input_field.show();
 				input_field.update();

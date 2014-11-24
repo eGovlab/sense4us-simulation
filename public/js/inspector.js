@@ -15,6 +15,7 @@ var sense4us = sense4us || {};
 
 sense4us.inspector = function() {
 	var inspectingObject = null;
+	var hide_variables = ["id", "type", "class", "signal", "signal_fire", "x", "y", "n1", "n2"];
 
 	/**
     * Generates and returns the HTML content of the inspector panel.
@@ -31,12 +32,15 @@ sense4us.inspector = function() {
 		for (var property_name in inspectingObject) {
 			var property = inspectingObject[property_name];
 			// This if-statement will filter out all object properties which are functions, objects and id.
-			if (!(property instanceof Function) && !(property instanceof Object) && property_name != "id") {
-				html += "<h5>" + property_name + "</h5>";
-				if (property_name == "notes") {
-					html += "<textarea name='"+property_name+"'>"+property+"</textarea>";
-				} else {
-					html += "<input type='text' name='"+property_name+"' value='"+property+"'></input>";
+			if (!(property instanceof Function) && !(property instanceof Object)) {
+				// Hide non-interesting object variables in inspector
+				if (hide_variables.indexOf(property_name) == -1) {
+					html += "<h5>" + property_name + "</h5>";
+					if (property_name == "notes") {
+						html += "<textarea name='"+property_name+"'>"+property+"</textarea>";
+					} else {
+						html += "<input type='text' name='"+property_name+"' value='"+property+"'></input>";
+					}
 				}
 			}
 		}

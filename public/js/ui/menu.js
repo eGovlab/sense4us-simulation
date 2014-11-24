@@ -21,5 +21,19 @@ sense4us.menu = {
 		var selected_object = sense4us.selected_object;
 		sense4us.selected_object = null;
 		sense4us.events.trigger("object_deselected", selected_object);
+
+		if (id == "view") {
+			console.log("lule");
+			$("#sense4us_timelag").slider({
+				value: 0,
+				min: 0,
+				max: sense4us.simulation.get_simulation_max_time(),
+			      slide: function( event, ui ) {
+			        $( "#sense4us_timelag_amount" ).val( ui.value + "m" );
+			      }
+			});
+
+			$( "#sense4us_timelag_amount" ).val( 0 + "m" );
+		}
 	}
 };

@@ -15,13 +15,13 @@ sense4us.graphics.color = function() {
 		//border_line: "#39D",
 		//line: "#4AE",
 
-		border_circle: "#AE6",
+		border_circle: "#fff",
 		//circle: "#4AE",
 
-		selection_border_circle: "#AF6",
-		selection_circle: "#691",
+		selection_border_circle: "#fff",
+		selection_circle: "#2b3846",
 
-		border_origin: "#FF9A52",
+		border_origin: "#fff",
 		//origin: "#4AE",
 
 		selection_border_origin: "#AF6",
@@ -32,21 +32,21 @@ sense4us.graphics.color = function() {
 	};
 
 	var gradient_colors = {
-		border_line: ["#AE6", "#AE6"],
-		line_positive: ["#8E1", "#120"],
+		border_line: ["#2b3846", "#2b3846"],
+		line_positive: ["#3fb2bb", "#120"],
 		line_negative: ["#E41", "#210"],
 		line_dead: ["#000", "#222"],
 
 		//border_circle: ["#4DF", "#4DF"],
-		circle: ["#691", "#8A2"],
-		origin: ["#D45800", "#FF6A00"]
+		circle: ["#691", "#3fb2bb"],
+		origin: ["#D45800", "#de8526"]
 
 		//selection_border_circle: ["#162", "#162"],
 		//selection_circle: ["#AE4", "#AE4"]
 	};
 
 	var properties = {
-		border_line_thickness: 14,
+		border_line_thickness: 16,
 		line_thickness: 11,
 
 		line_gradiant_radius_inner: 20,
