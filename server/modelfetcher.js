@@ -44,6 +44,11 @@ module.exports = function()
 				part.resume();
 			});
 
+			form.on("close", function() {
+				console.log("Responded and closed connection.");
+				res.end();
+			})
+
 			form.parse(req);
 		},
 
