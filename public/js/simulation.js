@@ -30,7 +30,7 @@ sense4us.simulation = function() {
 		},
 		run: function() {
 			var nodes_and_links = that.get_nodes_and_links();
-			var timelag = document.getElementById("sense4us_timelag").value;
+			var timelag = document.getElementById("sense4us_timelag_amount").value;
 			timelag = parseInt(timelag);
 
 			sense4us.network.sendData("run_simulation", [nodes_and_links.nodes, nodes_and_links.links, timelag]);
