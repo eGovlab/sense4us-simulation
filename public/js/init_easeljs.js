@@ -55,6 +55,7 @@ sense4us.init_easeljs = function() {
 	back.x = 0;
 	back.y = 0;
 
+
 	//sense4us.stage.enableMouseOver(20);
 
 	canvas.addEventListener("mousewheel", MouseWheelHandler, false);
@@ -63,13 +64,27 @@ sense4us.init_easeljs = function() {
 	var zoom;
 
 	function MouseWheelHandler(e) {
+		var mouse_canvas_x = e.x - stage.canvas.offsetLeft;
+		var mouse_canvas_y = e.y - stage.canvas.offsetTop;
+		var mouse_stage_x = mouse_canvas_x / stage.scaleX - stage.x / stage.scaleX;
+		var mouse_stage_y = mouse_canvas_y / stage.scaleY - stage.y / stage.scaleY;
+
 		if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0)
 			zoom=1.1;
 		else
 			zoom=1/1.1;
 		stage.scaleX=stage.scaleY*=zoom;
 
+		var mouse_stage_new_x = mouse_canvas_x / stage.scaleX - stage.x / stage.scaleX;
+		var mouse_stage_new_y = mouse_canvas_y / stage.scaleY - stage.y / stage.scaleY;
+
+		var zoom_effect_x = (mouse_stage_new_x-mouse_stage_x)*stage.scaleX;
+		var zoom_effect_y = (mouse_stage_new_y-mouse_stage_y)*stage.scaleY;
+		stage.x += zoom_effect_x;
+		stage.y += zoom_effect_y;
+
 		sense4us.events.trigger("stage_zoom", stage);
+
 		stage.update();
 	}
 
