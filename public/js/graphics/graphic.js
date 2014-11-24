@@ -33,7 +33,9 @@ sense4us.graphics.graphic = function(entity, stage) {
 				that.container.addChild(that.containers.current);
 			}
 
-			that.containers.current.update.call(that.containers.current, arguments);
+			if (that.containers.current.hasOwnProperty("update")) {
+				that.containers.current.update.call(that.containers.current, arguments);
+			}
 		},
 		entity: function() {
 			return entity;

@@ -1,3 +1,4 @@
+"use strict";
 /**
 * @namespace sense4us.graphics
 */
@@ -8,18 +9,17 @@ sense4us.graphics = sense4us.graphics || {};
 sense4us.graphics.selection_menu = function(entity, stage) {
 	var color = sense4us.graphics.color;
 
+	var line_x = null;
+	var line_y = null;
+
 	var border_line = new createjs.Shape();
 	border_line.graphics.beginStroke("green");
-	border_line.graphics.moveTo(0, 0);
-	border_line.graphics.endStroke();
 
 	var line = new createjs.Shape();
 	line.graphics.beginStroke("green");
-	line.graphics.moveTo(0, 0);
-	line.graphics.endStroke();
 
-	var circle_container = new createjs.Container();
-	circle_container.set({x: -55, y: 65});
+	var parent = sense4us.graphics.graphic(entity, stage);
+	var that = Object.create(parent);
 
 	var border_circle = new createjs.Shape();
 	border_circle.graphics.beginFill(color.get_color("selection_border_circle")).drawCircle(0, 0, color.get_property("selection_border_circle_radius"));
@@ -36,61 +36,73 @@ sense4us.graphics.selection_menu = function(entity, stage) {
 
 	var input_field = sense4us.graphics.floating_input_field(entity, stage);
 
-	var that = Object.create(sense4us.graphics.graphic(entity, stage));
+	that.container.set({x: -15, y: -10});
 
-	that.container.set({x: -7, y: -10});
-	circle_container.addChild(border_circle, circle, label);
-	that.container.addChild(input_field.container, circle_container);
+	that.containers.edit = new createjs.Container();
+	that.containers.edit.addChild(border_circle, circle, label);
+	that.containers.edit.update = function(x, y) {
+		if (that.container.parent) {
+			if (x !== undefined && y !== undefined) {
+				this.x = x;
+				this.y = y;
+				that.container.parent.addChildAt(border_line, line, 0);
+
+				stroke_line(this.x, this.y, border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
+				stroke_line(this.x, this.y, line, color.get_gradient("line_positive"), color.get_property("line_thickness"));
+			} else {
+				that.clear_line();
+				this.reset();
+			}
+		}
+	};
+	that.containers.edit.reset = function() {
+		that.containers.edit.set({x: -40, y: 50});
+	};
+
+	that.containers.view = new createjs.Container();
+
+	that.containers.current = that.containers.edit;
+	that.container.addChild(input_field.container, that.containers.edit);
 
 	var stroke_line = function(x, y, line, color_array, thickness)
 	{
-		var start_x = line.x;
-		var start_y = line.y;
-
 		line.graphics.clear();
 		line.graphics.setStrokeStyle(thickness);
 
 		line.graphics.beginRadialGradientStroke(color_array,
-			[0, 1], start_x, start_y, color.get_property("line_gradiant_radius_inner"), x, y, color.get_property("line_gradiant_radius_outer"));
+			[0, 1], 0, 0, color.get_property("line_gradiant_radius_inner"), x, y, color.get_property("line_gradiant_radius_outer"));
 
 		line.graphics.moveTo(0, 0);
-		line.graphics.lineTo(x, y);
+		line.graphics.lineTo(x + that.container.x, y + that.container.y);
 		line.graphics.endStroke();
 	};
 
-	that.update_line = function(x, y) {
-		if (that.container.parent) {
-			that.container.parent.addChildAt(border_line, line, 0);
-
-			stroke_line(x + circle_container.x, y + circle_container.y, border_line, color.get_gradient("border_line"), color.get_property("border_line_thickness"));
-			stroke_line(x + circle_container.x, y + circle_container.y, line, color.get_gradient("line_positive"), color.get_property("line_thickness"));
-
-			stage.update();
-		}
-	}
-
 	that.update = function() {
 		if (that.container.parent) {
+			parent.update();
+
 			input_field.set_entity(that.container.parent.graphic_object.entity);
 			input_field.show();
 			input_field.update();
 		} else {
 			input_field.hide();
 		}
-	}
+	};
 
 	that.clear_line = function() {
 		line.graphics.clear();
 		border_line.graphics.clear();
+		line_x = null;
+		line_y = null;
 
 		stage.update();
-	}
+	};
 
-	that.container.circle = function() {
-		return circle;
-	}()
+	that.dragging_thingy = (function() {
+		return that.containers.edit;
+	})();
 
 	stage.update();
 
 	return that;
-}
+};

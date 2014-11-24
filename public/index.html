@@ -68,7 +68,8 @@
 	<script>
 		"use strict";
 
-		var active_modes = ["edit"];
+		// in which modes should "mechanic" components be enabled?
+		sense4us.active_modes = ["edit"];
 
 		function create_node(id, signal, signal_fire) {
 			var node = sense4us.entities.node(id);
@@ -78,7 +79,7 @@
 			node.graphics = sense4us.graphics.node(node, sense4us.stage);
 			sense4us.stage.addChild(node.graphics.container);
 			sense4us.stage.update();
-			sense4us.mechanics.draggable(node.graphics, active_modes);
+			sense4us.mechanics.draggable(node.graphics, sense4us.active_modes);
 
 			return node;
 		}
@@ -92,7 +93,7 @@
 			node.graphics.set_variable("signal_fire");
 			sense4us.stage.addChild(node.graphics.container);
 			sense4us.stage.update();
-			sense4us.mechanics.draggable(node.graphics);
+			sense4us.mechanics.draggable(node.graphics, sense4us.active_modes);
 
 			return node;
 		}
@@ -110,10 +111,9 @@
 
 		sense4us.init_easeljs();
 
-		sense4us.menu.open("edit");
 		sense4us.selection_menu = sense4us.entities.selection_menu();
 		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
-		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics);
+		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics.dragging_thingy);
 
 		var node2 = create_node(null, 0, 0);
 		var node3 = create_node(null, 0, 0);
@@ -121,6 +121,8 @@
 		sense4us.events.bind("object_updated", function(object) {
 			sense4us.stage.update();
 		});
+		
+		sense4us.menu.open("edit");
 	</script>
 </body>
 </html>
