@@ -36,6 +36,5 @@
 
 	ns.events.bind("model_imported", function(nodes_and_links) {
 		import_model(nodes_and_links);
-		console.log(nodes_and_links);
 	});
 }(window.sense4us = window.sense4us || {}));
