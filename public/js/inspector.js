@@ -15,7 +15,16 @@ var sense4us = sense4us || {};
 
 sense4us.inspector = function() {
 	var inspectingObject = null;
-	var hide_variables = ["id", "type", "class", "signal", "signal_fire", "x", "y", "n1", "n2"];
+	var hide_variables = ["id",
+                          "type",
+                          "class",
+                          "signal",
+                          "signal_fire",
+                          "x",
+                          "y",
+                          "n1",
+                          "n2",
+                          "draw_type"];
 
 	/**
     * Generates and returns the HTML content of the inspector panel.
@@ -26,34 +35,61 @@ sense4us.inspector = function() {
     * @returns {String} The html content of the inspector panel
     */
 	var generateHTML = function() {
-		if (!inspectingObject) return null;
-		var html = "";
-		html += "<form id='" + inspectingObject.id + "-form'>";
+		if (!inspectingObject) return false;
+
+		var form = $("<form>");
+		form.attr("id", inspectingObject.id + "-form");
+
+		form.submit(function(e) {
+			e.preventDefault();
+		});
+
 		for (var property_name in inspectingObject) {
 			var property = inspectingObject[property_name];
 			// This if-statement will filter out all object properties which are functions, objects and id.
 			if (!(property instanceof Function) && !(property instanceof Object)) {
 				// Hide non-interesting object variables in inspector
 				if (hide_variables.indexOf(property_name) == -1) {
-					html += "<h5>" + property_name + "</h5>";
+					var header = $("<h5>");
+					header.html(property_name);
+
+					form.append(header);
+
 					if (property_name == "notes") {
-						html += "<textarea name='"+property_name+"'>"+property+"</textarea>";
+						var textarea = $("<textarea>");
+						textarea.attr("name", property_name);
+						textarea.html(property);
+
+						form.append(textarea);
 					} else {
-						html += "<input type='text' name='"+property_name+"' value='"+property+"'></input>";
+						var input = $("<input type='text'>");
+						input.attr("name", property_name);
+						input.val(property);
+
+						form.append(input);
 					}
 				}
 			}
 		}
 
-		html += "</form>";
-
 		if (inspectingObject.type == "link") {
-			html += "<button class='button' id='switch'>Switch</button>";
+			var link_button = $("<button>");
+			link_button.attr("id", "switch");
+			link_button.addClass("button");
+			link_button.html("Switch");
+			link_button.attr("type", "button");
+
+			form.append(link_button);
 		}
 
-		html += "<button class='button' id='delete'>Delete</button>";
+		var delete_button = $("<button>");
+		delete_button.attr("id", "delete");
+		delete_button.addClass("button");
+		delete_button.html("Delete");
+		delete_button.attr("type", "button");
 
-		return html;
+		form.append(delete_button);
+		return form;
 	};
 
 	var that = {
@@ -64,12 +100,17 @@ sense4us.inspector = function() {
 	    */
 		inspect: function(object) {
 			inspectingObject = object;
-			var html = generateHTML();
+			var form = generateHTML();
 			var inspector = $("div #inspector");
 
-			inspector.html(html);
+			inspector.html(form);
+			
+			/*var form = inspector.children("form");
+			form.submit(function(e) {
+				return false;
+			});*/
 
-			if (html) {
+			if (form !== false) {
 				$("#" + inspectingObject.id + "-form").find("input").change(function(event) {
 					inspectingObject.set($(this).prop("name"), $(this).val());
 					inspectingObject.events.trigger("update", inspectingObject);
