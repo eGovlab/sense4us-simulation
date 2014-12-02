@@ -23,7 +23,6 @@ sense4us.menu = {
 		sense4us.events.trigger("object_deselected", selected_object);
 
 		if (id == "view") {
-			console.log("lule");
 			$("#sense4us_timelag").slider({
 				value: 0,
 				min: 0,
