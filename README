@@ -1,6 +1,18 @@
+When developing
+1.	$ npm start
+	This will run npm install and then start the application
+2.	$ npm watch
+	This will run watcherify on the public javascripts, which means the javascript will be re-compiled whenever main.js or a file included in main.js is edited. It will compile using browserify in debug mode, which means you get a sourcemap in the bundle.js, which means chrome debugging will show you the errors in separate files instead of in the bundle.js.
+
+When deploying
+1.	Setup som cool server or something
+2.	$ npm browserify
+	This will run browserify on the public javascript, and then uglify it.
+
 To generate the code documentation:
-1. Install YUIDoc (http://yui.github.io/yuidoc/)
-2. Go to the root of the project and execute cmdline: "yuidoc ."
+1.	Install YUIDoc (http://yui.github.io/yuidoc/)
+	1.1	For the lazy: $ npm install -g yuidocjs
+2.	Go to the root of the project and execute cmdline: "yuidoc ."
 
 Start Nodejs
-1. 'node backend.js' from the directory. Most paths work from current working directory, unfortunately. Will fix!!!
+1.	'node backend.js' from the directory. Most paths work from current working directory, unfortunately. Will fix!!!

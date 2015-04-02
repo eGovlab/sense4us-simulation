@@ -12,16 +12,9 @@
 	<link rel="stylesheet" href="/js/jquery-ui/jquery-ui.min.css" />
 </head>
 <body>
+	<div id="menu_container">menu</div>
+	<!--
 	<div id="menu">
-		<div class="inner_menu" id="edit_menu">
-			<form id="sense4us_import_json" action="/model">
-				<input type="file" />
-				<input type="submit" class="button" value="Import (.json)" />
-			</form>
-			<input type="button" class="button" onclick="sense4us.ui.create_origin_node(null, 0, 0);" value="Create origin" />
-			<input type="button" class="button" onclick="sense4us.ui.create_node(null, 0, 0);" value="Create node" />
-		</div>
-
 		<div class="inner_menu" id="view_menu">
 			<input type="button" class="button" onclick="sense4us.simulation.run();" value="Simulate" />
 			<label for="sense4us_timelag_amount">Time lag:</label>
@@ -31,6 +24,7 @@
 
 		<div id="inspector"></div>
 	</div>
+	-->
 
 	<div id="container">
 		<div id="upper_menu">
@@ -38,7 +32,7 @@
 			<input type="button" class="button" onclick="sense4us.menu.open('edit');" value="Modeling" />
 			<input type="button" class="button" onclick="sense4us.menu.open('view');" value="Simulation" />
 		</div>
-		<canvas id="canvas" height="1" width="1" ></canvas>
+		<canvas id="canvas"></canvas>
 		<div style="position: absolute; display: none;" id="edit_signal_fire">Sense4us Simulator</div>
 	</div>
 
@@ -47,7 +41,6 @@
 	<script src="/js/get_or_create_html_entity.js"></script>
 	<script src="/js/select_object.js"></script>
 	<script src="/js/events.js"></script>
-	<script src="/js/init_easeljs.js"></script>
 	<script src="/js/network.js"></script>
 	<script src="/js/inspector.js"></script>
 
@@ -78,25 +71,6 @@
 	<script src="/js/ui/create_link.js"></script>
 	<script src="/js/ui/menu.js"></script>
 
-	<script>
-		"use strict";
-
-		// in which modes should "mechanic" components be enabled?
-		sense4us.active_modes = ["edit"];
-		sense4us.init_easeljs();
-
-		sense4us.selection_menu = sense4us.entities.selection_menu();
-		sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
-		sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics.dragging_thingy);
-
-		/*var node2 = create_node(null, 0, 0);
-		var node3 = create_node(null, 0, 0);*/
-
-		sense4us.events.bind("object_updated", function(object) {
-			sense4us.stage.update();
-		});
-
-		sense4us.menu.open("edit");
-	</script>
+	<script src="/js/bundle.js"></script>
 </body>
 </html>

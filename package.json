@@ -6,11 +6,18 @@
     "btoa": "latest",
     "ejs": "latest",
     "express": "latest",
-    "fs": "latest",
     "line-by-line": "latest",
     "multiparty": "^4.0.0",
     "socket.io": "latest",
-    "tls": "latest"
+    "browserify": "latest",
+    "watchify": "latest",
+    "uglify-js": "latest"
   },
-  "author": "Robin Swenson, Anton Haughey, Jona Ekenberg"
+  "author": "Robin Swenson, Anton Haughey, Jona Ekenberg",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node app.js",
+    "browserify": "node_modules/browserify/bin/cmd.js public/js/main.js | node_modules/uglify-js/bin/uglifyjs > public/js/bundle.js",
+    "watch": "node_modules/watchify/bin/cmd.js public/js/main.js -o public/js/bundle.js --debug --verbose"
+  }
 }

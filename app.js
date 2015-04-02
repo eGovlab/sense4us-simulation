@@ -12,6 +12,23 @@ var port = 3700;
 
 cwd = process.cwd();
 
+/*
+var browserify = require('browserify');
+var watchify = require('watchify');
+var fs = require('fs');
+var b = browserify('./public/js/main.js', watchify.args);
+b.bundle().pipe(fs.createWriteStream('./public/js/bundle.js'));
+var w = watchify(b);
+console.log('watching files to browserify...');
+w.on('update', function() {
+	try {
+		w.bundle().pipe(fs.createWriteStream('./public/js/bundle.js'));
+	} catch(err) {
+		console.log('failed to save', err);
+	}
+});
+*/
+
 app.use(express.static(__dirname + '/public'));
 app.set("views", __dirname + "/public");
 app.engine("html", require("ejs").renderFile);

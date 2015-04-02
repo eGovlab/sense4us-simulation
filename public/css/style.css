@@ -26,17 +26,13 @@ body, html{
 	background-color: #2b3846;
 }
 
-.inner_menu {
-	display: none;
-}
-
 #canvas {
 	cursor: pointer;
 	background-color: #FFFFFF;
 	float: left;
 }
 
-#menu{
+#menu_container{
 	float: left;
 	height: inherit;
 	width: 180px;
@@ -76,7 +72,7 @@ textarea {
 	height: 250px;
 }
 
-input[type="button"], .button {
+button, input[type="button"], .button {
 	background-color: #3fb2bb;
 
 	width: 100%;
@@ -94,7 +90,7 @@ input[type="button"], .button {
 	cursor: pointer;
 }
 
-.button {
+button, .button {
 	display: block;
 	color: #FAFAFA;
 	font: bold 14px Arial;
