@@ -1,12 +1,8 @@
+'use strict';
+
 /**
 * @namespace sense4us.entities
 */
-
-var sense4us = sense4us || {};
-
-sense4us.entities = sense4us.entities || {};
-
-sense4us.entities.id_to_entity = sense4us.entities.id_to_entity || {}
 
 /**
 * @class entity
@@ -14,12 +10,14 @@ sense4us.entities.id_to_entity = sense4us.entities.id_to_entity || {}
 * @param id {Integer} This integer must be a unique identifier for this created entity.
 */
 
-sense4us.entities.entity = function(id) {
-	if (id == null) {
-		sense4us.temp_id = sense4us.temp_id || 0;
-		var name = "entity-" + sense4us.temp_id;
-		sense4us.temp_id++;
+var temp_id = 0;
+
+module.exports = function(id) {
+	if (id === null) {
+		id = "entity-" + temp_id;
+		temp_id++;
 	}
+
 	var html_entity = sense4us.get_or_create_html_entity(id);
 
 	var that = {
@@ -69,4 +67,4 @@ sense4us.entities.entity = function(id) {
 	sense4us.entities.id_to_entity[that.id] = that;
 
 	return that;
-}
+};

@@ -1,13 +1,14 @@
-"use strict";
+'use strict';
 
-var init_easeljs = require("./init.js");
+module.exports = function(canvas, container) {
+		container.style.width = (document.body.clientWidth - 180).toString() + 'px';
 
-var canvas = {
-	init: function(canvas, container) {
-		return init_easeljs(canvas, container);
-	}
+		canvas.width = container.offsetWidth;
+		canvas.height = container.offsetHeight;
+
+		canvas.onmousedown = function(event){
+			event.preventDefault();
+		};
+
+		return canvas;
 };
-
-
-
-module.exports = canvas;

@@ -1,15 +1,15 @@
 'use strict';
 
 module.exports = {
-	mousepos_to_stagepos: function(pos, stage) {
-		var x = (pos.x / stage.scaleX) - stage.x;
-		var y = (pos.y / stage.scaleY) - stage.y;
+	mouseToCanvas: function(pos, canvas) {
+		var x = pos.x - canvas.offsetLeft;
+		var y = pos.y - canvas.offsetTop;
 
 		return {x: x, y: y};
 	},
-	stagepos_to_mousepos: function(pos, stage) {
-		var x = (pos.x) * stage.scaleX + stage.x;
-		var y = (pos.y) * stage.scaleY + stage.y;
+	canvasToMouse: function(pos, canvas) {
+		var x = pos.x + canvas.offsetLeft;
+		var y = pos.y + canvas.offsetTop;
 
 		return {x: x, y: y};
 	}
