@@ -7,7 +7,7 @@ This will run npm install and then start the application, it will also browserif
 This will run watcherify on the public javascripts, which means the javascript will be re-compiled whenever main.js or a file included in main.js is edited. It will compile using browserify in debug mode, which means you get a sourcemap in the bundle.js, which means chrome debugging will show you the errors in separate files instead of in the bundle.js.
 
 ## When deploying
-1. Setup som cool server or something
+1. Setup some cool server or something
 2. $ npm start
 	This will run npm install and then start the application, it will also browserify + uglify the client side javascript
 	1. $ npm browserify
