@@ -1,5 +1,7 @@
 'use strict';
 
+var Immutable = require('Immutable');
+
 module.exports = {
 	create_menu: function() {
 		var menu = document.createElement('div');
@@ -11,10 +13,11 @@ module.exports = {
 			
 			return button;
 		};
-		
+
 		menu.input = function(key, value, callback) {
 			var input = document.createElement('input');
 			input.addEventListener('change', function(event) {callback(input.value, input.name);});
+			//input.addEventListener('keydown', function(event) {callback(input.value, input.name);});
 			input.name = key;
 			input.value = value;
 			

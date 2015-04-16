@@ -3,16 +3,18 @@
 var menu_builder = require('./menu_builder');
 
 var draw_selected_menu = function(container, menu, map, changeCallback) {
-	var update_menu = function(map) {
+	var create_menu = function(map) {
 		var menu = menu_builder.create_menu();
 		menu.className = 'menu';
 
 		map.forEach(function(value, key) {
 			var p = menu.p();
 			p.appendChild(menu.label(key + ': '));
-			p.appendChild(menu.input(key, value, function(value, key) {
+			var input = menu.input(key, value, function(value, key) {
 				changeCallback(map.set(key, value));
-			}));
+			});
+
+			p.appendChild(input);
 			menu.appendChild(p);
 		});
 
@@ -28,7 +30,7 @@ var draw_selected_menu = function(container, menu, map, changeCallback) {
 	}
 
 	if (menu === null) {
-		menu = update_menu(map);
+		menu = create_menu(map);
 		menu.map_obj = map;
 
 		container.appendChild(menu);
@@ -38,11 +40,9 @@ var draw_selected_menu = function(container, menu, map, changeCallback) {
 
 	if (menu.map_obj !== map) {
 		container.removeChild(menu);
-
-		menu = update_menu(map);
-		menu.map_obj = map;
-
+		menu = create_menu(map);
 		container.appendChild(menu);
+		menu.map_obj = map;
 
 		return menu;
 	}

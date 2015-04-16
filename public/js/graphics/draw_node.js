@@ -10,6 +10,12 @@ module.exports = function(ctx, map) {
 	ctx.beginPath();
 	ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
 	ctx.fill();
+
+	ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+	ctx.textBaseline = 'middle';
+	var text = ctx.measureText(map.get('signal'));
+	ctx.font = '48px sans-serif';
+	ctx.fillText(map.get('signal'), map.get('x') - text.width / 2, map.get('y'));
 	
 	ctx.shadowOffsetX = 0;
 	ctx.shadowOffsetY = 0;

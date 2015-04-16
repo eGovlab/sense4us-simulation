@@ -74,47 +74,36 @@ var fixInputForLink = function(link) {
 
 	return link;
 };
-/*
-var nodesMouseDownHandler = function(nodes, pos) {
-	var clickedNodes = nodes.filter(function(node) {return node.get('linking') === true || hitTest(pos, node);}).map(function(node) {return node.concat({
-		offsetX: pos.get('x') - node.get('x'),
-		offsetY: pos.get('y') - node.get('y'),
-		clicked: true,
-		selected: true
-	});}).slice(-1);
-
-	nodes = nodes.merge(nodes.filter(function(node) {return node.get('selected') === true;}).map(function(node) {return node.delete('selected');}));
-
-	if (clickedNodes.size > 0) {
-		nodes = nodes.merge(clickedNodes);
-	}
-
-	return nodes;
-};
-*/
 
 var mouseQueue = Immutable.List();
 
 var dragHandler = require('./mechanics/drag_handler.js');
 dragHandler(
 	main_canvas,
-	function mouseDown(pos) {mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseDown', pos: Immutable.Map({x: pos.x, y: pos.y})})); return true;},
-	function mouseMove(pos) {mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseMove', pos: Immutable.Map({x: pos.x, y: pos.y})}));},
-	function mouseUp(pos) {mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseUp', pos: Immutable.Map({x: pos.x, y: pos.y})}));}
+	function mouseDown(pos) {
+		mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseDown', pos: Immutable.Map({x: pos.x, y: pos.y})}));
+		return true;
+	},
+	function mouseMove(pos) {
+		mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseMove', pos: Immutable.Map({x: pos.x, y: pos.y})}));
+	},
+	function mouseUp(pos) {
+		mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseUp', pos: Immutable.Map({x: pos.x, y: pos.y})}));
+}
 );
 
-var handleMouse = require('./mouse_handling/handle_mouse.js')([require('./mouse_handling/handle_down.js')], [require('./mouse_handling/handle_move.js')], [require('./mouse_handling/handle_up.js')]);
+var handleMouse = require('./mouse_handling/handle_mouse.js')(
+							[require('./mouse_handling/handle_down.js')],
+							[require('./mouse_handling/handle_move.js')],
+							[require('./mouse_handling/handle_up.js')]
+						 );
 
 var selected_menu = null;
 function refresh() {
 	context.clearRect(0, 0, main_canvas.width, main_canvas.height);
 
-	links.forEach(function(link) {
-		draw_link(
-			require('./aggregate_line.js')(nodes, link)
-		);
-	});
 
+	// handle the mouse events
 	var data = {mouseQueue: mouseQueue, nodes: nodes, links: links};
 	
 	data = handleMouse(data);
@@ -123,14 +112,24 @@ function refresh() {
 	links = links.merge(data.links);
 	mouseQueue = data.mouseQueue;
 
+	// draw the links
+	links.forEach(function(link) {
+		draw_link(
+			require('./aggregate_line.js')(nodes, link)
+		);
+	});
+
+	// get all the selected objects
 	var selected = nodes
 						.filter(function(node) { return node.get('selected') === true; })
 						.merge(
 							links.filter(function(link) { return link.get('selected') === true; })
 						);
 
+	// if there are nodes selected that aren't currently linking, we want to draw the linker
 	nodes.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
 
+	// if we are currently linking, we want to draw the link we're creating
 	nodes.filter(function(node) { return node.get('linking') === true; }).forEach(function(node) {
 		var linkerForNode = linker(node);
 		draw_link(
@@ -142,10 +141,13 @@ function refresh() {
 		);
 	});
 
+	// draw all the nodes
 	nodes.forEach(draw_node);
 
+	// if we are linking, we want to draw the dot above everything else
 	nodes.filter(function(node) {return node.get('linking') === true; }).forEach(draw_linker);
 
+	// update the menu
 	selected_menu = draw_selected_menu(selected_menu, selected.last(), updateSelected);
 
 	window.requestAnimationFrame(refresh);
