@@ -11,7 +11,7 @@
 2. ```$ npm start```  
    This will run npm install and then start the application, it will also browserify + uglify the client side javascript
 
-```$ npm browserify```  
+3. ```$ npm browserify```  
    This will run browserify on the public javascript, and then uglify it. This is needed if you have changed the client side javascript but don't want to restart the server.
 
 ## To generate the code documentation:
