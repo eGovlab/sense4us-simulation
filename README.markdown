@@ -1,9 +1,8 @@
 # Sense4us Simulation
 
 ## When developing
-1. ```$ npm start```
-
-⋅⋅⋅This will run npm install and then start the application, it will also browserify + uglify the client side javascript⋅⋅
+1. ```$ npm start```  
+   This will run npm install and then start the application, it will also browserify + uglify the client side javascript
 
 ```
 $ npm watch
