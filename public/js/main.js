@@ -1,21 +1,22 @@
 'use strict';
 
 var curry = require('./curry.js');
-
 var Immutable = require('Immutable');
-
 var canvas = require('./canvas/');
+var linker = require('./linker.js');
+var generateId = require('./generate_id.js');
+
+var main_canvas = canvas(document.getElementById('canvas'), document.getElementById('container'));
+
+var draw_selected_menu = curry(require('./selected_menu.js'), document.getElementById('menu_container'));
+var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getContext('2d'), linker);
+var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
 
 var nodes = Immutable.Map();
 var links = Immutable.Map();
 
-var linker = require('./linker.js');
-
-var main_canvas = canvas(document.getElementById('canvas'), document.getElementById('container'));
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
-
-var generateId = require('./generate_id.js');
 
 var createNode = function() {
 	var id = generateId();
@@ -27,19 +28,21 @@ var createNode = function() {
 		y: 100,
 		radius: 75
 	}));
+
+	nodesGraphics = nodesGraphics.set(id, Immutable.Map({
+		x: 200,
+		y: 100,
+		radius: 75
+	}));
 };
 
 // create the main menu
-require('./create_menus.js')(document.getElementById('menu_container'),
-	createNode
-);
+require('./create_menus.js')(document.getElementById('menu_container'), createNode);
+
+var nodesGraphics = Immutable.Map();
 
 window.Immutable = Immutable;
 window.collisions = require('./collisions.js');
-
-var draw_selected_menu = curry(require('./selected_menu.js'), document.getElementById('menu_container'));
-var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getContext('2d'), linker);
-var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
 
 createNode();
 createNode();
@@ -93,12 +96,13 @@ dragHandler(
 );
 
 var handleMouse = require('./mouse_handling/handle_mouse.js')(
-							[require('./mouse_handling/handle_down.js')],
-							[require('./mouse_handling/handle_move.js')],
-							[require('./mouse_handling/handle_up.js')]
+							require('./mouse_handling/handle_down.js'),
+							require('./mouse_handling/handle_move.js'),
+							require('./mouse_handling/handle_up.js')
 						 );
 
 var selected_menu = null;
+
 function refresh() {
 	context.clearRect(0, 0, main_canvas.width, main_canvas.height);
 
@@ -113,18 +117,14 @@ function refresh() {
 	mouseQueue = data.mouseQueue;
 
 	// draw the links
-	links.forEach(function(link) {
-		draw_link(
-			require('./aggregate_line.js')(nodes, link)
-		);
-	});
+	links.forEach(draw_link);
 
 	// get all the selected objects
 	var selected = nodes
-						.filter(function(node) { return node.get('selected') === true; })
-						.merge(
-							links.filter(function(link) { return link.get('selected') === true; })
-						);
+		.filter(function(node) { return node.get('selected') === true; })
+		.merge(
+			links.filter(function(link) { return link.get('selected') === true; })
+		);
 
 	// if there are nodes selected that aren't currently linking, we want to draw the linker
 	nodes.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
@@ -142,7 +142,11 @@ function refresh() {
 	});
 
 	// draw all the nodes
-	nodes.forEach(draw_node);
+	nodes.forEach(
+		function(node) {
+			draw_node(node);//.merge(nodesGraphics.get(node.get('id'))));
+		}
+	);
 
 	// if we are linking, we want to draw the dot above everything else
 	nodes.filter(function(node) {return node.get('linking') === true; }).forEach(draw_linker);
@@ -154,17 +158,3 @@ function refresh() {
 }
 
 refresh();
-
-//var selection_menu = require('./selection_menu');
-
-/*sense4us.selection_menu.graphics = sense4us.graphics.selection_menu(sense4us.selection_menu, sense4us.stage);
-sense4us.mechanics.selection_menu(sense4us.selection_menu.graphics.dragging_thingy);
-*/
-/*
-
-sense4us.events.bind('object_updated', function(object) {
-	sense4us.stage.update();
-});
-
-sense4us.menu.open('edit');
-*/
