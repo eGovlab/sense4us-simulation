@@ -1,10 +1,10 @@
 # Sense4us Simulation
 
 ## When developing
-1. $ npm start
-	This will run npm install and then start the application, it will also browserify + uglify the client side javascript
-2. $ npm watch
-	This will run watcherify on the public javascripts, which means the javascript will be re-compiled whenever main.js or a file included in main.js is edited. It will compile using browserify in debug mode, which means you get a sourcemap in the bundle.js, which means chrome debugging will show you the errors in separate files instead of in the bundle.js.
+´´´$ npm start´´´
+This will run npm install and then start the application, it will also browserify + uglify the client side javascript
+´´´$ npm watch´´´
+This will run watcherify on the public javascripts, which means the javascript will be re-compiled whenever main.js or a file included in main.js is edited. It will compile using browserify in debug mode, which means you get a sourcemap in the bundle.js, which means chrome debugging will show you the errors in separate files instead of in the bundle.js.
 
 ## When deploying
 1. Setup som cool server or something
