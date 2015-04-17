@@ -16,7 +16,7 @@
 
 ## To generate the code documentation:
 1. Install YUIDoc (http://yui.github.io/yuidoc/)
-	1. For the lazy: $ npm install -g yuidocjs
+	1. For the lazy: ```$ npm install -g yuidocjs```
 2. Go to the root of the project and execute cmdline: "yuidoc ."
 
 ## Made by:
