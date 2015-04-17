@@ -12,7 +12,7 @@ var draw_selected_menu = curry(require('./selected_menu.js'), document.getElemen
 var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getContext('2d'), linker);
 var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
 
-var nodes = Immutable.Map();
+var nodeData = Immutable.Map();
 var links = Immutable.Map();
 
 var draw_node = require('./graphics/draw_node.js');
@@ -20,16 +20,14 @@ draw_node = curry(draw_node, main_canvas.getContext('2d'));
 
 var createNode = function() {
 	var id = generateId();
-	nodes = nodes.set(id, Immutable.Map({
+	nodeData = nodeData.set(id, Immutable.Map({
 		id: id,
 		signal: 0,
-		signal_fire: 0,
-		x: 200,
-		y: 100,
-		radius: 75
+		signal_fire: 0
 	}));
 
-	nodesGraphics = nodesGraphics.set(id, Immutable.Map({
+	nodeGui = nodeGui.set(id, Immutable.Map({
+		id: id,
 		x: 200,
 		y: 100,
 		radius: 75
@@ -39,7 +37,7 @@ var createNode = function() {
 // create the main menu
 require('./create_menus.js')(document.getElementById('menu_container'), createNode);
 
-var nodesGraphics = Immutable.Map();
+var nodeGui = Immutable.Map();
 
 window.Immutable = Immutable;
 window.collisions = require('./collisions.js');
@@ -59,13 +57,7 @@ var updateSelected = function(newSelected) {
 			return link;
 		});
 	} else {
-		nodes = nodes.map(function(node) {
-			if (node.get('selected')) {
-				node = newSelected;
-			}
-
-			return node;
-		});
+		nodeData = nodeData.set(newSelected.get('id'), newSelected);
 	}
 };
 
@@ -108,11 +100,11 @@ function refresh() {
 
 
 	// handle the mouse events
-	var data = {mouseQueue: mouseQueue, nodes: nodes, links: links};
+	var data = {mouseQueue: mouseQueue, nodeGui: nodeGui, links: links};
 	
 	data = handleMouse(data);
 
-	nodes = nodes.merge(data.nodes);
+	nodeGui = nodeGui.merge(data.nodeGui);
 	links = links.merge(data.links);
 	mouseQueue = data.mouseQueue;
 
@@ -120,17 +112,17 @@ function refresh() {
 	links.forEach(draw_link);
 
 	// get all the selected objects
-	var selected = nodes
-		.filter(function(node) { return node.get('selected') === true; })
+	var selected = nodeData
+		.filter(function(node) { return nodeGui.get(node.get('id')).get('selected') === true; })
 		.merge(
 			links.filter(function(link) { return link.get('selected') === true; })
 		);
 
-	// if there are nodes selected that aren't currently linking, we want to draw the linker
-	nodes.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
+	// if there are nodeData selected that aren't currently linking, we want to draw the linker
+	nodeGui.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
 
 	// if we are currently linking, we want to draw the link we're creating
-	nodes.filter(function(node) { return node.get('linking') === true; }).forEach(function(node) {
+	nodeGui.filter(function(node) { return node.get('linking') === true; }).forEach(function(node) {
 		var linkerForNode = linker(node);
 		draw_link(
 			Immutable.Map({
@@ -141,15 +133,13 @@ function refresh() {
 		);
 	});
 
-	// draw all the nodes
-	nodes.forEach(
-		function(node) {
-			draw_node(node);//.merge(nodesGraphics.get(node.get('id'))));
-		}
+	// draw all the nodeData
+	nodeData.forEach(
+		function(n) { return draw_node(n.merge(nodeGui.get(n.get('id')))); }
 	);
 
 	// if we are linking, we want to draw the dot above everything else
-	nodes.filter(function(node) {return node.get('linking') === true; }).forEach(draw_linker);
+	nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(draw_linker);
 
 	// update the menu
 	selected_menu = draw_selected_menu(selected_menu, selected.last(), updateSelected);

@@ -51,15 +51,15 @@ function link(nodes, links) {
 module.exports = [
 {
 	column: 'links',
-	params: ['nodes', 'links'],
+	params: ['nodeGui', 'links'],
 	func: link
 },
 {
-	column: 'nodes',
+	column: 'nodeGui',
 	func: delink
 },
 {
-	column: 'nodes',
+	column: 'nodeGui',
 	func: removeClicked
 },
 {

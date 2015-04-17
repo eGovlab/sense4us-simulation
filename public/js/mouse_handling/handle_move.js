@@ -2,7 +2,7 @@
 
 module.exports = [
 {
-	column: 'nodes',
+	column: 'nodeGui',
 	func: function(nodes, event) {
 		return nodes.merge(nodes
 				.filter(function(node) {return node.get('clicked') === true;})
@@ -15,7 +15,7 @@ module.exports = [
 	}
 },
 {
-	column: 'nodes',
+	column: 'nodeGui',
 	func: function(nodes, event) {
 		return nodes.merge(nodes
 				.filter(function(node) { return node.get('linking') === true; })
@@ -28,7 +28,7 @@ module.exports = [
 	}
 },
 {
-	params: ['nodes', 'links'],
+	params: ['nodeGui', 'links'],
 	column: 'links',
 	func: function(nodes, links) {
 		var movedNodes = nodes

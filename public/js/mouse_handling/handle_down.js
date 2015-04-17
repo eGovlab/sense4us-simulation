@@ -48,7 +48,7 @@ function deselectIfNotLinking(objs) {
 
 module.exports = [
 	{
-		column: 'nodes',
+		column: 'nodeGui',
 		func: curry(specificMouseDownHandler,
 			function(pos, node) {
 				return node.get('selected') === true && hitTest(pos, linker(node));
@@ -59,7 +59,7 @@ module.exports = [
 		)
 	},
 	{
-		column: 'nodes',
+		column: 'nodeGui',
 		func: deselectIfNotLinking
 	},
 	{
@@ -67,7 +67,7 @@ module.exports = [
 		func: deselectIfNotLinking
 	},
 	{
-		column: 'nodes',
+		column: 'nodeGui',
 		func: genericMouseDownHandler
 	},
 	{
