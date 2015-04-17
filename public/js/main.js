@@ -89,7 +89,7 @@ dragHandler(
 
 var handleMouse = require('./mouse_handling/handle_mouse.js')(
 							require('./mouse_handling/handle_down.js'),
-							require('./mouse_handling/handle_move.js'),
+							require('./mouse_handling/handle_drag.js'),
 							require('./mouse_handling/handle_up.js')
 						 );
 
