@@ -14,11 +14,11 @@
 3. ```$ npm run browserify```  
    This will run browserify on the public javascript, and then uglify it. This is needed if you have changed the client side javascript but don't want to restart the server.
 
-## To generate the code documentation:
+## To generate the code documentation
 1. Install YUIDoc (http://yui.github.io/yuidoc/)
 	1. For the lazy: ```$ npm install -g yuidocjs```
 2. Go to the root of the project and execute cmdline: "yuidoc ."
 
-## Made by:
+## Made by
 Jona Ekenberg, Robin Swenson & Anton Haughey
 @ eGovlab - http://www.egovlab.eu
