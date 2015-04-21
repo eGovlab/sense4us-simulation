@@ -1,0 +1,26 @@
+{
+    model: {
+        references: {
+            table: "model",
+            column: "id"
+        }
+    },
+    node: {
+        references: {
+            table: "node",
+            column: "id"
+        }
+    },
+    step: {
+        type: Number,
+        bytes: 4
+    },
+    change: {
+        type: Number,
+        bytes: 4
+    },
+    current_value: {
+        type: Number,
+        bytes: 4
+    }
+}

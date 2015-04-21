@@ -1,0 +1,12 @@
+{
+    creator: {
+        references: {
+            table: "user",
+            column: "id"
+        }
+    },
+    max_iterations: {
+        type: Number,
+        bytes: 4
+    }
+}

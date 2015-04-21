@@ -1,0 +1,43 @@
+{
+    model: {
+        references: {
+            table: "model",
+            column: "id"
+        }
+    },
+    name: {
+    	type: String,
+    	length: 256
+    },
+    description: {
+    	type: String,
+    	length: 1000
+    },
+    type: {
+    	type: String,
+    	length: 256
+    },
+    controllable: {
+    	type: Boolean
+    },
+    starting_value: {
+    	type: Number,
+    	bytes: 4
+    },
+    measure_unit: {
+    	type: String,
+    	length: 10
+    },
+    min_value: {
+    	type: Number,
+    	bytes: 4
+    },
+    max_value: {
+    	type: Number,
+    	bytes: 4
+    },
+    change_value: {
+    	type: Number,
+    	bytes: 4
+    }
+}

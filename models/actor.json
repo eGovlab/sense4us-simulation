@@ -1,0 +1,16 @@
+{
+    model: {
+        references: {
+            table: "model",
+            column: "id"
+        }
+    },
+    name: {
+        type: String,
+        length: 256
+    },
+    class: {
+        type: String,
+        length: 256
+    },
+}

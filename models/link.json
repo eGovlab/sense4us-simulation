@@ -1,0 +1,34 @@
+{
+    from_node: {
+        references: {
+            table: "node",
+            column: "id"
+        }
+    },
+    to_node: {
+        references: {
+            table: "node",
+            column: "id"
+        }
+    },
+    type: {
+    	type: String,
+    	length: 256
+    },
+    sign: {
+    	type: String,
+        length: 256
+    },
+    magnitude: {
+    	type: Number,
+    	bytes: 4
+    },
+    timelag: {
+    	type: Number,
+    	bytes: 4
+    },
+    threshold: {
+    	type: Number,
+    	bytes: 4
+    }
+}
