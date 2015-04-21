@@ -1,0 +1,6 @@
+{
+    name: {
+    	type: String,
+    	length: 256
+    }
+}

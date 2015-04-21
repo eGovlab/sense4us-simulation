@@ -13,7 +13,19 @@ function handleMouse(data) {
 		var mouseEvent = data.mouseQueue.first();
 
 		if (mouseHandlingMapping.hasOwnProperty(mouseEvent.get('event'))) {
-			mouseHandlingMapping[mouseEvent.get('event')].forEach(function(func) { data = func(mouseEvent, data); });
+			mouseHandlingMapping[mouseEvent.get('event')].forEach(
+				function(handler) {
+					if (handler.params) {
+						var params = handler.params.map(function(param) {
+							return data[param];
+						});
+
+						data[handler.column] = handler.func.apply(null, params.concat(mouseEvent));
+					} else {
+						data[handler.column] = handler.func.call(null, data[handler.column], mouseEvent);
+					}
+				}
+			);
 		} else {
 			console.log('Unhandled event.', mouseEvent);
 		}

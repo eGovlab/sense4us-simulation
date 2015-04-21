@@ -2,10 +2,12 @@
 
 var hitTest = require('./../collisions.js').hitTest;
 var linker = require('./../linker.js');
-var aggregateLine = require('./../aggregate_line.js');
+var curry = require('./../curry.js');
 
-var genericMouseDownHandler = function(objs, pos, condition, mapping) {
-	condition = condition || function(obj) {
+var specificMouseDownHandler = function(condition, mapping, objs, event) {
+	var pos = event.get('pos');
+
+	condition = condition || function(pos, obj) {
 		return hitTest(
 			pos,
 			obj
@@ -21,43 +23,55 @@ var genericMouseDownHandler = function(objs, pos, condition, mapping) {
 		});
 	};
 
-	var clickedObjs = objs.filter(condition).map(mapping).slice(-1);
+	var clickedObjs = objs.filter(curry(condition, pos)).map(mapping).slice(-1);
 
-	return clickedObjs;
+	return objs.merge(clickedObjs);
 };
 
-function handleDown(event, data) {
-	var linking_nodes = genericMouseDownHandler(data.nodes, event.get('pos'),
-		function(node) {
-			return node.get('selected') === true && hitTest(event.get('pos'), linker(node));
-		},
-		function(node) {
-			return node.set('linking', true);
-		}
-	);
+var genericMouseDownHandler = function(objs, event) {
+	return specificMouseDownHandler(null, null, objs, event);
+};
 
-	data.nodes = data.nodes.merge(linking_nodes);
-
-	if (linking_nodes.size === 0) {
-		data.nodes = data.nodes.merge(data.nodes.filter(function(obj) {return obj.get('selected') === true;}).map(function(obj) {return obj.delete('selected');}));
-		data.links = data.links.merge(data.links.filter(function(obj) {return obj.get('selected') === true;}).map(function(obj) {return obj.delete('selected');}));
-	}
-
-	data.nodes = data.nodes.merge(genericMouseDownHandler(data.nodes, event.get('pos')));
-
-	data.links = data.links.merge(genericMouseDownHandler(data.links, event.get('pos'),
-			function(link) {
-				return hitTest(
-					event.get('pos'),
-					aggregateLine(
-						data.nodes,
-						link
-					)
-				);
-			}
-	));
-
-	return data;
+function deselect(maps) {
+	return maps.merge(maps.filter(function(obj) {return obj.get('selected') === true;}).map(function(obj) {return obj.delete('selected');}));
 }
 
-module.exports = handleDown;
+function deselectIfNotLinking(objs) {
+	var linking_objs = objs.filter(function(obj) { return obj.get('linking') === true; });
+
+	if (linking_objs.size === 0) {
+		linking_objs = deselect(objs);
+	}
+
+	return objs.merge(linking_objs);
+}
+
+module.exports = [
+	{
+		column: 'nodeGui',
+		func: curry(specificMouseDownHandler,
+			function(pos, node) {
+				return node.get('selected') === true && hitTest(pos, linker(node));
+			},
+			function(node) {
+				return node.set('linking', true);
+			}
+		)
+	},
+	{
+		column: 'nodeGui',
+		func: deselectIfNotLinking
+	},
+	{
+		column: 'links',
+		func: deselectIfNotLinking
+	},
+	{
+		column: 'nodeGui',
+		func: genericMouseDownHandler
+	},
+	{
+		column: 'links',
+		func: genericMouseDownHandler
+	}
+];

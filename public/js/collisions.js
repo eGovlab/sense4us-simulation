@@ -12,10 +12,10 @@ var lineToRect = function(line) {
 	}
 
 	return Immutable.Map({
-		x: line.get('x1'),
-		y: line.get('y1'),
-		width: line.get('x2') - line.get('x1'),
-		height: line.get('y2') - line.get('y1')
+		x: line.get('x1') - line.get('width') / 2,
+		y: line.get('y1') - line.get('width') / 2,
+		width: line.get('x2') - line.get('x1') + line.get('width') / 2,
+		height: line.get('y2') - line.get('y1') + line.get('width') / 2
 	});
 };
 
@@ -48,7 +48,7 @@ var collisions = {
 
 		var distance = line2length * Math.sin(angleBetweenLines);
 
-		return Math.abs(distance) < line.get('width') / 2;
+		return distance <= line.get('width') / 2 && distance >= -line.get('width') / 2;
 	},
 	hitTest: function(obj1, obj2) {
 		var data = {};

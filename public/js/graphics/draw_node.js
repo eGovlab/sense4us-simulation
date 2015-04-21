@@ -6,7 +6,11 @@ module.exports = function(ctx, map) {
 	ctx.shadowBlur = 10;
 	ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
 
-	ctx.fillStyle = 'rgba(255, 175, 75, 0.6)';
+	if (map.get('selected') === true) {
+		ctx.fillStyle = 'rgba(255, 175, 75, 0.8)';
+	} else {
+		ctx.fillStyle = 'rgba(255, 175, 75, 0.6)';
+	}
 	ctx.beginPath();
 	ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
 	ctx.fill();

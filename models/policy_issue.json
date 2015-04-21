@@ -1,0 +1,12 @@
+{
+    level: {
+        references: {
+            table: "level",
+            column: "id"
+        }
+    },
+    title: {
+    	type: String,
+    	length: 256
+    }
+}

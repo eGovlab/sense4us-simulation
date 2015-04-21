@@ -1,0 +1,15 @@
+// many to many table
+{
+    model: {
+        references: {
+            table: "model",
+            column: "id"
+        }
+    },
+    policy_issue: {
+        references: {
+            table: "policy_issue",
+            column: "id"
+        }
+    }
+}

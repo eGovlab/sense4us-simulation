@@ -6,9 +6,15 @@ module.exports = function(ctx, line) {
 	ctx.shadowBlur = 10;
 	ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
 
-	ctx.lineJoin = "round";
-	ctx.lineCap = "round";
-	ctx.strokeStyle = 'darkgreen';
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+
+	if (line.get('selected') === true) {
+		ctx.strokeStyle = 'rgba(20, 200, 120, 0.8)';
+	} else {
+		ctx.strokeStyle = 'rgba(20, 200, 120, 0.6)';
+	}
+
 	ctx.lineWidth = line.get('width') * 1.2;
 	ctx.beginPath();
 	ctx.moveTo(line.get('x1'), line.get('y1'));
@@ -16,10 +22,15 @@ module.exports = function(ctx, line) {
 	ctx.closePath();
 	ctx.stroke();
 
-	ctx.strokeStyle = 'green';
+	if (line.get('selected') === true) {
+		ctx.strokeStyle = 'rgba(75, 255, 175, 0.8)';
+	} else {
+		ctx.strokeStyle = 'rgba(75, 255, 175, 0.6)';
+	}
+
 	ctx.lineWidth = line.get('width');
-	ctx.lineJoin = "round";
-	ctx.lineCap = "round";
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
 	ctx.beginPath();
 	ctx.moveTo(line.get('x1'), line.get('y1'));
 	ctx.lineTo(line.get('x2'), line.get('y2'));

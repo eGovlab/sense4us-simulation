@@ -1,18 +1,22 @@
 {
   "name": "sense4us-simulation-client",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Backend to fetch data from the sense4us REST API.",
   "dependencies": {
     "browserify": "latest",
     "btoa": "latest",
     "ejs": "latest",
     "express": "latest",
-    "immutable": "^3.7.1",
+    "immutable": "latest",
     "line-by-line": "latest",
-    "multiparty": "^4.0.0",
+    "multiparty": "latest",
     "socket.io": "latest",
     "uglify-js": "latest",
     "watchify": "latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eGovlab/sense4us-simulation.git"
   },
   "author": "Robin Swenson, Anton Haughey, Jona Ekenberg",
   "scripts": {

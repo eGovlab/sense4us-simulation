@@ -1,0 +1,16 @@
+{
+    model: {
+        references: {
+            table: "model",
+            column: "id"
+        }
+    },
+    description: {
+    	type: String,
+    	length: 1000
+    },
+    status_quo_value: {
+    	type: Number,
+        bytes: 4
+    }
+}
