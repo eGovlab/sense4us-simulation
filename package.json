@@ -3,15 +3,16 @@
   "version": "0.0.0",
   "description": "Backend to fetch data from the sense4us REST API.",
   "dependencies": {
+    "browserify": "latest",
     "btoa": "latest",
     "ejs": "latest",
     "express": "latest",
+    "immutable": "^3.7.1",
     "line-by-line": "latest",
     "multiparty": "^4.0.0",
     "socket.io": "latest",
-    "browserify": "latest",
-    "watchify": "latest",
-    "uglify-js": "latest"
+    "uglify-js": "latest",
+    "watchify": "latest"
   },
   "author": "Robin Swenson, Anton Haughey, Jona Ekenberg",
   "scripts": {
