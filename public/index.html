@@ -7,7 +7,38 @@
 	<link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-	<div id="menu_container">menu</div>
+	<script>
+		'use strict';
+
+		function derp() {
+  			var httpRequest;
+			if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+		      httpRequest = new XMLHttpRequest();
+		    }
+
+		    if (!httpRequest) {
+		      console.log('Giving up :( Cannot create an XMLHTTP instance');
+		      return false;
+		    }
+
+		    httpRequest.onreadystatechange = function() {
+			    if (httpRequest.readyState === 4) {
+			      if (httpRequest.status === 200) {
+			        console.log(httpRequest.responseText);
+			      } else {
+			        console.log('There was a problem with the request.');
+			      }
+			    }
+		    };
+
+		    httpRequest.open('POST', 'http://127.0.0.1:3700/derp');
+//		    httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		    httpRequest.send('fetch=hejnood');//' + encodeURIComponent(userName));
+		}
+	</script>
+	<div id="menu_container">menu
+	<input type="button" class="button" onclick="derp();" value="Ajax" /></div>
+	
 	<!--
 	<div id="menu">
 		<div class="inner_menu" id="view_menu">

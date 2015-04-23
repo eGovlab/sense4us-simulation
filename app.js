@@ -1,67 +1,15 @@
-var application = require("./server/application")
+'use strict';
 
-initialized = false;
-router = undefined;
-
-if(initialized)
-	return;
-
-var express = require("express");
+var express = require('express');
 var app = express();
-var port = 3700;
 
-cwd = process.cwd();
-
-/*
-var browserify = require('browserify');
-var watchify = require('watchify');
-var fs = require('fs');
-var b = browserify('./public/js/main.js', watchify.args);
-b.bundle().pipe(fs.createWriteStream('./public/js/bundle.js'));
-var w = watchify(b);
-console.log('watching files to browserify...');
-w.on('update', function() {
-	try {
-		w.bundle().pipe(fs.createWriteStream('./public/js/bundle.js'));
-	} catch(err) {
-		console.log('failed to save', err);
-	}
+app.get('/', function (req, res) {
+	res.send('Hello World!');
 });
-*/
 
-app.use(express.static(__dirname + '/public'));
-app.set("views", __dirname + "/public");
-app.engine("html", require("ejs").renderFile);
+var server = app.listen(3000, function () {
+	var host = server.address().address;
+	var port = server.address().port;
 
-router = require("./server/routecontroller");
-router = router(app);
-
-router.parse_routes();
-
-var server = require('http').Server(app);
-server.listen(port);
-
-network = require("./server/network");
-//network = network(server);
-
-network.start(server);
-
-simulation = require("./server/simulation");
-simulation = simulation();
-var mockup_nodes = [
-	{"id":"newnode-0", "sig": 0, "fire": 1},
-	{"id":"newnode-1", "sig": 0, "fire": 0},
-	{"id":"newnode-2", "sig": 0, "fire": 0},
-//	{"id":0, "sig": 0, "fire": 1},
-//	{"id":1, "sig": 0, "fire": 0},
-//	{"id":2, "sig": 0, "fire": 0},
-];
-var mockup_links = [
-	{"id": "newline-3", "n1":"newnode-0", "n2":"newnode-1", "co": 0.5, "t": 1},
-	{"id": "newline-4", "n1":"newnode-1", "n2":"newnode-2", "co": 0.5, "t": 2},
-//	{"id": 0, "n1":0, "n2":1, "co": 0.5, "t": 1},
-//	{"id": 1, "n1":1, "n2":2, "co": 0.5, "t": 2},
-];
-simulation.run(mockup_nodes, mockup_links);
-
-console.log("Application initialized.\nListening on port " + port + "\n");
+	console.log('Example app listening at http://%s:%s', host, port);
+});

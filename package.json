@@ -3,13 +3,10 @@
   "version": "0.0.1",
   "description": "Backend to fetch data from the sense4us REST API.",
   "dependencies": {
+    "body-parser": "latest",
     "browserify": "latest",
-    "btoa": "latest",
-    "ejs": "latest",
     "express": "latest",
     "immutable": "latest",
-    "line-by-line": "latest",
-    "multiparty": "latest",
     "socket.io": "latest",
     "uglify-js": "latest",
     "watchify": "latest"
