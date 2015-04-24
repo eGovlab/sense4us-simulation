@@ -19,12 +19,24 @@ app.get('/derp', function(req, res) {
 app.post('/derp', function(req, res) {
 	var nodes = JSON.parse(req.body.nodes);
 	var links = JSON.parse(req.body.links);
-	console.log(nodes, links);
 
+	var modifiedNodes = {};
+	Object.keys(nodes).forEach(function(id) {
+		modifiedNodes[id] = nodes[id];
+		var newNode = modifiedNodes[id];
+
+		newNode.x = newNode.x + 20;
+	});
+
+	console.log("Nodes:", nodes);
+	console.log(" ");
+	console.log("Links:", links);
+
+	res.set("Access-Control-Allow-Origin", "http://localhost:3001");
 	res.send('Nodes & links recieved.');
 });
 
-var server = app.listen(3000, function () {
+var server = app.listen(3001, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
