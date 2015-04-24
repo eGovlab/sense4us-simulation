@@ -25,9 +25,7 @@ var createNode = function(x, y) {
     nodeData = nodeData.set(id, Immutable.Map({
         id: id,
         signal: 0,
-        signal_fire: 0,
-        x: x || 200,
-        y: y || 100
+        signal_fire: 0
     }));
 
     nodeGui = nodeGui.set(id, Immutable.Map({
@@ -90,8 +88,10 @@ var updateSelected = function(newSelected) {
             return link;
         });
     } else {
-        nodeData = nodeData.set(newSelected.get('id'), newSelected);
+        nodeData = nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), signal: newSelected.get('signal'), signalFire: newSelected.get('signalFire')}));
+        nodeGui = nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
     }
+    toRender = true;
 };
 
 var fixInputForLink = function(link) {
@@ -156,6 +156,7 @@ function refresh() {
     // get all the selected objects
     var selected = nodeData
         .filter(function(node) { return nodeGui.get(node.get('id')).get('selected') === true; })
+        .map(function(node) { return node.merge(nodeGui.get(node.get('id'))); })
         .merge(
             links.filter(function(link) { return link.get('selected') === true; })
         );
@@ -185,7 +186,7 @@ function refresh() {
 
     // update the menu
     selected_menu = draw_selected_menu(selected_menu, selected.last(), updateSelected);
-    toRender = false;;
+    toRender = false;
 
     window.requestAnimationFrame(refresh);
 }
