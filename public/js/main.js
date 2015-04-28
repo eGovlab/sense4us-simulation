@@ -15,8 +15,6 @@ var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext
 var nodeData = Immutable.Map();
 var links = Immutable.Map();
 
-var toRender = false;
-
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
 
@@ -35,7 +33,7 @@ var createNode = function(x, y) {
         radius: 75
     }));
 
-    toRender = true;
+    refresh();
 };
 
 var sendData = function() {
@@ -91,7 +89,8 @@ var updateSelected = function(newSelected) {
         nodeData = nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), signal: newSelected.get('signal'), signalFire: newSelected.get('signalFire')}));
         nodeGui = nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
     }
-    toRender = true;
+
+    refresh();
 };
 
 var fixInputForLink = function(link) {
@@ -103,55 +102,57 @@ var fixInputForLink = function(link) {
     return link;
 };
 
-/*var mouseHandler = new (require("./mouse_handling/handle_mouse.js"))();
-mouseHandler.addHandler("mouseDown", require('./mouse_handling/handle_down.js'));
-mouseHandler.addHandler("mouseUp",   require('./mouse_handling/handle_up.js'));
-mouseHandler.addHandler("mouseMove", require('./mouse_handling/handle_drag.js'));*/
-
-var mouseQueue = Immutable.List();
 var dragHandler = require('./mechanics/drag_handler.js');
+var mouseDownWare = require('./mouse_handling/handle_down.js');
+var mouseMoveWare = require('./mouse_handling/handle_drag.js');
+var mouseUpWare = require('./mouse_handling/handle_up.js');
+
 dragHandler(
     main_canvas,
     function mouseDown(pos) {
-        mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseDown', pos: Immutable.Map({x: pos.x, y: pos.y})}));
+        var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: nodeGui, links: links});
+        nodeGui = nodeGui.merge(data.nodeGui);
+        links = links.merge(data.links);
+
+        refresh();
+
         return true;
     },
     function mouseMove(pos) {
-        mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseMove', pos: Immutable.Map({x: pos.x, y: pos.y})}));
+        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: nodeGui, links: links});
+        nodeGui = nodeGui.merge(data.nodeGui);
+        links = links.merge(data.links);
+
+        refresh();
     },
     function mouseUp(pos) {
-        mouseQueue = mouseQueue.push(Immutable.Map({event: 'mouseUp', pos: Immutable.Map({x: pos.x, y: pos.y})}));
+        var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: nodeGui, links: links});
+        nodeGui = nodeGui.merge(data.nodeGui);
+        links = links.merge(data.links);
+
+        refresh();
     }
 );
 
-var handleMouse = require('./mouse_handling/handle_mouse.js') (
-    require('./mouse_handling/handle_down.js'),
-    require('./mouse_handling/handle_drag.js'),
-    require('./mouse_handling/handle_up.js')
-);
+var aggregatedLink = function(link, nodes) {
+    return Immutable.Map({
+        x1: nodes.get(link.get('node1')).get('x'),
+        y1: nodes.get(link.get('node1')).get('y'),
+        x2: nodes.get(link.get('node2')).get('x'),
+        y2: nodes.get(link.get('node2')).get('y'),
+        width: link.get('width')
+    });
+};
 
 var selected_menu = null;
 
-function refresh() {
-    if(mouseQueue.size === 0 && !toRender) {
-        window.requestAnimationFrame(refresh);
-        return;
-    }
-
+function _refresh() {
     context.clearRect(0, 0, main_canvas.width, main_canvas.height);
 
-    // handle the mouse events
-    var data = {mouseQueue: mouseQueue, nodeGui: nodeGui, links: links};
-    
-    //data = mouseHandler.handleQueue(data);
-    data = handleMouse(data);
-
-    nodeGui = nodeGui.merge(data.nodeGui);
-    links = links.merge(data.links);
-    mouseQueue = data.mouseQueue;
-
     // draw the links
-    links.forEach(draw_link);
+    links.forEach(function(link) {
+        draw_link(aggregatedLink(link, nodeGui));
+    });
 
     // get all the selected objects
     var selected = nodeData
@@ -161,7 +162,7 @@ function refresh() {
             links.filter(function(link) { return link.get('selected') === true; })
         );
 
-    // if there are nodeData selected that aren't currently linking, we want to draw the linker
+    // if there are nodes selected that aren't currently linking, we want to draw the linker
     nodeGui.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
 
     // if we are currently linking, we want to draw the link we're creating
@@ -176,7 +177,7 @@ function refresh() {
         );
     });
 
-    // draw all the nodeData
+    // draw all the nodes
     nodeData.forEach(
         function(n) { return draw_node(n.merge(nodeGui.get(n.get('id')))); }
     );
@@ -186,9 +187,10 @@ function refresh() {
 
     // update the menu
     selected_menu = draw_selected_menu(selected_menu, selected.last(), updateSelected);
-    toRender = false;
+}
 
-    window.requestAnimationFrame(refresh);
+function refresh() {
+    window.requestAnimationFrame(_refresh);
 }
 
 refresh();

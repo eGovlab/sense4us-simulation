@@ -1,77 +1,57 @@
 'use strict';
 
+var middleware = require('./../middleware.js');
 var hitTest = require('./../collisions.js').hitTest;
 var linker = require('./../linker.js');
-var curry = require('./../curry.js');
 
-var specificMouseDownHandler = function(condition, mapping, objs, event) {
-	var pos = event.get('pos');
+var mouseDownWare = middleware([
+    startLinkingIfSelected,
+    deselect,
+    select
+]);
 
-	condition = condition || function(pos, obj) {
-		return hitTest(
-			pos,
-			obj
-		);
-	};
+function deselect(data) {
+    data.nodeGui = data.nodeGui.merge(
+        data.nodeGui.
+            filter(function(node) { return node.get('selected') === true; }).
+            map(function(node) { return node.delete('selected').delete('clicked').delete('offsetX').delete('offsetY'); })
+    );
 
-	mapping = mapping || function(obj) {
-		return obj.concat({
-			offsetX: pos.get('x') - (obj.get('x') || 0),
-			offsetY: pos.get('y') - (obj.get('y') || 0),
-			clicked: true,
-			selected: true
-		});
-	};
-
-	var clickedObjs = objs.filter(curry(condition, pos)).map(mapping).slice(-1);
-
-	return objs.merge(clickedObjs);
-};
-
-var genericMouseDownHandler = function(objs, event) {
-	return specificMouseDownHandler(null, null, objs, event);
-};
-
-function deselect(maps) {
-	return maps.merge(maps.filter(function(obj) {return obj.get('selected') === true;}).map(function(obj) {return obj.delete('selected');}));
+    return data;
 }
 
-function deselectIfNotLinking(objs) {
-	var linking_objs = objs.filter(function(obj) { return obj.get('linking') === true; });
+function select(data) {
+    data.nodeGui = data.nodeGui.merge(
+            data.nodeGui.
+                filter(function(node) { return hitTest(node, data.pos); }).
+                slice(-1).
+                map(function(node) {
+                    return node.concat({
+                        offsetX: data.pos.get('x') - (node.get('x') || 0),
+                        offsetY: data.pos.get('y') - (node.get('y') || 0),
+                        clicked: true,
+                        selected: true
+                    });
+         })
+        );
 
-	if (linking_objs.size === 0) {
-		linking_objs = deselect(objs);
-	}
-
-	return objs.merge(linking_objs);
+    return data;
 }
 
-module.exports = [
-	{
-		column: 'nodeGui',
-		func: curry(specificMouseDownHandler,
-			function(pos, node) {
-				return node.get('selected') === true && hitTest(pos, linker(node));
-			},
-			function(node) {
-				return node.set('linking', true);
-			}
-		)
-	},
-	{
-		column: 'nodeGui',
-		func: deselectIfNotLinking
-	},
-	{
-		column: 'links',
-		func: deselectIfNotLinking
-	},
-	{
-		column: 'nodeGui',
-		func: genericMouseDownHandler
-	},
-	{
-		column: 'links',
-		func: genericMouseDownHandler
+
+function startLinkingIfSelected(data, error, done) {
+	var linkingNodes = data.nodeGui.
+			filter(function(node) { return node.get('selected') === true; }).
+			filter(function(node) { return hitTest(data.pos, linker(node)); }).
+			map(function(node) { return node.set('linking', true); });
+
+	data.nodeGui = data.nodeGui.merge(linkingNodes);
+
+	if (linkingNodes.size > 0) {
+		return done(data);
+	} else {
+		return data;
 	}
-];
+}
+
+module.exports = mouseDownWare;

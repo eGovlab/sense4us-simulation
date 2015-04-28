@@ -1,43 +1,38 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var middleware = require('./../middleware.js');
 var hitTest = require('./../collisions.js').hitTest;
 var linker = require('./../linker.js');
-var generateId = require('./../generate_id.js');
+var Immutable = require('Immutable');
 
-function removeClicked(objs) {
-	objs = objs.merge(
-			objs.filter(function(obj) { return obj.get('clicked') === true; })
+var mouseDownWare = middleware([
+	link,
+	stopClicked,
+	stopLinking
+]);
+
+function stopClicked(data) {
+	data.nodeGui = data.nodeGui.merge(
+			data.nodeGui.filter(function(obj) { return obj.get('clicked') === true; })
 				.map(function(obj) { return obj.delete('clicked').delete('offsetX').delete('offsetY'); })
 	);
-	return objs;
+
+	return data;
 }
 
-function delink(nodes) {
-	return nodes.merge(nodes
-					.filter(function(node) { return node.get('linking') === true; })
-					.map(function(node) {
-						return node.delete('linkerX').delete('linkerY').delete('linking');
-					}));
-}
-
-function link(nodes, links) {
-	nodes
+function link(data) {
+	data.nodeGui
 		.filter(function(node) { return node.get('linking') === true; })
 		.forEach(function(node) {
-			var hit = nodes.filter(function(maybeCollidingNode) {
+			var hit = data.nodeGui.filter(function(maybeCollidingNode) {
 				return maybeCollidingNode.get('linking') !== true && hitTest(maybeCollidingNode, linker(node));
-			});
+			}).slice(-1);
 
 			hit = hit.forEach(function(collided) {
-				var id = generateId();
+				var id = data.links.size;
 
-				links = links.set(id, Immutable.Map({
+				data.links = data.links.set(id, Immutable.Map({
 					id: id,
-					x1: node.get('x'),
-					y1: node.get('y'),
-					x2: collided.get('x'),
-					y2: collided.get('y'),
 					node1: node.get('id'),
 					node2: collided.get('id'),
 					width: 14
@@ -45,25 +40,19 @@ function link(nodes, links) {
 			});
 		});
 
-	return links;
+	return data;
 }
 
-module.exports = [
-{
-	column: 'links',
-	params: ['nodeGui', 'links'],
-	func: link
-},
-{
-	column: 'nodeGui',
-	func: delink
-},
-{
-	column: 'nodeGui',
-	func: removeClicked
-},
-{
-	column: 'links',
-	func: removeClicked
+function stopLinking(data) {
+	data.nodeGui = data.nodeGui.merge(
+		data.nodeGui
+		.filter(function(node) { return node.get('linking') === true; })
+		.map(function(node) {
+			return node.delete('linkerX').delete('linkerY').delete('linking');
+		})
+	);
+
+	return data;
 }
-];
+
+module.exports = mouseDownWare;
