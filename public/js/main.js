@@ -18,12 +18,13 @@ var links = Immutable.Map();
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
 
-var createNode = function(x, y) {
+var createNode = function(x, y, type) {
     var id = generateId();
     nodeData = nodeData.set(id, Immutable.Map({
         id: id,
         signal: 0,
-        signal_fire: 0
+        signal_fire: 0,
+        type: type || 'node'
     }));
 
     nodeGui = nodeGui.set(id, Immutable.Map({
@@ -35,32 +36,23 @@ var createNode = function(x, y) {
 
     refresh();
 };
+var createOriginNode = function() {
+    createNode(100, 100, 'origin');
+}
+var createActorNode = function() {
+    createNode(100, 100, 'actor');
+}
 
-var sendData = function() {
-    var httpRequest = new XMLHttpRequest();
-
-    if (!httpRequest) {
-      console.log('Giving up :( Cannot create an XMLHTTP instance');
-      return false;
-    }
-
-    httpRequest.onreadystatechange = function() {
-        if (httpRequest.readyState === 4) {
-          if (httpRequest.status === 200) {
-            console.log(httpRequest.responseText);
-          } else {
-            console.log('There was a problem with the request.');
-          }
-        }
-    };
-
-    httpRequest.open('POST', 'http://127.0.0.1:3001/derp');
-    httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    httpRequest.send('nodes=' + encodeURIComponent(JSON.stringify(nodeData.toJSON())) + '&links=' + encodeURIComponent(JSON.stringify(links.toJSON())));
+var sendData = require('./network/send_data.js');
+var sendAllData = function() {
+    sendData({
+        nodes: JSON.stringify(nodeData.merge(nodeGui).toJSON()),
+        links: JSON.stringify(links.toJSON())
+    });
 };
 
 // create the main menu
-require('./create_menus.js')(document.getElementById('menu_container'), createNode, sendData);
+require('./create_menus.js')(document.getElementById('menu_container'), createNode, createOriginNode, createActorNode, sendAllData);
 
 var nodeGui = Immutable.Map();
 
