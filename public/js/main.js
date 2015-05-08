@@ -47,14 +47,39 @@ var network = require('./network/network_layer.js');
 network.setDomain("localhost:3000");
 
 var sendAllData = function() {
-    network.sendData("/calc/add/1/2", {
+    network.sendData("/models/save", {
         nodes: nodeData.merge(nodeGui).toJSON(),
         links: links.toJSON()
     });
 };
 
-// create the main menu
-require('./create_menus.js')(document.getElementById('menu_container'), createNode, createOriginNode, createActorNode, sendAllData);
+/*
+** Create the main menu
+*/
+
+var menuLayer = require("./create_menu.js");
+menuLayer.setContainer(document.getElementById("menu_container"));
+menuLayer.createMenus(
+    {
+        header: "Create node",
+        callback: createNode
+    },
+
+    {
+        header: "Create origin",
+        callback: createNode
+    },
+
+    {
+        header: "Create actor",
+        callback: createNode
+    },
+
+    {
+        header: "Send all data",
+        callback: createNode
+    }
+);
 
 var nodeGui = Immutable.Map();
 
