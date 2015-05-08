@@ -15,6 +15,8 @@ var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext
 var nodeData = Immutable.Map();
 var links = Immutable.Map();
 
+var selected_menu = null;
+
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
 
@@ -103,14 +105,20 @@ menuLayer.createMenu(
     {
         header: "Model",
         callback: function(){
+            selected_menu = null;
+
             menuLayer.activateSidebar("model");
+            refresh();
         }
     },
 
     {
         header: "Simulate",
         callback: function() {
+            selected_menu = null;
+
             menuLayer.activateSidebar("simulate");
+            refresh();
         }
     }
 );
@@ -233,7 +241,6 @@ var aggregatedLink = function(link, nodes) {
     });
 };
 
-var selected_menu = null;
 
 function _refresh() {
     context.clearRect(0, 0, main_canvas.width, main_canvas.height);
