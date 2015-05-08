@@ -43,11 +43,13 @@ var createActorNode = function() {
     createNode(100, 100, 'actor');
 }
 
-var sendData = require('./network/send_data.js');
+var network = require('./network/network_layer.js');
+network.setDomain("localhost:3000");
+
 var sendAllData = function() {
-    sendData({
-        nodes: JSON.stringify(nodeData.merge(nodeGui).toJSON()),
-        links: JSON.stringify(links.toJSON())
+    network.sendData("/calc/add/1/2", {
+        nodes: nodeData.merge(nodeGui).toJSON(),
+        links: links.toJSON()
     });
 };
 
