@@ -67,18 +67,18 @@ menuLayer.createMenus(
 
     {
         header: "Create origin",
-        callback: createNode
+        callback: createOriginNode
     },
 
     {
         header: "Create actor",
-        callback: createNode
+        callback: createActorNode
     },
 
     {
         header: "Send all data",
-        callback: createNode
-    }
+        callback: sendAllData
+    },
 );
 
 var nodeGui = Immutable.Map();
