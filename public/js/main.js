@@ -60,12 +60,7 @@ var requestMove = function() {
     };
 
     network.sendData("/models/move", data, function(response) {
-        /*response.nodes.forEach(function(node) {
-            console.log(node);
-        });*/
-
         var nodes = response.response.nodes;
-        console.log(nodes);
 
         Object.keys(nodes).forEach(function(id) {
             var node = nodes[id];
