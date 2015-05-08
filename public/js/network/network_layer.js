@@ -7,7 +7,7 @@ function NetworkLayer() {
 }
 
 NetworkLayer.prototype = {
-    sendData: function(path, jsonData, method, domain, port) {
+    sendData: function(path, jsonData, callback, method, domain, port) {
         var httpRequest = new XMLHttpRequest();
 
         var requestPath;
@@ -36,6 +36,7 @@ NetworkLayer.prototype = {
         httpRequest.onreadystatechange = function() {
             if (httpRequest.readyState === 4) {
               if (httpRequest.status === 200) {
+                callback(JSON.parse(httpRequest.responseText));
                 console.log(JSON.parse(httpRequest.responseText));
               } else {
                 console.log('There was a problem with the request.');

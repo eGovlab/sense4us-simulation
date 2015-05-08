@@ -53,6 +53,34 @@ var sendAllData = function() {
     });
 };
 
+var requestMove = function() {
+    var data = {
+        nodes: nodeData.merge(nodeGui).toJSON(),
+        links: links.toJSON()
+    };
+
+    network.sendData("/models/move", data, function(response) {
+        /*response.nodes.forEach(function(node) {
+            console.log(node);
+        });*/
+
+        var nodes = response.response.nodes;
+        console.log(nodes);
+
+        Object.keys(nodes).forEach(function(id) {
+            var node = nodes[id];
+            nodeGui = nodeGui.set(node.id, Immutable.Map({
+                id: node.id,
+                x: node.x,
+                y: node.y,
+                radius: node.radius
+            }));
+        });
+
+        refresh();
+    });
+}
+
 /*
 ** Create the main menu
 */
@@ -79,6 +107,11 @@ menuLayer.createMenus(
         header: "Send all data",
         callback: sendAllData
     },
+
+    {
+        header: "Move all nodes right 50 pixels.",
+        callback: requestMove
+    }
 );
 
 var nodeGui = Immutable.Map();
