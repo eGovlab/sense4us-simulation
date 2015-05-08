@@ -19,12 +19,24 @@ var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
 
 var createNode = function(x, y, type) {
+    if(typeof x !== "number") {
+        x = false;
+    }
+
+    if(typeof y !== "number") {
+        y = false;
+    }
+
+    if(typeof type !== "string") {
+        type = false;
+    }
+
     var id = generateId();
     nodeData = nodeData.set(id, Immutable.Map({
         id: id,
         signal: 0,
         signal_fire: 0,
-        type: type || 'node'
+        type: type || "node"
     }));
 
     nodeGui = nodeGui.set(id, Immutable.Map({
@@ -81,8 +93,29 @@ var requestMove = function() {
 */
 
 var menuLayer = require("./create_menu.js");
-menuLayer.setContainer(document.getElementById("menu_container"));
-menuLayer.createMenus(
+menuLayer.setMenuContainer(document.getElementById("upper_menu"));
+menuLayer.setSidebarContainer(document.getElementById("menu_container"));
+menuLayer.createMenu(
+    {
+        header: "Mode"
+    },
+
+    {
+        header: "Model",
+        callback: function(){
+            menuLayer.activateSidebar("model");
+        }
+    },
+
+    {
+        header: "Simulate",
+        callback: function() {
+            menuLayer.activateSidebar("simulate");
+        }
+    }
+);
+
+menuLayer.createSidebar("model",
     {
         header: "Create node",
         callback: createNode
@@ -108,6 +141,15 @@ menuLayer.createMenus(
         callback: requestMove
     }
 );
+
+menuLayer.createSidebar("simulate",
+    {
+        header: "Move all nodes left 50 pixels.",
+        callback: requestMove
+    }
+);
+
+menuLayer.activateSidebar("model");
 
 var nodeGui = Immutable.Map();
 

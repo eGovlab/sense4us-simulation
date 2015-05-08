@@ -1,10 +1,10 @@
 'use strict';
 
-var menu_builder = require('./menu_builder');
+var menuBuilder = require('./menu_builder');
 
 var draw_selected_menu = function(container, menu, map, changeCallback) {
 	var create_menu = function(map) {
-		var menu = menu_builder.create_menu();
+		var menu = menuBuilder.createSidebarEntry();
 		menu.className = 'menu';
 
 		map.forEach(function(value, key) {
