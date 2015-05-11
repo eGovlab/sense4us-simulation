@@ -4,13 +4,13 @@ var menuBuilder = require('./menu_builder');
 
 var draw_selected_menu = function(container, menu, map, changeCallback) {
 	var create_menu = function(map) {
-		var menu = menuBuilder.createSidebarEntry();
+		var menu = menuBuilder.div();
 		menu.className = 'menu';
 
 		map.forEach(function(value, key) {
-			var p = menu.p();
-			p.appendChild(menu.label(key + ': '));
-			var input = menu.input(key, value, function(value, key) {
+			var p = menuBuilder.p();
+			p.appendChild(menuBuilder.label(key + ': '));
+			var input = menuBuilder.input(key, value, function(value, key) {
 				changeCallback(map.set(key, value));
 			});
 

@@ -6,71 +6,94 @@ function MenuBuilder() {
     if(!(this instanceof MenuBuilder)) {
         throw new Error("Accessing MenuBuilder as a generic method.");
     }
+
+    this.refreshable = [];
 }
 
 MenuBuilder.prototype = {
-    createSidebarEntry: function() {
-        var menu = document.createElement('div');
-
-        menu.button = function(text, callback) {
-            var button = document.createElement('button');
-            button.addEventListener('click', callback);
-            button.appendChild(document.createTextNode(text));
-            
-            return button;
-        };
-
-        
-
-        menu.input = function(key, value, callback) {
-            var input = document.createElement('input');
-            input.addEventListener('change', function(event) {callback(input.value, input.name);});
-            //input.addEventListener('keydown', function(event) {callback(input.value, input.name);});
-            input.name = key;
-            input.value = value;
-            
-            return input;
-        };
-        
-        menu.label = function(key) {
-            var label = document.createElement('label');
-            label.appendChild(document.createTextNode(key));
-            label.htmlFor = key;
-            
-            return label;
-        };
-
-        menu.p = function() {
-            var p = document.createElement('p');
-            menu.appendChild(p);
-
-            return p;
-        }
-
-        return menu;
+    updateAll: function() {
+        this.refreshable.forEach(function(ele) {
+            if(ele.onUpdate && typeof ele.onUpdate === "function") {
+                ele.onUpdate.call(ele);
+            }
+        });
     },
 
-    createMenuEntry: function() {
-        var menu = document.createElement('div');
+    div: function() {
+        var div = document.createElement("div");
+
+        return div;
+    },
+
+    button: function(text, callback) {
+        var button = document.createElement('button');
+        button.addEventListener('click', callback);
+        button.appendChild(document.createTextNode(text));
         
-        menu.menu = function(text, callback) {
-            var button = document.createElement('input');
-            button.setAttribute("type", "button");
-            button.setAttribute("value", text);
-            button.addEventListener('click', callback);
-            button.className = "button";
-            
-            return button;
-        };
+        return button;        
+    },
 
-        menu.h2 = function(text) {
-            var e = document.createElement("h2");
-            e.innerHTML = text;
+    dropdown: function(text, callback, update) {
+        var select = document.createElement("select");
 
-            return e;
-        }
+        select.addEventListener("change", callback);
+        select.onUpdate = update;
 
-        return menu;
+        select.onUpdate();
+        
+        this.refreshable.push(select);
+
+        return select;
+    },
+
+    option: function(value, text) {
+        var option = document.createElement("option");
+
+        option.value     = value;
+        option.innerHTML = text;
+
+        return option;
+    },
+
+    input: function(key, value, callback) {
+        var input = document.createElement('input');
+        input.addEventListener('change', function(event) {callback(input.value, input.name);});
+        //input.addEventListener('keydown', function(event) {callback(input.value, input.name);});
+        input.name = key;
+        input.value = value;
+      
+        return input;
+    },
+    
+    label: function(key) {
+        var label = document.createElement('label');
+        label.appendChild(document.createTextNode(key));
+        label.htmlFor = key;
+      
+        return label;  
+    },
+
+    p: function() {
+        var p = document.createElement('p');
+
+        return p;
+    },
+
+    menu: function(text, callback) {
+        var button = document.createElement('input');
+        button.setAttribute("type", "button");
+        button.setAttribute("value", text);
+        button.addEventListener('click', callback);
+        button.className = "button";
+        
+        return button;
+    },
+
+    h2: function(text) {
+        var e = document.createElement("h2");
+        e.innerHTML = text;
+
+        return e;
     }
 };
 

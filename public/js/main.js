@@ -15,7 +15,8 @@ var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext
 var nodeData = Immutable.Map();
 var links = Immutable.Map();
 
-var selected_menu = null;
+var selected_menu = null,
+    loadedModel   = null;
 
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
@@ -61,7 +62,7 @@ var network = require('./network/network_layer.js');
 network.setDomain("localhost:3000");
 
 var sendAllData = function() {
-    network.sendData("/models/save", {
+    network.postData("/models/print", {
         nodes: nodeData.merge(nodeGui).toJSON(),
         links: links.toJSON()
     });
@@ -73,7 +74,7 @@ var requestMove = function() {
         links: links.toJSON()
     };
 
-    network.sendData("/models/move", data, function(response) {
+    network.postData("/models/move", data, function(response) {
         var nodes = response.response.nodes;
 
         Object.keys(nodes).forEach(function(id) {
@@ -88,16 +89,57 @@ var requestMove = function() {
 
         refresh();
     });
-}
+};
+
+var saveModel = function() {
+    var data = {
+        model: loadedModel,
+        nodes: nodeData.merge(nodeGui).toJSON(),
+        links: links.toJSON()
+    };
+
+    network.postData("/models/save", data, function(response) {
+        console.log(response.response);
+    });
+};
 
 /*
 ** Create the main menu
 */
 
-var menuLayer = require("./create_menu.js");
+var menuBuilder = require("./menu_builder");
+var menuLayer   = require("./create_menu.js");
 menuLayer.setMenuContainer(document.getElementById("upper_menu"));
 menuLayer.setSidebarContainer(document.getElementById("menu_container"));
 menuLayer.createMenu(
+    {
+        header: "Load"
+    },
+
+    {
+        header: "Model",
+        type: "scrolldown",
+        update: function() {
+            var element = this;
+            
+            network.getData("/models/all", function(response) {
+                var models = response.response.models;
+                console.log(models);
+
+                models.forEach(function(submittedModel) {
+                    var option = menuBuilder.option(submittedModel.id, submittedModel.name);
+                    element.appendChild(option);
+                });
+
+                refresh();
+            });
+        },
+
+        callback: function(){
+            console.log(this.selectedIndex);
+        }
+    },
+
     {
         header: "Mode"
     },
@@ -147,6 +189,11 @@ menuLayer.createSidebar("model",
     {
         header: "Move all nodes right 50 pixels.",
         callback: requestMove
+    },
+
+    {
+        header: "Save",
+        callback: saveModel
     }
 );
 

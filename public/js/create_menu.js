@@ -22,11 +22,11 @@ CreateMenu.prototype = {
     },
 
     activateSidebar: function(name) {
-        var menu = menuBuilder.createSidebarEntry();
+        var menu = menuBuilder.div();
         menu.className = "menu";
 
         this.sidebars[name].forEach(function(obj) {
-            menu.appendChild(menu.button(obj.header, obj.callback));
+            menu.appendChild(menuBuilder.button(obj.header, obj.callback));
         });
 
         while(this.sidebarContainer.firstChild) {
@@ -53,14 +53,24 @@ CreateMenu.prototype = {
 
     createMenu: function() {
         var args = Array.prototype.slice.call(arguments);
-        var menu = menuBuilder.createMenuEntry();
+        var menu = menuBuilder.div();
         menu.className = "menu";
 
         args.forEach(function(obj) {
-            if(obj.callback) {
-                menu.appendChild(menu.menu(obj.header, obj.callback));
+            if(obj.callback && obj.type) {
+                var type = obj.type.toUpperCase();
+                switch(type) {
+                    case "SCROLLDOWN":
+                        menu.appendChild(menuBuilder.dropdown(obj.header, obj.callback, obj.update));
+                        break;
+                    case "BUTTON":
+                        menu.appendChild(menuBuilder.menu(obj.header, obj.callback));
+                        break;
+                }
+            } else if(obj.callback) {
+                menu.appendChild(menuBuilder.menu(obj.header, obj.callback));
             } else {
-                menu.appendChild(menu.h2(obj.header));
+                menu.appendChild(menuBuilder.h2(obj.header));
             }
         });
 

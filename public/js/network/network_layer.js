@@ -36,7 +36,12 @@ NetworkLayer.prototype = {
         httpRequest.onreadystatechange = function() {
             if (httpRequest.readyState === 4) {
               if (httpRequest.status === 200) {
-                callback(JSON.parse(httpRequest.responseText));
+                if(callback) {
+                    callback(JSON.parse(httpRequest.responseText));
+                } else {
+                    console.log("No callback was sent with the query against " + path);
+                }
+                
                 console.log(JSON.parse(httpRequest.responseText));
               } else {
                 console.log('There was a problem with the request.');
@@ -44,15 +49,43 @@ NetworkLayer.prototype = {
             }
         };
 
+        if(!method) {
+            if(jsonData) {
+                method = "POST";
+            } else {
+                method = "GET";
+            }
+        }
+
         var protocol = this.protocol,
             domain   = this.domain,
             port     = this.port,
             path     = path;
 
-        httpRequest.open('POST', requestPath);
+        httpRequest.open(method, requestPath);
         httpRequest.setRequestHeader('Content-Type', 'application/json');
         //var params = this.generateParams(jsonData);
-        httpRequest.send(JSON.stringify(jsonData, null, 4));
+        if(jsonData) {
+            httpRequest.send(JSON.stringify(jsonData, null, 4));
+        } else {
+            httpRequest.send();
+        }
+    },
+
+    getData: function(path, callback, domain, port) {
+        this.sendData(path, false, callback, "GET", domain, port);
+    },
+
+    postData: function(path, jsonData, callback, domain, port) {
+        this.sendData(path, jsonData, callback, "POST", domain, port);  
+    },
+
+    putData: function(path, jsonData, callback, domain, port) {
+        this.sendData(path, jsonData, callback, "PATCH", domain, port);
+    },
+
+    deleteData: function(path, jsonData, callback, domain, port) {
+        this.sendData(path, jsonData, callback, "DELETE", domain, port);
     },
 
     breakOutDomain: function(givenDomain) {
