@@ -1,6 +1,7 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable = require('Immutable'),
+    Dropdown  = require("./dropdown.js");
 
 function MenuBuilder() {
     if(!(this instanceof MenuBuilder)) {
@@ -34,12 +35,19 @@ MenuBuilder.prototype = {
     },
 
     dropdown: function(text, callback, update) {
+        var select = new Dropdown(callback, update);
+        this.refreshable.push(select);
+        return select.element;
+
         var select = document.createElement("select");
 
-        select.addEventListener("change", callback);
-        select.onUpdate = update;
+        select.addEventListener("change", function(e) {
+            this.update = update;
+            callback.call(this, e);
+        });
 
-        select.onUpdate();
+        select.onUpdate = update;
+        select.onUpdate.call(select);
         
         this.refreshable.push(select);
 

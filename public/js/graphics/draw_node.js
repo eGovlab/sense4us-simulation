@@ -75,7 +75,7 @@ module.exports = function(ctx, map) {
 	if (map.get('type') === 'actor') {
 		text = 'Actor' + map.get('id');
 	} else {
-		text = map.get('signal') + '';
+		text = map.get('value') + '';
 	}
 	
 	var size = 48 - text.length * 2.4;
