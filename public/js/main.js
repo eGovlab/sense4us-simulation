@@ -11,9 +11,14 @@ var main_canvas = canvas(document.getElementById('canvas'), document.getElementB
 var draw_selected_menu = curry(require('./selected_menu.js'), document.getElementById('menu_container'));
 var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getContext('2d'), linker);
 var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
+var modelLayer = require("./model-layer.js");
 
-var nodeData = Immutable.Map();
-var links = Immutable.Map();
+/*var loadedModel.nodeData = Immutable.Map(),
+    loadedModel.nodeGui  = Immutable.Map(),
+    links    = Immutable.Map();*/
+
+var network = require('./network/network_layer.js');
+network.setDomain("localhost:3000");
 
 var selected_menu = null,
     loadedModel   = null;
@@ -34,15 +39,15 @@ var createNode = function(x, y, type) {
         type = false;
     }
 
-    var id = generateId();
-    nodeData = nodeData.set(id, Immutable.Map({
+    var id = loadedModel.generateId();
+    loadedModel.setData(Immutable.Map({
         id: id,
-        signal: 0,
-        signal_fire: 0,
+        value: 0,
+        relativeChange: 0,
         type: type || "node"
     }));
 
-    nodeGui = nodeGui.set(id, Immutable.Map({
+    loadedModel.setGui(Immutable.Map({
         id: id,
         x: x || 200,
         y: y || 100,
@@ -58,20 +63,38 @@ var createActorNode = function() {
     createNode(100, 100, 'actor');
 }
 
-var network = require('./network/network_layer.js');
-network.setDomain("localhost:3000");
+var breakoutAllNodes = function() {
+    var dd = loadedModel.nodeData.toJSON(),
+        dg = loadedModel.nodeGui.toJSON(),
+        allNodes = [];
+
+    Object.keys(dd).forEach(function(_dd_id) {
+        if(!dg[_dd_id]) {
+            return;
+        }
+
+        var obj = dd[_dd_id];
+        Object.keys(dg[_dd_id]).forEach(function(_dg_property) {
+            obj[_dg_property] = dg[_dd_id][_dg_property];
+        });
+
+        allNodes.push(obj);
+    });
+
+    return allNodes;
+}
 
 var sendAllData = function() {
     network.postData("/models/print", {
-        nodes: nodeData.merge(nodeGui).toJSON(),
-        links: links.toJSON()
+        nodes: breakoutAllNodes(),
+        links: loadedModel.links.toJSON()
     });
 };
 
 var requestMove = function() {
     var data = {
-        nodes: nodeData.merge(nodeGui).toJSON(),
-        links: links.toJSON()
+        nodes: loadedModel.nodeData.merge(loadedModel.nodeGui).toJSON(),
+        links: loadedModel.links.toJSON()
     };
 
     network.postData("/models/move", data, function(response) {
@@ -79,7 +102,7 @@ var requestMove = function() {
 
         Object.keys(nodes).forEach(function(id) {
             var node = nodes[id];
-            nodeGui = nodeGui.set(node.id, Immutable.Map({
+            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, Immutable.Map({
                 id: node.id,
                 x: node.x,
                 y: node.y,
@@ -94,8 +117,8 @@ var requestMove = function() {
 var saveModel = function() {
     var data = {
         model: loadedModel,
-        nodes: nodeData.merge(nodeGui).toJSON(),
-        links: links.toJSON()
+        nodes: breakoutAllNodes(),
+        links: loadedModel.links.toJSON()
     };
 
     network.postData("/models/save", data, function(response) {
@@ -118,25 +141,47 @@ menuLayer.createMenu(
 
     {
         header: "Model",
-        type: "scrolldown",
+        type: "dropdown",
         update: function() {
             var element = this;
-            
-            network.getData("/models/all", function(response) {
-                var models = response.response.models;
-                console.log(models);
+            //element.options.length = 0;
+            //element.selectedIndex  = -1;
 
-                models.forEach(function(submittedModel) {
-                    var option = menuBuilder.option(submittedModel.id, submittedModel.name);
-                    element.appendChild(option);
-                });
+            while(element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
 
+            /*var newModel = menuBuilder.option("new", "New Model");
+            element.appendChild(newModel);
+            var newModel1 = menuBuilder.option("new", "New Model");
+            element.appendChild(newModel1);*/
+
+            if(loadedModel === null) {
+                loadedModel = modelLayer.createModel();
+                loadedModel.setOption(menuBuilder.option(loadedModel.getId(), loadedModel.getId() + ": New Model"));
+                modelLayer.select(loadedModel);
+            }
+
+            modelLayer.iterateModels(function(model, index) {
+                element.addOption(model.getId(), model.name);
+                if(model.getId() === modelLayer.selected.getId()) {
+                    element.select(index);
+                }
+            }, function() {
+                element.refreshList();
                 refresh();
             });
         },
 
-        callback: function(){
-            console.log(this.selectedIndex);
+        callback: function(e){
+            var id = this.value;
+            if(id === "new") {
+                console.log("Creating new model!");
+            } else {
+                loadedModel = modelLayer.select(id);
+            }
+
+            this.update();
         }
     },
 
@@ -206,23 +251,22 @@ menuLayer.createSidebar("simulate",
 
 menuLayer.activateSidebar("model");
 
-var nodeGui = Immutable.Map();
 
 window.Immutable = Immutable;
 window.collisions = require('./collisions.js');
 
-createNode(200, 100);
+/*createNode(200, 100);
 createNode(220, 120);
 createNode(240, 140);
 createNode(260, 160);
 createNode(280, 180);
-createNode(300, 200);
+createNode(300, 200);*/
 
 var context = main_canvas.getContext('2d');
 
 var updateSelected = function(newSelected) {
     if (newSelected.get('node1') && newSelected.get('node2')) {
-        links = links.map(function(link) {
+        links = loadedModel.links.map(function(link) {
             if (link.get('selected')) {
                 return fixInputForLink(newSelected);
             }
@@ -230,8 +274,8 @@ var updateSelected = function(newSelected) {
             return link;
         });
     } else {
-        nodeData = nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), signal: newSelected.get('signal'), signalFire: newSelected.get('signalFire')}));
-        nodeGui = nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
+        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('signal'), relativeChange: newSelected.get('signalFire')}));
+        loadedModel.nodeGui  = loadedModel.nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
     }
 
     refresh();
@@ -254,25 +298,25 @@ var mouseUpWare = require('./mouse_handling/handle_up.js');
 dragHandler(
     main_canvas,
     function mouseDown(pos) {
-        var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: nodeGui, links: links});
-        nodeGui = nodeGui.merge(data.nodeGui);
-        links = links.merge(data.links);
+        var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
+        loadedModel.links = loadedModel.links.merge(data.links);
 
         refresh();
 
         return true;
     },
     function mouseMove(pos) {
-        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: nodeGui, links: links});
-        nodeGui = nodeGui.merge(data.nodeGui);
-        links = links.merge(data.links);
+        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
+        loadedModel.links = loadedModel.links.merge(data.links);
 
         refresh();
     },
     function mouseUp(pos) {
-        var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: nodeGui, links: links});
-        nodeGui = nodeGui.merge(data.nodeGui);
-        links = links.merge(data.links);
+        var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
+        loadedModel.links = loadedModel.links.merge(data.links);
 
         refresh();
     }
@@ -293,23 +337,23 @@ function _refresh() {
     context.clearRect(0, 0, main_canvas.width, main_canvas.height);
 
     // draw the links
-    links.forEach(function(link) {
-        draw_link(aggregatedLink(link, nodeGui));
+    loadedModel.links.forEach(function(link) {
+        draw_link(aggregatedLink(link, loadedModel.nodeGui));
     });
 
     // get all the selected objects
-    var selected = nodeData
-        .filter(function(node) { return nodeGui.get(node.get('id')).get('selected') === true; })
-        .map(function(node) { return node.merge(nodeGui.get(node.get('id'))); })
+    var selected = loadedModel.nodeData
+        .filter(function(node) { return loadedModel.nodeGui.get(node.get('id')).get('selected') === true; })
+        .map(function(node) { return node.merge(loadedModel.nodeGui.get(node.get('id'))); })
         .merge(
-            links.filter(function(link) { return link.get('selected') === true; })
+            loadedModel.links.filter(function(link) { return link.get('selected') === true; })
         );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
-    nodeGui.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
+    loadedModel.nodeGui.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
 
     // if we are currently linking, we want to draw the link we're creating
-    nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(function(node) {
+    loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
         draw_link(
             Immutable.Map({
@@ -321,12 +365,12 @@ function _refresh() {
     });
 
     // draw all the nodes
-    nodeData.forEach(
-        function(n) { return draw_node(n.merge(nodeGui.get(n.get('id')))); }
+    loadedModel.nodeData.forEach(
+        function(n) { return draw_node(n.merge(loadedModel.nodeGui.get(n.get('id')))); }
     );
 
     // if we are linking, we want to draw the dot above everything else
-    nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(draw_linker);
+    loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(draw_linker);
 
     // update the menu
     selected_menu = draw_selected_menu(selected_menu, selected.last(), updateSelected);

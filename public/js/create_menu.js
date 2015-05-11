@@ -60,7 +60,7 @@ CreateMenu.prototype = {
             if(obj.callback && obj.type) {
                 var type = obj.type.toUpperCase();
                 switch(type) {
-                    case "SCROLLDOWN":
+                    case "DROPDOWN":
                         menu.appendChild(menuBuilder.dropdown(obj.header, obj.callback, obj.update));
                         break;
                     case "BUTTON":
