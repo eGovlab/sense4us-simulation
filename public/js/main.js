@@ -103,6 +103,33 @@ var saveModel = function() {
     });
 };
 
+var simulate = function() {
+
+    console.log("simulate callback!");
+
+    var data = {
+        nodes: nodeData.merge(nodeGui).toJSON(),
+        links: links.toJSON()
+    };
+
+    network.postData("/models/simulate", data, function(response) {
+        console.log("received callback response, need to update values of nodes!");
+        /*var nodes = response.response.nodes;
+
+        Object.keys(nodes).forEach(function(id) {
+            var node = nodes[id];
+            nodeGui = nodeGui.set(node.id, Immutable.Map({
+                id: node.id,
+                x: node.x,
+                y: node.y,
+                radius: node.radius
+            }));
+        });*/
+
+        refresh();
+    });
+};
+
 /*
 ** Create the main menu
 */
@@ -194,6 +221,11 @@ menuLayer.createSidebar("model",
     {
         header: "Save",
         callback: saveModel
+    },
+
+    {
+        header: "Run simulation",
+        callback: simulate
     }
 );
 
