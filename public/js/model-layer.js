@@ -48,14 +48,21 @@ ModelLayer.prototype = {
 
     iterateModels: function(callback, onEnd) {
         var that = this;
-        network.getData("/models/all", function(response) {
-            var models = response.response.models;
+        network.getData("/models/all", function(response, error) {
             var index = 0;
             that.localModels.forEach(function(model) {
                 callback(model, index);
                 index++;
             });
 
+            if(error) {
+                if(onEnd && typeof onEnd === "function") {
+                    onEnd();
+                }
+                return;
+            }
+
+            var models = response.response.models;
             models.forEach(function(model) {
                 var modelObject;
                 if(!that.models[model.id]) {
@@ -87,11 +94,6 @@ ModelLayer.prototype = {
 
     select: function(model) {
         if(model instanceof Model) {
-            if(this.selected !== null) {
-                console.log("Removing: " + this.selected.name);
-            }
-
-            console.log("Setting: " + model.name);
             this.selected = model;
         } else if(typeof model === "string") {
             var check = model.match(/^local:(\d+)$/);

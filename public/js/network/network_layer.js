@@ -44,7 +44,7 @@ NetworkLayer.prototype = {
                 
                 console.log(JSON.parse(httpRequest.responseText));
               } else {
-                console.log('There was a problem with the request.');
+                callback(undefined, {status: httpRequest.status});
               }
             }
         };
