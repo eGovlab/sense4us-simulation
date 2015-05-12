@@ -44,7 +44,7 @@ var createNode = function(x, y, type) {
         id: id,
         value: 0,
         relativeChange: 0,
-        type: type || "node"
+        type: type || "intermediate"
     }));
 
     loadedModel.setGui(Immutable.Map({
@@ -131,8 +131,8 @@ var simulate = function() {
     console.log("simulate callback!");
 
     var data = {
-        nodes: nodeData.merge(nodeGui).toJSON(),
-        links: links.toJSON()
+        nodes: breakoutAllNodes(),
+        links: loadedModel.links.toJSON()
     };
 
     network.postData("/models/simulate", data, function(response) {
