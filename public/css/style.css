@@ -177,3 +177,35 @@ html
 	font: bold 14px Arial;
 	font-size: 1em;
 }
+
+@-webkit-keyframes fadeIn {
+	0%   {opacity: 0;}
+	100% {opacity: 1;}
+}
+
+.blackout {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	-webkit-animation: fadeIn 0.2s ease-in 1;
+	background-color: rgba(0,0,0,0.4);
+	text-align: center;
+}
+
+.save-form {
+	position: relative;
+	display: inline-block;
+	background-color: #dadada;
+	width: 800px;
+	height: 400px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.save-form form {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+}

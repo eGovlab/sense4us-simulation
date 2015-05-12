@@ -116,12 +116,53 @@ var requestMove = function() {
 
 var saveModel = function() {
     var data = {
-        model: loadedModel,
+        model: null,
         nodes: breakoutAllNodes(),
         links: loadedModel.links.toJSON()
     };
 
-    network.postData("/models/save", data, function(response) {
+    var blackout = menuBuilder.div();
+    blackout.className = "blackout";
+
+    var saveForm = menuBuilder.div();
+    saveForm.className = "save-form";
+
+    var form = document.createElement("form");
+
+    var nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.name = "name";
+    nameInput.className = "save-form-input";
+    var nameLabel = document.createElement("label");
+    nameLabel.innerHTML = "Name";
+    nameLabel.appendChild(nameInput);
+    nameLabel.className = "save-form-label";
+
+    var buttonContainer = menuBuilder.div();
+    buttonContainer.className = "save-form-button-container";
+
+    var submitButton = document.createElement("input");
+    submitButton.type = "submit";
+    submitButton.value = "Save";
+
+    var cancelButton = document.createElement("input");
+    cancelButton.type = "submit";
+    cancelButton.value = "Cancel";
+
+    buttonContainer.appendChild(submitButton);
+    buttonContainer.appendChild(cancelButton);
+
+    form.appendChild(nameLabel);
+    form.appendChild(buttonContainer);
+    saveForm.appendChild(form);
+
+    document.body.appendChild(blackout);
+    blackout.appendChild(saveForm);
+
+    network.postData("/models/save", data, function(response, err) {
+        if(err) {
+            return;
+        }
         console.log(response.response);
     });
 };
@@ -266,7 +307,7 @@ var context = main_canvas.getContext('2d');
 
 var updateSelected = function(newSelected) {
     if (newSelected.get('node1') && newSelected.get('node2')) {
-        links = loadedModel.links.map(function(link) {
+        loadedModel.links = loadedModel.links.map(function(link) {
             if (link.get('selected')) {
                 return fixInputForLink(newSelected);
             }
