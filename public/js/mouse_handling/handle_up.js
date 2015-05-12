@@ -35,6 +35,13 @@ function link(data) {
 					id: id,
 					node1: node.get('id'),
 					node2: collided.get('id'),
+					x1: node.get("x"),
+					y1: node.get("y"),
+					x2: collided.get("x"),
+					y2: collided.get("y"),
+					coefficient: 1,
+					type: "fullchannel",
+					timelag: 0,
 					width: 14
 				}));
 			});
