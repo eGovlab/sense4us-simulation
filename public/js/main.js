@@ -306,16 +306,43 @@ createNode(300, 200);*/
 var context = main_canvas.getContext('2d');
 
 var updateSelected = function(newSelected) {
-    if (newSelected.get('node1') && newSelected.get('node2')) {
-        loadedModel.links = loadedModel.links.map(function(link) {
-            if (link.get('selected')) {
-                return fixInputForLink(newSelected);
-            }
+    if (newSelected.get('timelag') && newSelected.get('coefficient')) {
+        var link = loadedModel.links.get(newSelected.get("id")),
+            id = link.get("id"),
+            n1 = link.get("node1"),
+            n2 = link.get("node2"),
+            x1 = link.get("x1"),
+            y1 = link.get("y1"),
+            x2 = link.get("x2"),
+            y2 = link.get("y2"),
+            coefficient = parseFloat(newSelected.get("coefficient")),
+            timelag     = parseInt(newSelected.get("timelag")),
+            type        = newSelected.get("type");
 
-            return link;
-        });
+        if(isNaN(coefficient) || isNaN(timelag)) {
+            console.log("Coefficient:", newSelected.get("coefficient"));
+            console.log("Timelag:", newSelected.get("timelag"));
+            return;
+        }
+
+        loadedModel.links = loadedModel.links.set(
+            newSelected.get("id"),
+            Immutable.Map({
+                width: 14,
+                node1:       n1,
+                node2:       n2,
+                x1:          x1,
+                y1:          y1,
+                x2:          x2,
+                y2:          y2,
+                coefficient: coefficient,
+                timelag:     timelag,
+                type:        type,
+                id:          id
+            })
+        );
     } else {
-        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('signal'), relativeChange: newSelected.get('signalFire')}));
+        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('value'), relativeChange: newSelected.get('relativeChange'), type: newSelected.get("type")}));
         loadedModel.nodeGui  = loadedModel.nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
     }
 
@@ -347,6 +374,7 @@ dragHandler(
 
         return true;
     },
+
     function mouseMove(pos) {
         var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
@@ -354,6 +382,7 @@ dragHandler(
 
         refresh();
     },
+    
     function mouseUp(pos) {
         var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
@@ -377,6 +406,8 @@ var aggregatedLink = function(link, nodes) {
 function _refresh() {
     context.clearRect(0, 0, main_canvas.width, main_canvas.height);
 
+    //console.log(loadedModel.links.toJSON());
+
     // draw the links
     loadedModel.links.forEach(function(link) {
         draw_link(aggregatedLink(link, loadedModel.nodeGui));
@@ -387,7 +418,7 @@ function _refresh() {
         .filter(function(node) { return loadedModel.nodeGui.get(node.get('id')).get('selected') === true; })
         .map(function(node) { return node.merge(loadedModel.nodeGui.get(node.get('id'))); })
         .merge(
-            loadedModel.links.filter(function(link) { return link.get('selected') === true; })
+            loadedModel.links.filter(function(link) {return link.get('selected') === true;}).map(function(link){ return Immutable.Map({id: link.get("id"), timelag: link.get("timelag"), coefficient: link.get("coefficient"), type: link.get("type"), node1: link.get("node1"), node2: link.get("node2")}) })
         );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
