@@ -1,18 +1,3 @@
-.node {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	cursor: pointer;
-}
-
-.hidden {
-	display: none;
-}
-
-.visible {
-	display: block;
-}
-
 body, html, canvas, div{
 	margin: 0;
 	padding: 0;
@@ -22,36 +7,15 @@ body, html, canvas, div{
 body, html{
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 
 	background-color: #2b3846;
 }
 
-#canvas {
-	cursor: pointer;
-	background-color: #FFFFFF;
-	float: left;
-}
-
-#menu_container{
-	float: left;
-	height: inherit;
-	width: 180px;
-	text-align: center;
-
-	height: 100%;
-
-	padding: 0;
-	margin: 0;
-}
-
-#container{
+#container {
 	float: left;
 	height: inherit;
 	width: 100px;
-}
-
-h5{
-	margin-bottom: 0;
 }
 
 #inspector {
@@ -61,151 +25,8 @@ h5{
 	margin-top: 4px;
 }
 
-input[type="text"], textarea {
-	display: inline-block;
-	background-color: #1A1A1A;
-	border: none;
-	color: #FAFAFA;
-}
-
-textarea {
-	height: 250px;
-}
-
-button, input[type="button"], .button {
-	background-color: #3fb2bb;
-
-	width: 100%;
-	padding: 0;
-	margin: 0;
-
-	outline: none;
-	border: none;
-	padding: 13px 20px 13px;
-	color: #fff;
-	text-decoration: none;
-	font-weight: bold;
-	text-shadow: 0 0px 4px rgba(0,0,0,0.55);
-	border-bottom: 1px solid rgba(0,0,0,0.55);
-	cursor: pointer;
-}
-
-button, .button {
-	display: block;
-	color: #FAFAFA;
-	font: bold 14px Arial;
-	padding: 13px 0;
-}
-
-#upper_menu .button {
+#canvas {
+	background-color: #FFFFFF;
 	float: left;
-	width: 200px;
-	border-left: 1px solid rgba(0,0,0,0.55);
-}
-
-#upper_menu h2 {
-	float: left;
-	display: block;
-	margin: 0px;
-	padding: 0px;
-	padding: 7px 20px 7px;
-	color: #FFFFFF;
-}
-
-#upper_menu select {
-	float: left;
-	width: 200px;
-	padding: 13px 20px 13px;
-}
-
-.s4u-dropdown {
-	float: left;
-	width: 200px;
-	cursor: pointer;
-	background-color: #3fb2bb;
-}
-
-.s4u-dropdown .s4u-dropdown-selected {
-	width: 200px;
-	padding: 13px 0px;
-	text-align: center;
-	margin: 0;
-	font-size: 14px;
-}
-
-.s4u-dropdown .s4u-dropdown-container {
-	position: absolute;
-	width: inherit;
-	text-align: center;
-	box-shadow: 0px 10px 15px 0px rgba(20, 45, 45, 0.5);
-}
-
-.s4u-dropdown .s4u-dropdown-container div {
-	padding: 8px 0px;
-	border-top: ;
-	background-color: #2a8888;
-}
-
-.s4u-dropdown .s4u-dropdown-container div:hover {
-	background-color: #3a9999;
-}
-
-input[type="button"]:active, .button:active, .button:active {
-	background-color: #27949c;
-}
-
-html
-{
-	background-color: #000000;
-	overflow: hidden;
-	height: 100%;
-}
-
-#canvas
-{
 	background-color: #334354;
-}
-
-#edit_signal_fire {
-}
-
-#edit_signal_fire input {
-	height: 100%;
-	background-color: #2a2a2a;
-	border: none;
-	color: #FAFAFA;
-	font: bold 14px Arial;
-	font-size: 1em;
-}
-
-@-webkit-keyframes fadeIn {
-	0%   {opacity: 0;}
-	100% {opacity: 1;}
-}
-
-.blackout {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	-webkit-animation: fadeIn 0.2s ease-in 1;
-	background-color: rgba(0,0,0,0.4);
-	text-align: center;
-}
-
-.save-form {
-	position: relative;
-	display: inline-block;
-	background-color: #dadada;
-	width: 800px;
-	height: 400px;
-	top: 50%;
-	transform: translateY(-50%);
-}
-
-.save-form form {
-	position: relative;
-	top: 50%;
-	transform: translateY(-50%);
 }

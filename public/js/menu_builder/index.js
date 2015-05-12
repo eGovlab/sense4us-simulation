@@ -14,8 +14,8 @@ function MenuBuilder() {
 MenuBuilder.prototype = {
     updateAll: function() {
         this.refreshable.forEach(function(ele) {
-            if(ele.onUpdate && typeof ele.onUpdate === "function") {
-                ele.onUpdate.call(ele);
+            if(ele.update) {
+                ele.update();
             }
         });
     },
@@ -38,20 +38,6 @@ MenuBuilder.prototype = {
         var select = new Dropdown(callback, update);
         this.refreshable.push(select);
         return select.element;
-
-        var select = document.createElement("select");
-
-        select.addEventListener("change", function(e) {
-            this.update = update;
-            callback.call(this, e);
-        });
-
-        select.onUpdate = update;
-        select.onUpdate.call(select);
-        
-        this.refreshable.push(select);
-
-        return select;
     },
 
     option: function(value, text) {

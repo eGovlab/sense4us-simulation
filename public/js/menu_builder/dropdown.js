@@ -76,7 +76,12 @@ Dropdown.prototype = {
 
         newOption.setId(this.options.length);
         this.options.push(newOption);
-        this.occupied[value] = true;
+        this.occupied[value] = this.options.length;
+    },
+
+    resetOptions: function() {
+        this.occupied = {};
+        this.options  = [];
     },
 
     refreshList: function() {

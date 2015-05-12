@@ -26,7 +26,25 @@ CreateMenu.prototype = {
         menu.className = "menu";
 
         this.sidebars[name].forEach(function(obj) {
-            menu.appendChild(menuBuilder.button(obj.header, obj.callback));
+            if(!obj.type) {
+                obj.type = "";
+            }
+            switch(obj.type.toUpperCase()) {
+                case "INPUT":
+                    var c = menuBuilder.div();
+                    var label = document.createElement("label");
+                    label.innerHTML = obj.header;
+                    var input = document.createElement("input");
+                    input.id = obj.id;
+                    input.value = obj.default;
+
+                    c.appendChild(label);
+                    c.appendChild(input);
+                    menu.appendChild(c);
+                    break;
+                default:
+                    menu.appendChild(menuBuilder.button(obj.header, obj.callback));
+            }
         });
 
         while(this.sidebarContainer.firstChild) {

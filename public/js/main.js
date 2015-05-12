@@ -21,7 +21,8 @@ var network = require('./network/network_layer.js');
 network.setDomain("localhost:3000");
 
 var selected_menu = null,
-    loadedModel   = null;
+    loadedModel   = null,
+    environment   = "model";
 
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
@@ -44,6 +45,7 @@ var createNode = function(x, y, type) {
         id: id,
         value: 0,
         relativeChange: 0,
+        simulateChange: 0,
         type: type || "intermediate"
     }));
 
@@ -84,6 +86,17 @@ var breakoutAllNodes = function() {
     return allNodes;
 }
 
+var breakoutAllLinks = function() {
+    var links = loadedModel.links.toJSON(),
+        allLinks = [];
+
+    Object.keys(links).forEach(function(key) {
+        allLinks.push(links[key]);
+    });
+
+    return allLinks;
+}
+
 var sendAllData = function() {
     network.postData("/models/print", {
         nodes: breakoutAllNodes(),
@@ -91,13 +104,36 @@ var sendAllData = function() {
     });
 };
 
-var requestMove = function() {
+var requestRight = function() {
     var data = {
         nodes: loadedModel.nodeData.merge(loadedModel.nodeGui).toJSON(),
         links: loadedModel.links.toJSON()
     };
 
-    network.postData("/models/move", data, function(response) {
+    network.postData("/models/move-right", data, function(response) {
+        var nodes = response.response.nodes;
+
+        Object.keys(nodes).forEach(function(id) {
+            var node = nodes[id];
+            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, Immutable.Map({
+                id: node.id,
+                x: node.x,
+                y: node.y,
+                radius: node.radius
+            }));
+        });
+
+        refresh();
+    });
+};
+
+var requestLeft = function() {
+    var data = {
+        nodes: loadedModel.nodeData.merge(loadedModel.nodeGui).toJSON(),
+        links: loadedModel.links.toJSON()
+    };
+
+    network.postData("/models/move-left", data, function(response) {
         var nodes = response.response.nodes;
 
         Object.keys(nodes).forEach(function(id) {
@@ -115,11 +151,22 @@ var requestMove = function() {
 };
 
 var saveModel = function() {
-    var data = {
-        model: null,
-        nodes: breakoutAllNodes(),
-        links: loadedModel.links.toJSON()
-    };
+    if(loadedModel.synced) {
+        var data = {
+            modelId: loadedModel.id,
+            model:   loadedModel.name,
+            nodes:   breakoutAllNodes(),
+            links:   breakoutAllLinks()
+        };
+
+        network.postData("/models/save", data, function(response, err) {
+            if(err) {
+                return;
+            }
+            console.log(response.response);
+        });
+        return;
+    }
 
     var blackout = menuBuilder.div();
     blackout.className = "blackout";
@@ -127,16 +174,22 @@ var saveModel = function() {
     var saveForm = menuBuilder.div();
     saveForm.className = "save-form";
 
+    var saveFormContainer = menuBuilder.div();
+    saveFormContainer.className = "save-form-container";
+
     var form = document.createElement("form");
+    var nameDiv = document.createElement("div");
 
     var nameInput = document.createElement("input");
     nameInput.type = "text";
-    nameInput.name = "name";
+    nameInput.name = "model-name";
     nameInput.className = "save-form-input";
     var nameLabel = document.createElement("label");
     nameLabel.innerHTML = "Name";
-    nameLabel.appendChild(nameInput);
     nameLabel.className = "save-form-label";
+
+    nameDiv.appendChild(nameLabel);
+    nameDiv.appendChild(nameInput);
 
     var buttonContainer = menuBuilder.div();
     buttonContainer.className = "save-form-button-container";
@@ -145,50 +198,82 @@ var saveModel = function() {
     submitButton.type = "submit";
     submitButton.value = "Save";
 
-    var cancelButton = document.createElement("input");
-    cancelButton.type = "submit";
-    cancelButton.value = "Cancel";
+    var cancelButton = document.createElement("button");
+    cancelButton.innerHTML = "Cancel";
+
+    cancelButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        console.log("Cancelled");
+        document.body.removeChild(blackout);
+    });
 
     buttonContainer.appendChild(submitButton);
     buttonContainer.appendChild(cancelButton);
 
-    form.appendChild(nameLabel);
+    form.appendChild(nameDiv);
     form.appendChild(buttonContainer);
-    saveForm.appendChild(form);
+
+    saveFormContainer.appendChild(form);
+
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        console.log("Sent");
+        document.body.removeChild(blackout);
+
+        console.log(nameInput.value);
+        var data = {
+            modelId: null,
+            model: nameInput.value,
+            nodes: breakoutAllNodes(),
+            links: breakoutAllLinks()
+        };
+
+        network.postData("/models/save", data, function(response, err) {
+            if(err) {
+                return;
+            }
+
+            var id = response.response.id;
+            var name = response.response.name;
+
+            loadedModel.synced = true;
+            loadedModel.setId(id);
+            loadedModel.name = name;
+            modelLayer.select(loadedModel);
+
+            console.log(loadedModel);
+
+            menuBuilder.updateAll();
+        });
+    });
+
+    saveForm.appendChild(saveFormContainer);
 
     document.body.appendChild(blackout);
     blackout.appendChild(saveForm);
-
-    network.postData("/models/save", data, function(response, err) {
-        if(err) {
-            return;
-        }
-        console.log(response.response);
-    });
 };
 
 var simulate = function() {
-
-    console.log("simulate callback!");
+    var timestep = parseInt(document.getElementById("timelag").value);
+    if(isNaN(timestep)) {
+        timestep = 0;
+    }
 
     var data = {
+        timestep: timestep,
         nodes: breakoutAllNodes(),
         links: loadedModel.links.toJSON()
     };
 
-    network.postData("/models/simulate", data, function(response) {
-        console.log("received callback response, need to update values of nodes!");
-        /*var nodes = response.response.nodes;
+    network.postData("/models/simulate", data, function(response, err) {
+        if(err) {
+            return;
+        }
 
-        Object.keys(nodes).forEach(function(id) {
-            var node = nodes[id];
-            nodeGui = nodeGui.set(node.id, Immutable.Map({
-                id: node.id,
-                x: node.x,
-                y: node.y,
-                radius: node.radius
-            }));
-        });*/
+        var nodes = response.response.nodes;
+        nodes.forEach(function(node) {
+            loadedModel.nodeData = loadedModel.nodeData.set(node.id, loadedModel.nodeData.get(node.id).set("simulateChange", node.relativeChange));
+        });
 
         refresh();
     });
@@ -199,7 +284,7 @@ var simulate = function() {
 */
 
 var menuBuilder = require("./menu_builder");
-var menuLayer   = require("./create_menu.js");
+var menuLayer   = require("./menu-layer.js");
 menuLayer.setMenuContainer(document.getElementById("upper_menu"));
 menuLayer.setSidebarContainer(document.getElementById("menu_container"));
 menuLayer.createMenu(
@@ -215,13 +300,13 @@ menuLayer.createMenu(
             //element.options.length = 0;
             //element.selectedIndex  = -1;
 
-            while(element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
+            element.resetOptions();
+
+            element.addOption("new", "New Model");
 
             /*var newModel = menuBuilder.option("new", "New Model");
-            element.appendChild(newModel);
-            var newModel1 = menuBuilder.option("new", "New Model");
+            element.appendChild(newModel);*/
+            /*var newModel1 = menuBuilder.option("new", "New Model");
             element.appendChild(newModel1);*/
 
             if(loadedModel === null) {
@@ -233,7 +318,7 @@ menuLayer.createMenu(
             modelLayer.iterateModels(function(model, index) {
                 element.addOption(model.getId(), model.name);
                 if(model.getId() === modelLayer.selected.getId()) {
-                    element.select(index);
+                    element.select(index + 1);
                 }
             }, function() {
                 element.refreshList();
@@ -244,7 +329,9 @@ menuLayer.createMenu(
         callback: function(e){
             var id = this.value;
             if(id === "new") {
-                console.log("Creating new model!");
+                loadedModel = modelLayer.createModel();
+                loadedModel.setOption(menuBuilder.option(loadedModel.getId(), loadedModel.getId() + ": New Model"));
+                modelLayer.select(loadedModel);
             } else {
                 loadedModel = modelLayer.select(id);
             }
@@ -263,6 +350,7 @@ menuLayer.createMenu(
             selected_menu = null;
 
             menuLayer.activateSidebar("model");
+            environment = "model";
             refresh();
         }
     },
@@ -273,6 +361,7 @@ menuLayer.createMenu(
             selected_menu = null;
 
             menuLayer.activateSidebar("simulate");
+            environment = "simulate";
             refresh();
         }
     }
@@ -301,29 +390,35 @@ menuLayer.createSidebar("model",
 
     {
         header: "Move all nodes right 50 pixels.",
-        callback: requestMove
-    },
+        callback: requestRight
+    }
 
-    {
+    /*{
         header: "Save",
         callback: saveModel
-    },
-
-    {
-        header: "Run simulation",
-        callback: simulate
-    }
+    },*/
 );
 
 menuLayer.createSidebar("simulate",
     {
         header: "Move all nodes left 50 pixels.",
-        callback: requestMove
+        callback: requestLeft
+    },
+
+    {
+        header: "Run simulation",
+        callback: simulate
+    },
+
+    {
+        type: "input",
+        header: "Timelag",
+        id: "timelag",
+        default: 0
     }
 );
 
 menuLayer.activateSidebar("model");
-
 
 window.Immutable = Immutable;
 window.collisions = require('./collisions.js');
@@ -374,8 +469,30 @@ var updateSelected = function(newSelected) {
             })
         );
     } else {
-        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('value'), relativeChange: newSelected.get('relativeChange'), type: newSelected.get("type")}));
-        loadedModel.nodeGui  = loadedModel.nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
+        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get("id"), 
+            loadedModel.nodeData.get(newSelected.get("id")).merge(Immutable.Map({
+                    id: newSelected.get("id"),
+                    value: newSelected.get("value"),
+                    relativeChange: newSelected.get("relativeChange")
+                })
+            )
+        );
+
+        loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get("id"), 
+            loadedModel.nodeGui.get(newSelected.get("id")).merge(Immutable.Map({
+                    radius: newSelected.get("radius")
+                })
+            )
+        );
+        /*loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get("id"),
+            loadedModel.nodeGui.get(newSelected.get("id")).merge(newSelected.map(function(node) {
+                return {
+                    radius: node.get("radius")
+                };
+            }))
+        );*/
+        //loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('value'), relativeChange: newSelected.get('relativeChange'), type: newSelected.get("type")}));
+        //loadedModel.nodeGui  = loadedModel.nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
     }
 
     refresh();
@@ -448,9 +565,29 @@ function _refresh() {
     // get all the selected objects
     var selected = loadedModel.nodeData
         .filter(function(node) { return loadedModel.nodeGui.get(node.get('id')).get('selected') === true; })
-        .map(function(node) { return node.merge(loadedModel.nodeGui.get(node.get('id'))); })
+        .map(function(node) {
+            return Immutable.Map({
+                id: node.get("id"),
+                value: node.get("value"),
+                relativeChange: node.get("relativeChange")
+            }).merge(
+                Immutable.Map({radius: loadedModel.nodeGui.get(node.get("id")).get("radius")})
+            );
+            
+            //return node.merge(loadedModel.nodeGui.get(node.get('id')));
+        })
         .merge(
-            loadedModel.links.filter(function(link) {return link.get('selected') === true;}).map(function(link){ return Immutable.Map({id: link.get("id"), timelag: link.get("timelag"), coefficient: link.get("coefficient"), type: link.get("type"), node1: link.get("node1"), node2: link.get("node2")}) })
+            loadedModel.links.filter(function(link) {return link.get('selected') === true;})
+            .map(function(link) {
+                return Immutable.Map({
+                    id: link.get("id"),
+                    timelag: link.get("timelag"),
+                    coefficient: link.get("coefficient"),
+                    type: link.get("type"),
+                    node1: link.get("node1"),
+                    node2: link.get("node2")
+                });
+            })
         );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
@@ -470,7 +607,7 @@ function _refresh() {
 
     // draw all the nodes
     loadedModel.nodeData.forEach(
-        function(n) { return draw_node(n.merge(loadedModel.nodeGui.get(n.get('id')))); }
+        function(n) { return draw_node(n.merge(loadedModel.nodeGui.get(n.get('id'))), environment); }
     );
 
     // if we are linking, we want to draw the dot above everything else

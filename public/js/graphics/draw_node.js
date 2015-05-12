@@ -39,7 +39,7 @@ var settings = [
 	}
 ];
 
-module.exports = function(ctx, map) {
+module.exports = function(ctx, map, env) {
 	ctx.shadowOffsetX = 0;
 	ctx.shadowOffsetY = 0;
 	ctx.shadowBlur = 10;
@@ -74,8 +74,14 @@ module.exports = function(ctx, map) {
 	var text = '';
 	if (map.get('type') === 'actor') {
 		text = 'Actor' + map.get('id');
+	} else if(map.get("type") === "origin") {
+		text = map.get("relativeChange") + "";
 	} else {
-		text = map.get('value') + '';
+		if(env === "model") {
+			text = map.get('value') + '';
+		} else if(env === "simulate") {
+			text = map.get('simulateChange') + '';
+		}
 	}
 	
 	var size = 48 - text.length * 2.4;
