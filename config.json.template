@@ -4,14 +4,6 @@
     "PORT": 3000,
     "HOSTNAME": "localhost",
 
-    "SURVEY": 1,
-
-    "TLS": {
-        "port": 3443,
-        "cert": "server-cert.pem",
-        "key": "server-key.pem"
-    },
-
     "ROUTER": {
         "environments": [
             ["dev", "development"],
@@ -21,14 +13,6 @@
         "environment": "development",
         "printexposed": true,
         "printonlynew": true
-    },
-
-    "DATABASE": {
-        "arch":     "postgres",
-        "database": "",
-        "host":     "localhost",
-        "user":     "",
-        "password": ""
     },
 
     "LOGGER": {
@@ -42,17 +26,9 @@
         "request":      true
     },
 
-    "FACEBOOK": {
-        "id": "",
-        "secret": ""
-    },
-
     "CONTROLLERS":  "frontend/controllers/",
     "PUBLIC":       "frontend/public/",
     "VIEWS":        "frontend/views/",
-    "MODELS":       "frontend/models/",
-    "SEEDS":        "frontend/models/seeds",
-    "MODEL_PREFIX": "s4u",
 
     "STACKTRACELENGTH": 40
 }
