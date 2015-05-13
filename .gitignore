@@ -1,5 +1,11 @@
 .DS_Store
 docs/
-node_modules
 bundle.js
 typings/
+
+npm-debug.log
+config.json
+node_modules/*
+server-key.pem
+server-csr.pem
+server-cert.pem

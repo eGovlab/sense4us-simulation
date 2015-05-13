@@ -1,35 +1,24 @@
 {
-  "name": "template",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/init"
-  },
+  "name": "sense4us-simulation-client",
+  "version": "0.0.1",
+  "description": "Backend to fetch data from the sense4us REST API.",
   "dependencies": {
-    "body-parser": "~1.8.1",
-    "cookie-parser": "~1.3.3",
-    "connect": "^3.3.4",
-    "ejs": "latest",
-    "ejs-locals": "latest",
-    "express": "~4.9.0",
-    "iconv-lite": "^0.4.5",
+    "body-parser": "latest",
     "browserify": "latest",
+    "express": "latest",
     "immutable": "latest",
+    "socket.io": "latest",
     "uglify-js": "latest",
-    "watchify": "latest",
-    "rh_config-parser": "latest",
-    "rh_cookie-cutter": "latest",
-    "rh_fe": "latest",
-    "rh_fe-controller": "latest",
-    "rh_logger": "latest",
-    "rh_router": "latest"
+    "watchify": "latest"
   },
-
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eGovlab/sense4us-simulation.git"
+  },
   "author": "Robin Swenson, Anton Haughey, Jona Ekenberg",
-
   "scripts": {
     "prestart": "npm install; echo '\n * Running browserify for production!\n'; npm run browserify",
-    "start": "node bin/init.js",
+    "start": "node app.js",
     "browserify": "node_modules/browserify/bin/cmd.js frontend/public/js/main.js | node_modules/uglify-js/bin/uglifyjs > frontend/public/js/bundle.js",
     "watch": "node_modules/watchify/bin/cmd.js frontend/public/js/main.js -o frontend/public/js/bundle.js --debug --verbose"
   }
