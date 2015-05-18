@@ -13,10 +13,6 @@ var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getCon
 var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
 var modelLayer = require("./model-layer.js");
 
-/*var loadedModel.nodeData = Immutable.Map(),
-    loadedModel.nodeGui  = Immutable.Map(),
-    links    = Immutable.Map();*/
-
 var network = require('./network/network_layer.js');
 network.setDomain("localhost:3000");
 
@@ -27,408 +23,60 @@ var selected_menu = null,
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
 
-var createNode = function(x, y, type) {
-    if(typeof x !== "number") {
-        x = false;
-    }
-
-    if(typeof y !== "number") {
-        y = false;
-    }
-
-    if(typeof type !== "string") {
-        type = false;
-    }
-
-    var id = loadedModel.generateId();
-    loadedModel.setData(Immutable.Map({
-        id: id,
-        value: 0,
-        relativeChange: 0,
-        simulateChange: 0,
-        type: type || "intermediate"
-    }));
-
-    loadedModel.setGui(Immutable.Map({
-        id: id,
-        x: x || 200,
-        y: y || 100,
-        radius: 75
-    }));
-
-    refresh();
-};
-var createOriginNode = function() {
-    createNode(100, 100, 'origin');
-}
-var createActorNode = function() {
-    createNode(100, 100, 'actor');
-}
-
-var breakoutAllNodes = function() {
-    var dd = loadedModel.nodeData.toJSON(),
-        dg = loadedModel.nodeGui.toJSON(),
-        allNodes = [];
-
-    Object.keys(dd).forEach(function(_dd_id) {
-        if(!dg[_dd_id]) {
-            return;
-        }
-
-        var obj = dd[_dd_id];
-        Object.keys(dg[_dd_id]).forEach(function(_dg_property) {
-            obj[_dg_property] = dg[_dd_id][_dg_property];
-        });
-
-        allNodes.push(obj);
-    });
-
-    return allNodes;
-}
-
-var breakoutAllLinks = function() {
-    var links = loadedModel.links.toJSON(),
-        allLinks = [];
-
-    Object.keys(links).forEach(function(key) {
-        allLinks.push(links[key]);
-    });
-
-    return allLinks;
-}
-
-var sendAllData = function() {
-    network.postData("/models/print", {
-        nodes: breakoutAllNodes(),
-        links: loadedModel.links.toJSON()
-    });
-};
-
-var requestRight = function() {
-    var data = {
-        nodes: loadedModel.nodeData.merge(loadedModel.nodeGui).toJSON(),
-        links: loadedModel.links.toJSON()
-    };
-
-    network.postData("/models/move-right", data, function(response) {
-        var nodes = response.response.nodes;
-
-        Object.keys(nodes).forEach(function(id) {
-            var node = nodes[id];
-            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, Immutable.Map({
-                id: node.id,
-                x: node.x,
-                y: node.y,
-                radius: node.radius
-            }));
-        });
-
-        refresh();
-    });
-};
-
-var requestLeft = function() {
-    var data = {
-        nodes: loadedModel.nodeData.merge(loadedModel.nodeGui).toJSON(),
-        links: loadedModel.links.toJSON()
-    };
-
-    network.postData("/models/move-left", data, function(response) {
-        var nodes = response.response.nodes;
-
-        Object.keys(nodes).forEach(function(id) {
-            var node = nodes[id];
-            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, Immutable.Map({
-                id: node.id,
-                x: node.x,
-                y: node.y,
-                radius: node.radius
-            }));
-        });
-
-        refresh();
-    });
-};
-
-var saveModel = function() {
-    if(loadedModel.synced) {
-        var data = {
-            modelId: loadedModel.id,
-            model:   loadedModel.name,
-            nodes:   breakoutAllNodes(),
-            links:   breakoutAllLinks()
-        };
-
-        network.postData("/models/save", data, function(response, err) {
-            if(err) {
-                return;
-            }
-            console.log(response.response);
-        });
-        return;
-    }
-
-    var blackout = menuBuilder.div();
-    blackout.className = "blackout";
-
-    var saveForm = menuBuilder.div();
-    saveForm.className = "save-form";
-
-    var saveFormContainer = menuBuilder.div();
-    saveFormContainer.className = "save-form-container";
-
-    var form = document.createElement("form");
-    var nameDiv = document.createElement("div");
-
-    var nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.name = "model-name";
-    nameInput.className = "save-form-input";
-    var nameLabel = document.createElement("label");
-    nameLabel.innerHTML = "Name";
-    nameLabel.className = "save-form-label";
-
-    nameDiv.appendChild(nameLabel);
-    nameDiv.appendChild(nameInput);
-
-    var buttonContainer = menuBuilder.div();
-    buttonContainer.className = "save-form-button-container";
-
-    var submitButton = document.createElement("input");
-    submitButton.type = "submit";
-    submitButton.value = "Save";
-
-    var cancelButton = document.createElement("button");
-    cancelButton.innerHTML = "Cancel";
-
-    cancelButton.addEventListener("click", function(e) {
-        e.preventDefault();
-        console.log("Cancelled");
-        document.body.removeChild(blackout);
-    });
-
-    buttonContainer.appendChild(submitButton);
-    buttonContainer.appendChild(cancelButton);
-
-    form.appendChild(nameDiv);
-    form.appendChild(buttonContainer);
-
-    saveFormContainer.appendChild(form);
-
-    form.addEventListener("submit", function(e) {
-        e.preventDefault();
-        console.log("Sent");
-        document.body.removeChild(blackout);
-
-        console.log(nameInput.value);
-        var data = {
-            modelId: null,
-            model: nameInput.value,
-            nodes: breakoutAllNodes(),
-            links: breakoutAllLinks()
-        };
-
-        network.postData("/models/save", data, function(response, err) {
-            if(err) {
-                return;
-            }
-
-            var id = response.response.id;
-            var name = response.response.name;
-
-            loadedModel.synced = true;
-            loadedModel.setId(id);
-            loadedModel.name = name;
-            modelLayer.select(loadedModel);
-
-            console.log(loadedModel);
-
-            menuBuilder.updateAll();
-        });
-    });
-
-    saveForm.appendChild(saveFormContainer);
-
-    document.body.appendChild(blackout);
-    blackout.appendChild(saveForm);
-};
-
-var simulate = function() {
-    var timestep = parseInt(document.getElementById("timelag").value);
-    if(isNaN(timestep)) {
-        timestep = 0;
-    }
-
-    var data = {
-        timestep: timestep,
-        nodes: breakoutAllNodes(),
-        links: loadedModel.links.toJSON()
-    };
-
-    network.postData("/models/simulate", data, function(response, err) {
-        if(err) {
-            return;
-        }
-
-        var nodes = response.response.nodes;
-        nodes.forEach(function(node) {
-            loadedModel.nodeData = loadedModel.nodeData.set(node.id, loadedModel.nodeData.get(node.id).set("simulateChange", node.relativeChange));
-        });
-
-        refresh();
-    });
-};
 
 /*
 ** Create the main menu
 */
 
-var menuBuilder = require("./menu_builder");
-var menuLayer   = require("./menu-layer.js");
-menuLayer.setMenuContainer(document.getElementById("upper_menu"));
-menuLayer.setSidebarContainer(document.getElementById("menu_container"));
-menuLayer.createMenu(
-    {
-        header: "Load"
-    },
+var settings = require("./settings");
+settings.initialize(
+    document.getElementById("menu_container"),
+    document.getElementById("upper_menu"),
+    function() {
+        var obj = {};
 
-    {
-        header: "Model",
-        type: "dropdown",
-        update: function() {
-            var element = this;
-            //element.options.length = 0;
-            //element.selectedIndex  = -1;
+        Object.defineProperty(obj, "selected_menu", {
+            get: function() {
+                return selected_menu;
+            },
 
-            element.resetOptions();
-
-            element.addOption("new", "New Model");
-
-            /*var newModel = menuBuilder.option("new", "New Model");
-            element.appendChild(newModel);*/
-            /*var newModel1 = menuBuilder.option("new", "New Model");
-            element.appendChild(newModel1);*/
-
-            if(loadedModel === null) {
-                loadedModel = modelLayer.createModel();
-                loadedModel.setOption(menuBuilder.option(loadedModel.getId(), loadedModel.getId() + ": New Model"));
-                modelLayer.select(loadedModel);
+            set: function(arg) {
+                selected_menu = arg;
             }
+        });
 
-            modelLayer.iterateModels(function(model, index) {
-                element.addOption(model.getId(), model.name);
-                if(model.getId() === modelLayer.selected.getId()) {
-                    element.select(index + 1);
-                }
-            }, function() {
-                element.refreshList();
-                refresh();
-            });
-        },
+        Object.defineProperty(obj, "loadedModel", {
+            get: function() {
+                return loadedModel;
+            },
 
-        callback: function(e){
-            var id = this.value;
-            if(id === "new") {
-                loadedModel = modelLayer.createModel();
-                loadedModel.setOption(menuBuilder.option(loadedModel.getId(), loadedModel.getId() + ": New Model"));
-                modelLayer.select(loadedModel);
-            } else {
-                loadedModel = modelLayer.select(id);
+            set: function(arg) {
+                loadedModel = arg;
             }
+        });
 
-            this.update();
-        }
-    },
+        Object.defineProperty(obj, "environment", {
+            get: function() {
+                return environment;
+            },
 
-    {
-        header: "Mode"
-    },
+            set: function(arg) {
+                environment = arg;
+            }
+        });
 
-    {
-        header: "Model",
-        callback: function(){
-            selected_menu = null;
+        Object.defineProperty(obj, "refresh", {
+            get: function() {
+                return refresh;
+            }
+        });
 
-            menuLayer.activateSidebar("model");
-            environment = "model";
-            refresh();
-        }
-    },
-
-    {
-        header: "Simulate",
-        callback: function() {
-            selected_menu = null;
-
-            menuLayer.activateSidebar("simulate");
-            environment = "simulate";
-            refresh();
-        }
+        return obj;
     }
 );
-
-menuLayer.createSidebar("model",
-    {
-        header: "Create node",
-        callback: createNode
-    },
-
-    {
-        header: "Create origin",
-        callback: createOriginNode
-    },
-
-    {
-        header: "Create actor",
-        callback: createActorNode
-    },
-
-    {
-        header: "Send all data",
-        callback: sendAllData
-    },
-
-    {
-        header: "Move all nodes right 50 pixels.",
-        callback: requestRight
-    }
-
-    /*{
-        header: "Save",
-        callback: saveModel
-    },*/
-);
-
-menuLayer.createSidebar("simulate",
-    {
-        header: "Move all nodes left 50 pixels.",
-        callback: requestLeft
-    },
-
-    {
-        header: "Run simulation",
-        callback: simulate
-    },
-
-    {
-        type: "input",
-        header: "Timelag",
-        id: "timelag",
-        default: 0
-    }
-);
-
-menuLayer.activateSidebar("model");
 
 window.Immutable = Immutable;
 window.collisions = require('./collisions.js');
-
-/*createNode(200, 100);
-createNode(220, 120);
-createNode(240, 140);
-createNode(260, 160);
-createNode(280, 180);
-createNode(300, 200);*/
 
 var context = main_canvas.getContext('2d');
 
