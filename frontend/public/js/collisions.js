@@ -33,7 +33,6 @@ var collisions = {
 		return distance <= circleA.get('radius') + circleB.get('radius');
 	},
 	pointLine: function(point, line) {
-		console.log('derpii1');
 		if (!collisions.pointRect(point, lineToRect(line))) {
 			return false;
 		}

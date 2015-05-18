@@ -112,7 +112,8 @@ var updateSelected = function(newSelected) {
 
         loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get("id"), 
             loadedModel.nodeGui.get(newSelected.get("id")).merge(Immutable.Map({
-                    radius: newSelected.get("radius")
+                    radius: newSelected.get("radius"),
+                    avatar: newSelected.get("avatar"),
                 })
             )
         );
@@ -195,7 +196,10 @@ function _refresh() {
                 value: node.get("value"),
                 relativeChange: node.get("relativeChange")
             }).merge(
-                Immutable.Map({radius: loadedModel.nodeGui.get(node.get("id")).get("radius")})
+                Immutable.Map({
+                        radius: loadedModel.nodeGui.get(node.get("id")).get("radius"),
+                        avatar: loadedModel.nodeGui.get(node.get("id")).get("avatar")
+                    })
             );
             
             //return node.merge(loadedModel.nodeGui.get(node.get('id')));
@@ -231,7 +235,10 @@ function _refresh() {
 
     // draw all the nodes
     loadedModel.nodeData.forEach(
-        function(n) { return draw_node(n.merge(loadedModel.nodeGui.get(n.get('id'))), environment); }
+        function(n) { 
+            var nodeGui = n.merge(loadedModel.nodeGui.get(n.get('id')));
+            draw_node(nodeGui, environment);
+        }
     );
 
     // if we are linking, we want to draw the dot above everything else
