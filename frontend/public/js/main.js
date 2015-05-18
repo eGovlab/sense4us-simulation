@@ -433,38 +433,30 @@ createNode(300, 200);*/
 var context = main_canvas.getContext('2d');
 
 var updateSelected = function(newSelected) {
-    if (newSelected.get('timelag') && newSelected.get('coefficient')) {
-        var link = loadedModel.links.get(newSelected.get("id")),
-            id = link.get("id"),
-            n1 = link.get("node1"),
-            n2 = link.get("node2"),
-            coefficient = parseFloat(newSelected.get("coefficient")),
+    if (newSelected.get("timelag") !== undefined && newSelected.get("coefficient") !== undefined) {
+        var coefficient = parseFloat(newSelected.get("coefficient")),
             timelag     = parseInt(newSelected.get("timelag")),
             type        = newSelected.get("type");
 
         if(isNaN(coefficient) || isNaN(timelag)) {
             console.log("Coefficient:", newSelected.get("coefficient"));
-            console.log("Timelag:", newSelected.get("timelag"));
+            console.log("Timelag:",     newSelected.get("timelag"));
             return;
         }
-
-        loadedModel.links = loadedModel.links.set(
-            newSelected.get("id"),
-            Immutable.Map({
-                width: 14,
-                node1:       n1,
-                node2:       n2,
-                coefficient: coefficient,
-                timelag:     timelag,
-                type:        type,
-                id:          id
-            })
+        
+        loadedModel.links = loadedModel.links.set(newSelected.get("id"),
+            loadedModel.links.get(newSelected.get("id")).merge(Immutable.Map({
+                    coefficient: newSelected.get("coefficient"),
+                    timelag:     newSelected.get("timelag"),
+                    type:        newSelected.get("type")
+                })
+            )
         );
     } else {
         loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get("id"), 
             loadedModel.nodeData.get(newSelected.get("id")).merge(Immutable.Map({
-                    id: newSelected.get("id"),
-                    value: newSelected.get("value"),
+                    id:             newSelected.get("id"),
+                    value:          newSelected.get("value"),
                     relativeChange: newSelected.get("relativeChange")
                 })
             )
