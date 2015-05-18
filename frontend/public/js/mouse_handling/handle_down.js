@@ -3,6 +3,7 @@
 var middleware = require('./../middleware.js');
 var hitTest = require('./../collisions.js').hitTest;
 var linker = require('./../linker.js');
+var aggregatedLink = require('./../aggregated_link.js');
 
 var mouseDownWare = middleware([
     startLinkingIfSelected,
@@ -27,34 +28,31 @@ function deselect(data) {
 }
 
 function select(data) {
-    var hitSomething = false;
-    data.nodeGui = data.nodeGui.merge(
-        data.nodeGui.
+    var collidedNodes = data.nodeGui.
         filter(function(node) { return hitTest(node, data.pos); }).
         slice(-1).
         map(function(node) {
-            hitSomething = true;
             return node.concat({
                 offsetX: data.pos.get('x') - (node.get('x') || 0),
                 offsetY: data.pos.get('y') - (node.get('y') || 0),
                 clicked: true,
                 selected: true
             });
-         })
-    );
+         });
+    data.nodeGui = data.nodeGui.merge(collidedNodes);
 
-    if(hitSomething) {
+    if (collidedNodes.size > 0) {
         return data;
     }
 
     data.links = data.links.merge(
         data.links.
-        filter(function(node) { return hitTest(node, data.pos); }).
+        filter(function(link) { return hitTest(aggregatedLink(link, data.nodeGui), data.pos); }).
         slice(-1).
-        map(function(node) {
-            return node.concat({
-                offsetX: data.pos.get('x') - (node.get('x') || 0),
-                offsetY: data.pos.get('y') - (node.get('y') || 0),
+        map(function(link) {
+            return link.concat({
+                offsetX: data.pos.get('x') - (link.get('x') || 0),
+                offsetY: data.pos.get('y') - (link.get('y') || 0),
                 clicked: true,
                 selected: true
             });

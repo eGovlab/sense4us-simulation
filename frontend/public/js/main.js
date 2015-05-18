@@ -438,10 +438,6 @@ var updateSelected = function(newSelected) {
             id = link.get("id"),
             n1 = link.get("node1"),
             n2 = link.get("node2"),
-            x1 = link.get("x1"),
-            y1 = link.get("y1"),
-            x2 = link.get("x2"),
-            y2 = link.get("y2"),
             coefficient = parseFloat(newSelected.get("coefficient")),
             timelag     = parseInt(newSelected.get("timelag")),
             type        = newSelected.get("type");
@@ -458,10 +454,6 @@ var updateSelected = function(newSelected) {
                 width: 14,
                 node1:       n1,
                 node2:       n2,
-                x1:          x1,
-                y1:          y1,
-                x2:          x2,
-                y2:          y2,
                 coefficient: coefficient,
                 timelag:     timelag,
                 type:        type,
@@ -541,15 +533,7 @@ dragHandler(
     }
 );
 
-var aggregatedLink = function(link, nodes) {
-    return Immutable.Map({
-        x1: nodes.get(link.get('node1')).get('x'),
-        y1: nodes.get(link.get('node1')).get('y'),
-        x2: nodes.get(link.get('node2')).get('x'),
-        y2: nodes.get(link.get('node2')).get('y'),
-        width: link.get('width')
-    });
-};
+var aggregatedLink = require('./aggregated_link.js');
 
 
 function _refresh() {
