@@ -49,15 +49,21 @@ var createNode = function(x, y, type) {
         type: type || "intermediate"
     }));
 
-    loadedModel.setGui(Immutable.Map({
-        id: id,
-        x: x || 200,
-        y: y || 100,
-        radius: 75
-    }));
+    loadedModel.setGui(generateNodeGui(id, x, y));
 
     refresh();
 };
+
+function generateNodeGui(id, x, y, radius) {
+    return Immutable.Map({
+        id: id,
+        x: x || 200,
+        y: y || 100,
+        avatar: 'https://mdn.mozillademos.org/files/5397/rhino.jpg',
+        radius: radius || 75
+    });
+}
+
 var createOriginNode = function() {
     createNode(100, 100, 'origin');
 }
@@ -115,12 +121,7 @@ var requestRight = function() {
 
         Object.keys(nodes).forEach(function(id) {
             var node = nodes[id];
-            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, Immutable.Map({
-                id: node.id,
-                x: node.x,
-                y: node.y,
-                radius: node.radius
-            }));
+            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, generateNodeGui(node.id, node.x, node.y, node.radius));
         });
 
         refresh();
@@ -138,12 +139,7 @@ var requestLeft = function() {
 
         Object.keys(nodes).forEach(function(id) {
             var node = nodes[id];
-            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, Immutable.Map({
-                id: node.id,
-                x: node.x,
-                y: node.y,
-                radius: node.radius
-            }));
+            loadedModel.nodeGui = loadedModel.nodeGui.set(node.id, generateNodeGui(node.id, node.x, node.y, node.radius));
         });
 
         refresh();
@@ -464,7 +460,8 @@ var updateSelected = function(newSelected) {
 
         loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get("id"), 
             loadedModel.nodeGui.get(newSelected.get("id")).merge(Immutable.Map({
-                    radius: newSelected.get("radius")
+                    radius: newSelected.get("radius"),
+                    avatar: newSelected.get("avatar"),
                 })
             )
         );
@@ -547,7 +544,10 @@ function _refresh() {
                 value: node.get("value"),
                 relativeChange: node.get("relativeChange")
             }).merge(
-                Immutable.Map({radius: loadedModel.nodeGui.get(node.get("id")).get("radius")})
+                Immutable.Map({
+                        radius: loadedModel.nodeGui.get(node.get("id")).get("radius"),
+                        avatar: loadedModel.nodeGui.get(node.get("id")).get("avatar")
+                    })
             );
             
             //return node.merge(loadedModel.nodeGui.get(node.get('id')));
@@ -583,7 +583,10 @@ function _refresh() {
 
     // draw all the nodes
     loadedModel.nodeData.forEach(
-        function(n) { return draw_node(n.merge(loadedModel.nodeGui.get(n.get('id'))), environment); }
+        function(n) { 
+            var nodeGui = n.merge(loadedModel.nodeGui.get(n.get('id')));
+            draw_node(nodeGui, environment);
+        }
     );
 
     // if we are linking, we want to draw the dot above everything else

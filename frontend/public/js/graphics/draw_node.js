@@ -1,5 +1,7 @@
 'use strict';
 
+var drawPicture = require('./draw_picture');
+
 var settings = [
 	{
 		color: 'rgba(255, 75, 75, 0.8)',
@@ -39,7 +41,7 @@ var settings = [
 	}
 ];
 
-module.exports = function(ctx, map, env) {
+module.exports = function drawNode(ctx, map, env) {
 	ctx.shadowOffsetX = 0;
 	ctx.shadowOffsetY = 0;
 	ctx.shadowBlur = 10;
@@ -67,9 +69,10 @@ module.exports = function(ctx, map, env) {
 	ctx.beginPath();
 	ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
 	ctx.fill();
-
-	ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-	ctx.textBaseline = 'middle';
+	
+    if (map.get('type') === 'actor' && map.get('avatar')) {
+        drawPicture(ctx, map.get('avatar'), map, env);
+    }
 	
 	var text = '';
 	if (map.get('type') === 'actor') {
@@ -83,6 +86,9 @@ module.exports = function(ctx, map, env) {
 			text = map.get('simulateChange') + '';
 		}
 	}
+
+	ctx.textBaseline = 'middle';
+	ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
 	
 	var size = 48 - text.length * 2.4;
 	size = size < 12 ? 12 : size;
