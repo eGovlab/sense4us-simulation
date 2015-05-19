@@ -13,7 +13,7 @@ var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getCon
 var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
 var modelLayer = require("./model-layer.js");
 
-var network = require('./network/network_layer.js');
+var network = require('./network');
 network.setDomain("localhost:3000");
 
 var selected_menu = null,
@@ -22,7 +22,6 @@ var selected_menu = null,
 
 var draw_node = require('./graphics/draw_node.js');
 draw_node = curry(draw_node, main_canvas.getContext('2d'));
-
 
 /*
 ** Create the main menu

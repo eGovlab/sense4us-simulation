@@ -20,11 +20,13 @@ var modelDropdownUpdate = function(state) {
     if(state.loadedModel === null) {
         state.loadedModel = modelLayer.createModel();
         state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ": New Model"));
+        state.loadedModel.local = true;
         modelLayer.select(state.loadedModel);
     }
 
     modelLayer.iterateModels(function(model, index) {
         element.addOption(model.getId(), model.name);
+
         if(model.getId() === modelLayer.selected.getId()) {
             element.select(index + 1);
         }
@@ -39,9 +41,10 @@ var modelDropdownChoose = function(state, e) {
     if(id === "new") {
         state.loadedModel = modelLayer.createModel();
         state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ": New Model"));
-        modelLayer.select(state.loadedModel);
+        state.loadedModel.local = true;
+        modelLayer.select(state.loadedModel, state);
     } else {
-        state.loadedModel = modelLayer.select(id);
+        state.loadedModel = modelLayer.select(id, state);
     }
 
     this.update();

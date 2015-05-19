@@ -11,7 +11,9 @@ function Model(element) {
     this.authorId = null;
     this.author   = "";
     this.synced   = false;
+    this.syncId   = null;
     this._name    = null;
+    this.local    = false;
 
     this.nextId   = 0;
 
@@ -62,17 +64,35 @@ Model.prototype = {
         this.nodeGui = this.nodeGui.set(data.get("id"), data);
     },
 
+    setLink: function(data) {
+        this.links = this.links.set(data.get("id"), data);
+    },
+
     setId: function(id) {
         if(typeof id === "number") {
             this.id = id;
         }
     },
 
+    setSyncId: function(id) {
+        if(typeof id === "number") {
+            this.syncId = id;
+        }
+    },
+
     getId: function() {
-        if(this.synced) {
+        if(this.synced && !this.local) {
             return "" + this.id;
         } else {
             return "local:" + this.id;
+        }
+    },
+
+    getSyncId: function() {
+        if(this.synced) {
+            return "" + this.syncId;
+        } else {
+            return false;
         }
     },
 

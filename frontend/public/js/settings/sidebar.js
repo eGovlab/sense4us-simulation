@@ -1,7 +1,9 @@
 'use strict';
 
-var breakout = require("./../breakout.js"),
-    network  = require("./../network/network_layer.js");
+var breakout    = require("./../breakout.js"),
+    network     = require("./../network"),
+    menuBuilder = require("./../menu_builder"),
+    modelLayer  = require("./../model-layer.js");
 
 /*
 ** createNode
@@ -10,6 +12,7 @@ var breakout = require("./../breakout.js"),
 ** sendAllData
 ** requestRight
 ** requestLeft
+** save
 ** simulate
 */
 
@@ -106,19 +109,20 @@ var requestLeft = function(state) {
     });
 };
 
-var saveModel = function() {
-    if(loadedModel.synced) {
+var saveModel = function(state) {
+    if(state.loadedModel.synced) {
         var data = {
-            modelId: loadedModel.id,
-            model:   loadedModel.name,
-            nodes:   breakoutAllNodes(),
-            links:   breakoutAllLinks()
+            modelId: state.loadedModel.syncId,
+            model:   state.loadedModel.name,
+            nodes:   breakout.nodes(state),
+            links:   breakout.links(state)
         };
 
         network.postData("/models/save", data, function(response, err) {
             if(err) {
                 return;
             }
+
             console.log(response.response);
         });
         return;
@@ -173,15 +177,13 @@ var saveModel = function() {
 
     form.addEventListener("submit", function(e) {
         e.preventDefault();
-        console.log("Sent");
         document.body.removeChild(blackout);
 
-        console.log(nameInput.value);
         var data = {
             modelId: null,
             model: nameInput.value,
-            nodes: breakoutAllNodes(),
-            links: breakoutAllLinks()
+            nodes: breakout.nodes(state),
+            links: breakout.links(state)
         };
 
         network.postData("/models/save", data, function(response, err) {
@@ -192,12 +194,12 @@ var saveModel = function() {
             var id = response.response.id;
             var name = response.response.name;
 
-            loadedModel.synced = true;
-            loadedModel.setId(id);
-            loadedModel.name = name;
-            modelLayer.select(loadedModel);
+            state.loadedModel.synced = true;
+            state.loadedModel.setSyncId(id);
+            state.loadedModel.name = name;
+            modelLayer.select(state.loadedModel);
 
-            console.log(loadedModel);
+            console.log(state.loadedModel);
 
             menuBuilder.updateAll();
         });
@@ -261,6 +263,11 @@ var modelSidebar = {
         {
             header: "Move all nodes right 50 pixels.",
             callback: requestRight
+        },
+
+        {
+            header: "Save",
+            callback: saveModel
         }
     ]
 };

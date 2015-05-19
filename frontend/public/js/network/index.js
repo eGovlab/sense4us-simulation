@@ -42,7 +42,6 @@ NetworkLayer.prototype = {
                     console.log("No callback was sent with the query against " + path);
                 }
                 
-                console.log(JSON.parse(httpRequest.responseText));
               } else {
                 callback(undefined, {status: httpRequest.status});
                 console.log(JSON.parse(httpRequest.responseText));
