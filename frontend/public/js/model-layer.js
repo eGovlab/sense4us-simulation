@@ -65,7 +65,15 @@ ModelLayer.prototype = {
 
             var models = response.response.models;
             models.forEach(function(model) {
-                if(that.selected.name === model.name && that.selected.syncId === model.id && that.selected.local) {
+                var check = that.localModels.filter(function(m) {
+                    if(model.name === m.name) {
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                if(check.length > 0) {
                     index++;
                     return;
                 }
@@ -136,7 +144,6 @@ ModelLayer.prototype = {
 
             var lookUp = {};
             nodes.forEach(function(node) {
-                var id = loadedModel.generateId();
                 loadedModel.setData(Immutable.Map({
                     id: node.id,
                     value: node.starting_value,
@@ -151,8 +158,6 @@ ModelLayer.prototype = {
                     y: node.y,
                     radius: node.radius
                 }));
-
-                lookUp[node.id] = id;
             });
 
             links.forEach(function(link) {

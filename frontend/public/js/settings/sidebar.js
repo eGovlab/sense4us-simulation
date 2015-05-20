@@ -120,10 +120,9 @@ var saveModel = function(state) {
 
         network.postData("/models/save", data, function(response, err) {
             if(err) {
+                console.log(response);
                 return;
             }
-
-            console.log(response.response);
         });
         return;
     }
@@ -163,7 +162,6 @@ var saveModel = function(state) {
 
     cancelButton.addEventListener("click", function(e) {
         e.preventDefault();
-        console.log("Cancelled");
         document.body.removeChild(blackout);
     });
 
@@ -198,8 +196,6 @@ var saveModel = function(state) {
             state.loadedModel.setSyncId(id);
             state.loadedModel.name = name;
             modelLayer.select(state.loadedModel);
-
-            console.log(state.loadedModel);
 
             menuBuilder.updateAll();
         });
