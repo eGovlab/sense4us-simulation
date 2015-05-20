@@ -35,17 +35,19 @@ NetworkLayer.prototype = {
 
         httpRequest.onreadystatechange = function() {
             if (httpRequest.readyState === 4) {
-              if (httpRequest.status === 200) {
-                if(callback) {
-                    callback(JSON.parse(httpRequest.responseText));
-                } else {
-                    console.log("No callback was sent with the query against " + path);
+                var rt = JSON.parse(httpRequest.responseText);
+                console.log(rt);
+                if (httpRequest.status === 200) {
+                    if(callback) {
+                        callback(rt);
+                    } else {
+                        console.log("No callback was sent with the query against " + path);
+                    }
+
+                    } else {
+                       callback(rt, {status: httpRequest.status});
+                    }
                 }
-                
-              } else {
-                callback(JSON.parse(httpRequest.responseText), {status: httpRequest.status});
-              }
-            }
         };
 
         if(!method) {
