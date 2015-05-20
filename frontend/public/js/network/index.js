@@ -43,8 +43,7 @@ NetworkLayer.prototype = {
                 }
                 
               } else {
-                callback(undefined, {status: httpRequest.status});
-                console.log(JSON.parse(httpRequest.responseText));
+                callback(JSON.parse(httpRequest.responseText), {status: httpRequest.status});
               }
             }
         };

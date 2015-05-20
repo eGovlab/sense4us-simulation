@@ -8,7 +8,7 @@ var generateId = require('./generate_id.js');
 
 var main_canvas = canvas(document.getElementById('canvas'), document.getElementById('container'));
 
-var draw_selected_menu = curry(require('./selected_menu.js'), document.getElementById('menu_container'));
+var draw_selected_menu = curry(require('./selected_menu.js'), document.getElementById('sidebar'));
 var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getContext('2d'), linker);
 var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
 var modelLayer = require("./model-layer.js");
@@ -179,7 +179,7 @@ function _refresh() {
     if(modelLayer.selected !== loadedModel) {
         loadedModel = modelLayer.selected;
     }
-    
+
     context.clearRect(0, 0, main_canvas.width, main_canvas.height);
 
     //console.log(loadedModel.links.toJSON());
