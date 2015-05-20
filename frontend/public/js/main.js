@@ -14,7 +14,6 @@ var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext
 var modelLayer = require("./model-layer.js");
 
 var network = require('./network');
-network.setDomain("localhost:3000");
 
 var selected_menu = null,
     loadedModel   = null,
