@@ -9,8 +9,6 @@ function ModelLayer() {
         throw new Error("ModelLayer called as a generic method.");
     }
 
-    this.localIds = 0;
-
     this.localModels = [];
     this.models = {};
     this.selected = null;
@@ -21,11 +19,63 @@ ModelLayer.prototype = {
 
     },
 
+    deleteModel: function(model) {
+        if(model && model instanceof Model) {
+            this.localModels = this.localModels.filter(function(m) {
+                if(model.id === m.id) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if(this.models[model.id]) {
+                this.models[model.id] = null;
+            }
+        } else if(model && (typeof model === "number" || typeof model === "string")) {
+            if(typeof model === "string") {
+                var check = model.match(/^local:(\d+)$/);
+                if(isNaN(parseInt(model)) && check !== null) {
+                    model = check[1];
+                } else if(!isNaN(parseInt(model))) {
+                    model = parseInt(model);
+                } else {
+                    throw new Error("Invalid ID given to deleteModel.");
+                }
+            }
+
+            this.localModels = this.localModels.filter(function(m) {
+                if(model === m.id) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if(this.models[model]) {
+                this.models[model] = null;
+            }
+        }
+
+        this.localModels = this.localModels.map(function(m, i) {
+            m.id = i;
+            return m;
+        });
+    },
+
+    reselect: function() {
+        if(this.localModels.length > 0) {
+            this.select(this.localModels[0]);
+        } else {
+            var m = this.createModel();
+            this.select(m);
+        }
+    },
+
     createModel: function() {
         var model = new Model();
 
-        model.setId(this.localIds);
-        this.localIds += 1;
+        model.setId(this.localModels.length);
 
         this.localModels.push(model);
 
@@ -112,6 +162,7 @@ ModelLayer.prototype = {
         } else if(typeof model === "string") {
             var check = model.match(/^local:(\d+)$/);
             if(isNaN(parseInt(model)) && check !== null) {
+                console.log(this.localModels);
                 return this.select(this.localModels[parseInt(check[1])]);
             } else if(parseInt(model) !== null) {
                 this.loadSyncModel(this.models[model], state);
@@ -119,6 +170,8 @@ ModelLayer.prototype = {
             } else {
                 throw new Error("Invalid param given to modelLayer.select");
             }
+        } else {
+            throw new Error("Invalid param given to modelLayer.select");
         }
 
         return model;

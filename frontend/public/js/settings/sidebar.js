@@ -207,6 +207,26 @@ var saveModel = function(state) {
     blackout.appendChild(saveForm);
 };
 
+var deleteModel = function(state) {
+    if(state.loadedModel.synced) {
+        network.deleteData("/models/" + state.loadedModel.syncId, {}, function(response, err) {
+            if(err) {
+                console.log(err);
+                return;
+            }
+
+            modelLayer.reselect();
+            menuBuilder.updateAll();
+            state.refresh();
+        });
+    } else {
+        modelLayer.deleteModel(state.loadedModel);
+        modelLayer.reselect();
+        menuBuilder.updateAll();
+        state.refresh();
+    }
+};
+
 var simulate = function(state) {
     var timestep = parseInt(document.getElementById("timelag").value);
     if(isNaN(timestep)) {
@@ -264,6 +284,11 @@ var modelSidebar = {
         {
             header: "Save",
             callback: saveModel
+        },
+
+        {
+            header: "Delete",
+            callback: deleteModel
         }
     ]
 };

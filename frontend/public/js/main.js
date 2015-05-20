@@ -176,6 +176,10 @@ var aggregatedLink = require('./aggregated_link.js');
 
 
 function _refresh() {
+    if(modelLayer.selected !== loadedModel) {
+        loadedModel = modelLayer.selected;
+    }
+    
     context.clearRect(0, 0, main_canvas.width, main_canvas.height);
 
     //console.log(loadedModel.links.toJSON());
