@@ -199,7 +199,7 @@ ModelLayer.prototype = {
                 loadedModel.setData(Immutable.Map({
                     id: node.id,
                     value: node.starting_value,
-                    relativeChange: 0,
+                    relativeChange: node.change_value || 0,
                     simulateChange: 0,
                     type: node.type
                 }));
