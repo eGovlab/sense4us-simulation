@@ -1,28 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>
-		Sense4us Simulator
-	</title>
-	<link rel="stylesheet" href="/css/shorthands.css" />
-	<link rel="stylesheet" href="/css/z-index.css" />
-	<link rel="stylesheet" href="/css/upper-menu.css" />
-	<link rel="stylesheet" href="/css/sidebar.css" />
-	<link rel="stylesheet" href="/css/dropdown.css" />
-	<link rel="stylesheet" href="/css/notification-bar.css" />
-	<link rel="stylesheet" href="/css/save.css" />
-	<link rel="stylesheet" href="/css/style.css" />
+    <title>
+        Sense4us Simulator
+    </title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/shorthands.css" />
+    <link rel="stylesheet" href="/css/z-index.css" />
+    <link rel="stylesheet" href="/css/upper-menu.css" />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/dropdown.css" />
+    <link rel="stylesheet" href="/css/notification-bar.css" />
+    <link rel="stylesheet" href="/css/save.css" />
 </head>
 <body>
-	<div id="sidebar"></div>
-	<div id="upper-menu"></div>
-	<div id="notification-bar"></div>
+    <div class="container">
+        <div class="header">
+            <h3>Hello, world!</h3>
+            <input type="button" value="Button" />
+            <input type="button" value="Button" />
+            <input type="button" value="Button" />
+            <input type="button" value="Button" />
+            <input type="button" value="Button" />
+        </div>
 
-	<div id="container">
-		<canvas id="canvas"></canvas>
-	</div>
+        <div class="menu-header">
+            <div id="upper-menu"></div>
+        </div>
+        
+        <div class="left sidebar">
+            <div id="sidebar"></div>
+        </div>
 
-	<div style="clear: left"></div>
-	<script src="/js/bundle.js"></script>
+        <div class="left main">
+            <div id="notification-bar"></div>
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <script src="/js/bundle.js"></script>
 </body>
 </html>

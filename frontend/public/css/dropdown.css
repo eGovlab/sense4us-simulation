@@ -1,5 +1,5 @@
 .s4u-dropdown {
-    float: left;
+    display: inline-block;
     width: 200px;
     cursor: pointer;
     background-color: #3fb2bb;
@@ -27,9 +27,9 @@
 .s4u-dropdown .s4u-dropdown-container div {
     padding: 8px 0px;
     border-top: ;
-    background-color: #2a8888;
+    background-color: rgba(42, 136, 136, 0.5);
 }
 
 .s4u-dropdown .s4u-dropdown-container div:hover {
-    background-color: #3a9999;
+    background-color: rgba(58, 153, 153, 0.5);
 }

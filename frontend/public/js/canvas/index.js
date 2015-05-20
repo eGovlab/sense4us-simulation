@@ -1,10 +1,25 @@
 'use strict';
 
-module.exports = function(canvas, container) {
-		container.style.width = (document.body.clientWidth - 180).toString() + 'px';
+module.exports = function(canvas, refresh) {
+        var parent = canvas.parentElement;
+        if(parent !== null) {
+            canvas.width  = parent.offsetWidth;
+            canvas.height = parent.offsetHeight;
 
-		canvas.width = container.offsetWidth;
-		canvas.height = container.offsetHeight;
+            var timer = null;
+            window.addEventListener("resize", function() {
+                if(timer !== null) {
+                    clearTimeout(timer);
+                }
+
+                timer = setTimeout(function() {
+                    canvas.width  = parent.offsetWidth;
+                    canvas.height = parent.offsetHeight;
+
+                    refresh();
+                }, 500);
+            });
+        }
 
 		canvas.onmousedown = function(event){
 			event.preventDefault();

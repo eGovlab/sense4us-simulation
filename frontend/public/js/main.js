@@ -6,7 +6,7 @@ var canvas = require('./canvas/');
 var linker = require('./linker.js');
 var generateId = require('./generate_id.js');
 
-var main_canvas = canvas(document.getElementById('canvas'), document.getElementById('container'));
+var main_canvas = canvas(document.getElementById('canvas'), refresh);
 
 var draw_selected_menu = curry(require('./selected_menu.js'), document.getElementById('sidebar'));
 var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getContext('2d'), linker);

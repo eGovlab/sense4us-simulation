@@ -19,6 +19,7 @@ Settings.prototype = {
         network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
 
         notificationBar.setContainer(document.getElementById("notification-bar"));
+        notificationBar.notify("Initialized.");
 
         menuLayer.setSidebarContainer(sidebar);
         menuLayer.setMenuContainer(menu);

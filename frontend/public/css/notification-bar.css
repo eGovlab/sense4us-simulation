@@ -11,8 +11,7 @@
 #notification-bar {
     position: absolute;
     width: 200px;
-    left: 200px;
-    top: 43px;
+    margin-left: 20px;
 }
 
 #notification-bar div {

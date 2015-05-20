@@ -123,9 +123,9 @@ var saveModel = function(state) {
             if(err) {
                 console.log(response);
                 return;
-
-                notificationBar.notify("Model["+state.loadedModel.name+"] saved.");
             }
+
+            notificationBar.notify("Model["+state.loadedModel.name+"] saved.");
         });
         return;
     }
@@ -243,7 +243,7 @@ var simulate = function(state) {
     var data = {
         timestep: timestep,
         nodes: breakout.nodes(state),
-        links: state.loadedModel.links.toJSON()
+        links: breakout.links(state)
     };
 
     network.postData("/models/simulate", data, function(response, err) {

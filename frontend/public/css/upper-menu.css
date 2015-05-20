@@ -1,27 +1,28 @@
+#upper-menu {
+    display: inline-block;
+}
+
 #upper-menu .menu .button {
     color: #fff;
     padding: 13px 20px 13px;
     background-color: #3fb2bb;
     border: none;
-    float: left;
     width: 200px;
     border-left: 1px solid rgba(0,0,0,0.55);
     text-decoration: none;
     font-weight: bold;
     text-shadow: 0 0px 4px rgba(0,0,0,0.55);
+    font-size: 14px;
 }
 
 #upper-menu h2 {
-    float: left;
-    display: block;
+    display: inline-block;
     margin: 0px;
-    padding: 0px;
     padding: 7px 20px 7px;
     color: #FFFFFF;
 }
 
 #upper-menu select {
-    float: left;
     width: 200px;
     padding: 13px 20px 13px;
 }
