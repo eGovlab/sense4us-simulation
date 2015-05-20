@@ -162,7 +162,6 @@ ModelLayer.prototype = {
         } else if(typeof model === "string") {
             var check = model.match(/^local:(\d+)$/);
             if(isNaN(parseInt(model)) && check !== null) {
-                console.log(this.localModels);
                 return this.select(this.localModels[parseInt(check[1])]);
             } else if(parseInt(model) !== null) {
                 this.loadSyncModel(this.models[model], state);
