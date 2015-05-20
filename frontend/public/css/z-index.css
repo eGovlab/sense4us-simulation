@@ -1,0 +1,7 @@
+#notification-bar {
+    z-index: 1;
+}
+
+.s4u-dropdown .s4u-dropdown-container {
+    z-index: 2;
+}

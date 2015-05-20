@@ -1,0 +1,31 @@
+@-webkit-keyframes NOTIFY_FADEIN {
+    0%   {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@-webkit-keyframes NOTIFY_FADEOUT {
+    0%   {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+#notification-bar {
+    position: absolute;
+    width: 200px;
+    left: 200px;
+    top: 43px;
+}
+
+#notification-bar div {
+    background-color: #205060;
+    border: solid 1px #202020;
+    color: #fafafa;
+    text-align: center;
+}
+
+#notification-bar .fade-in {
+    -webkit-animation: NOTIFY_FADEIN 1s 1;
+}
+
+#notification-bar .fade-out {
+    -webkit-animation: NOTIFY_FADEOUT 1s 1;
+}

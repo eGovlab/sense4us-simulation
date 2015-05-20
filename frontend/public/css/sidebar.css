@@ -1,4 +1,4 @@
-#menu_container {
+#sidebar {
     float: left;
     height: inherit;
     width: 180px;
@@ -10,7 +10,7 @@
     margin: 0;
 }
 
-#menu_container .menu button {
+#sidebar .menu button {
     background-color: #3fb2bb;
 
     width: 100%;

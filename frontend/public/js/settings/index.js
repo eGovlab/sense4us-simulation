@@ -1,10 +1,11 @@
 'use strict';
 
-var menuLayer = require('./menu-layer.js'),
-    menus     = require('./menu.js'),
-    sidebars  = require('./sidebar.js'),
-    CONFIG    = require('rh_config-parser'),
-    network   = require('./../network');
+var menuLayer       = require('./menu-layer.js'),
+    menus           = require('./menu.js'),
+    sidebars        = require('./sidebar.js'),
+    CONFIG          = require('rh_config-parser'),
+    network         = require('./../network'),
+    notificationBar = require('./../notification_bar');
 
 function Settings() {
     if(!(this instanceof Settings)) {
@@ -16,6 +17,8 @@ Settings.prototype = {
     initialize: function(sidebar, menu, state) {
         CONFIG.setConfig(require('./config.js'));
         network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
+
+        notificationBar.setContainer(document.getElementById("notification-bar"));
 
         menuLayer.setSidebarContainer(sidebar);
         menuLayer.setMenuContainer(menu);

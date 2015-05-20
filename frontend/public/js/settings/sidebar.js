@@ -1,9 +1,10 @@
 'use strict';
 
-var breakout    = require("./../breakout.js"),
-    network     = require("./../network"),
-    menuBuilder = require("./../menu_builder"),
-    modelLayer  = require("./../model-layer.js");
+var breakout        = require("./../breakout.js"),
+    network         = require("./../network"),
+    menuBuilder     = require("./../menu_builder"),
+    modelLayer      = require("./../model-layer.js"),
+    notificationBar = require("./../notification_bar");
 
 /*
 ** createNode
@@ -122,6 +123,8 @@ var saveModel = function(state) {
             if(err) {
                 console.log(response);
                 return;
+
+                notificationBar.notify("Model["+state.loadedModel.name+"] saved.");
             }
         });
         return;
@@ -192,6 +195,7 @@ var saveModel = function(state) {
             var id = response.response.id;
             var name = response.response.name;
 
+            notificationBar.notify("Model["+name+"] saved.");
             state.loadedModel.synced = true;
             state.loadedModel.setSyncId(id);
             state.loadedModel.name = name;
@@ -215,11 +219,14 @@ var deleteModel = function(state) {
                 return;
             }
 
+            notificationBar.notify("Model["+state.loadedModel.name+"] deleted.");
+            modelLayer.deleteModel(state.loadedModel);
             modelLayer.reselect();
             menuBuilder.updateAll();
             state.refresh();
         });
     } else {
+        notificationBar.notify("Model["+state.loadedModel.getId()+"] deleted.");
         modelLayer.deleteModel(state.loadedModel);
         modelLayer.reselect();
         menuBuilder.updateAll();

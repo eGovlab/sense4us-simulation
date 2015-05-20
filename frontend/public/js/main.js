@@ -28,8 +28,8 @@ draw_node = curry(draw_node, main_canvas.getContext('2d'));
 
 var settings = require("./settings");
 settings.initialize(
-    document.getElementById("menu_container"),
-    document.getElementById("upper_menu"),
+    document.getElementById("sidebar"),
+    document.getElementById("upper-menu"),
     function() {
         var obj = {};
 
