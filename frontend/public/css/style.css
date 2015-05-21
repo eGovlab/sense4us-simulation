@@ -28,7 +28,7 @@ body {
 	border-top-left-radius: 4px;
 	background-color: #2b3846;
 	height: 100%;
-	overflow: scroll;
+	overflow: auto;
 }
 
 .container > .header,
