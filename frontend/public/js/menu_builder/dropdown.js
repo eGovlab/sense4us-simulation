@@ -1,11 +1,13 @@
 'use strict';
 
-function Option() {
+function Option(parent) {
     if (!(this instanceof Option)) {
         throw new Error('Option accessed as generic method.');
     }
 
-    this.element = document.createElement('div');
+    this.element  = document.createElement('div');
+    this.callback = null;
+    this.parent   = parent;
 }
 
 Option.prototype = {
@@ -22,37 +24,57 @@ Option.prototype = {
     setId: function(id) {
         this.id = id;
         this.element.setAttribute('data-id', id);
+    },
+
+    setCallback: function(callback) {
+        this.callback = callback;
+    },
+
+    select: function() {
+        this.element.className = "s4u-dropdown-selected";
+    },
+
+    deselect: function() {
+        this.element.className = "";
     }
 };
 
-function Dropdown(onselect, update) {
+function Dropdown(header, onselect, update) {
     if (!(this instanceof Dropdown)) {
         throw new Error('Dropdown accessed as generic method.');
     }
 
     this.element         = document.createElement('div');
-    this.selectedElement = document.createElement('h4');
+    this.headerElement   = document.createElement('h4');
     this.container       = document.createElement('div');
 
-    this.selectedElement.className = 's4u-dropdown-selected';
+    this.headerElement.className = 's4u-dropdown-header';
     this.container.className = 's4u-dropdown-container';
     this.container.style.display = 'none';
 
-    this.element.appendChild(this.selectedElement);
+    this.element.appendChild(this.headerElement);
     this.element.appendChild(this.container);
 
     this.element.className = 's4u-dropdown';
     var that = this;
+    this.element.addEventListener('mouseenter', function(e) {
+        that.toggle();
+    });
+
     this.element.addEventListener('click', function(e) {
-        if (e.target.tagName.toLowerCase() === 'h4') {
-            that.toggle();
-        } else {
+        if (e.target.tagName.toLowerCase() !== 'h4') {
             var option = that.options[e.target.getAttribute('data-id')];
             option.update = function(){that.update.call(that)};
             that.onselect.call(option);
-            that.toggle();
         }
     });
+
+    this.element.addEventListener('mouseleave', function(e) {
+        that.toggle();
+    });
+
+    this.header = header;
+    this.headerElement.innerHTML = this.header;
 
     this.options  = [];
     this.occupied = {};
@@ -65,16 +87,21 @@ function Dropdown(onselect, update) {
 }
 
 Dropdown.prototype = {
-    addOption: function(value, text) {
+    addOption: function(value, text, callback) {
         if (this.occupied[value]) {
             return;
         }
 
-        var newOption = new Option();
+        var newOption = new Option(this);
         newOption.setValue(value);
         newOption.setText(text);
 
         newOption.setId(this.options.length);
+
+        if(callback && typeof callback === 'function') {
+            newOption.setCallback(callback);
+        }
+
         this.options.push(newOption);
         this.occupied[value] = this.options.length;
     },
@@ -96,20 +123,36 @@ Dropdown.prototype = {
 
     select: function(id) {
         if (id === undefined) {
+            if(this.selected) {
+                this.selected.deselect();
+            }
+            
             this.selected = this.options[this.options.length - 1];
-            this.selectedElement.innerHTML = this.selected.text;
+            this.selected.select();
+            //this.headerElement.innerHTML = this.selected.text;
         } else if (typeof id === 'number') {
+            if(this.selected) {
+                this.selected.deselect();
+            }
+
             this.selected = this.options[id];
-            this.selectedElement.innerHTML = this.selected.text;
+            this.selected.select();
+            //this.headerElement.innerHTML = this.selected.text;
         }
     },
 
     toggle: function() {
         if (this.container.style.display === 'none') {
             this.container.style.display = 'block';
+            this.container.className += " s4u-dropdown-container-animation";
         } else {
             this.container.style.display = 'none';
+            this.container.className = "s4u-dropdown-container";
         }
+    },
+
+    visible: function() {
+        return this.container.style.display === 'block';
     }
 };
 

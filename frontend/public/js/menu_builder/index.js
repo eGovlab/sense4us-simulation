@@ -35,7 +35,7 @@ MenuBuilder.prototype = {
     },
 
     dropdown: function(text, callback, update) {
-        var select = new Dropdown(callback, update);
+        var select = new Dropdown(text, callback, update);
         this.refreshable.push(select);
         return select.element;
     },

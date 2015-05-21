@@ -1,28 +1,55 @@
 #upper-menu {
     display: inline-block;
+    height: inherit;
+}
+
+#upper-menu > .menu {
+    height: inherit;
+}
+
+#upper-menu .menu > .button,
+#upper-menu .menu > h2,
+#upper-menu .menu > select,
+#upper-menu .menu > div {
+    float: left;
 }
 
 #upper-menu .menu .button {
-    color: #fff;
+    color: #90a0a0;
     padding: 13px 20px 13px;
-    background-color: #3fb2bb;
+
+    background-color: inherit;
+    
     border: none;
     width: 200px;
-    border-left: 1px solid rgba(0,0,0,0.55);
+    /*border-left: 1px solid rgba(0,0,0,0.55);*/
     text-decoration: none;
     font-weight: bold;
     text-shadow: 0 0px 4px rgba(0,0,0,0.55);
     font-size: 14px;
 }
 
+#upper-menu .menu .button:hover {
+    background-color: rgba(22, 100, 114, 1);
+    color: #fafafa;
+    
+    -webkit-animation: MENU_FADEIN 0.5s 1;
+}
+
 #upper-menu h2 {
-    display: inline-block;
-    margin: 0px;
+    background-color: inherit;
+
     padding: 7px 20px 7px;
+    font-size: 24px;
+
+    margin: 0px;
+
     color: #FFFFFF;
 }
 
 #upper-menu select {
+    display: block;
+
     width: 200px;
     padding: 13px 20px 13px;
 }

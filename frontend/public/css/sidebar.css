@@ -7,22 +7,33 @@
     margin: 0;
 }
 
-#sidebar .menu button {
-    background-color: #3fb2bb;
+#sidebar .menu > button {
+    border: none;
+    background-color: inherit;
+
+    text-align: left;
 
     width: 100%;
     padding: 0;
     margin: 0;
 
     outline: none;
-    border: none;
     padding: 13px 20px 13px;
-    color: #fff;
+    
+    color: #90a0a0;
     text-decoration: none;
     font-weight: bold;
     text-shadow: 0 0px 4px rgba(0,0,0,0.55);
-    border-bottom: 1px solid rgba(0,0,0,0.55);
+
     cursor: pointer;
+}
+
+#sidebar .menu > button:hover {
+    background-color: rgba(22, 100, 114, 1);
+    color: #fafafa;
+    -webkit-animation: MENU_FADEIN 0.5s 1;
+    -moz-animation:    MENU_FADEIN 0.5s 1;
+    animation:         MENU_FADEIN 0.5s 1;
 }
 
 #sidebar .menu {

@@ -29,22 +29,30 @@ body {
 	overflow: scroll;
 }
 
+.container > .header,
+.container > .menu-header {
+	height: 42px;
+	margin-bottom: 2px;
+}
+
+.container > .menu-header {
+	height: 20px;
+}
+
 .container .header {
 	background-color: #E3D120;	
-	margin-bottom: 8px;
 	color: #202020;
 }
 
 .container .header * {
 	display: inline-block;
-	padding: 12px 8px;
+	padding: 10px 8px;
 	margin: 0;
 
 	font-size: 18px;
 }
 
 .container .menu-header {
-	margin-bottom: 8px;	
 }
 
 .container .header h3 {
