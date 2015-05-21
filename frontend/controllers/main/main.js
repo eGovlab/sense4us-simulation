@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 
-var FEController = require("rh_fe-controller");
+var FEController = require('rh_fe-controller');
 
 function Main() {
     this.getRoutes = function() {
         return [
-            {path: "/", fp: this.root, root:true}
+            {path: '/', fp: this.root, root:true}
         ];
     };
 
     this.root = function(req, res, next) {
-        this.render(res, "main");
+        this.render(res, 'main');
     }
 }
 

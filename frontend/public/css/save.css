@@ -12,6 +12,8 @@
     -webkit-animation: fadeIn 0.2s ease-in 1;
     background-color: rgba(0,0,0,0.4);
     text-align: center;
+
+    color: #fafafa;
 }
 
 .save-form {

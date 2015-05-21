@@ -1,29 +1,29 @@
 'use strict';
 
 module.exports = function(canvas, refresh) {
-        var parent = canvas.parentElement;
-        if(parent !== null) {
-            canvas.width  = parent.offsetWidth;
-            canvas.height = parent.offsetHeight;
+    var parent = canvas.parentElement;
+    if (parent !== null) {
+        canvas.width  = parent.offsetWidth;
+        canvas.height = parent.offsetHeight;
 
-            var timer = null;
-            window.addEventListener("resize", function() {
-                if(timer !== null) {
-                    clearTimeout(timer);
-                }
+        var timer = null;
+        window.addEventListener('resize', function() {
+            if (timer !== null) {
+                clearTimeout(timer);
+            }
 
-                timer = setTimeout(function() {
-                    canvas.width  = parent.offsetWidth;
-                    canvas.height = parent.offsetHeight;
+            timer = setTimeout(function() {
+                canvas.width  = parent.offsetWidth;
+                canvas.height = parent.offsetHeight;
 
-                    refresh();
-                }, 500);
-            });
-        }
+                refresh();
+            }, 500);
+        });
+    }
 
-		canvas.onmousedown = function(event){
-			event.preventDefault();
-		};
+	canvas.onmousedown = function(event){
+		event.preventDefault();
+	};
 
-		return canvas;
+	return canvas;
 };

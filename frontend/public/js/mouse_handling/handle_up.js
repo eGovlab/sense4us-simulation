@@ -36,7 +36,7 @@ function link(data) {
 					node1: node.get('id'),
 					node2: collided.get('id'),
 					coefficient: 1,
-					type: "fullchannel",
+					type: 'fullchannel',
 					timelag: 0,
 					width: 14
 				}));

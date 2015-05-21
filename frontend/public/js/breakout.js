@@ -7,7 +7,7 @@ module.exports = {
             allNodes = [];
 
         Object.keys(dd).forEach(function(_dd_id) {
-            if(!dg[_dd_id]) {
+            if (!dg[_dd_id]) {
                 return;
             }
 

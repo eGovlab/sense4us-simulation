@@ -1,6 +1,6 @@
 'use strict';
 
-var menuLayer       = require('./menu-layer.js'),
+var menuLayer       = require('./menu_layer.js'),
     menus           = require('./menu.js'),
     sidebars        = require('./sidebar.js'),
     CONFIG          = require('rh_config-parser'),
@@ -8,7 +8,7 @@ var menuLayer       = require('./menu-layer.js'),
     notificationBar = require('./../notification_bar');
 
 function Settings() {
-    if(!(this instanceof Settings)) {
+    if (!(this instanceof Settings)) {
         throw new Error('Accessing Settings as a generic method.');
     }
 }
@@ -18,8 +18,8 @@ Settings.prototype = {
         CONFIG.setConfig(require('./config.js'));
         network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
 
-        notificationBar.setContainer(document.getElementById("notification-bar"));
-        notificationBar.notify("Initialized.");
+        notificationBar.setContainer(document.getElementById('notification-bar'));
+        notificationBar.notify('Initialized.');
 
         menuLayer.setSidebarContainer(sidebar);
         menuLayer.setMenuContainer(menu);
@@ -28,7 +28,7 @@ Settings.prototype = {
 
         sidebars.forEach(function(sidebar, index) {
             sidebar.menu = sidebar.menu.map(function(menu) {
-                if(menu.callback && typeof menu.callback === 'function') {
+                if (menu.callback && typeof menu.callback === 'function') {
                     var cbClone = menu.callback;
                     menu.callback = function(e) {
                         cbClone.call(this, state, e);
@@ -41,21 +41,21 @@ Settings.prototype = {
             sidebar.name = sidebar.name.toUpperCase();
 
             menuLayer.createSidebar.apply(menuLayer, [sidebar.name].concat(sidebar.menu));
-            if(index === 0) {
+            if (index === 0) {
                 menuLayer.activateSidebar(sidebar.name);
             }
         });
 
         menus.forEach(function(menu) {
             menu = menu.map(function(button) {
-                if(button.callback && typeof button.callback === 'function') {
+                if (button.callback && typeof button.callback === 'function') {
                     var cbClone = button.callback;
                     button.callback = function(e) {
                         cbClone.call(this, state, e);
                     }
                 }
 
-                if(button.update && typeof button.update === 'function') {
+                if (button.update && typeof button.update === 'function') {
                     var upClone = button.update;
                     button.update = function(e) {
                         upClone.call(this, state, e);

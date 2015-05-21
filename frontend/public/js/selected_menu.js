@@ -2,25 +2,30 @@
 
 var menuBuilder = require('./menu_builder');
 
-var draw_selected_menu = function(container, menu, map, changeCallback) {
-	var create_menu = function(map) {
-		var menu = menuBuilder.div();
-		menu.className = 'menu';
+var createMenu = function(map, callback) {
+	var menu = menuBuilder.div();
+	menu.className = 'menu';
 
-		map.forEach(function(value, key) {
-			var p = menuBuilder.p();
-			p.appendChild(menuBuilder.label(key + ': '));
-			var input = menuBuilder.input(key, value, function(value, key) {
-				changeCallback(map.set(key, value));
-			});
+	map.forEach(function(value, key) {
+		var p = menuBuilder.p(),
+			labelDiv = menuBuilder.div(),
+			inputDiv = menuBuilder.div();
 
-			p.appendChild(input);
-			menu.appendChild(p);
-		});
+		labelDiv.appendChild(menuBuilder.label(key));
+		inputDiv.appendChild(menuBuilder.input(key, value, function(inputValue, inputKey) {
+			callback(map.set(inputKey, inputValue));
+		}));
 
-		return menu;
-	};
+		p.appendChild(labelDiv);
+		p.appendChild(inputDiv);
 
+		menu.appendChild(p);
+	});
+
+	return menu;
+};
+
+var drawSelectedMenu = function(container, menu, map, changeCallback) {
 	if (map === null || map === undefined) {
 		if (menu !== null) {
 			container.removeChild(menu);
@@ -30,7 +35,7 @@ var draw_selected_menu = function(container, menu, map, changeCallback) {
 	}
 
 	if (menu === null) {
-		menu = create_menu(map);
+		menu = createMenu(map, changeCallback);
 		menu.map_obj = map;
 
 		container.appendChild(menu);
@@ -40,7 +45,7 @@ var draw_selected_menu = function(container, menu, map, changeCallback) {
 
 	if (menu.map_obj !== map) {
 		container.removeChild(menu);
-		menu = create_menu(map);
+		menu = createMenu(map, changeCallback);
 		container.appendChild(menu);
 		menu.map_obj = map;
 
@@ -50,4 +55,4 @@ var draw_selected_menu = function(container, menu, map, changeCallback) {
 	return menu;
 };
 
-module.exports = draw_selected_menu;
+module.exports = drawSelectedMenu;

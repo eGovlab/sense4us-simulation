@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
 function NetworkLayer() {
-    if(!(this instanceof NetworkLayer)) {
-        throw new Error("Calling NetworkLayer as a generic method.");
+    if (!(this instanceof NetworkLayer)) {
+        throw new Error('Calling NetworkLayer as a generic method.');
     }
 }
 
@@ -13,22 +13,22 @@ NetworkLayer.prototype = {
         var requestPath;
 
         domain = this.breakOutDomain(path);
-        if(typeof domain === "string") {
-            if(!this.requestString) {
-                throw new Error("Gave entrypoint to sendData and no domain is set. Use .setDomain or give full domain to sendData.");
+        if (typeof domain === 'string') {
+            if (!this.requestString) {
+                throw new Error('Gave entrypoint to sendData and no domain is set. Use .setDomain or give full domain to sendData.');
             }
 
             requestPath = this.requestString + domain;
         } else {
-            var requestString = domain.protocol + "://" + domain.domain;
-            if((domain.protocol !== "http" || domain.port !== 80) && (domain.protocol !== "https" || domain.port !== 443)) {
-                requestString += ":" + domain.port;
+            var requestString = domain.protocol + '://' + domain.domain;
+            if ((domain.protocol !== 'http' || domain.port !== 80) && (domain.protocol !== 'https' || domain.port !== 443)) {
+                requestString += ':' + domain.port;
             }
 
             requestPath = requestString + domain.path;
         }
 
-        if(!httpRequest) {
+        if (!httpRequest) {
           console.log('Giving up :( Cannot create an XMLHTTP instance');
           return false;
         }
@@ -38,10 +38,10 @@ NetworkLayer.prototype = {
                 var rt = JSON.parse(httpRequest.responseText);
                 console.log(rt);
                 if (httpRequest.status === 200) {
-                    if(callback) {
+                    if (callback) {
                         callback(rt);
                     } else {
-                        console.log("No callback was sent with the query against " + path);
+                        console.log('No callback was sent with the query against ' + path);
                     }
 
                     } else {
@@ -50,11 +50,11 @@ NetworkLayer.prototype = {
                 }
         };
 
-        if(!method) {
-            if(jsonData) {
-                method = "POST";
+        if (!method) {
+            if (jsonData) {
+                method = 'POST';
             } else {
-                method = "GET";
+                method = 'GET';
             }
         }
 
@@ -66,7 +66,7 @@ NetworkLayer.prototype = {
         httpRequest.open(method, requestPath);
         httpRequest.setRequestHeader('Content-Type', 'application/json');
         //var params = this.generateParams(jsonData);
-        if(jsonData) {
+        if (jsonData) {
             httpRequest.send(JSON.stringify(jsonData, null, 4));
         } else {
             httpRequest.send();
@@ -74,48 +74,48 @@ NetworkLayer.prototype = {
     },
 
     getData: function(path, callback, domain, port) {
-        this.sendData(path, false, callback, "GET", domain, port);
+        this.sendData(path, false, callback, 'GET', domain, port);
     },
 
     postData: function(path, jsonData, callback, domain, port) {
-        this.sendData(path, jsonData, callback, "POST", domain, port);  
+        this.sendData(path, jsonData, callback, 'POST', domain, port);  
     },
 
     putData: function(path, jsonData, callback, domain, port) {
-        this.sendData(path, jsonData, callback, "PATCH", domain, port);
+        this.sendData(path, jsonData, callback, 'PATCH', domain, port);
     },
 
     deleteData: function(path, jsonData, callback, domain, port) {
-        this.sendData(path, jsonData, callback, "DELETE", domain, port);
+        this.sendData(path, jsonData, callback, 'DELETE', domain, port);
     },
 
     breakOutDomain: function(givenDomain) {
         var pathCheck = givenDomain.match(/^(http[s]?)?(:\/\/)?[\w\.]*\/(.*)$/);
-        if(pathCheck !== null) {
+        if (pathCheck !== null) {
             pathCheck = pathCheck[3];
         } else {
-            pathCheck = "";
+            pathCheck = '';
         }
 
         var check = givenDomain.match(/^(http[s]?):\/\/([a-zA-Z0-9\.]+)\/?.*$|^(http[s]?):\/\/([a-zA-Z0-9\.]+):(\d+)\/?.*$|^([a-zA-Z0-9\.]+):(\d+)\/?.*$|^([a-zA-Z0-9\.]+)\/?.*$/);
-        if(check === null && !pathCheck) {
-            throw new Error("breakOutDomain couldn't match given domain: " + givenDomain);
-        } else if(check === null && pathCheck) {
+        if (check === null && !pathCheck) {
+            throw new Error('breakOutDomain couldn\'t match given domain: ' + givenDomain);
+        } else if (check === null && pathCheck) {
             return pathCheck;
         }
 
         check = check.filter(function(ele, index) {
-            if(index === 0) {
+            if (index === 0) {
                 return false;
             }
 
             return ele;
         });
 
-        var protocol = "http",
-            domain   = "localhost",
+        var protocol = 'http',
+            domain   = 'localhost',
             port     = 80,
-            path     = "/" + pathCheck;
+            path     = '/' + pathCheck;
 
         switch(check.length) {
             case 1:
@@ -123,10 +123,10 @@ NetworkLayer.prototype = {
                 break;
             case 2:
                 check[0] = check[0].toLowerCase();
-                if(["http", "https"].indexOf(check[0]) > -1) {
+                if (['http', 'https'].indexOf(check[0]) > -1) {
                     protocol = check[0];
                     domain   = check[1];
-                    if(protocol === "https") {
+                    if (protocol === 'https') {
                         port = 443;
                     }
                 } else {
@@ -152,13 +152,13 @@ NetworkLayer.prototype = {
     setDomain: function(givenDomain) {
         var domain = this.breakOutDomain(givenDomain);
 
-        var requestString = domain.protocol + "://" + domain.domain;
-        if((domain.protocol !== "http" || domain.port !== 80) && (domain.protocol !== "https" || domain.port !== 443)) {
-            requestString += ":" + domain.port;
+        var requestString = domain.protocol + '://' + domain.domain;
+        if ((domain.protocol !== 'http' || domain.port !== 80) && (domain.protocol !== 'https' || domain.port !== 443)) {
+            requestString += ':' + domain.port;
         }
 
-        if(domain.path.charAt(domain.path.length - 1) !== "/") {
-            domain.path = domain.path + "/";
+        if (domain.path.charAt(domain.path.length - 1) !== '/') {
+            domain.path = domain.path + '/';
         }
 
         requestString += domain.path;

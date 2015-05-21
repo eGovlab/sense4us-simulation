@@ -1,49 +1,45 @@
 'use strict';
 
-var curry = require('./curry.js');
-var Immutable = require('Immutable');
-var canvas = require('./canvas/');
-var linker = require('./linker.js');
-var generateId = require('./generate_id.js');
+var curry      = require('./curry.js'),
+    Immutable  = require('Immutable'),
+    canvas     = require('./canvas/'),
+    linker     = require('./linker.js'),
+    generateId = require('./generate_id.js');
 
-var main_canvas = canvas(document.getElementById('canvas'), refresh);
+var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 
-var draw_selected_menu = curry(require('./selected_menu.js'), document.getElementById('sidebar'));
-var draw_linker = curry(require('./graphics/draw_linker.js'), main_canvas.getContext('2d'), linker);
-var draw_link = curry(require('./graphics/draw_link.js'), main_canvas.getContext('2d'));
-var modelLayer = require("./model-layer.js");
+var drawSelectedMenu = curry(require('./selected_menu.js'), document.getElementById('sidebar')),
+    drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
+    drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
+    modelLayer       = require('./model_layer.js');
 
 var network = require('./network');
 
-var selected_menu = null,
+var selectedMenu  = null,
     loadedModel   = null,
-    environment   = "model";
+    environment   = 'model';
 
-var draw_node = require('./graphics/draw_node.js');
-draw_node = curry(draw_node, main_canvas.getContext('2d'));
+var drawNode = require('./graphics/draw_node.js');
+    drawNode = curry(drawNode, mainCanvas.getContext('2d'));
 
-/*
-** Create the main menu
-*/
-
-var settings = require("./settings");
+var settings = require('./settings');
 settings.initialize(
-    document.getElementById("sidebar"),
-    document.getElementById("upper-menu"),
+    document.getElementById('sidebar'),
+    document.getElementById('upper-menu'),
     function() {
         var obj = {};
 
-        Object.defineProperty(obj, "selected_menu", {
+        Object.defineProperty(obj, 'selectedMenu', {
             get: function() {
-                return selected_menu;
+                return selectedMenu;
             },
 
             set: function(arg) {
-                selected_menu = arg;
+                selectedMenu = arg;
             }
         });
 
-        Object.defineProperty(obj, "loadedModel", {
+        Object.defineProperty(obj, 'loadedModel', {
             get: function() {
                 return loadedModel;
             },
@@ -53,7 +49,7 @@ settings.initialize(
             }
         });
 
-        Object.defineProperty(obj, "environment", {
+        Object.defineProperty(obj, 'environment', {
             get: function() {
                 return environment;
             },
@@ -63,7 +59,7 @@ settings.initialize(
             }
         });
 
-        Object.defineProperty(obj, "refresh", {
+        Object.defineProperty(obj, 'refresh', {
             get: function() {
                 return refresh;
             }
@@ -76,53 +72,53 @@ settings.initialize(
 window.Immutable = Immutable;
 window.collisions = require('./collisions.js');
 
-var context = main_canvas.getContext('2d');
+var context = mainCanvas.getContext('2d');
 
 var updateSelected = function(newSelected) {
-    if (newSelected.get("timelag") !== undefined && newSelected.get("coefficient") !== undefined) {
-        var coefficient = parseFloat(newSelected.get("coefficient")),
-            timelag     = parseInt(newSelected.get("timelag")),
-            type        = newSelected.get("type");
+    if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
+        var coefficient = parseFloat(newSelected.get('coefficient')),
+            timelag     = parseInt(newSelected.get('timelag')),
+            type        = newSelected.get('type');
 
-        if(isNaN(coefficient) || isNaN(timelag)) {
-            console.log("Coefficient:", newSelected.get("coefficient"));
-            console.log("Timelag:",     newSelected.get("timelag"));
+        if (isNaN(coefficient) || isNaN(timelag)) {
+            console.log('Coefficient:', newSelected.get('coefficient'));
+            console.log('Timelag:',     newSelected.get('timelag'));
             return;
         }
         
-        loadedModel.links = loadedModel.links.set(newSelected.get("id"),
-            loadedModel.links.get(newSelected.get("id")).merge(Immutable.Map({
-                    coefficient: newSelected.get("coefficient"),
-                    timelag:     newSelected.get("timelag"),
-                    type:        newSelected.get("type")
+        loadedModel.links = loadedModel.links.set(newSelected.get('id'),
+            loadedModel.links.get(newSelected.get('id')).merge(Immutable.Map({
+                    coefficient: newSelected.get('coefficient'),
+                    timelag:     newSelected.get('timelag'),
+                    type:        newSelected.get('type')
                 })
             )
         );
     } else {
-        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get("id"), 
-            loadedModel.nodeData.get(newSelected.get("id")).merge(Immutable.Map({
-                    id:             newSelected.get("id"),
-                    value:          newSelected.get("value"),
-                    relativeChange: newSelected.get("relativeChange")
+        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), 
+            loadedModel.nodeData.get(newSelected.get('id')).merge(Immutable.Map({
+                    id:             newSelected.get('id'),
+                    value:          newSelected.get('value'),
+                    relativeChange: newSelected.get('relativeChange')
                 })
             )
         );
 
-        loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get("id"), 
-            loadedModel.nodeGui.get(newSelected.get("id")).merge(Immutable.Map({
-                    radius: newSelected.get("radius"),
-                    avatar: newSelected.get("avatar"),
+        loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get('id'), 
+            loadedModel.nodeGui.get(newSelected.get('id')).merge(Immutable.Map({
+                    radius: newSelected.get('radius'),
+                    avatar: newSelected.get('avatar'),
                 })
             )
         );
-        /*loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get("id"),
-            loadedModel.nodeGui.get(newSelected.get("id")).merge(newSelected.map(function(node) {
+        /*loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get('id'),
+            loadedModel.nodeGui.get(newSelected.get('id')).merge(newSelected.map(function(node) {
                 return {
-                    radius: node.get("radius")
+                    radius: node.get('radius')
                 };
             }))
         );*/
-        //loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('value'), relativeChange: newSelected.get('relativeChange'), type: newSelected.get("type")}));
+        //loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('value'), relativeChange: newSelected.get('relativeChange'), type: newSelected.get('type')}));
         //loadedModel.nodeGui  = loadedModel.nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
     }
 
@@ -138,13 +134,13 @@ var fixInputForLink = function(link) {
     return link;
 };
 
-var dragHandler = require('./mechanics/drag_handler.js');
-var mouseDownWare = require('./mouse_handling/handle_down.js');
-var mouseMoveWare = require('./mouse_handling/handle_drag.js');
-var mouseUpWare = require('./mouse_handling/handle_up.js');
+var dragHandler   = require('./mechanics/drag_handler.js'),
+    mouseDownWare = require('./mouse_handling/handle_down.js'),
+    mouseMoveWare = require('./mouse_handling/handle_drag.js'),
+    mouseUpWare   = require('./mouse_handling/handle_up.js');
 
 dragHandler(
-    main_canvas,
+    mainCanvas,
     function mouseDown(pos) {
         var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
@@ -174,19 +170,16 @@ dragHandler(
 
 var aggregatedLink = require('./aggregated_link.js');
 
-
 function _refresh() {
-    if(modelLayer.selected !== loadedModel) {
+    if (modelLayer.selected !== loadedModel) {
         loadedModel = modelLayer.selected;
     }
 
-    context.clearRect(0, 0, main_canvas.width, main_canvas.height);
-
-    //console.log(loadedModel.links.toJSON());
+    context.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
 
     // draw the links
     loadedModel.links.forEach(function(link) {
-        draw_link(aggregatedLink(link, loadedModel.nodeGui));
+        drawLink(aggregatedLink(link, loadedModel.nodeGui));
     });
 
     // get all the selected objects
@@ -194,13 +187,13 @@ function _refresh() {
         .filter(function(node) { return loadedModel.nodeGui.get(node.get('id')).get('selected') === true; })
         .map(function(node) {
             return Immutable.Map({
-                id: node.get("id"),
-                value: node.get("value"),
-                relativeChange: node.get("relativeChange")
+                id: node.get('id'),
+                value: node.get('value'),
+                relativeChange: node.get('relativeChange')
             }).merge(
                 Immutable.Map({
-                        radius: loadedModel.nodeGui.get(node.get("id")).get("radius"),
-                        avatar: loadedModel.nodeGui.get(node.get("id")).get("avatar")
+                        radius: loadedModel.nodeGui.get(node.get('id')).get('radius'),
+                        avatar: loadedModel.nodeGui.get(node.get('id')).get('avatar')
                     })
             );
             
@@ -210,23 +203,23 @@ function _refresh() {
             loadedModel.links.filter(function(link) {return link.get('selected') === true;})
             .map(function(link) {
                 return Immutable.Map({
-                    id: link.get("id"),
-                    timelag: link.get("timelag"),
-                    coefficient: link.get("coefficient"),
-                    type: link.get("type"),
-                    node1: link.get("node1"),
-                    node2: link.get("node2")
+                    id: link.get('id'),
+                    timelag: link.get('timelag'),
+                    coefficient: link.get('coefficient'),
+                    type: link.get('type'),
+                    node1: link.get('node1'),
+                    node2: link.get('node2')
                 });
             })
         );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.nodeGui.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(draw_linker);
+    loadedModel.nodeGui.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
 
     // if we are currently linking, we want to draw the link we're creating
     loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
-        draw_link(
+        drawLink(
             Immutable.Map({
                 x1: node.get('x'), y1: node.get('y'),
                 x2: linkerForNode.get('x'), y2: linkerForNode.get('y'),
@@ -239,15 +232,15 @@ function _refresh() {
     loadedModel.nodeData.forEach(
         function(n) { 
             var nodeGui = n.merge(loadedModel.nodeGui.get(n.get('id')));
-            draw_node(nodeGui, environment);
+            drawNode(nodeGui, environment);
         }
     );
 
     // if we are linking, we want to draw the dot above everything else
-    loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(draw_linker);
+    loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
     // update the menu
-    selected_menu = draw_selected_menu(selected_menu, selected.last(), updateSelected);
+    selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
 }
 
 function refresh() {

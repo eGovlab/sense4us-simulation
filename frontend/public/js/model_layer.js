@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-var Model       = require("./model.js"),
-    network     = require("./network"),
-    menuBuilder = require("./menu_builder");
+var Model       = require('./model.js'),
+    network     = require('./network'),
+    menuBuilder = require('./menu_builder');
 
 function ModelLayer() {
-    if(!(this instanceof ModelLayer)) {
-        throw new Error("ModelLayer called as a generic method.");
+    if (!(this instanceof ModelLayer)) {
+        throw new Error('ModelLayer called as a generic method.');
     }
 
     this.localModels = [];
@@ -20,39 +20,39 @@ ModelLayer.prototype = {
     },
 
     deleteModel: function(model) {
-        if(model && model instanceof Model) {
+        if (model && model instanceof Model) {
             this.localModels = this.localModels.filter(function(m) {
-                if(model.id === m.id) {
+                if (model.id === m.id) {
                     return false;
                 }
 
                 return true;
             });
 
-            if(this.models[model.id]) {
+            if (this.models[model.id]) {
                 this.models[model.id] = null;
             }
-        } else if(model && (typeof model === "number" || typeof model === "string")) {
-            if(typeof model === "string") {
+        } else if (model && (typeof model === 'number' || typeof model === 'string')) {
+            if (typeof model === 'string') {
                 var check = model.match(/^local:(\d+)$/);
-                if(isNaN(parseInt(model)) && check !== null) {
+                if (isNaN(parseInt(model)) && check !== null) {
                     model = check[1];
-                } else if(!isNaN(parseInt(model))) {
+                } else if (!isNaN(parseInt(model))) {
                     model = parseInt(model);
                 } else {
-                    throw new Error("Invalid ID given to deleteModel.");
+                    throw new Error('Invalid ID given to deleteModel.');
                 }
             }
 
             this.localModels = this.localModels.filter(function(m) {
-                if(model === m.id) {
+                if (model === m.id) {
                     return false;
                 }
 
                 return true;
             });
 
-            if(this.models[model]) {
+            if (this.models[model]) {
                 this.models[model] = null;
             }
         }
@@ -64,7 +64,7 @@ ModelLayer.prototype = {
     },
 
     reselect: function() {
-        if(this.localModels.length > 0) {
+        if (this.localModels.length > 0) {
             this.select(this.localModels[0]);
         } else {
             var m = this.createModel();
@@ -99,15 +99,15 @@ ModelLayer.prototype = {
 
     iterateModels: function(callback, onEnd) {
         var that = this;
-        network.getData("/models/all", function(response, error) {
+        network.getData('/models/all', function(response, error) {
             var index = 0;
             that.localModels.forEach(function(model) {
                 callback(model, index);
                 index++;
             });
 
-            if(error) {
-                if(onEnd && typeof onEnd === "function") {
+            if (error) {
+                if (onEnd && typeof onEnd === 'function') {
                     onEnd();
                 }
                 return;
@@ -116,20 +116,20 @@ ModelLayer.prototype = {
             var models = response.response.models;
             models.forEach(function(model) {
                 var check = that.localModels.filter(function(m) {
-                    if(model.name === m.name) {
+                    if (model.name === m.name) {
                         return true;
                     }
 
                     return false;
                 });
 
-                if(check.length > 0) {
+                if (check.length > 0) {
                     index++;
                     return;
                 }
 
                 var modelObject;
-                if(!that.models[model.id]) {
+                if (!that.models[model.id]) {
                     modelObject = that.createSyncModel(model);
                 } else {
                     modelObject = that.models[model.id];
@@ -139,14 +139,14 @@ ModelLayer.prototype = {
                 index++;
             });
 
-            if(onEnd && typeof onEnd === "function") {
+            if (onEnd && typeof onEnd === 'function') {
                 onEnd();
             }
         });
     },
 
     getNextId: function(callback) {
-        network.getData("/models/next-id", function() {
+        network.getData('/models/next-id', function() {
             var id = response.response;
             callback(id);
         });
@@ -157,20 +157,20 @@ ModelLayer.prototype = {
     },
 
     select: function(model, state) {
-        if(model instanceof Model) {
+        if (model instanceof Model) {
             this.selected = model;
-        } else if(typeof model === "string") {
+        } else if (typeof model === 'string') {
             var check = model.match(/^local:(\d+)$/);
-            if(isNaN(parseInt(model)) && check !== null) {
+            if (isNaN(parseInt(model)) && check !== null) {
                 return this.select(this.localModels[parseInt(check[1])]);
-            } else if(parseInt(model) !== null) {
+            } else if (parseInt(model) !== null) {
                 this.loadSyncModel(this.models[model], state);
                 return this.select(this.models[model]);
             } else {
-                throw new Error("Invalid param given to modelLayer.select");
+                throw new Error('Invalid param given to modelLayer.select');
             }
         } else {
-            throw new Error("Invalid param given to modelLayer.select");
+            throw new Error('Invalid param given to modelLayer.select');
         }
 
         return model;
@@ -178,8 +178,8 @@ ModelLayer.prototype = {
 
     loadSyncModel: function(model, state) {
         var that = this;
-        network.getData("/models/" + model.syncId, function(response, error) {
-            if(error) {
+        network.getData('/models/' + model.syncId, function(response, error) {
+            if (error) {
                 console.log(error);
                 return;
             }

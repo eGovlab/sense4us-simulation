@@ -1,8 +1,8 @@
 'use strict';
 
-var modelLayer  = require("./../model-layer.js"),
-    menuLayer   = require("./menu-layer.js"),
-    menuBuilder = require("./../menu_builder");
+var modelLayer  = require('./../model_layer.js'),
+    menuLayer   = require('./menu_layer.js'),
+    menuBuilder = require('./../menu_builder');
 
 /*
 ** modelDropdownUpdate
@@ -15,11 +15,11 @@ var modelDropdownUpdate = function(state) {
     var element = this;
 
     element.resetOptions();
-    element.addOption("new", "New Model");
+    element.addOption('new', 'New Model');
 
-    if(state.loadedModel === null) {
+    if (state.loadedModel === null) {
         state.loadedModel = modelLayer.createModel();
-        state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ": New Model"));
+        state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ': New Model'));
         state.loadedModel.local = true;
         modelLayer.select(state.loadedModel);
     }
@@ -27,7 +27,7 @@ var modelDropdownUpdate = function(state) {
     modelLayer.iterateModels(function(model, index) {
         element.addOption(model.getId(), model.name);
 
-        if(model.getId() === modelLayer.selected.getId()) {
+        if (model.getId() === modelLayer.selected.getId()) {
             element.select(index + 1);
         }
     }, function() {
@@ -38,9 +38,9 @@ var modelDropdownUpdate = function(state) {
 
 var modelDropdownChoose = function(state, e) {
     var id = this.value;
-    if(id === "new") {
+    if (id === 'new') {
         state.loadedModel = modelLayer.createModel();
-        state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ": New Model"));
+        state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ': New Model'));
         state.loadedModel.local = true;
         modelLayer.select(state.loadedModel, state);
     } else {
@@ -53,42 +53,42 @@ var modelDropdownChoose = function(state, e) {
 var modelEnv = function(state) {
     state.selected_menu = null;
 
-    menuLayer.activateSidebar("model");
-    state.environment = "model";
+    menuLayer.activateSidebar('model');
+    state.environment = 'model';
     state.refresh();
 };
 
 var simulateEnv = function(state) {
     state.selected_menu = null;
 
-    menuLayer.activateSidebar("simulate");
-    state.environment = "simulate";
+    menuLayer.activateSidebar('simulate');
+    state.environment = 'simulate';
     state.refresh();
 };
 
 var upperMenu = [
     {
-        header: "Load"
+        header: 'Load'
     },
 
     {
-        header: "Model",
-        type: "dropdown",
+        header: 'Model',
+        type: 'dropdown',
         update: modelDropdownUpdate,
         callback: modelDropdownChoose
     },
 
     {
-        header: "Mode"
+        header: 'Mode'
     },
 
     {
-        header: "Model",
+        header: 'Model',
         callback: modelEnv
     },
 
     {
-        header: "Simulate",
+        header: 'Simulate',
         callback: simulateEnv
     }
 ];

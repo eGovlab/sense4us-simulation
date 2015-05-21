@@ -6,7 +6,7 @@
 
     Error.stackTraceLimit = CONFIG.get("STACKTRACELENGTH");
     process.on("uncaughtException", function(error) {
-        if(error.stack) {
+        if (error.stack) {
             console.log("Error Stack:", error.stack);
         } else {
             console.log("Error:", error);
@@ -46,7 +46,7 @@
     cookieCutter.addCookieCutter("template", "template", function(data){return true;});
 
     var setupGlobalView = function(req, res, next) {
-        if(!res.globalView) {
+        if (!res.globalView) {
             res.globalView = {};
         }
 
@@ -63,7 +63,7 @@
         res.status(404);
 
         var locals = {};
-        if(res.globalView && typeof res.globalView === "object") {
+        if (res.globalView && typeof res.globalView === "object") {
             for(var key in res.globalView) {
                 locals[key] = res.globalView[key];
             }
@@ -81,14 +81,14 @@
         res.status(500);
 
         var locals = {};
-        if(res.globalView && typeof res.globalView === "object") {
+        if (res.globalView && typeof res.globalView === "object") {
             for(var key in res.globalView) {
                 locals[key] = res.globalView[key];
             }
         }
 
-        if(err) {
-            if(err.stack) {
+        if (err) {
+            if (err.stack) {
                 locals.stackError = "<style>p {margin: 0px 0px 0px 30px; font-size: 14px;} p.first {font-weight: bold; margin: 0px; font-size: 16px;}</style><div class='error_container'><p class='first'>" + err.stack.replace(new RegExp("\n", "g"), "</p><p>") + "</p></div>";
             }
 

@@ -81,7 +81,7 @@ var collisions = {
 		} else if (data.circles.length === 1 && data.points.length === 1) {
 			return collisions.pointCircle(data.points[0], data.circles[0]);
 		} else {
-			console.log("UNDEFINED");
+			console.log('UNDEFINED');
 			console.log(obj1);
 		}
 	}

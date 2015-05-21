@@ -3,7 +3,7 @@
 var Popup = require('./popup.js');
 
 function NotificationBar() {
-    if(!(this instanceof NotificationBar)) {
+    if (!(this instanceof NotificationBar)) {
         throw new Error('Accessing NotificationBar as a generic method.');
     }
 
@@ -16,7 +16,7 @@ NotificationBar.prototype = {
     },
 
     notify: function(text) {
-        if(this.container === null) {
+        if (this.container === null) {
             return false;
         }
 

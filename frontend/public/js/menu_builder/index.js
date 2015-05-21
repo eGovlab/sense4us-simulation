@@ -1,11 +1,11 @@
 'use strict';
 
 var Immutable = require('Immutable'),
-    Dropdown  = require("./dropdown.js");
+    Dropdown  = require('./dropdown.js');
 
 function MenuBuilder() {
-    if(!(this instanceof MenuBuilder)) {
-        throw new Error("Accessing MenuBuilder as a generic method.");
+    if (!(this instanceof MenuBuilder)) {
+        throw new Error('Accessing MenuBuilder as a generic method.');
     }
 
     this.refreshable = [];
@@ -14,14 +14,14 @@ function MenuBuilder() {
 MenuBuilder.prototype = {
     updateAll: function() {
         this.refreshable.forEach(function(ele) {
-            if(ele.update) {
+            if (ele.update) {
                 ele.update();
             }
         });
     },
 
     div: function() {
-        var div = document.createElement("div");
+        var div = document.createElement('div');
 
         return div;
     },
@@ -41,7 +41,7 @@ MenuBuilder.prototype = {
     },
 
     option: function(value, text) {
-        var option = document.createElement("option");
+        var option = document.createElement('option');
 
         option.value     = value;
         option.innerHTML = text;
@@ -75,16 +75,16 @@ MenuBuilder.prototype = {
 
     menu: function(text, callback) {
         var button = document.createElement('input');
-        button.setAttribute("type", "button");
-        button.setAttribute("value", text);
+        button.setAttribute('type', 'button');
+        button.setAttribute('value', text);
         button.addEventListener('click', callback);
-        button.className = "button";
+        button.className = 'button';
         
         return button;
     },
 
     h2: function(text) {
-        var e = document.createElement("h2");
+        var e = document.createElement('h2');
         e.innerHTML = text;
 
         return e;
@@ -92,12 +92,3 @@ MenuBuilder.prototype = {
 };
 
 module.exports = new MenuBuilder();
-
-/*
-    <form id='sense4us_import_json' action='/model'>
-        <input type='file' />
-        <input type='submit' class='button' value='Import (.json)' />
-    </form>
-    <input type='button' class='button' onclick='sense4us.ui.create_origin_node(null, 0, 0);' value='Create origin' />
-    <input type='button' class='button' onclick='sense4us.ui.create_node(null, 0, 0);' value='Create node' />
-*/

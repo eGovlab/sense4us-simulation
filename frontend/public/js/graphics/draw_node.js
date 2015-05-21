@@ -77,12 +77,12 @@ module.exports = function drawNode(ctx, map, env) {
 	var text = '';
 	if (map.get('type') === 'actor') {
 		text = 'Actor' + map.get('id');
-	} else if(map.get("type") === "origin") {
-		text = map.get("relativeChange") + "";
+	} else if (map.get('type') === 'origin') {
+		text = map.get('relativeChange') + '';
 	} else {
-		if(env === "model") {
+		if (env === 'model') {
 			text = map.get('value') + '';
-		} else if(env === "simulate") {
+		} else if (env === 'simulate') {
 			text = map.get('simulateChange') + '';
 		}
 	}
