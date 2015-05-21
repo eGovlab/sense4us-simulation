@@ -24,6 +24,8 @@ body {
 }
 
 .container {
+	border-top-right-radius: 4px;
+	border-top-left-radius: 4px;
 	background-color: #2b3846;
 	height: 100%;
 	overflow: scroll;
@@ -32,19 +34,20 @@ body {
 .container > .header,
 .container > .menu-header {
 	height: 42px;
-	margin-bottom: 2px;
+	margin-bottom: 1px;
 }
 
 .container > .menu-header {
 	height: 20px;
+	background-color: #efefef;
 }
 
 .container .header {
-	background-color: #E3D120;	
+	background-color: #E7D520;	
 	color: #202020;
 }
 
-.container .header * {
+.container .header > * {
 	display: inline-block;
 	padding: 10px 8px;
 	margin: 0;

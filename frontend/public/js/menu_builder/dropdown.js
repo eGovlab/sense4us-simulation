@@ -70,7 +70,9 @@ function Dropdown(header, onselect, update) {
     });
 
     this.element.addEventListener('mouseleave', function(e) {
-        that.toggle();
+        if(that.visible()) {
+            that.toggle();
+        }
     });
 
     this.header = header;

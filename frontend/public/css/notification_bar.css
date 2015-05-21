@@ -29,8 +29,10 @@
 
 #notification-bar {
     position: absolute;
+    right: 30px;
     width: 200px;
     margin-left: 20px;
+    margin-top: 4px;
 }
 
 #notification-bar div {
@@ -41,6 +43,7 @@
     text-shadow: 0 0px 4px rgba(0,0,0,0.55);
     color: #fafafa;
     text-align: center;
+    box-shadow: 0px 10px 15px 0px rgba(20, 45, 45, 0.4);
 }
 
 #notification-bar .fade-in {

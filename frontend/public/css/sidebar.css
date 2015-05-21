@@ -1,3 +1,39 @@
+@-webkit-keyframes MENU_FADEIN {
+    0%   {
+        background-color: rgba(22, 100, 114, 0);
+        color: #90a0a0;
+    }
+
+    100% {
+        background-color: rgba(22, 100, 114, 1);
+        color: #fafafa;
+    }
+}
+
+@-moz-keyframes MENU_FADEIN {
+    0%   {
+        background-color: rgba(22, 100, 114, 0);
+        color: #90a0a0;
+    }
+
+    100% {
+        background-color: rgba(22, 100, 114, 1);
+        color: #fafafa;
+    }
+}
+
+@keyframes MENU_FADEIN {
+    0%   {
+        background-color: rgba(22, 100, 114, 0);
+        color: #90a0a0;
+    }
+
+    100% {
+        background-color: rgba(22, 100, 114, 1);
+        color: #fafafa;
+    }
+}
+
 #sidebar {
     text-align: center;
 

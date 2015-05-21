@@ -231,6 +231,7 @@ var modeChoose = function(state, e) {
 
     this.callback(state);
     this.parent.select(id);
+    this.parent.toggle();
 };
 
 var upperMenu = [

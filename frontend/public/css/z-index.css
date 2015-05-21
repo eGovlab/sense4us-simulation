@@ -1,7 +1,11 @@
-#notification-bar {
+#sidebar {
     z-index: 1;
 }
 
-.s4u-dropdown .s4u-dropdown-container {
+#notification-bar {
     z-index: 2;
+}
+
+.s4u-dropdown .s4u-dropdown-container {
+    z-index: 3;
 }
