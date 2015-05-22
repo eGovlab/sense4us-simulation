@@ -177,7 +177,7 @@ function _refresh() {
 
     context.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
 
-    // draw the links
+    // draw the links and arrows
     loadedModel.links.forEach(function(link) {
         drawLink(aggregatedLink(link, loadedModel.nodeGui));
     });
@@ -221,9 +221,13 @@ function _refresh() {
         var linkerForNode = linker(node);
         drawLink(
             Immutable.Map({
-                x1: node.get('x'), y1: node.get('y'),
-                x2: linkerForNode.get('x'), y2: linkerForNode.get('y'),
-                width: linkerForNode.get('radius')
+                x1:           node.get('x'),
+                y1:           node.get('y'),
+                x2:           node.get('linkerX'),
+                y2:           node.get('linkerY'),
+                fromRadius:   node.get('radius'),
+                targetRadius: 0,
+                width:        14
             })
         );
     });
