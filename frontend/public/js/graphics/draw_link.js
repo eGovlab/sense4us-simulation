@@ -34,8 +34,8 @@ module.exports = function(ctx, line) {
 
         anchorDistance = 10,
         
-        leftAngle      = angle - halfPI,
-        rightAngle     = angle + halfPI,
+        leftAngle      = angle + halfPI,
+        rightAngle     = angle - halfPI,
 
         leftAnchorX    = arrowStartX + Math.cos(leftAngle) * anchorDistance,
         leftAnchorY    = arrowStartY + Math.sin(leftAngle) * anchorDistance,
