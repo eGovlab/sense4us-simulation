@@ -8,7 +8,7 @@ var curry      = require('./curry.js'),
 
 var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 
-var drawSelectedMenu = curry(require('./selected_menu.js'), document.getElementById('sidebar')),
+var drawSelectedMenu = curry(require('./selected_menu'), document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
     modelLayer       = require('./model_layer.js');

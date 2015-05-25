@@ -51,7 +51,13 @@ MenuBuilder.prototype = {
 
     input: function(key, value, callback) {
         var input = document.createElement('input');
-        input.addEventListener('change', function(event) {callback(input.value, input.name);});
+        
+        var cb = function(event) {callback(input.value, input.name);};
+        input.addEventListener('change', cb);
+        input.deleteEvent = function() {
+            input.removeEventListener('change', cb);
+        }
+
         //input.addEventListener('keydown', function(event) {callback(input.value, input.name);});
         input.name = key;
         input.value = value;
