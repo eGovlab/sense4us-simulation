@@ -30,6 +30,7 @@ function deselect(data) {
 }
 
 function select(data) {
+    // if we click on a icon we want to start moving it!
     collidedNodes = data.nodeGui.
         filter(function(node) { return node.get('icon') !== undefined && hitTest(data.pos, icon(node)); }).
         slice(-1).
@@ -45,6 +46,7 @@ function select(data) {
         return data;
     }
     
+    // but if we click on the node, we want to move the actual node
     var collidedNodes = data.nodeGui.
         filter(function(node) { return hitTest(node, data.pos); }).
         slice(-1).
@@ -62,6 +64,7 @@ function select(data) {
         return data;
     }
 
+    // if we didn't click any nodes, we check if we clicked any links
     data.links = data.links.merge(
         data.links.
         filter(function(link) { return hitTest(aggregatedLink(link, data.nodeGui), data.pos); }).
@@ -80,6 +83,7 @@ function select(data) {
 }
 
 function startLinkingIfSelected(data, error, done) {
+    // if a node is selected and we click the linker-symbol, then start linking!
 	var linkingNodes = data.nodeGui.
 			filter(function(node) { return node.get('selected') === true; }).
 			filter(function(node) { return hitTest(data.pos, linker(node)); }).
@@ -87,6 +91,9 @@ function startLinkingIfSelected(data, error, done) {
 
 	data.nodeGui = data.nodeGui.merge(linkingNodes);
 
+    // if we started to link a node, we use the done-function
+    // otherwise it'd go to the next mousehandling-function
+    // and try to select something instead
 	if (linkingNodes.size > 0) {
 		return done(data);
 	} else {
@@ -95,6 +102,7 @@ function startLinkingIfSelected(data, error, done) {
 }
 
 function startMovingIconIfSelected(data, error, done) {
+    // if we have a node selected and we aren't linking and we click an icon, then start moving the icon!
 	var movingIconNodes = data.nodeGui.
 			filter(function(node) { return node.get('selected') === true && node.get('linking') !== true && node.get('icon') !== undefined; }).
 			filter(function(node) { return hitTest(data.pos, icon(node)); }).
@@ -102,6 +110,9 @@ function startMovingIconIfSelected(data, error, done) {
 
 	data.nodeGui = data.nodeGui.merge(movingIconNodes);
 
+    // if we started to move a node, we use the done-function
+    // otherwise it'd go to the next mousehandling-function
+    // and try to select something instead
 	if (movingIconNodes.size > 0) {
 		return done(data);
 	} else {
