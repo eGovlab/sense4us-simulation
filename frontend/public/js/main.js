@@ -108,6 +108,7 @@ var updateSelected = function(newSelected) {
             loadedModel.nodeGui.get(newSelected.get('id')).merge(Immutable.Map({
                     radius: newSelected.get('radius'),
                     avatar: newSelected.get('avatar'),
+                    icon: newSelected.get('icon')
                 })
             )
         );
@@ -193,7 +194,8 @@ function _refresh() {
             }).merge(
                 Immutable.Map({
                         radius: loadedModel.nodeGui.get(node.get('id')).get('radius'),
-                        avatar: loadedModel.nodeGui.get(node.get('id')).get('avatar')
+                        avatar: loadedModel.nodeGui.get(node.get('id')).get('avatar'),
+                        icon: loadedModel.nodeGui.get(node.get('id')).get('icon')
                     })
             );
             

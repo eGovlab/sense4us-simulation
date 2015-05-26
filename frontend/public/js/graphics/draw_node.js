@@ -1,6 +1,7 @@
 'use strict';
 
 var drawPicture = require('./draw_picture');
+var drawCircle = require('./draw_circle');
 
 var settings = [
 	{
@@ -70,8 +71,19 @@ module.exports = function drawNode(ctx, map, env) {
 	ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
 	ctx.fill();
 	
-    if (map.get('type') === 'actor' && map.get('avatar')) {
-        drawPicture(ctx, map.get('avatar'), map, env);
+    if (map.get('avatar')) {
+        drawPicture(ctx, map.get('avatar'), map, function() {
+			drawNode(ctx, map, env);
+		});
+    }
+	
+    if (map.get('icon')) {
+		var avatarCircle =  require('Immutable').Map({x: map.get('x') - map.get('radius') * 0.707, y: map.get('y') - map.get('radius') * 0.707, radius: 30});
+		
+		drawCircle(ctx, avatarCircle, colors[0].color);
+        drawPicture(ctx, map.get('avatar'), avatarCircle, function() {
+			drawNode(ctx, map, env);
+		});
     }
 	
 	var text = '';

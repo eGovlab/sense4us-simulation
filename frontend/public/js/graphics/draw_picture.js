@@ -1,9 +1,9 @@
 'use strict';
 
 var images = {};
+var PLACEHOLDER_PATH = 'http://127.0.0.1:3001/img/file_not_found.png';
 
 function drawImage(ctx, image, map) {
-    console.log(map);
     // Save the state, so we can undo the clipping
     ctx.save();
     
@@ -17,24 +17,50 @@ function drawImage(ctx, image, map) {
     ctx.drawImage(image, map.get('x') - map.get('radius'), map.get('y') - map.get('radius'), map.get('radius') * 2, map.get('radius') * 2);	
     
     // Undo the clipping
-    ctx.restore();   
+    ctx.restore();
 }
 
-function drawAvatar(ctx, imagePath, map, env) {
+var placeholder = new Image();
+placeholder.src = PLACEHOLDER_PATH;
+
+function drawPicture(ctx, imagePath, map, refresh) {
+    refresh = refresh || drawPicture;
+    
     var img = null;
+    
     if (images.hasOwnProperty(imagePath)) {
         img = images[imagePath];
-        drawImage(ctx, img, map);
+        if (img.isLoading === true) {
+            return;
+        }
+        
+        try {
+            drawImage(ctx, img, map);        
+        } catch(error) {
+            ctx.restore();
+            console.log(error);
+            images[imagePath] = placeholder;
+        }
     } else {
         img = new Image();   // Create new img element
+        window.derp = img;
         images[imagePath] = img;
         img.src = imagePath; // Set source path
+        img.isLoading = true;
+        
         img.onload = function() {
-            //drawImage(ctx, img, map);
-            var drawNode = require('./draw_node.js');
-            drawNode(ctx, map, env);
-        }
+            img.isLoading = false;
+            
+            refresh(ctx, imagePath, map);
+        };
+        
+        img.onerror = function(error) {
+            console.log(error);
+            images[imagePath] = placeholder;
+            
+            refresh(ctx, imagePath, map);
+        };
     }
 }
 
-module.exports = drawAvatar;
+module.exports = drawPicture;
