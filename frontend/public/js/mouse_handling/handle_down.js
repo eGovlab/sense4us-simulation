@@ -77,4 +77,21 @@ function startLinkingIfSelected(data, error, done) {
 	}
 }
 
+var icon = require('../icon');
+
+function startMovingIconIfSelected(data, error, done) {
+	var linkingNodes = data.nodeGui.
+			filter(function(node) { return node.get('selected') === true; }).
+			filter(function(node) { return hitTest(data.pos, icon(node)); }).
+			map(function(node) { return node.set('linking', true); });
+
+	data.nodeGui = data.nodeGui.merge(linkingNodes);
+
+	if (linkingNodes.size > 0) {
+		return done(data);
+	} else {
+		return data;
+	}
+}
+
 module.exports = mouseDownWare;

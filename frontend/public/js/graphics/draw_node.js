@@ -78,10 +78,10 @@ module.exports = function drawNode(ctx, map, env) {
     }
 	
     if (map.get('icon')) {
-		var avatarCircle =  require('Immutable').Map({x: map.get('x') - map.get('radius') * 0.707, y: map.get('y') - map.get('radius') * 0.707, radius: 30});
+		var iconCircle = require('../icon')(map);
 		
-		drawCircle(ctx, avatarCircle, colors[0].color);
-        drawPicture(ctx, map.get('avatar'), avatarCircle, function() {
+		drawCircle(ctx, iconCircle, colors[0].color);
+        drawPicture(ctx, map.get('icon'), iconCircle, function() {
 			drawNode(ctx, map, env);
 		});
     }
