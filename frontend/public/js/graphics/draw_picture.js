@@ -51,14 +51,14 @@ function drawPicture(ctx, imagePath, map, refresh) {
         img.onload = function() {
             img.isLoading = false;
             
-            refresh(ctx, imagePath, map);
+            refresh(ctx, imagePath, map, refresh);
         };
         
         img.onerror = function(error) {
             console.log('the image with path', imagePath, 'doesn\'t seem to exist');
             images[imagePath] = placeholder;
             
-            refresh(ctx, imagePath, map);
+            refresh(ctx, imagePath, map, refresh);
         };
     }
 }
