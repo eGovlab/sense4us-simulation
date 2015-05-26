@@ -112,4 +112,12 @@ module.exports = function drawNode(ctx, map, env) {
 	ctx.shadowOffsetY = 0;
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = 'rgba(0, 0, 0, 1)';
+
+	// Draw node description above the node
+	var descriptionSize = 22;
+	ctx.font = descriptionSize + 'px sans-serif';
+	ctx.textBaseline = 'bottom';
+	var description = map.get('description');
+	var descriptionData = ctx.measureText(description);
+	ctx.fillText(description, map.get('x') - descriptionData.width / 2, map.get('y') - map.get('radius'));
 };
