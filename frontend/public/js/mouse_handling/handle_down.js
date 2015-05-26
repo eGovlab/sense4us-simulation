@@ -4,9 +4,11 @@ var middleware = require('./../middleware.js');
 var hitTest = require('./../collisions.js').hitTest;
 var linker = require('./../linker.js');
 var aggregatedLink = require('./../aggregated_link.js');
+var icon = require('../icon');
 
 var mouseDownWare = middleware([
     startLinkingIfSelected,
+    startMovingIconIfSelected,
     deselect,
     select
 ]);
@@ -29,7 +31,7 @@ function deselect(data) {
 
 function select(data) {
     var collidedNodes = data.nodeGui.
-        filter(function(node) { return hitTest(node, data.pos); }).
+        filter(function(node) { return hitTest(node, data.pos) || (node.get('icon') !== undefined && hitTest(data.pos, icon(node))); }).
         slice(-1).
         map(function(node) {
             return node.concat({
@@ -77,17 +79,15 @@ function startLinkingIfSelected(data, error, done) {
 	}
 }
 
-var icon = require('../icon');
-
 function startMovingIconIfSelected(data, error, done) {
-	var linkingNodes = data.nodeGui.
-			filter(function(node) { return node.get('selected') === true; }).
+	var movingIconNodes = data.nodeGui.
+			filter(function(node) { return node.get('selected') === true && node.get('linking') !== true && node.get('icon') !== undefined; }).
 			filter(function(node) { return hitTest(data.pos, icon(node)); }).
-			map(function(node) { return node.set('linking', true); });
+			map(function(node) { return node.set('movingIcon', true); });
 
-	data.nodeGui = data.nodeGui.merge(linkingNodes);
+	data.nodeGui = data.nodeGui.merge(movingIconNodes);
 
-	if (linkingNodes.size > 0) {
+	if (movingIconNodes.size > 0) {
 		return done(data);
 	} else {
 		return data;
