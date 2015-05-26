@@ -30,8 +30,23 @@ function deselect(data) {
 }
 
 function select(data) {
+    collidedNodes = data.nodeGui.
+        filter(function(node) { return node.get('icon') !== undefined && hitTest(data.pos, icon(node)); }).
+        slice(-1).
+        map(function(node) {
+            return node.concat({
+                movingIcon: true,
+                selected: true
+            });
+         });
+    data.nodeGui = data.nodeGui.merge(collidedNodes);
+
+    if (collidedNodes.size > 0) {
+        return data;
+    }
+    
     var collidedNodes = data.nodeGui.
-        filter(function(node) { return hitTest(node, data.pos) || (node.get('icon') !== undefined && hitTest(data.pos, icon(node))); }).
+        filter(function(node) { return hitTest(node, data.pos); }).
         slice(-1).
         map(function(node) {
             return node.concat({
