@@ -55,7 +55,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         };
         
         img.onerror = function(error) {
-            console.log(error);
+            console.log('the image with path', imagePath, 'doesn\'t seem to exist');
             images[imagePath] = placeholder;
             
             refresh(ctx, imagePath, map);
