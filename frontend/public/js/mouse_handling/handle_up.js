@@ -35,12 +35,12 @@ function link(data) {
 				// TODO: Add all relevant links to nodes so they may be deleted on node deletion.
 				var nodeLinks = node.get('links');
 				if(nodeLinks === undefined) {
-					node.set('links', Immutable.List());
+					node = node.set('links', Immutable.List());
 				}
 
 				var collidedLinks = collided.get('links');
 				if(collidedLinks === undefined) {
-					collided.set('links', Immutable.List());
+					collided = collided.set('links', Immutable.List());
 				}
 
 				var nodeId     = node.get('id'),
