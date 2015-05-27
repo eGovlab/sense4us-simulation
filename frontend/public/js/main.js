@@ -27,43 +27,12 @@ settings.initialize(
     document.getElementById('sidebar'),
     document.getElementById('upper-menu'),
     function() {
-        var obj = {};
-
-        Object.defineProperty(obj, 'selectedMenu', {
-            get: function() {
-                return selectedMenu;
-            },
-
-            set: function(arg) {
-                selectedMenu = arg;
-            }
-        });
-
-        Object.defineProperty(obj, 'loadedModel', {
-            get: function() {
-                return loadedModel;
-            },
-
-            set: function(arg) {
-                loadedModel = arg;
-            }
-        });
-
-        Object.defineProperty(obj, 'environment', {
-            get: function() {
-                return environment;
-            },
-
-            set: function(arg) {
-                environment = arg;
-            }
-        });
-
-        Object.defineProperty(obj, 'refresh', {
-            get: function() {
-                return refresh;
-            }
-        });
+        var obj = {
+            selectedMenu,
+            loadedModel,
+            environment,
+            refresh
+        };
 
         return obj;
     }
@@ -94,6 +63,8 @@ var updateSelected = function(newSelected) {
                 })
             )
         );
+    } else if (newSelected.get('maxIterable') !== undefined) {
+      loadedModel.settings = newSelected;
     } else {
         loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), 
             loadedModel.nodeData.get(newSelected.get('id')).merge(Immutable.Map({
@@ -247,8 +218,12 @@ function _refresh() {
     // if we are linking, we want to draw the dot above everything else
     loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
+    if (selected.last()) {
+        selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
+    } else {    // draw menu for the model
+        selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected);
+    }
     // update the menu
-    selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
 }
 
 function refresh() {

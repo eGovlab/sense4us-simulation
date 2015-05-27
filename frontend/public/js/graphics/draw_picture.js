@@ -1,7 +1,7 @@
 'use strict';
 
 var images = {};
-var PLACEHOLDER_PATH = 'http://127.0.0.1:3001/img/file_not_found.png';
+var PLACEHOLDER_PATH = 'img/file_not_found.png';
 
 function drawImage(ctx, image, map) {
     // Save the state, so we can undo the clipping
