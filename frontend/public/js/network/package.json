@@ -1,0 +1,4 @@
+{
+    "name": "s4u_network",
+    "main": "./network.js"
+}

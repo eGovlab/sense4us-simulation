@@ -1,0 +1,4 @@
+{
+    "name": "s4u_notification_bar",
+    "main": "./notification_bar.js"
+}

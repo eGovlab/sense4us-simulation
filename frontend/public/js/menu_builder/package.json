@@ -1,0 +1,4 @@
+{
+    "name": "s4u_menu_builder",
+    "main": "./menu_builder.js"
+}

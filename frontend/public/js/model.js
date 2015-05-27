@@ -38,6 +38,7 @@ function Model(element) {
     this.nodeData = Immutable.Map();
     this.nodeGui  = Immutable.Map();
     this.links    = Immutable.Map();
+    
     this.settings = Immutable.Map({maxIterable: 10});
 }
 

@@ -1,0 +1,4 @@
+{
+    "name": "s4u_canvas",
+    "main": "./canvas.js"
+}

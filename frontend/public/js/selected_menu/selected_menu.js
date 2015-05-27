@@ -1,58 +1,62 @@
 'use strict';
 
-var menuBuilder = require('./menu_builder');
+var SelectMenu = require('./select_menu.js'),
+    buttons    = require('./buttons.js');
 
-var createMenu = function(map, callback) {
-	var menu = menuBuilder.div();
-	menu.className = 'menu';
+function createMenu(map, callback) {
+    var menu = new SelectMenu();
 
-	map.forEach(function(value, key) {
-		var p = menuBuilder.p(),
-			labelDiv = menuBuilder.div(),
-			inputDiv = menuBuilder.div();
+    map.forEach(function(value, key) {
+        menu.addInput(key, value, function(cbKey, cbValue){callback(map.set(cbKey, cbValue))});
+    });
 
-		labelDiv.appendChild(menuBuilder.label(key));
-		inputDiv.appendChild(menuBuilder.input(key, value, function(inputValue, inputKey) {
-			callback(map.set(inputKey, inputValue));
-		}));
+    var wrappedButtons = buttons.map(function(button) {
+        if(button.onClick && typeof button.onClick === 'function') {
+            var wrapper = button.onClick.bind(map);
 
-		p.appendChild(labelDiv);
-		p.appendChild(inputDiv);
+            button.callback = function(e) {
+                var r = wrapper();
+                if(window.Immutable.Map.isMap(r)) {
+                    callback(r);
+                }
+            };
+        }
 
-		menu.appendChild(p);
-	});
+        return button;
+    });
 
-	return menu;
+    menu.addButton(wrappedButtons);
+
+    return menu;
+}
+
+module.exports = function drawSelectedMenu(container, menu, map, changeCallback) {
+    if (map === null || map === undefined) {
+        if (menu !== null) {
+            menu.reset();
+            container.removeChild(menu.element);
+        }
+
+        return null;
+    }
+
+    if (menu === null) {
+        menu = createMenu(map, changeCallback);
+        menu.map_obj = map;
+
+        container.appendChild(menu.element);
+
+        return menu;
+    } else if (menu.map_obj !== map) {
+        menu.reset();
+        container.removeChild(menu.element);
+
+        menu = createMenu(map, changeCallback);
+        container.appendChild(menu.element);
+        menu.map_obj = map;
+
+        return menu;
+    }
+
+    return menu;
 };
-
-var drawSelectedMenu = function(container, menu, map, changeCallback) {
-	if (map === null || map === undefined) {
-		if (menu !== null) {
-			container.removeChild(menu);
-		}
-
-		return null;
-	}
-
-	if (menu === null) {
-		menu = createMenu(map, changeCallback);
-		menu.map_obj = map;
-
-		container.appendChild(menu);
-
-		return menu;
-	}
-
-	if (menu.map_obj !== map) {
-		container.removeChild(menu);
-		menu = createMenu(map, changeCallback);
-		container.appendChild(menu);
-		menu.map_obj = map;
-
-		return menu;
-	}
-
-	return menu;
-};
-
-module.exports = drawSelectedMenu;
