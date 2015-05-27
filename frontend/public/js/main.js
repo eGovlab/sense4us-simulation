@@ -69,7 +69,7 @@ settings.initialize(
     }
 );
 
-window.Immutable = Immutable;
+window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
 
 var context = mainCanvas.getContext('2d');
@@ -85,6 +85,13 @@ var updateSelected = function(newSelected) {
             console.log('Timelag:',     newSelected.get('timelag'));
             return;
         }
+
+        if(newSelected.get('delete') === true) {
+            console.log("LINK");
+            console.log(newSelected);
+            //loadedModel.links = loadedModel.links.delete(newSelected.get('id'));
+            return;
+        }
         
         loadedModel.links = loadedModel.links.set(newSelected.get('id'),
             loadedModel.links.get(newSelected.get('id')).merge(Immutable.Map({
@@ -95,6 +102,12 @@ var updateSelected = function(newSelected) {
             )
         );
     } else {
+        if(newSelected.get('delete') === true) {
+            console.log("NODE");
+            console.log(newSelected);
+            return;
+        }
+
         loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), 
             loadedModel.nodeData.get(newSelected.get('id')).merge(Immutable.Map({
                     id:             newSelected.get('id'),
@@ -193,7 +206,8 @@ function _refresh() {
             }).merge(
                 Immutable.Map({
                         radius: loadedModel.nodeGui.get(node.get('id')).get('radius'),
-                        avatar: loadedModel.nodeGui.get(node.get('id')).get('avatar')
+                        avatar: loadedModel.nodeGui.get(node.get('id')).get('avatar'),
+                        links:  loadedModel.nodeGui.get(node.get('id')).get('links')
                     })
             );
             

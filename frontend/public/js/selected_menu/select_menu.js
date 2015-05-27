@@ -8,9 +8,10 @@ function SelectMenu() {
         throw new Error('SelectMenu called as a generic method.');
     }
 
-    this.buttons = [];
     this.element = menuBuilder.div();
     this.element.className = 'menu';
+
+    this.buttons = [];
 }
 
 SelectMenu.prototype = {
@@ -32,8 +33,9 @@ SelectMenu.prototype = {
             }
 
             var b = new SelectButton(button.header, button.callback);
-
+            this.element.appendChild(b.element);
             this.buttons.push(b);
+
         }, this);
     },
 
@@ -57,6 +59,12 @@ SelectMenu.prototype = {
         this.buttons.forEach(function(button) {
             button.element.removeEventListener('click', button.callback);
         });
+
+        this.buttons = [];
+
+        while(this.element.firstChild) {
+            this.element.removeChild(this.element.firstChild);
+        }
     },
 };
 

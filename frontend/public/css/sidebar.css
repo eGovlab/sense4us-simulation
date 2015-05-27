@@ -75,3 +75,7 @@
 #sidebar .menu {
     color: #fafafa;
 }
+
+#sidebar > .menu > div {
+    margin-bottom: 6px;
+}

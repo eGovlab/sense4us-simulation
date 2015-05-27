@@ -222,6 +222,10 @@ ModelLayer.prototype = {
                     timelag: link.timelag,
                     width: 14
                 }));
+
+                loadedModel.setGui(Immutable.Map({
+                    links: loadedModel.nodeGui.get(link.from_node).get('links')
+                }).merge(loadedModel.nodeGui.get(link.from_node)));
             });
 
             state.refresh();
