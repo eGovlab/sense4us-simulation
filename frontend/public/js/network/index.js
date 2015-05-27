@@ -36,7 +36,7 @@ NetworkLayer.prototype = {
         httpRequest.onreadystatechange = function() {
             if (httpRequest.readyState === 4) {
                 var rt = JSON.parse(httpRequest.responseText);
-                console.log(rt);
+                
                 if (httpRequest.status === 200) {
                     if (callback) {
                         callback(rt);

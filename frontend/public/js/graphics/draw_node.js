@@ -1,6 +1,7 @@
 'use strict';
 
 var drawPicture = require('./draw_picture');
+var drawCircle = require('./draw_circle');
 
 var settings = [
 	{
@@ -70,8 +71,19 @@ module.exports = function drawNode(ctx, map, env) {
 	ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
 	ctx.fill();
 	
-    if (map.get('type') === 'actor' && map.get('avatar')) {
-        drawPicture(ctx, map.get('avatar'), map, env);
+    if (map.get('avatar')) {
+        drawPicture(ctx, map.get('avatar'), map, function() {
+			drawNode(ctx, map, env);
+		});
+    }
+	
+    if (map.get('icon')) {
+		var iconCircle = require('../icon')(map);
+		
+		drawCircle(ctx, iconCircle, colors[0].color);
+        drawPicture(ctx, map.get('icon'), iconCircle, function() {
+			drawNode(ctx, map, env);
+		});
     }
 	
 	var text = '';
@@ -100,4 +112,12 @@ module.exports = function drawNode(ctx, map, env) {
 	ctx.shadowOffsetY = 0;
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = 'rgba(0, 0, 0, 1)';
+
+	// Draw node description above the node
+	var descriptionSize = 22;
+	ctx.font = descriptionSize + 'px sans-serif';
+	ctx.textBaseline = 'bottom';
+	var description = map.get('description');
+	var descriptionData = ctx.measureText(description);
+	ctx.fillText(description, map.get('x') - descriptionData.width / 2, map.get('y') - map.get('radius'));
 };

@@ -8,7 +8,8 @@ var Immutable = require('Immutable');
 var mouseDownWare = middleware([
 	link,
 	stopClicked,
-	stopLinking
+	stopLinking,
+	stopMovingIcon
 ]);
 
 function stopClicked(data) {
@@ -74,6 +75,18 @@ function stopLinking(data) {
 		.filter(function(node) { return node.get('linking') === true; })
 		.map(function(node) {
 			return node.delete('linkerX').delete('linkerY').delete('linking');
+		})
+	);
+
+	return data;
+}
+
+function stopMovingIcon(data) {
+	data.nodeGui = data.nodeGui.merge(
+		data.nodeGui
+		.filter(function(node) { return node.get('movingIcon') === true; })
+		.map(function(node) {
+			return node.delete('movingIcon');
 		})
 	);
 

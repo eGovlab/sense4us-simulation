@@ -17,7 +17,7 @@ var breakout        = require('./../breakout.js'),
 ** simulate
 */
 
-var createNode = function(state, x, y, type) {
+var createNode = function(state, x, y, type, description) {
     if (typeof x !== 'number') {
         x = false;
     }
@@ -30,13 +30,18 @@ var createNode = function(state, x, y, type) {
         type = false;
     }
 
+    if (typeof description !== 'string') {
+        description = false;
+    }
+
     var id = state.loadedModel.generateId();
     state.loadedModel.setData(Immutable.Map({
         id: id,
         value: 0,
         relativeChange: 0,
         simulateChange: 0,
-        type: type || 'intermediate'
+        type: type || 'intermediate',
+        description: description || ''
     }));
 
     state.loadedModel.setGui(Immutable.Map({
