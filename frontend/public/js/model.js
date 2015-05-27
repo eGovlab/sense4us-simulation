@@ -56,7 +56,7 @@ Model.prototype = {
         return this.nextId - 1;
     },
 
-    setData: function(data) s
+    setData: function(data) {
         this.nodeData = this.nodeData.set(data.get('id'), data);
     },
 

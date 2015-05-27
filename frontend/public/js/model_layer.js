@@ -188,7 +188,7 @@ ModelLayer.prototype = {
             var links = response.response.links;
 
             var loadedModel = that.selected;
-            loadedModel.nextId = 0;
+            loadedModel.nextId = nodes[nodes.length - 1].id + 1;
 
             loadedModel.nodeData = Immutable.Map();
             loadedModel.nodeGui  = Immutable.Map();
@@ -223,9 +223,17 @@ ModelLayer.prototype = {
                     width: 14
                 }));
 
-                loadedModel.setGui(Immutable.Map({
-                    links: loadedModel.nodeGui.get(link.from_node).get('links')
-                }).merge(loadedModel.nodeGui.get(link.from_node)));
+                loadedModel.setGui(loadedModel.nodeGui.get(link.from_node).merge(
+                    Immutable.Map({
+                        links: Immutable.List().push(link.id)
+                    })
+                ));
+
+                loadedModel.setGui(loadedModel.nodeGui.get(link.to_node).merge(
+                    Immutable.Map({
+                        links: Immutable.List().push(link.id)
+                    })
+                ));
             });
 
             state.refresh();

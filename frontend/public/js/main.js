@@ -104,7 +104,11 @@ var updateSelected = function(newSelected) {
     } else {
         if(newSelected.get('delete') === true) {
             console.log("NODE");
-            console.log(newSelected);
+
+            var seq = newSelected.get('links').toSeq();
+            seq.forEach(function(linkId) {
+                console.log(linkId);
+            });
             return;
         }
 
@@ -210,7 +214,6 @@ function _refresh() {
                 Immutable.Map({
                         radius: loadedModel.nodeGui.get(node.get('id')).get('radius'),
                         avatar: loadedModel.nodeGui.get(node.get('id')).get('avatar'),
-                        links:  loadedModel.nodeGui.get(node.get('id')).get('links')
                         icon: loadedModel.nodeGui.get(node.get('id')).get('icon')
                     })
             );
