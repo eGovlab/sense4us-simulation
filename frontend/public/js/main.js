@@ -262,12 +262,12 @@ function _refresh() {
     // if we are linking, we want to draw the dot above everything else
     loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
-    //if (selected.last()) {
+    if (selected.last()) {
         selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
-    //} /*else {    // draw menu for the model
-    //    selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected);
-    //}*/
-    // update the menu
+    } else {    // draw menu for the model
+        selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected);
+    }
+    //update the menu
 }
 
 function refresh() {
