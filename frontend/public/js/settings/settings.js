@@ -1,73 +1,46 @@
 'use strict';
 
-var menuLayer       = require('./menu_layer.js'),
-    menus           = require('./menu.js'),
-    sidebars        = require('./sidebar.js'),
-    CONFIG          = require('rh_config-parser'),
-    network         = require('./../network'),
-    notificationBar = require('./../notification_bar');
+var Immutable = require('Immutable'),
+    model     = require('./model.js'),
+    simulate  = require('./model.js'),
+    menu      = require('./model.js'),
 
-function Settings() {
-    if (!(this instanceof Settings)) {
-        throw new Error('Accessing Settings as a generic method.');
-    }
-}
+var model    = Immutable.List([
+    Immutable.Map( {
+        header: "Create node",
+        callback: function(modelData) {
+            console.log("Create node.");
 
-Settings.prototype = {
-    initialize: function(sidebar, menu, state) {
-        CONFIG.setConfig(require('./config.js'));
-        network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
+            return modelData;
+        }
+    })
+]), simulate = Immutable.List([
+    Immutable.Map( {
+        header: "Simulate",
+        callback: function(modelData) {
+            console.log("Simulate.");
 
-        notificationBar.setContainer(document.getElementById('notification-bar'));
-        notificationBar.notify('Initialized.');
+            return modelData;
+        }
+    })
+]), menu    = Immutable.List([
+    Immutable.Map({
+        header: "Project",
+        callback: function(UIData) {
+            console.log("Project");
 
-        menuLayer.setSidebarContainer(sidebar);
-        menuLayer.setMenuContainer(menu);
+            UIData = UIData.merge(Immutable.Map({
+                sidebar: simulate
+            }));
 
-        state = state();
+            return UIData;
+        }
+    })
+]);
 
-        sidebars.forEach(function(sidebar, index) {
-            sidebar.menu = sidebar.menu.map(function(menu) {
-                if (menu.callback && typeof menu.callback === 'function') {
-                    var cbClone = menu.callback;
-                    menu.callback = function(e) {
-                        cbClone.call(this, state, e);
-                    };
-                }
-
-                return menu;
-            });
-
-            sidebar.name = sidebar.name.toUpperCase();
-
-            menuLayer.createSidebar.apply(menuLayer, [sidebar.name].concat(sidebar.menu));
-            if (index === 0) {
-                menuLayer.activateSidebar(sidebar.name);
-            }
-        });
-
-        menus.forEach(function(menu) {
-            menu = menu.map(function(button) {
-                if (button.callback && typeof button.callback === 'function') {
-                    var cbClone = button.callback;
-                    button.callback = function(e) {
-                        cbClone.call(this, state, e);
-                    }
-                }
-
-                if (button.update && typeof button.update === 'function') {
-                    var upClone = button.update;
-                    button.update = function(e) {
-                        upClone.call(this, state, e);
-                    }
-                }
-
-                return button;
-            });
-
-            menuLayer.createMenu.apply(menuLayer, menu);
-        });
-    }
+var data = {
+    sidebar: model,
+    menu:    menu
 };
 
-module.exports = new Settings();
+module.exports = data;

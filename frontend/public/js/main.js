@@ -11,18 +11,28 @@ var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 var drawSelectedMenu = curry(require('./selected_menu'), document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
-    modelLayer       = require('./model_layer.js');
+    modelLayer       = require('./model_layer.js'),
+    menuBuilder      = require('./menu_builder');
 
 var network = require('./network');
 
-var selectedMenu  = null,
-    loadedModel   = null,
+var selectedMenu  = Immutable.Map({}),
+    loadedModel   = Immutable.Map({}),
     environment   = 'model';
+
+var UI = require("./ui"),
+    settings = require('./settings');
+
+var UIData = Immutable.Map({
+    sidebar:      settings.sidebar,
+    menu:         settings.menu,
+    selectedMenu: Immutable.List()
+});
 
 var drawNode = require('./graphics/draw_node.js');
     drawNode = curry(drawNode, mainCanvas.getContext('2d'));
 
-var settings = require('./settings');
+/*var settings = require('./settings');
 settings.initialize(
     document.getElementById('sidebar'),
     document.getElementById('upper-menu'),
@@ -36,7 +46,7 @@ settings.initialize(
 
         return obj;
     }
-);
+);*/
 
 window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
@@ -158,8 +168,60 @@ dragHandler(
     }
 );
 
-var aggregatedLink = require('./aggregated_link.js');
+function sidebarRefresh(UIData, container, updateCallback) {
+    var sidebarMenu = document.createElement('div');
+    sidebarMenu.className = 'menu';
+    container.appendChild(sidebarMenu);
 
+    UIData.get('sidebar').forEach(function(button) {
+        var buttonElement = menuBuilder.button(button.get('header'), function() {
+            updateCallback(button.get('callback')(loadedModel));
+        });
+
+        sidebarMenu.appendChild(buttonElement);
+    });
+}
+
+function menuRefresh(UIData, container, updateCallback) {
+    var menuBar = document.createElement('div');
+    menuBar.className = 'menu';
+    container.appendChild(menuBar);
+
+    UIData.get('menu').forEach(function(menu) {
+        var buttonElement = menuBuilder.button(menu.get('header'), function() {
+            updateCallback(menu.get('callback')(UIData));
+        });
+
+        menuBar.appendChild(buttonElement);
+    });
+}
+
+function UIRefresh() {
+    var sidebarContainer = document.getElementById("sidebar"),
+        menuContainer    = document.getElementById("upper-menu");
+
+    while(sidebarContainer.firstChild) {
+        sidebarContainer.removeChild(sidebarContainer.firstChild);
+    }
+
+    while(menuContainer.firstChild) {
+        menuContainer.removeChild(menuContainer.firstChild);
+    }
+
+    sidebarRefresh(UIData, sidebarContainer, function(updatedModel) {
+        loadedModel = updatedModel;
+        UIRefresh();
+    });
+
+    menuRefresh(UIData, menuContainer, function(updatedUI) {
+        UIData = updatedUI;
+        UIRefresh();
+    });
+}
+
+UIRefresh();
+
+var aggregatedLink = require('./aggregated_link.js');
 function _refresh() {
     if (modelLayer.selected !== loadedModel) {
         loadedModel = modelLayer.selected;
