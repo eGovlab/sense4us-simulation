@@ -1,9 +1,10 @@
 'use strict';
 
-var middleware = require('./../middleware.js');
-var hitTest = require('./../collisions.js').hitTest;
-var linker = require('./../linker.js');
-var Immutable = require('Immutable');
+var middleware = require('./../middleware.js'),
+	hitTest      = require('./../collisions.js').hitTest,
+	linker       = require('./../linker.js'),
+	Immutable    = require('Immutable'),
+	modelLayer   = require('./../model_layer.js');
 
 var mouseDownWare = middleware([
 	link,
@@ -30,7 +31,12 @@ function link(data) {
 			}).slice(-1);
 
 			hit = hit.forEach(function(collided) {
-				var id = data.links.size;
+				var id;
+				if(modelLayer && modelLayer.selected !== null) {
+						id = modelLayer.selected.generateId();
+				} else {
+						id = data.links.size;
+				}
 
 				// TODO: Add all relevant links to nodes so they may be deleted on node deletion.
 				var nodeLinks = node.get('links');

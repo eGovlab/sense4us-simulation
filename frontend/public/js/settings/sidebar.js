@@ -128,7 +128,23 @@ var simulate = function(state) {
     };
 
     network.postData('/models/simulate', data, function(response, err) {
+
+        data.links.forEach(function(link) {
+            var retrievedLink = state.loadedModel.links.get(link.id);
+            state.loadedModel.links = state.loadedModel.links.set(link.id, retrievedLink.set('loop', false));
+        });
+
         if (err) {
+            notificationBar.notify(response.response.message);
+
+            var route = response.response.route;
+
+            route.forEach(function(linkId) {
+                var retrievedLink = state.loadedModel.links.get(linkId);
+                state.loadedModel.links = state.loadedModel.links.set(linkId, retrievedLink.set('loop', true));
+            });
+
+            state.refresh();
             return;
         }
 

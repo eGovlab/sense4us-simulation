@@ -118,6 +118,6 @@ module.exports = function drawNode(ctx, map, env) {
 	ctx.font = descriptionSize + 'px sans-serif';
 	ctx.textBaseline = 'bottom';
 	var description = map.get('description');
-	var descriptionData = ctx.measureText(description);
+	var descriptionData = ctx.measureText(description)
 	ctx.fillText(description, map.get('x') - descriptionData.width / 2, map.get('y') - map.get('radius'));
 };

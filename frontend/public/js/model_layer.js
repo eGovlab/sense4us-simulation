@@ -187,8 +187,23 @@ ModelLayer.prototype = {
             var nodes = response.response.nodes;
             var links = response.response.links;
 
+            var allIds = nodes.concat(links).map(function(ele) {
+                return ele.id;
+            });
+
             var loadedModel = that.selected;
-            loadedModel.nextId = nodes[nodes.length - 1].id + 1;
+            loadedModel.nextId = 0;
+
+            allIds.forEach(function(id) {
+                id = parseInt(id);
+                if(id <= loadedModel.nextId) {
+                    return;
+                }
+
+                loadedModel.nextId = id;
+            });
+
+            loadedModel.nextId += 1;
 
             loadedModel.nodeData = Immutable.Map();
             loadedModel.nodeGui  = Immutable.Map();
