@@ -4,7 +4,141 @@ var Model       = require('./model.js'),
     network     = require('./network'),
     menuBuilder = require('./menu_builder');
 
-function ModelLayer() {
+module.exports = {
+    deleteModel: function(model) {
+        if (model && model instanceof Model) {
+            this.localModels = this.localModels.filter(function(m) {
+                if (model.id === m.id) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (this.models[model.id]) {
+                this.models[model.id] = null;
+            }
+        } else if (model && (typeof model === 'number' || typeof model === 'string')) {
+            if (typeof model === 'string') {
+                var check = model.match(/^local:(\d+)$/);
+                if (isNaN(parseInt(model)) && check !== null) {
+                    model = check[1];
+                } else if (!isNaN(parseInt(model))) {
+                    model = parseInt(model);
+                } else {
+                    throw new Error('Invalid ID given to deleteModel.');
+                }
+            }
+
+            this.localModels = this.localModels.filter(function(m) {
+                if (model === m.id) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (this.models[model]) {
+                this.models[model] = null;
+            }
+        }
+
+        this.localModels = this.localModels.map(function(m, i) {
+            m.id = i;
+            return m;
+        });
+    },
+    
+    loadSyncModel: function(modelId, callback) {
+        var that = this;
+        network.getData('/models/' + modelId, function(response, error) {
+            if (error) {
+                console.log(error);
+                return;
+            }
+
+            var nodes = response.response.nodes;
+            var links = response.response.links;
+
+            var newState = Immutable.Map();
+            newState = newState.set('nextId', nodes[nodes.length - 1].id + 1);
+
+            newState = newState.set('nodeData',Immutable.Map());
+            newState = newState.set('nodeGui', Immutable.Map());
+            newState = newState.set('links',   Immutable.Map());
+
+            var lookUp = {};
+            nodes.forEach(function(node) {
+                newState = newState.set('nodeData',
+                    newState.get('nodeData').set(node.id, Immutable.Map({
+                        id: node.id,
+                        value: node.starting_value,
+                        relativeChange: node.change_value || 0,
+                        simulateChange: 0,
+                        type: node.type
+                    })
+                ));
+
+                newState = newState.set('nodeGui',
+                    newState.get('nodeGui').set(node.id, Immutable.Map({
+                        id: node.id,
+                        x: node.x,
+                        y: node.y,
+                        radius: node.radius
+                    })
+                ));
+            });
+
+            links.forEach(function(link) {
+                newState = newState.set('links',
+                    newState.get('links').set(link.id,
+                        Immutable.Map({
+                            id: link.id,
+                            node1: link.from_node,
+                            node2: link.to_node,
+                            coefficient: link.threshold,
+                            type: link.type,
+                            timelag: link.timelag,
+                            width: 14
+                        })
+                    )
+                );
+
+                var fromNode = newState.get('nodeGui').get(link.from_node);
+                if(fromNode.get('links') === undefined) {
+                    fromNode = fromNode.set('links', Immutable.List());
+                }
+                newState = newState.set('nodeGui',
+                    newState.get('nodeGui').set(link.from_node, 
+                        fromNode.set('links',
+                            fromNode.get('links').merge(
+                                Immutable.List([link.id])
+                            )
+                        )
+                    )
+                );
+
+                var toNode = newState.get('nodeGui').get(link.to_node);
+                if(toNode.get('links') === undefined) {
+                    toNode = toNode.set('links', Immutable.List());
+                }
+                newState = newState.set('nodeGui',
+                    newState.get('nodeGui').set(link.to_node, 
+                        toNode.set('links',
+                            toNode.get('links').merge(
+                                Immutable.List([link.id])
+                            )
+                        )
+                    )
+                );
+            });
+
+            callback(newState);
+        });
+    }
+};
+
+/*function ModelLayer() {
     if (!(this instanceof ModelLayer)) {
         throw new Error('ModelLayer called as a generic method.');
     }
@@ -241,4 +375,4 @@ ModelLayer.prototype = {
     }
 };
 
-module.exports = new ModelLayer();
+module.exports = new ModelLayer();*/

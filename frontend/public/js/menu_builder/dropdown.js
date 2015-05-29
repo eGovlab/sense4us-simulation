@@ -49,7 +49,7 @@ function Dropdown(header, onselect, update) {
     this.container       = document.createElement('div');
 
     this.headerElement.className = 's4u-dropdown-header';
-    this.container.className = 's4u-dropdown-container';
+    this.container.className     = 's4u-dropdown-container';
     this.container.style.display = 'none';
 
     this.element.appendChild(this.headerElement);
