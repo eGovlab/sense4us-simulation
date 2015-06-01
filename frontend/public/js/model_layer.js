@@ -2,11 +2,35 @@
 
 var Model       = require('./model.js'),
     network     = require('./network'),
+    Immutable   = require('Immutable'),
     menuBuilder = require('./menu_builder');
 
+var generateId = 0;
+
 module.exports = {
+    newModel: function(id) {
+        var map = Immutable.Map({
+            id:       id || generateId,
+            saved:    false,
+            synced:   false,
+
+            nextId:   0,
+            nodeData: Immutable.Map({}),
+            nodeGui:  Immutable.Map({}),
+            links:    Immutable.Map({}),
+            settings: Immutable.Map({
+                name:     "New Model",
+                maxIterable: 0
+            })
+        });
+
+        generateId += 1;
+
+        return map;
+    },
+
     deleteModel: function(model) {
-        if (model && model instanceof Model) {
+        /*if (model && model instanceof Model) {
             this.localModels = this.localModels.filter(function(m) {
                 if (model.id === m.id) {
                     return false;
@@ -46,7 +70,7 @@ module.exports = {
         this.localModels = this.localModels.map(function(m, i) {
             m.id = i;
             return m;
-        });
+        });*/
     },
     
     loadSyncModel: function(modelId, callback) {
@@ -57,80 +81,68 @@ module.exports = {
                 return;
             }
 
-            var nodes = response.response.nodes;
-            var links = response.response.links;
+            var nodes    = response.response.nodes,
+                links    = response.response.links,
+                name     = response.response.name,
+                iterable = response.response.maxIterable
 
-            var newState = Immutable.Map();
-            newState = newState.set('nextId', nodes[nodes.length - 1].id + 1);
+            var newState = that.newModel(modelId);
+            newState = newState.merge(Immutable.Map({
+                nextId: nodes[nodes.length - 1].id + 1,
+                synced: true
+            }));
+            var s = newState.get('settings');
+            s = s.merge(Immutable.Map({
+                name:        name,
+                maxIterable: iterable,
+                saved:       true
+            }));
+            newState = newState.set('settings', s);
 
-            newState = newState.set('nodeData',Immutable.Map());
-            newState = newState.set('nodeGui', Immutable.Map());
-            newState = newState.set('links',   Immutable.Map());
-
-            var lookUp = {};
             nodes.forEach(function(node) {
-                newState = newState.set('nodeData',
-                    newState.get('nodeData').set(node.id, Immutable.Map({
-                        id: node.id,
-                        value: node.starting_value,
-                        relativeChange: node.change_value || 0,
-                        simulateChange: 0,
-                        type: node.type
-                    })
-                ));
+                var nd = newState.get('nodeData').set(node.id, Immutable.Map({
+                    id:             node.id,
+                    value:          node.starting_value,
+                    relativeChange: node.change_value || 0,
+                    simulateChange: 0,
+                    type:           node.type
+                }));
+                newState = newState.set('nodeData', nd);
 
-                newState = newState.set('nodeGui',
-                    newState.get('nodeGui').set(node.id, Immutable.Map({
-                        id: node.id,
-                        x: node.x,
-                        y: node.y,
-                        radius: node.radius
-                    })
-                ));
+                var ng = newState.get('nodeGui').set(node.id, Immutable.Map({
+                    id:     node.id,
+                    x:      node.x,
+                    y:      node.y,
+                    radius: node.radius,
+                    links:  Immutable.List()
+                }));
+                newState = newState.set('nodeGui', ng);
             });
 
             links.forEach(function(link) {
-                newState = newState.set('links',
-                    newState.get('links').set(link.id,
-                        Immutable.Map({
-                            id: link.id,
-                            node1: link.from_node,
-                            node2: link.to_node,
-                            coefficient: link.threshold,
-                            type: link.type,
-                            timelag: link.timelag,
-                            width: 14
-                        })
-                    )
-                );
+                var l = newState.get('links').set(link.id, Immutable.Map({
+                    id:          link.id,
+                    node1:       link.from_node,
+                    node2:       link.to_node,
+                    coefficient: link.threshold,
+                    type:        link.type,
+                    timelag:     link.timelag,
+                    width:       14
+                }));
 
-                var fromNode = newState.get('nodeGui').get(link.from_node);
-                if(fromNode.get('links') === undefined) {
-                    fromNode = fromNode.set('links', Immutable.List());
-                }
-                newState = newState.set('nodeGui',
-                    newState.get('nodeGui').set(link.from_node, 
-                        fromNode.set('links',
-                            fromNode.get('links').merge(
-                                Immutable.List([link.id])
-                            )
-                        )
-                    )
-                );
+                newState = newState.set('links', l);
 
-                var toNode = newState.get('nodeGui').get(link.to_node);
-                if(toNode.get('links') === undefined) {
-                    toNode = toNode.set('links', Immutable.List());
-                }
-                newState = newState.set('nodeGui',
-                    newState.get('nodeGui').set(link.to_node, 
-                        toNode.set('links',
-                            toNode.get('links').merge(
-                                Immutable.List([link.id])
-                            )
-                        )
-                    )
-                );
+                var ng1 = newState.get('nodeGui').get(link.from_node);
+                ng1 = ng1.set('links', ng1.get('links').push(link.id));
+
+                var ng2 = newState.get('nodeGui').get(link.to_node);
+                ng2 = ng2.set('links', ng2.get('links').push(link.id));
+
+                var ng = newState.get('nodeGui');
+                ng = ng.set(link.from_node, ng1);
+                ng = ng.set(link.to_node, ng2);
+
+                newState = newState.set('nodeGui', ng);
             });
 
             callback(newState);

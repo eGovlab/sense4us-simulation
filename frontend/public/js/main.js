@@ -21,20 +21,11 @@ CONFIG.setConfig(require('./config.js'));
 network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
 
 var selectedMenu  = Immutable.Map({}),
-    loadedModel   = Immutable.Map({
-        id:       0,
-        synced:   false,
-
-        nextId:   0,
-        nodeData: Immutable.Map({}),
-        nodeGui:  Immutable.Map({}),
-        links:    Immutable.Map({}),
-        settings: Immutable.Map({
-            name:     "New Model",
-            maxIterable: 0
-        })
+    loadedModel   = modelLayer.newModel(),
+    savedModels   = Immutable.Map({
+        local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
+        synced: Immutable.Map()
     }),
-    localModels   = [loadedModel],
     environment   = 'model';
 
 var UI = require('./ui'),
@@ -45,10 +36,6 @@ var UIData = Immutable.Map({
     menu:         settings.menu,
     selectedMenu: Immutable.List()
 });
-
-var updateModel = function(model) {
-    localModels = localModels.set(model.get('id'), model);
-};
 
 var loadedModelChange = function(arg) {
     if(arg === undefined || !Immutable.Map.isMap(arg)) {
@@ -74,12 +61,12 @@ var environmentChange = function(arg) {
     return environment = arg;
 };
 
-var localModelsChange = function(arg) {
+var savedModelsChange = function(arg) {
     if(arg === undefined || !Immutable.Map.isMap(arg)) {
-        return localModels;
+        return savedModels;
     }
 
-    return localModels = arg;
+    return savedModels = arg;
 };
 
 var UIDataChange = function(arg) {
@@ -127,8 +114,6 @@ var updateSelected = function(newSelected) {
         ));
     } else if (newSelected.get('maxIterable') !== undefined) {
         loadedModel = loadedModel.set('settings', newSelected);
-        updateModel(loadedModel);
-        UIRefresh();
     } else {
         if(newSelected.get('delete') === true) {
             console.log('NODE');
@@ -169,6 +154,25 @@ var updateSelected = function(newSelected) {
         //loadedModel.get('nodeGui')  = loadedModel.get('nodeGui').set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
     }
 
+    if(savedModels.get('synced').get(loadedModel.get('id')) !== undefined) {
+        savedModels = savedModels.set('synced',
+            savedModels.get('synced').set(loadedModel.get('id'),
+                loadedModel.set('settings', loadedModel.get('settings').set('saved',
+                    false)
+                )
+            )
+        );
+    } else {
+        savedModels = savedModels.set('local',
+            savedModels.get('local').set(loadedModel.get('id'),
+                loadedModel.set('settings', loadedModel.get('settings').set('saved',
+                    false)
+                )
+            )
+        );
+    }
+
+    UIRefresh();
     refresh();
 };
 
@@ -244,19 +248,22 @@ function menuRefresh(UIData, container, updateCallback) {
                 function onClick() {
                     menu.get('callback').call(
                         this,
+                        refresh,
                         loadedModelChange,
                         selectedMenuChange,
-                        localModelsChange,
+                        savedModelsChange,
                         environmentChange,
                         UIDataChange
                     );
                 },
+                
                 function update() {
                     menu.get('update').call(
                         this,
+                        refresh,
                         loadedModelChange,
                         selectedMenuChange,
-                        localModelsChange,
+                        savedModelsChange,
                         environmentChange,
                         UIDataChange
                     );
