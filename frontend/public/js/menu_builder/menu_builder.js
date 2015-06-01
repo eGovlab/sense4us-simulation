@@ -48,15 +48,22 @@ MenuBuilder.prototype = {
 
         return option;
     },
+    
+    addValueCallback: function(element, callback, event) {
+        event = event || 'change';
+        
+        var cb = function(event) {callback(element.name, element.value);};
+        
+        element.addEventListener(event, cb);
+        element.deleteEvent = function() {
+            element.removeEventListener(event, cb);
+        };
+    },
 
     input: function(key, value, callback) {
         var input = document.createElement('input');
         
-        var cb = function(event) {callback(input.value, input.name);};
-        input.addEventListener('change', cb);
-        input.deleteEvent = function() {
-            input.removeEventListener('change', cb);
-        }
+        MenuBuilder.prototype.addValueCallback(input, callback);
 
         //input.addEventListener('keydown', function(event) {callback(input.value, input.name);});
         input.name = key;
@@ -77,6 +84,12 @@ MenuBuilder.prototype = {
         var p = document.createElement('p');
 
         return p;
+    },
+
+    img: function() {
+        var img = document.createElement('img');
+
+        return img;
     },
 
     menu: function(text, callback) {

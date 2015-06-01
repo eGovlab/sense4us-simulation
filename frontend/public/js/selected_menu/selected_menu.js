@@ -7,6 +7,11 @@ function createMenu(map, callback) {
     var menu = new SelectMenu();
 
     map.forEach(function(value, key) {
+        if (key === 'avatar' || key === 'icon') {
+            menu.addAvatarSelector(key, value, function(cbKey, cbValue){callback(map.set(cbKey, cbValue))});
+            return;
+        }
+        
         menu.addInput(key, value, function(cbKey, cbValue){callback(map.set(cbKey, cbValue))});
     });
 

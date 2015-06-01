@@ -64,7 +64,7 @@
     cursor: pointer;
 }
 
-#sidebar .menu > button:hover {
+#sidebar .menu > button:hover, #sidebar .menu .avatarPreview:hover {
     background-color: rgba(22, 100, 114, 1);
     color: #fafafa;
     -webkit-animation: MENU_FADEIN 0.5s 1;
@@ -78,4 +78,47 @@
 
 #sidebar > .menu > div {
     margin-bottom: 6px;
+}
+
+#sidebar .menu .avatars:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+#sidebar .menu .avatarPreview {
+    box-sizing: border-box;
+    cursor: pointer;
+    max-width: 50%;
+    max-height: 100px;
+    float: left;
+    border-radius: 50%;
+}
+
+#sidebar .menu .avatarPreview.selected:hover {
+    -webkit-animation: nonde;
+    -moz-animation:    nonde;
+    animation:         none;
+}
+
+#sidebar .menu .avatarPreview img {
+    display: block;
+    max-width: 84%;
+    border-radius: 50%;
+    margin: 8%;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}
+
+#sidebar .menu .avatarPreview.selected {
+    background-color: rgba(22, 100, 114, 1);
+}
+
+#sidebar .menu .avatarPreview.selected img {
+    opacity: 1.0;
+    filter: alpha(opacity=100);
+}
+
+#sidebar .menu .avatarPreview::nth-child(2n+1) {
+    clear: both;
 }

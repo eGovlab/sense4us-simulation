@@ -48,7 +48,8 @@ var createNode = function(state, x, y, type, description) {
         id: id,
         x: x || 200,
         y: y || 100,
-        radius: 75
+        radius: 75,
+        selected: true
     }));
 
     state.refresh();
