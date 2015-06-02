@@ -1,9 +1,11 @@
 'use strict';
 
-var Model       = require('./model.js'),
-    network     = require('./network'),
-    Immutable   = require('Immutable'),
-    menuBuilder = require('./menu_builder');
+var Model           = require('./model.js'),
+    network         = require('./network'),
+    Immutable       = require('Immutable'),
+    breakout        = require('./breakout.js'),
+    notificationBar = require('./notification_bar'),
+    menuBuilder     = require('./menu_builder');
 
 var generateId = 0;
 
@@ -13,6 +15,7 @@ module.exports = {
             id:       id || generateId,
             saved:    false,
             synced:   false,
+            syncId:   null,
 
             nextId:   0,
             nodeData: Immutable.Map({}),
@@ -29,48 +32,63 @@ module.exports = {
         return map;
     },
 
-    deleteModel: function(model) {
-        /*if (model && model instanceof Model) {
-            this.localModels = this.localModels.filter(function(m) {
-                if (model.id === m.id) {
-                    return false;
+    saveModel: function(_loadedModel, refresh) {
+        var loadedModel = _loadedModel();
+        var data = {
+            modelId: loadedModel.get('syncId'),
+            model:   loadedModel.get('settings').get('name'),
+            nodes:   breakout.nodes(loadedModel),
+            links:   breakout.links(loadedModel)
+        };
+
+        network.postData('/models/save', data, function(response, err) {
+            if (err) {
+                console.log(response);
+                return;
+            }
+
+            loadedModel = loadedModel.set('syncId', response.response.id);
+            loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('saved', true));
+            _loadedModel(loadedModel);
+
+            notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+            refresh();
+        });
+    },
+
+    deleteModel: function(_loadedModel, _savedModels, refresh) {
+        var savedModels = _savedModels(),
+            loadedModel = _loadedModel(),
+            that        = this;
+
+        if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
+            network.deleteData('/models/' + loadedModel.get('syncId'), {}, function(response, err) {
+                if(err) {
+                    console.log(response);
+                    console.log(err);
+                    return;
                 }
 
-                return true;
+                savedModels = savedModels.set('synced', savedModels.get('synced').delete(loadedModel.get('syncId')));
+                loadedModel = savedModels.get('local').first();
+
+                if(loadedModel === undefined) {
+                    loadedModel = that.newModel();
+                }
+
+                notificationBar.notify(response.response.message);
+                _savedModels(savedModels);
+                _loadedModel(loadedModel);
+                refresh();
             });
+        } else {
+            savedModels = savedModels.set('local', savedModels.get('local').delete(loadedModel.get('id')));
+            loadedModel = this.newModel();
 
-            if (this.models[model.id]) {
-                this.models[model.id] = null;
-            }
-        } else if (model && (typeof model === 'number' || typeof model === 'string')) {
-            if (typeof model === 'string') {
-                var check = model.match(/^local:(\d+)$/);
-                if (isNaN(parseInt(model)) && check !== null) {
-                    model = check[1];
-                } else if (!isNaN(parseInt(model))) {
-                    model = parseInt(model);
-                } else {
-                    throw new Error('Invalid ID given to deleteModel.');
-                }
-            }
-
-            this.localModels = this.localModels.filter(function(m) {
-                if (model === m.id) {
-                    return false;
-                }
-
-                return true;
-            });
-
-            if (this.models[model]) {
-                this.models[model] = null;
-            }
+            _savedModels(savedModels);
+            _loadedModel(loadedModel);
+            refresh();
         }
-
-        this.localModels = this.localModels.map(function(m, i) {
-            m.id = i;
-            return m;
-        });*/
     },
     
     loadSyncModel: function(modelId, callback) {
@@ -86,9 +104,19 @@ module.exports = {
                 name     = response.response.name,
                 iterable = response.response.maxIterable
 
-            var newState = that.newModel(modelId);
+
+            var nextId = 0;
+            nodes.forEach(function() {
+                nextId += 1;
+            });
+            links.forEach(function() {
+                nextId += 1;
+            });
+
+            var newState = that.newModel();
             newState = newState.merge(Immutable.Map({
-                nextId: nodes[nodes.length - 1].id + 1,
+                syncId: response.response.id,
+                nextId: nextId,
                 synced: true
             }));
             var s = newState.get('settings');

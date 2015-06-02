@@ -12,10 +12,12 @@ var drawSelectedMenu = curry(require('./selected_menu'), document.getElementById
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
     modelLayer       = require('./model_layer.js'),
-    menuBuilder      = require('./menu_builder');
-
-var network = require('./network'),
+    menuBuilder      = require('./menu_builder'),
+    notificationBar  = require('./notification_bar'),
+    network = require('./network'),
     CONFIG  = require('rh_config-parser');
+
+notificationBar.setContainer(document.getElementById('notification-bar'));
 
 CONFIG.setConfig(require('./config.js'));
 network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
@@ -26,7 +28,7 @@ var selectedMenu  = Immutable.Map({}),
         local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
         synced: Immutable.Map()
     }),
-    environment   = 'model';
+    environment   = 'edit';
 
 var UI = require('./ui'),
     settings = require('./settings');
@@ -37,45 +39,49 @@ var UIData = Immutable.Map({
     selectedMenu: Immutable.List()
 });
 
-var loadedModelChange = function(arg) {
-    if(arg === undefined || !Immutable.Map.isMap(arg)) {
-        return loadedModel;
+var changeCallbacks = Immutable.Map({
+    loadedModel: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return loadedModel;
+        }
+
+        return loadedModel = arg;
+    },
+
+    selectedMenu: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return selectedMenu;
+        }
+
+        return selectedMenu = arg;
+    },
+
+    environment: function(arg) {
+        if(arg === undefined || typeof arg !== 'string') {
+            return environment;
+        }
+
+        return environment = arg;
+    },
+
+    savedModels: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return savedModels;
+        }
+
+        return savedModels = arg;
+    },
+
+    UIData: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return UIData;
+        }
+
+        return UIData = arg;
     }
+});
 
-    return loadedModel = arg;
-};
 
-var selectedMenuChange = function(arg) {
-    if(arg === undefined || !Immutable.Map.isMap(arg)) {
-        return selectedMenu;
-    }
-
-    return selectedMenu = arg;
-};
-
-var environmentChange = function(arg) {
-    if(arg === undefined || typeof arg !== 'string') {
-        return environment;
-    }
-
-    return environment = arg;
-};
-
-var savedModelsChange = function(arg) {
-    if(arg === undefined || !Immutable.Map.isMap(arg)) {
-        return savedModels;
-    }
-
-    return savedModels = arg;
-};
-
-var UIDataChange = function(arg) {
-    if(arg === undefined || !Immutable.Map.isMap(arg)) {
-        return UIData;
-    }
-
-    return UIData = arg;
-};
 
 var drawNode = require('./graphics/draw_node.js');
     drawNode = curry(drawNode, mainCanvas.getContext('2d'));
@@ -226,9 +232,17 @@ function sidebarRefresh(UIData, container, updateCallback) {
     container.appendChild(sidebarMenu);
 
     UIData.get('sidebar').forEach(function(button) {
-        var buttonElement = menuBuilder.button(button.get('header'), function() {
-            updateCallback(button.get('callback')(loadedModel));
-        });
+        var buttonElement;
+        if(button.get('ajax') === true) {
+            buttonElement = menuBuilder.button(button.get('header'), function() {
+                button.get('callback')(refresh, changeCallbacks);
+            });
+        } else {
+            buttonElement = menuBuilder.button(button.get('header'), function() {
+                updateCallback(button.get('callback')(loadedModel));
+            });
+        }
+        
 
         sidebarMenu.appendChild(buttonElement);
     });
@@ -249,11 +263,8 @@ function menuRefresh(UIData, container, updateCallback) {
                     menu.get('callback').call(
                         this,
                         refresh,
-                        loadedModelChange,
-                        selectedMenuChange,
-                        savedModelsChange,
-                        environmentChange,
-                        UIDataChange
+                        UIRefresh,
+                        changeCallbacks
                     );
                 },
                 
@@ -261,11 +272,8 @@ function menuRefresh(UIData, container, updateCallback) {
                     menu.get('update').call(
                         this,
                         refresh,
-                        loadedModelChange,
-                        selectedMenuChange,
-                        savedModelsChange,
-                        environmentChange,
-                        UIDataChange
+                        UIRefresh,
+                        changeCallbacks
                     );
                 }
             );

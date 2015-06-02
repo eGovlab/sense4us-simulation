@@ -92,7 +92,7 @@ module.exports = function drawNode(ctx, map, env) {
 	} else if (map.get('type') === 'origin') {
 		text = map.get('relativeChange') + '';
 	} else {
-		if (env === 'model') {
+		if (env === 'edit') {
 			text = map.get('value') + '';
 		} else if (env === 'simulate') {
 			text = map.get('simulateChange') + '';

@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = {
-    nodes: function(state) {
-        var dd = state.loadedModel.nodeData.toJSON(),
-            dg = state.loadedModel.nodeGui.toJSON(),
+    nodes: function(model) {
+        var dd = model.get('nodeData').toJSON(),
+            dg = model.get('nodeGui').toJSON(),
             allNodes = [];
 
         Object.keys(dd).forEach(function(_dd_id) {
@@ -22,8 +22,8 @@ module.exports = {
         return allNodes;
     },
 
-    links: function(state) {
-        var links = state.loadedModel.links.toJSON(),
+    links: function(model) {
+        var links = model.get('links').toJSON(),
             allLinks = [];
 
         Object.keys(links).forEach(function(key) {
