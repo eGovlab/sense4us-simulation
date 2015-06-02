@@ -13,7 +13,7 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 	var mouseDown = function(event) {
 		active = true;
 
-		startPos = arithmetics.mouseToCanvas(event, canvas);
+		startPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
 
 		var result = null;
 		
@@ -39,7 +39,7 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 	var mouseMove = function(event) {
 		active = true;
 
-		endPos = arithmetics.mouseToCanvas(event, canvas);
+		endPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
 
 		deltaPos.x += endPos.x - startPos.x;
 		deltaPos.y += endPos.y - startPos.y;
@@ -53,7 +53,7 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 	var mouseUp = function(event) {
 		active = false;
 
-		endPos = arithmetics.mouseToCanvas(event, canvas);
+		endPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
 
 		window.removeEventListener('mousemove', mouseMove);
 		window.removeEventListener('mouseup', mouseUp);
