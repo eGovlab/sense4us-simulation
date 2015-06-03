@@ -1,0 +1,5 @@
+module.exports = {
+    BACKEND_HOSTNAME:  'localhost:3000',
+    SIDEBAR_CONTAINER: document.getElementById('sidebar'),
+    MENU_CONTAINER:    document.getElementById('upper-menu')
+};

@@ -1,7 +1,7 @@
 'use strict';
 
 var Immutable = require('Immutable'),
-    edit     = require('./edit.js'),
+    edit      = require('./edit.js'),
     simulate  = require('./simulate.js'),
     menu      = require('./menu.js');
 
