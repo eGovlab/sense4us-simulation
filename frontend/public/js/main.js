@@ -55,8 +55,7 @@ var selectedMenu  = Immutable.Map({}),
     }),
     environment   = 'edit';
 
-var UI = require('./ui'),
-    settings = require('./settings');
+var settings = require('./settings');
 
 var UIData = Immutable.Map({
     sidebar:      settings.sidebar,
