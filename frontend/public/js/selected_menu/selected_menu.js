@@ -2,9 +2,23 @@
 
 var Immutable   = require('Immutable'),
     menuBuilder = require('./../menu_builder'),
-    settings    = require('./../settings');
+    settings    = require('./../settings'),
+    buttons     = require('./buttons.js');
 
-function addAvatarSelector(header, value, callback) {
+function createButtons(list, model, onChangeCallback) {
+    var containerDiv = menuBuilder.div();
+    containerDiv.className = 'menu';
+
+    list.forEach(function(button) {
+        containerDiv.appendChild(menuBuilder.button(button.get('header'), function() {
+            onChangeCallback(button.get('callback')(model));
+        }));
+    });
+
+    return containerDiv;
+};
+
+function createAvatarSelector(header, value, callback) {
     var containerDiv = menuBuilder.div(),
         labelDiv     = menuBuilder.div(),
         avatarsDiv   = menuBuilder.div();
@@ -45,13 +59,14 @@ function createMenu(map, onChangeCallback) {
     });
 
     menu.get('element').className = 'menu';
+    menu.get('element').appendChild(createButtons(buttons, map, onChangeCallback));
 
     map.forEach(function(value, key) {
         var containerDiv = menuBuilder.div(),
             inputDiv     = menuBuilder.div();
 
         if(key === 'avatar' || key === 'icon') {
-            containerDiv = addAvatarSelector(key, value, function(inputKey, inputValue) {
+            containerDiv = createAvatarSelector(key, value, function(inputKey, inputValue) {
                 onChangeCallback(map.set(inputKey, inputValue));
             });
         } else {
@@ -102,6 +117,8 @@ var namespace = {
             return menu;
         }
 
+        console.log(menu);
+
         return menu;
     },
 
@@ -149,24 +166,31 @@ var namespace = {
                 return;
             }
 
-            _loadedModel(loadedModel.set('nodeData', loadedModel.get('nodeData').set(newSelected.get('id'), 
-                loadedModel.get('nodeData').get(newSelected.get('id')).merge(Immutable.Map({
-                        id:             newSelected.get('id'),
-                        value:          newSelected.get('value'),
-                        relativeChange: newSelected.get('relativeChange'),
-                        description:    newSelected.get('description')
-                    })
-                )
-            )));
+            var nodeData = loadedModel.get('nodeData'),
+                nodeGui  = loadedModel.get('nodeGui'),
+                node     = nodeData.get(newSelected.get('id'));
 
-            _loadedModel(loadedModel.set('nodeGui', loadedModel.get('nodeGui').set(newSelected.get('id'), 
-                loadedModel.get('nodeGui').get(newSelected.get('id')).merge(Immutable.Map({
-                        radius: newSelected.get('radius'),
-                        avatar: newSelected.get('avatar'),
-                        icon: newSelected.get('icon')
-                    })
-                )
-            )));
+            node = node.merge(Immutable.Map({
+                id:             newSelected.get('id'),
+                value:          newSelected.get('value'),
+                relativeChange: newSelected.get('relativeChange'),
+                description:    newSelected.get('description')
+            }));
+
+            nodeData = nodeData.set(node.get('id'), node);
+            loadedModel = loadedModel.set('nodeData', nodeData);
+
+            node = nodeGui.get(newSelected.get('id'));
+            node = node.merge(Immutable.Map({
+                radius: newSelected.get('radius'),
+                avatar: newSelected.get('avatar'),
+                icon:   newSelected.get('icon')
+            }));
+
+            nodeGui = nodeGui.set(node.get('id'), node);
+            loadedModel = loadedModel.set('nodeGui', nodeGui);
+
+            _loadedModel(loadedModel);
         }
 
         if(savedModels.get('synced').get(loadedModel.get('id')) !== undefined) {
