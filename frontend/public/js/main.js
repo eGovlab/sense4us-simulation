@@ -158,6 +158,7 @@ var dragHandler   = require('./mechanics/drag_handler.js'),
 
 dragHandler(
     mainCanvas,
+    
     function mouseDown(pos) {
         var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
@@ -168,10 +169,11 @@ dragHandler(
         return true;
     },
 
-    function mouseMove(pos) {
-        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+    function mouseMove(pos, deltaPos) {
+        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), deltaPos: Immutable.Map({x: deltaPos.x, y: deltaPos.y}), settings: loadedModel.settings, nodeGui: loadedModel.nodeGui, links: loadedModel.links});
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
         loadedModel.links = loadedModel.links.merge(data.links);
+        loadedModel.settings = loadedModel.settings.merge(data.settings);
 
         refresh();
     },
@@ -180,6 +182,9 @@ dragHandler(
         var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
         loadedModel.links = loadedModel.links.merge(data.links);
+
+        mainCanvas.panX = -loadedModel.settings.get('offsetX');
+        mainCanvas.panY = -loadedModel.settings.get('offsetY');
 
         refresh();
     }
@@ -191,8 +196,12 @@ function _refresh() {
     if (modelLayer.selected !== loadedModel) {
         loadedModel = modelLayer.selected;
     }
+    
+    if (loadedModel.settings.get('offsetX') && loadedModel.settings.get('offsetY')) {
+        context.setTransform(1, 0, 0, 1, -loadedModel.settings.get('offsetX'), -loadedModel.settings.get('offsetY'));
+    }
 
-    context.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    context.clearRect(loadedModel.settings.get('offsetX'), loadedModel.settings.get('offsetY'), mainCanvas.width, mainCanvas.height);
 
     // draw the links and arrows
     loadedModel.links.forEach(function(link) {

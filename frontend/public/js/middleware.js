@@ -18,7 +18,7 @@ var middleware = function(callbacks, error, done) {
 
 		var pos = callbacks.indexOf(this);
 
-		if (pos === -1) {
+		if (pos === -1 && data.done !== true) {
 			throw new Error('something pooped');
 		}
 
