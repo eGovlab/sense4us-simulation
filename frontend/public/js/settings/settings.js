@@ -1,7 +1,7 @@
 'use strict';
 
 var Immutable = require('Immutable'),
-    model     = require('./model.js'),
+    edit     = require('./edit.js'),
     simulate  = require('./simulate.js'),
     menu      = require('./menu.js');
 
@@ -39,7 +39,7 @@ var data = {
         }
     ],
 
-    sidebar: model,
+    sidebar: edit,
     menu:    menu
 };
 
