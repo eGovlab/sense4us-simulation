@@ -29,7 +29,7 @@ function deselect(data) {
     return data;
 }
 
-function select(data) {
+function select(data, error, done) {
     // if we click on a icon we want to start moving it!
     collidedNodes = data.nodeGui.
         filter(function(node) { return node.get('icon') !== undefined && hitTest(data.pos, icon(node)); }).
@@ -43,7 +43,7 @@ function select(data) {
     data.nodeGui = data.nodeGui.merge(collidedNodes);
 
     if (collidedNodes.size > 0) {
-        return data;
+        return done(data);
     }
     
     // but if we click on the node, we want to move the actual node
@@ -61,12 +61,11 @@ function select(data) {
     data.nodeGui = data.nodeGui.merge(collidedNodes);
 
     if (collidedNodes.size > 0) {
-        return data;
+        return done(data);
     }
 
     // if we didn't click any nodes, we check if we clicked any links
-    data.links = data.links.merge(
-        data.links.
+    var collidedLinks = data.links.
         filter(function(link) { return hitTest(aggregatedLink(link, data.nodeGui), data.pos); }).
         slice(-1).
         map(function(link) {
@@ -77,7 +76,11 @@ function select(data) {
                 selected: true
             });
          })
-    );
+    data.links = data.links.merge(collidedLinks);
+
+    if (collidedLinks.size > 0) {
+        return done(data);
+    }
 
     return data;
 }
