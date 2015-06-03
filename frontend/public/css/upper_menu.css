@@ -14,6 +14,10 @@
     float: left;
 }
 
+#upper-menu > .menu > div:first-child {
+    margin-left: 200px;
+}
+
 #upper-menu > .menu > button {
     padding: 3px 0px;
     color: #505050;
