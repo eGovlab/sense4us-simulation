@@ -27,7 +27,6 @@ var simulate = Immutable.List([
 
                 var nodes = response.response.nodes;
                 nodes.forEach(function(node) {
-                    console.log(node);
                     var nodeData = newState.get('nodeData');
                     nodeData = nodeData.set(node.id, nodeData.get(node.id).set('simulateChange', node.relativeChange));
                     newState = newState.set('nodeData', nodeData);
