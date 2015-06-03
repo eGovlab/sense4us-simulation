@@ -105,7 +105,7 @@ var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
         savedModels = changeCallbacks.get('savedModels'),
         loadedModel = changeCallbacks.get('loadedModel'),
         s           = savedModels(),
-        text        = this.text.match(/^(\s\*\s)?(.*)$/)[2],
+        text        = this.text.match(/^(\[\w+\])?(\s\*\s)?(.*)$/)[3],
         loaded      = loadedModel(),
         that        = this;
 

@@ -57,7 +57,9 @@ module.exports = function(ctx, line) {
 
     if (line.get('selected') === true) {
         ctx.strokeStyle = 'rgba(30, 220, 140, 0.8)';
-    } else {
+    } else if(line.get('loop') === true) {
+        ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
+    }  else {
         ctx.strokeStyle = 'rgba(20, 200, 120, 0.6)';
     }
 
@@ -83,6 +85,8 @@ module.exports = function(ctx, line) {
 
     if (line.get('selected') === true) {
         ctx.strokeStyle = 'rgba(90, 255, 200, 0.8)';
+    } else if(line.get('loop') === true) {
+        ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
     } else {
         ctx.strokeStyle = 'rgba(75, 255, 175, 0.6)';
     }

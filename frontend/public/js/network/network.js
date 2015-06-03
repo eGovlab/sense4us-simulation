@@ -44,10 +44,10 @@ NetworkLayer.prototype = {
                         console.log('No callback was sent with the query against ' + path);
                     }
 
-                    } else {
-                       callback(rt, {status: httpRequest.status});
-                    }
+                } else {
+                    callback(rt, {status: httpRequest.status});
                 }
+            }
         };
 
         if (!method) {

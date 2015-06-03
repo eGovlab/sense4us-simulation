@@ -399,7 +399,7 @@ function _refresh() {
     } else {    // draw menu for the model
         selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected);
     }
-    // update the menu
+    //update the menu
 }
 
 function refresh() {

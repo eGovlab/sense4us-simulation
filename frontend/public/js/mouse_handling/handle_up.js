@@ -1,9 +1,10 @@
 'use strict';
 
-var middleware = require('./../middleware.js');
-var hitTest = require('./../collisions.js').hitTest;
-var linker = require('./../linker.js');
-var Immutable = require('Immutable');
+var middleware = require('./../middleware.js'),
+	hitTest      = require('./../collisions.js').hitTest,
+	linker       = require('./../linker.js'),
+	Immutable    = require('Immutable'),
+	modelLayer   = require('./../model_layer.js');
 
 var mouseDownWare = middleware([
 	link,

@@ -1,7 +1,8 @@
 'use strict';
 
 var SelectButton = require('./select_button.js'),
-    menuBuilder  = require('./../menu_builder');
+    menuBuilder  = require('./../menu_builder'),
+    settings     = require('./../settings');
 
 function SelectMenu() {
     if (!(this instanceof SelectMenu)) {
@@ -45,12 +46,45 @@ SelectMenu.prototype = {
             inputDiv     = menuBuilder.div();
 
         labelDiv.appendChild(menuBuilder.label(header));
-        inputDiv.appendChild(menuBuilder.input(header, value, function(inputValue, inputKey) {
-            callback(inputKey, inputValue);
-        }));
+        inputDiv.appendChild(menuBuilder.input(header, value, callback));
 
         containerDiv.appendChild(labelDiv);
         containerDiv.appendChild(inputDiv);
+
+        this.element.appendChild(containerDiv);
+    },
+
+    addAvatarSelector: function(header, value, callback) {
+        var containerDiv = menuBuilder.div(),
+            labelDiv     = menuBuilder.div(),
+            avatarsDiv   = menuBuilder.div();
+        
+        avatarsDiv.className = 'avatars';
+
+        labelDiv.appendChild(menuBuilder.label(header));
+        
+        settings.avatars.forEach(function(avatar) {
+            var avatarDiv = menuBuilder.div();
+            var img = menuBuilder.img();
+            
+            avatarDiv.className = 'avatarPreview';
+            
+            if (value === avatar.src) {
+                avatarDiv.className += ' selected';
+            }
+        
+            img.src = avatar.src;
+            avatarDiv.value = avatar.src;
+            avatarDiv.name = header;
+            
+            menuBuilder.addValueCallback(avatarDiv, callback, 'click');
+            
+            avatarDiv.appendChild(img);
+            avatarsDiv.appendChild(avatarDiv);
+        });
+
+        containerDiv.appendChild(labelDiv);
+        containerDiv.appendChild(avatarsDiv);
 
         this.element.appendChild(containerDiv);
     },
