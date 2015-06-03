@@ -2,7 +2,7 @@
 docs/
 bundle.js
 typings/
-frontend/public/js/settings/config.js
+frontend/public/js/config.js
 
 npm-debug.log
 config.json

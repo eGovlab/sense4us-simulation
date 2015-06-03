@@ -1,255 +1,182 @@
 'use strict';
 
-var modelLayer      = require('./../model_layer.js'),
-    modeLayer       = require('./../mode_layer.js'),
-    menuLayer       = require('./menu_layer.js'),
-    network         = require('./../network'),
-    notificationBar = require('./../notification_bar'),
-    breakout        = require('./../breakout.js'),
-    menuBuilder     = require('./../menu_builder');
+var Immutable  = require('Immutable'),
+    network    = require('./../network'),
+    model      = require('./model.js'),
+    simulate   = require('./simulate.js'),
+    modelLayer = require('./../model_layer.js');
 
-/*
-** modelDropdownUpdate
-** modelDropdownChoose
-** modelEnv
-** simulateEnv
-*/
-
-var modelDropdownUpdate = function(state) {
+var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
     var element = this;
+
+    element.resetOptions();
+    element.addOption('edit', "Edit");
+    element.addOption('simulate', "Simulate");
+
+    element.refreshList();
+};
+
+var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
+    var option = this.value;
+
+    var UIData      = changeCallbacks.get('UIData'),
+        environment = changeCallbacks.get('environment'),
+        ui          = UIData();
+
+    this.parent.toggle();
+
+    switch(option) {
+        case 'edit':
+            ui = ui.set('sidebar', model);
+            environment('edit');
+            UIData(ui);
+            UIRefresh();
+            refresh();
+            break;
+        case 'simulate':
+            ui = ui.set('sidebar', simulate);
+            environment('simulate');
+            UIData(ui);
+            UIRefresh();
+            refresh();
+            break;
+    }
+};
+
+var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
+    var element = this;
+
+    var savedModels = changeCallbacks.get('savedModels'),
+        loadedModel = changeCallbacks.get('loadedModel');
 
     element.resetOptions();
     element.addOption('new', 'New Model');
     element.addOption('save', 'Save Current');
     element.addOption('delete', 'Delete Current');
 
-    if (state.loadedModel === null) {
-        state.loadedModel = modelLayer.createModel();
-        state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ': New Model'));
-        state.loadedModel.local = true;
-        modelLayer.select(state.loadedModel);
-    }
+    network.getData('/models/all', function(response, error) {
+        var sm = savedModels();
+        sm.get('local').forEach(function(model) {
+            if(model.get('synced') === true) {
+                return;
+            }
 
-    modelLayer.iterateModels(function(model, index) {
-        element.addOption(model.getId(), model.name);
+            var savedString = "";
+            if(model.get('saved') === false) {
+                savedString = " * ";
+            }
 
-        if (model.getId() === modelLayer.selected.getId()) {
-            element.select(index + 3);
+            element.addOption(model.get('id'), '[' + model.get('id') + ']' +savedString + model.get('settings').get('name'));
+        });
+
+        sm.get('synced').forEach(function(model) {
+            var savedString = "";
+            if(model.get('saved') === false) {
+                savedString = " * ";
+            }
+
+            element.addOption(model.get('syncId'), savedString + model.get('settings').get('name'));
+        });
+
+        if(error) {
+            element.refreshList();
+            return;
         }
-    }, function() {
+
+        var models = response.response.models;
+
+        var local  = sm.get('local'),
+            synced = sm.get('synced');
+
+        models.forEach(function(model) {
+            element.addOption(model.id, model.name);
+        });
+
         element.refreshList();
-        if(element.visible()) {
-            element.toggle();
-        }
-        state.refresh();
     });
 };
 
-var saveModel = function(state) {
-    if (state.loadedModel.synced) {
-        var data = {
-            modelId: state.loadedModel.syncId,
-            model:   state.loadedModel.name,
-            nodes:   breakout.nodes(state),
-            links:   breakout.links(state)
-        };
+var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
+    var option      = this.value,
+        savedModels = changeCallbacks.get('savedModels'),
+        loadedModel = changeCallbacks.get('loadedModel'),
+        s           = savedModels(),
+        text        = this.text.match(/^(\[\w+\])?(\s\*\s)?(.*)$/)[3],
+        loaded      = loadedModel(),
+        that        = this;
 
-        network.postData('/models/save', data, function(response, err) {
-            if (err) {
-                console.log(response);
-                return;
-            }
-
-            notificationBar.notify('Model['+state.loadedModel.name+'] saved.');
-        });
-        return;
-    }
-
-    var blackout = menuBuilder.div();
-    blackout.className = 'blackout';
-
-    var saveForm = menuBuilder.div();
-    saveForm.className = 'save-form';
-
-    var saveFormContainer = menuBuilder.div();
-    saveFormContainer.className = 'save-form-container';
-
-    var form = document.createElement('form');
-    var nameDiv = document.createElement('div');
-
-    var nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.name = 'model-name';
-    nameInput.className = 'save-form-input';
-    var nameLabel = document.createElement('label');
-    nameLabel.innerHTML = 'Name';
-    nameLabel.className = 'save-form-label';
-
-    nameDiv.appendChild(nameLabel);
-    nameDiv.appendChild(nameInput);
-
-    var buttonContainer = menuBuilder.div();
-    buttonContainer.className = 'save-form-button-container';
-
-    var submitButton = document.createElement('input');
-    submitButton.type = 'submit';
-    submitButton.value = 'Save';
-
-    var cancelButton = document.createElement('button');
-    cancelButton.innerHTML = 'Cancel';
-
-    cancelButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.body.removeChild(blackout);
-    });
-
-    buttonContainer.appendChild(submitButton);
-    buttonContainer.appendChild(cancelButton);
-
-    form.appendChild(nameDiv);
-    form.appendChild(buttonContainer);
-
-    saveFormContainer.appendChild(form);
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        document.body.removeChild(blackout);
-
-        var data = {
-            modelId: null,
-            model: nameInput.value,
-            nodes: breakout.nodes(state),
-            links: breakout.links(state)
-        };
-
-        network.postData('/models/save', data, function(response, err) {
-            if (err) {
-                return;
-            }
-
-            var id = response.response.id;
-            var name = response.response.name;
-
-            notificationBar.notify('Model['+name+'] saved.');
-            state.loadedModel.synced = true;
-            state.loadedModel.setSyncId(id);
-            state.loadedModel.name = name;
-            modelLayer.select(state.loadedModel);
-
-            menuBuilder.updateAll();
-        });
-    });
-
-    saveForm.appendChild(saveFormContainer);
-
-    document.body.appendChild(blackout);
-    blackout.appendChild(saveForm);
-};
-
-var deleteModel = function(state) {
-    if (state.loadedModel.synced) {
-        network.deleteData('/models/' + state.loadedModel.syncId, {}, function(response, err) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-
-            notificationBar.notify('Model['+state.loadedModel.name+'] deleted.');
-            modelLayer.deleteModel(state.loadedModel);
-            modelLayer.reselect();
-            menuBuilder.updateAll();
-            state.refresh();
-        });
+    if(loaded.get('synced') === true) {
+        s = s.set('synced', s.get('synced').set(loaded.get('syncId'), loaded));
+        savedModels(s)
     } else {
-        notificationBar.notify('Model['+state.loadedModel.getId()+'] deleted.');
-        modelLayer.deleteModel(state.loadedModel);
-        modelLayer.reselect();
-        menuBuilder.updateAll();
-        state.refresh();
+        s = s.set('local', s.get('local').set(loaded.get('id'), loaded));
+        savedModels(s)
     }
-};
 
-var modelDropdownChoose = function(state, e) {
-    var id = this.value;
+    this.parent.toggle();
 
-    switch(id) {
+    switch(option) {
         case 'new':
-            state.loadedModel = modelLayer.createModel();
-            state.loadedModel.setOption(menuBuilder.option(state.loadedModel.getId(), state.loadedModel.getId() + ': New Model'));
-            state.loadedModel.local = true;
-            modelLayer.select(state.loadedModel, state);
+            var m = modelLayer.newModel(),
+                s = savedModels();
+
+            s = s.set('local', s.get('local').set(m.get('id'), m));
+
+            savedModels(s);
+            loadedModel(m);
+
+            that.parent.toggle();
+            projectUpdate.call(this.parent, refresh, UIRefresh, changeCallbacks);
+            refresh();
             break;
         case 'save':
-            saveModel(state);
+            modelLayer.saveModel(loadedModel, function() {
+                projectUpdate.call(that.parent, refresh, UIRefresh, changeCallbacks);
+                refresh();
+            });
             break;
         case 'delete':
-            deleteModel(state);
+            modelLayer.deleteModel(loadedModel, savedModels, function() {
+                projectUpdate.call(that.parent, refresh, UIRefresh, changeCallbacks);
+                refresh();
+            });
+            break;
+        case undefined:
             break;
         default:
-            state.loadedModel = modelLayer.select(id, state);
+            if(s.get('local').get(option) === undefined || s.get('local').get(option).get('settings').get('name') !== text) {
+                if(s.get('synced').get(option) === undefined) {
+                    modelLayer.loadSyncModel(option, function(newState) {
+                        s = s.set('synced', s.get('synced').set(option, newState));
+                        savedModels(s);
+                        loadedModel(newState);
+                        refresh();
+                    });
+                } else {
+                    loadedModel(s.get('synced').get(option));
+                    refresh();
+                }
+            } else {
+                loadedModel(s.get('local').get(option));
+                refresh();
+            }
     }
 
-    this.update();
+    return loadedModel;
 };
 
-modeLayer.addMode('Model', function(state) {
-    state.selectedMenu = null;
+var menu = Immutable.List([
+    Immutable.Map({
+        header:   "Project",
+        update:   projectUpdate,
+        callback: projectCallback
+    }),
 
-    menuLayer.activateSidebar('model');
-    state.environment = 'model';
-    state.refresh();
-});
+    Immutable.Map({
+        header:   "Mode",
+        update:   modeUpdate,
+        callback: modeCallback
+    })
+]);
 
-modeLayer.addMode('Simulate', function(state) {
-    state.selectedMenu = null;
-
-    menuLayer.activateSidebar('simulate');
-    state.environment = 'simulate';
-    state.refresh();
-});
-
-var modeUpdate = function(state) {
-    var element = this;
-
-    element.resetOptions();
-
-    modeLayer.iterateModes(function(name, callback) {
-        element.addOption(name.toUpperCase(), name, callback);
-    });
-
-    if(element.selected === false) {
-        element.select(0);
-    }
-
-    element.refreshList();
-    state.refresh();
-};
-
-var modeChoose = function(state, e) {
-    var mode = this.value,
-        id   = this.id;
-
-    this.callback(state);
-    this.parent.select(id);
-    this.parent.toggle();
-};
-
-var upperMenu = [
-    {
-        header: 'Project',
-        type: 'dropdown',
-        update: modelDropdownUpdate,
-        callback: modelDropdownChoose
-    },
-
-    {
-        header: 'Mode',
-        type: 'dropdown',
-        update: modeUpdate,
-        callback: modeChoose
-    }
-];
-
-module.exports = [
-    upperMenu
-];
+module.exports = menu;

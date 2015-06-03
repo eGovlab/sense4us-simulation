@@ -8,139 +8,116 @@ var curry      = require('./curry.js'),
 
 var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 
-var drawSelectedMenu = curry(require('./selected_menu'), document.getElementById('sidebar')),
+var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
-    modelLayer       = require('./model_layer.js');
+    modelLayer       = require('./model_layer.js'),
+    menuBuilder      = require('./menu_builder'),
+    notificationBar  = require('./notification_bar'),
+    network          = require('./network'),
+    CONFIG           = require('rh_config-parser'),
+    /* UIRefresh is curried after changeCallbacks is defined. */
+    UIRefresh        = require('./ui');
 
-var network = require('./network');
+notificationBar.setContainer(document.getElementById('notification-bar'));
 
-var selectedMenu  = null,
-    loadedModel   = null,
-    environment   = 'model';
+CONFIG.setConfig(require('./config.js'));
+network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
+
+var selectedMenu  = Immutable.Map({}),
+    /*
+    ** modelLayer.newModel(id) 
+    ** (USE PARAMETER WITH HIGH CAUTION.
+    **  MIGHT FUCK SHIT UP WITH SAVED MODELS.
+    **  See model_layer.js for more info.)
+    ** returns:
+    **
+    ** Immutable.Map({
+    **     id:       id || generateId,
+    **     saved:    false,
+    **     synced:   false,
+    **     syncId:   null,
+    **
+    **     nextId:   0,
+    **     nodeData: Immutable.Map({}),
+    **     nodeGui:  Immutable.Map({}),
+    **     links:    Immutable.Map({}),
+    **     settings: Immutable.Map({
+    **         name:     "New Model",
+    **         maxIterable: 0
+    **     })
+    ** });
+    */
+    loadedModel   = modelLayer.newModel(),
+    savedModels   = Immutable.Map({
+        local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
+        synced: Immutable.Map()
+    }),
+    environment   = 'edit';
+
+var settings = require('./settings');
+
+var UIData = Immutable.Map({
+    sidebar:      settings.sidebar,
+    menu:         settings.menu,
+    selectedMenu: Immutable.List()
+});
+
+/*
+** Object to give buttons a callback to relate and influence the current state.
+** This is used within the UIRefresh() context below.
+*/
+var changeCallbacks = Immutable.Map({
+    loadedModel: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return loadedModel;
+        }
+
+        return loadedModel = arg;
+    },
+
+    selectedMenu: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return selectedMenu;
+        }
+
+        return selectedMenu = arg;
+    },
+
+    environment: function(arg) {
+        if(arg === undefined || typeof arg !== 'string') {
+            return environment;
+        }
+
+        return environment = arg;
+    },
+
+    savedModels: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return savedModels;
+        }
+
+        return savedModels = arg;
+    },
+
+    UIData: function(arg) {
+        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+            return UIData;
+        }
+
+        return UIData = arg;
+    }
+});
+
+UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
 
 var drawNode = require('./graphics/draw_node.js');
     drawNode = curry(drawNode, mainCanvas.getContext('2d'));
-
-var settings = require('./settings');
-settings.initialize(
-    document.getElementById('sidebar'),
-    document.getElementById('upper-menu'),
-    function() {
-        var obj = {
-            refresh: refresh
-        };
-
-        Object.defineProperty(obj, "selectedMenu", {
-            get: function() {
-                return selectedMenu
-            }, 
-            
-            set: function(arg) {
-                selectedMenu = arg;
-            }
-        });
-
-        Object.defineProperty(obj, "loadedModel", {
-            get: function() {
-                return loadedModel
-            }, 
-            
-            set: function(arg) {
-                loadedModel = arg;
-            }
-        });
-
-        Object.defineProperty(obj, "environment", {
-            get: function() {
-                return environment
-            }, 
-            
-            set: function(arg) {
-                environment = arg;
-            }
-        });
-
-        return obj;
-    }
-);
 
 window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
 
 var context = mainCanvas.getContext('2d');
-
-var updateSelected = function(newSelected) {
-    if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
-        var coefficient = parseFloat(newSelected.get('coefficient')),
-            timelag     = parseInt(newSelected.get('timelag')),
-            type        = newSelected.get('type');
-
-        if (isNaN(coefficient) || isNaN(timelag)) {
-            console.log('Coefficient:', newSelected.get('coefficient'));
-            console.log('Timelag:',     newSelected.get('timelag'));
-            return;
-        }
-
-        if(newSelected.get('delete') === true) {
-            console.log("LINK");
-            console.log(newSelected);
-            //loadedModel.links = loadedModel.links.delete(newSelected.get('id'));
-            return;
-        }
-        
-        loadedModel.links = loadedModel.links.set(newSelected.get('id'),
-            loadedModel.links.get(newSelected.get('id')).merge(Immutable.Map({
-                    coefficient: newSelected.get('coefficient'),
-                    timelag:     newSelected.get('timelag'),
-                    type:        newSelected.get('type')
-                })
-            )
-        );
-    } else if (newSelected.get('maxIterable') !== undefined) {
-      loadedModel.settings = newSelected;
-    } else {
-        if(newSelected.get('delete') === true) {
-            console.log("NODE");
-
-            var seq = newSelected.get('links').toSeq();
-            seq.forEach(function(linkId) {
-                console.log(linkId);
-            });
-            return;
-        }
-
-        loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), 
-            loadedModel.nodeData.get(newSelected.get('id')).merge(Immutable.Map({
-                    id:             newSelected.get('id'),
-                    value:          newSelected.get('value'),
-                    relativeChange: newSelected.get('relativeChange'),
-                    description:    newSelected.get('description')
-                })
-            )
-        );
-
-        loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get('id'), 
-            loadedModel.nodeGui.get(newSelected.get('id')).merge(Immutable.Map({
-                    radius: newSelected.get('radius'),
-                    avatar: newSelected.get('avatar'),
-                    icon: newSelected.get('icon')
-                })
-            )
-        );
-        /*loadedModel.nodeGui = loadedModel.nodeGui.set(newSelected.get('id'),
-            loadedModel.nodeGui.get(newSelected.get('id')).merge(newSelected.map(function(node) {
-                return {
-                    radius: node.get('radius')
-                };
-            }))
-        );*/
-        //loadedModel.nodeData = loadedModel.nodeData.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('value'), relativeChange: newSelected.get('relativeChange'), type: newSelected.get('type')}));
-        //loadedModel.nodeGui  = loadedModel.nodeGui.set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
-    }
-
-    refresh();
-};
 
 var fixInputForLink = function(link) {
     link = link.concat({
@@ -160,57 +137,57 @@ dragHandler(
     mainCanvas,
     
     function mouseDown(pos) {
-        var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
-        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
-        loadedModel.links = loadedModel.links.merge(data.links);
+        var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
+        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
+        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
 
         refresh();
 
         return true;
     },
 
-    function mouseMove(pos, deltaPos) {
-        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), deltaPos: Immutable.Map({x: deltaPos.x, y: deltaPos.y}), settings: loadedModel.settings, nodeGui: loadedModel.nodeGui, links: loadedModel.links});
-        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
-        loadedModel.links = loadedModel.links.merge(data.links);
-        loadedModel.settings = loadedModel.settings.merge(data.settings);
+    function mouseMove(pos) {
+        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
+        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
+        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
+        loadedModel = loadedModel.set('settings', loadedModel.get('settings').merge(data.settings));
 
         refresh();
     },
     
     function mouseUp(pos) {
-        var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.nodeGui, links: loadedModel.links});
-        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
-        loadedModel.links = loadedModel.links.merge(data.links);
+        var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nextId: loadedModel.get('nextId'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
+        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
+        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
+        loadedModel = loadedModel.set('nextId', data.nextId);
 
-        mainCanvas.panX = -loadedModel.settings.get('offsetX');
-        mainCanvas.panY = -loadedModel.settings.get('offsetY');
+        mainCanvas.panX = -loadedModel.get('settings').get('offsetX');
+        mainCanvas.panY = -loadedModel.get('settings').get('offsetY');
 
         refresh();
     }
 );
 
+UIRefresh();
+
+var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
+
 var aggregatedLink = require('./aggregated_link.js');
-
 function _refresh() {
-    if (modelLayer.selected !== loadedModel) {
-        loadedModel = modelLayer.selected;
-    }
-    
     if (loadedModel.settings.get('offsetX') && loadedModel.settings.get('offsetY')) {
-        context.setTransform(1, 0, 0, 1, -loadedModel.settings.get('offsetX'), -loadedModel.settings.get('offsetY'));
+        context.setTransform(1, 0, 0, 1, -loadedModel.get('settings').get('offsetX'), -loadedModel.get('settings').get('offsetY'));
     }
 
-    context.clearRect(loadedModel.settings.get('offsetX'), loadedModel.settings.get('offsetY'), mainCanvas.width, mainCanvas.height);
+    context.clearRect(loadedModel.get('settings').get('offsetX'), loadedModel.get('settings').get('offsetY'), mainCanvas.width, mainCanvas.height);
 
     // draw the links and arrows
-    loadedModel.links.forEach(function(link) {
-        drawLink(aggregatedLink(link, loadedModel.nodeGui));
+    loadedModel.get('links').forEach(function(link) {
+        drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
     });
 
     // get all the selected objects
-    var selected = loadedModel.nodeData
-        .filter(function(node) { return loadedModel.nodeGui.get(node.get('id')).get('selected') === true; })
+    var selected = loadedModel.get('nodeData')
+        .filter(function(node) { return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true; })
         .map(function(node) {
             return Immutable.Map({
                 id: node.get('id'),
@@ -219,16 +196,16 @@ function _refresh() {
                 description: node.get('description')
             }).merge(
                 Immutable.Map({
-                        radius: loadedModel.nodeGui.get(node.get('id')).get('radius'),
-                        avatar: loadedModel.nodeGui.get(node.get('id')).get('avatar'),
-                        icon: loadedModel.nodeGui.get(node.get('id')).get('icon')
+                        radius: loadedModel.get('nodeGui').get(node.get('id')).get('radius'),
+                        avatar: loadedModel.get('nodeGui').get(node.get('id')).get('avatar'),
+                        icon: loadedModel.get('nodeGui').get(node.get('id')).get('icon')
                     })
             );
             
-            //return node.merge(loadedModel.nodeGui.get(node.get('id')));
+            //return node.merge(loadedModel.get('nodeGui').get(node.get('id')));
         })
         .merge(
-            loadedModel.links.filter(function(link) {return link.get('selected') === true;})
+            loadedModel.get('links').filter(function(link) {return link.get('selected') === true;})
             .map(function(link) {
                 return Immutable.Map({
                     id: link.get('id'),
@@ -242,10 +219,10 @@ function _refresh() {
         );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.nodeGui.filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
+    loadedModel.get('nodeGui').filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
 
     // if we are currently linking, we want to draw the link we're creating
-    loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(function(node) {
+    loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
         drawLink(
             Immutable.Map({
@@ -261,20 +238,20 @@ function _refresh() {
     });
 
     // draw all the nodes
-    loadedModel.nodeData.forEach(
+    loadedModel.get('nodeData').forEach(
         function(n) { 
-            var nodeGui = n.merge(loadedModel.nodeGui.get(n.get('id')));
+            var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
             drawNode(nodeGui, environment);
         }
     );
 
     // if we are linking, we want to draw the dot above everything else
-    loadedModel.nodeGui.filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
+    loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
     if (selected.last()) {
         selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
     } else {    // draw menu for the model
-        selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected);
+        selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected);
     }
     //update the menu
 }

@@ -32,10 +32,11 @@ function link(data) {
 
 			hit = hit.forEach(function(collided) {
 				var id;
-				if(modelLayer && modelLayer.selected !== null) {
-						id = modelLayer.selected.generateId();
+				if(data.nextId !== undefined) {
+					id = data.nextId
+					data.nextId += 1;
 				} else {
-						id = data.links.size;
+					id = data.links.size;
 				}
 
 				// TODO: Add all relevant links to nodes so they may be deleted on node deletion.
