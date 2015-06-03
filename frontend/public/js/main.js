@@ -137,7 +137,7 @@ dragHandler(
     mainCanvas,
     
     function mouseDown(pos) {
-        var data = mouseDownWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
+        var data = mouseDownWare({pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
         loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
         loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
 
@@ -146,8 +146,8 @@ dragHandler(
         return true;
     },
 
-    function mouseMove(pos) {
-        var data = mouseMoveWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
+    function mouseMove(pos, deltaPos) {
+        var data = mouseMoveWare({pos: Immutable.Map(pos), deltaPos: Immutable.Map(deltaPos), settings: loadedModel.get('settings'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
         loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
         loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
         loadedModel = loadedModel.set('settings', loadedModel.get('settings').merge(data.settings));
@@ -156,7 +156,7 @@ dragHandler(
     },
     
     function mouseUp(pos) {
-        var data = mouseUpWare({pos: Immutable.Map({x: pos.x, y: pos.y}), nextId: loadedModel.get('nextId'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
+        var data = mouseUpWare({pos: Immutable.Map(pos), nextId: loadedModel.get('nextId'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
         loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
         loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
         loadedModel = loadedModel.set('nextId', data.nextId);
@@ -174,11 +174,16 @@ var updateSelected = curry(require('./selected_menu').updateSelected, refresh, U
 
 var aggregatedLink = require('./aggregated_link.js');
 function _refresh() {
-    if (loadedModel.settings.get('offsetX') && loadedModel.settings.get('offsetY')) {
+    if (loadedModel.get('settings').get('offsetX') && loadedModel.get('settings').get('offsetY')) {
         context.setTransform(1, 0, 0, 1, -loadedModel.get('settings').get('offsetX'), -loadedModel.get('settings').get('offsetY'));
     }
 
-    context.clearRect(loadedModel.get('settings').get('offsetX'), loadedModel.get('settings').get('offsetY'), mainCanvas.width, mainCanvas.height);
+    context.clearRect(
+        loadedModel.get('settings').get('offsetX') || 0,
+        loadedModel.get('settings').get('offsetY') || 0,
+        mainCanvas.width,
+        mainCanvas.height
+    );
 
     // draw the links and arrows
     loadedModel.get('links').forEach(function(link) {

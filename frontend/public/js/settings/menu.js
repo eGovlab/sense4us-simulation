@@ -2,7 +2,7 @@
 
 var Immutable  = require('Immutable'),
     network    = require('./../network'),
-    model      = require('./model.js'),
+    edit       = require('./edit.js'),
     simulate   = require('./simulate.js'),
     modelLayer = require('./../model_layer.js');
 
@@ -27,7 +27,7 @@ var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
 
     switch(option) {
         case 'edit':
-            ui = ui.set('sidebar', model);
+            ui = ui.set('sidebar', edit);
             environment('edit');
             UIData(ui);
             UIRefresh();
