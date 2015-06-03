@@ -1,9 +1,5 @@
 'use strict';
 
-/*
-** MERGING!
-*/
-
 var Immutable  = require('Immutable'),
     network    = require('./../network'),
     model      = require('./model.js'),

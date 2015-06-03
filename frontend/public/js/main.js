@@ -8,14 +8,16 @@ var curry      = require('./curry.js'),
 
 var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 
-var drawSelectedMenu = curry(require('./selected_menu'), document.getElementById('sidebar')),
+var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
     modelLayer       = require('./model_layer.js'),
     menuBuilder      = require('./menu_builder'),
     notificationBar  = require('./notification_bar'),
-    network = require('./network'),
-    CONFIG  = require('rh_config-parser');
+    network          = require('./network'),
+    CONFIG           = require('rh_config-parser'),
+    /* UIRefresh is curried after changeCallbacks is defined. */
+    UIRefresh        = require('./ui');
 
 notificationBar.setContainer(document.getElementById('notification-bar'));
 
@@ -23,6 +25,29 @@ CONFIG.setConfig(require('./config.js'));
 network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
 
 var selectedMenu  = Immutable.Map({}),
+    /*
+    ** modelLayer.newModel(id) 
+    ** (USE PARAMETER WITH HIGH CAUTION.
+    **  MIGHT FUCK SHIT UP WITH SAVED MODELS.
+    **  See model_layer.js for more info.)
+    ** returns:
+    **
+    ** Immutable.Map({
+    **     id:       id || generateId,
+    **     saved:    false,
+    **     synced:   false,
+    **     syncId:   null,
+    **
+    **     nextId:   0,
+    **     nodeData: Immutable.Map({}),
+    **     nodeGui:  Immutable.Map({}),
+    **     links:    Immutable.Map({}),
+    **     settings: Immutable.Map({
+    **         name:     "New Model",
+    **         maxIterable: 0
+    **     })
+    ** });
+    */
     loadedModel   = modelLayer.newModel(),
     savedModels   = Immutable.Map({
         local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
@@ -39,6 +64,10 @@ var UIData = Immutable.Map({
     selectedMenu: Immutable.List()
 });
 
+/*
+** Object to give buttons a callback to relate and influence the current state.
+** This is used within the UIRefresh() context below.
+*/
 var changeCallbacks = Immutable.Map({
     loadedModel: function(arg) {
         if(arg === undefined || !Immutable.Map.isMap(arg)) {
@@ -81,7 +110,7 @@ var changeCallbacks = Immutable.Map({
     }
 });
 
-
+UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
 
 var drawNode = require('./graphics/draw_node.js');
     drawNode = curry(drawNode, mainCanvas.getContext('2d'));
@@ -90,97 +119,6 @@ window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
 
 var context = mainCanvas.getContext('2d');
-
-var updateSelected = function(newSelected) {
-    if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
-        var coefficient = parseFloat(newSelected.get('coefficient')),
-            timelag     = parseInt(newSelected.get('timelag')),
-            type        = newSelected.get('type');
-
-        if (isNaN(coefficient) || isNaN(timelag)) {
-            console.log('Coefficient:', newSelected.get('coefficient'));
-            console.log('Timelag:',     newSelected.get('timelag'));
-            return;
-        }
-
-        if(newSelected.get('delete') === true) {
-            console.log('LINK');
-            console.log(newSelected);
-            //loadedModel.get('links') = loadedModel.get('links').delete(newSelected.get('id'));
-            return;
-        }
-        
-        loadedModel = loadedModel.set('links', loadedModel.get('links').set(newSelected.get('id'),
-            loadedModel.get('links').get(newSelected.get('id')).merge(Immutable.Map({
-                    coefficient: newSelected.get('coefficient'),
-                    timelag:     newSelected.get('timelag'),
-                    type:        newSelected.get('type')
-                })
-            )
-        ));
-    } else if (newSelected.get('maxIterable') !== undefined) {
-        loadedModel = loadedModel.set('settings', newSelected);
-    } else {
-        if(newSelected.get('delete') === true) {
-            console.log('NODE');
-
-            var seq = newSelected.get('links').toSeq();
-            seq.forEach(function(linkId) {
-                console.log(linkId);
-            });
-            return;
-        }
-
-        loadedModel = loadedModel.set('nodeData', loadedModel.get('nodeData').set(newSelected.get('id'), 
-            loadedModel.get('nodeData').get(newSelected.get('id')).merge(Immutable.Map({
-                    id:             newSelected.get('id'),
-                    value:          newSelected.get('value'),
-                    relativeChange: newSelected.get('relativeChange'),
-                    description:    newSelected.get('description')
-                })
-            )
-        ));
-
-        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').set(newSelected.get('id'), 
-            loadedModel.get('nodeGui').get(newSelected.get('id')).merge(Immutable.Map({
-                    radius: newSelected.get('radius'),
-                    avatar: newSelected.get('avatar'),
-                    icon: newSelected.get('icon')
-                })
-            )
-        ));
-        /*loadedModel.get('nodeGui') = loadedModel.get('nodeGui').set(newSelected.get('id'),
-            loadedModel.get('nodeGui').get(newSelected.get('id')).merge(newSelected.map(function(node) {
-                return {
-                    radius: node.get('radius')
-                };
-            }))
-        );*/
-        //loadedModel.get('nodeData') = loadedModel.get('nodeData').set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), value: newSelected.get('value'), relativeChange: newSelected.get('relativeChange'), type: newSelected.get('type')}));
-        //loadedModel.get('nodeGui')  = loadedModel.get('nodeGui').set(newSelected.get('id'), Immutable.Map({id: newSelected.get('id'), x: newSelected.get('x'), y: newSelected.get('y'), radius: newSelected.get('radius')}));
-    }
-
-    if(savedModels.get('synced').get(loadedModel.get('id')) !== undefined) {
-        savedModels = savedModels.set('synced',
-            savedModels.get('synced').set(loadedModel.get('id'),
-                loadedModel.set('settings', loadedModel.get('settings').set('saved',
-                    false)
-                )
-            )
-        );
-    } else {
-        savedModels = savedModels.set('local',
-            savedModels.get('local').set(loadedModel.get('id'),
-                loadedModel.set('settings', loadedModel.get('settings').set('saved',
-                    false)
-                )
-            )
-        );
-    }
-
-    UIRefresh();
-    refresh();
-};
 
 var fixInputForLink = function(link) {
     link = link.concat({
@@ -226,97 +164,9 @@ dragHandler(
     }
 );
 
-function sidebarRefresh(UIData, container, updateCallback) {
-    var sidebarMenu = document.createElement('div');
-    sidebarMenu.className = 'menu';
-    container.appendChild(sidebarMenu);
-
-    UIData.get('sidebar').forEach(function(button) {
-        var buttonElement;
-        if(button.get('ajax') === true) {
-            buttonElement = menuBuilder.button(button.get('header'), function() {
-                button.get('callback')(refresh, changeCallbacks);
-            });
-        } else {
-            buttonElement = menuBuilder.button(button.get('header'), function() {
-                updateCallback(button.get('callback')(loadedModel));
-            });
-        }
-        
-
-        sidebarMenu.appendChild(buttonElement);
-    });
-}
-
-function menuRefresh(UIData, container, updateCallback) {
-    var menuBar = document.createElement('div');
-    menuBar.className = 'menu';
-    container.appendChild(menuBar);
-
-    UIData.get('menu').forEach(function(menu) {
-        var button = null;
-
-        if(menu.get('callback') !== undefined && menu.get('update') !== undefined) {
-            var dd = menuBuilder.dropdown(
-                menu.get('header'),
-                function onClick() {
-                    menu.get('callback').call(
-                        this,
-                        refresh,
-                        UIRefresh,
-                        changeCallbacks
-                    );
-                },
-                
-                function update() {
-                    menu.get('update').call(
-                        this,
-                        refresh,
-                        UIRefresh,
-                        changeCallbacks
-                    );
-                }
-            );
-
-            button = dd;
-        } else if (menu.get('callback') !== undefined) {
-            button = menuBuilder.button(menu.get('header'), function() {
-                updateCallback(menu.get('callback')(UIData));
-            });
-        }
-
-        if(button === null) {
-            return;
-        }
-
-        menuBar.appendChild(button);
-    });
-}
-
-function UIRefresh() {
-    var sidebarContainer = document.getElementById('sidebar'),
-        menuContainer    = document.getElementById('upper-menu');
-
-    while(sidebarContainer.firstChild) {
-        sidebarContainer.removeChild(sidebarContainer.firstChild);
-    }
-
-    while(menuContainer.firstChild) {
-        menuContainer.removeChild(menuContainer.firstChild);
-    }
-
-    sidebarRefresh(UIData, sidebarContainer, function(updatedModel) {
-        loadedModel = updatedModel;
-        refresh();
-    });
-
-    menuRefresh(UIData, menuContainer, function(updatedUI) {
-        UIData = updatedUI;
-        UIRefresh();
-    });
-}
-
 UIRefresh();
+
+var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
 
 var aggregatedLink = require('./aggregated_link.js');
 function _refresh() {

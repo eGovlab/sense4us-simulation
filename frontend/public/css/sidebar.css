@@ -80,6 +80,10 @@
     margin-bottom: 6px;
 }
 
+#sidebar .menu .avatars {
+    text-align: center;
+}
+
 #sidebar .menu .avatars:after {
     content: "";
     display: block;
@@ -87,11 +91,12 @@
 }
 
 #sidebar .menu .avatarPreview {
+    display: inline-block;
     box-sizing: border-box;
     cursor: pointer;
-    max-width: 50%;
-    max-height: 100px;
-    float: left;
+    width: 50px;
+    /* max-width: 32%;*/
+    height: 50px;
     border-radius: 50%;
 }
 

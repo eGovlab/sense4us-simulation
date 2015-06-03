@@ -1,5 +1,15 @@
 'use strict';
 
+/*
+** Author:      Robin Swenson
+** Description: Namespace to create local maps containing general data for a model.
+**              Uses AJAX to save and load models from remote server.
+*/
+
+
+/*
+** Dependencies
+*/
 var Model           = require('./model.js'),
     network         = require('./network'),
     Immutable       = require('Immutable'),
@@ -7,8 +17,55 @@ var Model           = require('./model.js'),
     notificationBar = require('./notification_bar'),
     menuBuilder     = require('./menu_builder');
 
+/*
+** Used to generate a local and incremential ID to avoid collisions for models.
+*/
 var generateId = 0;
 
+/*
+** Said namespace.
+** Methods exposed:
+**     name:        newModel()
+**     params:      id
+**     description: The argument given may override the above local variable generateId.
+**                  Only for advance usage.
+**     returns:     An immutable map with data relevant to a model. See method for data.
+
+**     name:        saveModel()
+**     params:      loadedModelCallback, refreshCallback
+**     description: This method will run AJAX and should not be expected to
+**                  return anything at runtime.
+**                  The refreshCallback will be called at AJAX completion.
+**                  The loadedModelCallback should return a map with a model if called
+**                  without parameters. If called with one argument, it should replace
+**                  the model with the argument.
+**                  This method will try to save a model on a remote server using the network
+**                  dependency above. If successful, will notify the user with notificationBar.
+
+**     name:        deleteModel()
+**     params:      loadedModelCallback, savedModelsCallback, refreshCallback
+**     description: This method will run AJAX and should not be expected to
+**                  return anything at runtime.
+**                  The refreshCallback will be called at AJAX completion.
+**                  The loadedModelCallback should return a map with a model if called
+**                  without parameters. If called with one argument, it should replace
+**                  the model with the argument.
+**                  The savedModelsCallback should return a map with saved models if called
+**                  without parameters. If called with one argument, it should replace
+**                  the map with the argument. See /js/main.js for structure.
+**                  This method will try to delete the model from a remote server if it exists,
+**                  if not, only delete it from the local savedModels map. It will also load the
+**                  first local model from savedModels, or if there is none, create a new one.
+
+**     name:        loadSyncModel()
+**     params:      id, onDoneCallback
+**     description: This method will run AJAX and should not be expected to
+**                  return anything at runtime.
+**                  The AJAX will try to fetch a model with given id argument from a remote server.
+**                  If successful, will setup a new model map.
+**     returns:     Will call onDoneCallback with the remote models data in a map similar to
+**                  newModel as the only argument.
+*/
 module.exports = {
     newModel: function(id) {
         var map = Immutable.Map({
