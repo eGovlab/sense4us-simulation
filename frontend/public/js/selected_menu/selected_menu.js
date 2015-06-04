@@ -10,6 +10,10 @@ function createButtons(list, model, onChangeCallback) {
     containerDiv.className = 'menu';
 
     list.forEach(function(button) {
+        if(model.get('maxIterable') !== undefined && button.get('ignoreModelSettings') === true) {
+            return;
+        }
+
         containerDiv.appendChild(menuBuilder.button(button.get('header'), function() {
             onChangeCallback(button.get('callback')(model));
         }));
@@ -117,8 +121,6 @@ var namespace = {
             return menu;
         }
 
-        console.log(menu);
-
         return menu;
     },
 
@@ -140,8 +142,14 @@ var namespace = {
             }
 
             if(newSelected.get('delete') === true) {
-                console.log('LINK');
-                console.log(newSelected);
+                var links = loadedModel.get('links');
+
+                links = links.delete(newSelected.get('id'));
+                loadedModel = loadedModel.set('links', links);
+
+                _loadedModel(loadedModel);
+                
+                refresh();
                 return;
             }
             
@@ -156,20 +164,35 @@ var namespace = {
         } else if (newSelected.get('maxIterable') !== undefined) {
             _loadedModel(loadedModel.set('settings', newSelected));
         } else {
-            if(newSelected.get('delete') === true) {
-                console.log('NODE');
+            var nodeData = loadedModel.get('nodeData'),
+                nodeGui  = loadedModel.get('nodeGui'),
+                node     = null;
 
-                var seq = newSelected.get('links').toSeq();
-                seq.forEach(function(linkId) {
-                    console.log(linkId);
-                });
+            if(newSelected.get('delete') === true) {
+                node = nodeGui.get(newSelected.get('id'));
+                var links = loadedModel.get('links');
+
+                if(node.get('links') !== undefined){
+                    node.get('links').forEach(function(link) {
+                        links = links.delete(link);
+                    });
+                }
+
+                nodeData = nodeData.delete(newSelected.get('id'));
+                nodeGui  = nodeGui.delete(newSelected.get('id'));
+
+                loadedModel = loadedModel.set('nodeData', nodeData);
+                loadedModel = loadedModel.set('nodeGui', nodeGui);
+                loadedModel = loadedModel.set('links', links);
+
+                _loadedModel(loadedModel);
+
+                refresh();
+
                 return;
             }
 
-            var nodeData = loadedModel.get('nodeData'),
-                nodeGui  = loadedModel.get('nodeGui'),
-                node     = nodeData.get(newSelected.get('id'));
-
+            node = nodeData.get(newSelected.get('id'));
             node = node.merge(Immutable.Map({
                 id:             newSelected.get('id'),
                 value:          newSelected.get('value'),
