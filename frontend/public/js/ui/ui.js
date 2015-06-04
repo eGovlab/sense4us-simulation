@@ -88,9 +88,9 @@ var UIRefresh = function(refresh, changeCallbacks) {
     var sidebarContainer = CONFIG.get('SIDEBAR_CONTAINER'), //document.getElementById('sidebar'),
         menuContainer    = CONFIG.get('MENU_CONTAINER');    //document.getElementById('upper-menu');
 
-   /* while(sidebarContainer.firstChild) {
+    while(sidebarContainer.firstChild) {
         sidebarContainer.removeChild(sidebarContainer.firstChild);
-    }*/
+    }
 
     while(menuContainer.firstChild) {
         menuContainer.removeChild(menuContainer.firstChild);

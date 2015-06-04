@@ -45,11 +45,33 @@ function createAvatarSelector(header, value, callback) {
         avatarDiv.value = avatar.src;
         avatarDiv.name = header;
         
-        menuBuilder.addValueCallback(avatarDiv, callback, 'click');
+        menuBuilder.addValueCallback(avatarDiv, function(key, value) {
+            var oldAvatar = avatarsDiv.querySelectorAll('.selected')[0];
+            if (oldAvatar) {
+                oldAvatar.className = 'avatarPreview';            
+            }
+            
+            var newAvatar = avatarsDiv.querySelectorAll('[src="' + value + '"]')[0].parentElement;
+            newAvatar.className = 'avatarPreview selected';
+            callback(key, value);
+        }, 'click');
         
         avatarDiv.appendChild(img);
         avatarsDiv.appendChild(avatarDiv);
     });
+    
+    /*var input = menuBuilder.input(header, value, function(key, value) {
+        console.log(key, ': ', value);
+        
+        var oldAvatar = avatarsDiv.querySelectorAll('[src=' + value + ']')[0];
+        oldAvatar.className = 'selected';
+        
+        var newAvatar = avatarsDiv.querySelectorAll('[src=' + value + ']')[0];
+        newAvatar.className = 'avatarPreview selected';
+    });*/
+//    input.type = 'hidden';
+    
+ //   containerDiv.appendChild(input);
 
     containerDiv.appendChild(labelDiv);
     containerDiv.appendChild(avatarsDiv);
@@ -70,15 +92,11 @@ function createMenu(map, onChangeCallback) {
             inputDiv     = menuBuilder.div();
 
         if(key === 'avatar' || key === 'icon') {
-            containerDiv = createAvatarSelector(key, value, function(inputKey, inputValue) {
-                onChangeCallback(map.set(inputKey, inputValue));
-            });
+            containerDiv = createAvatarSelector(key, value, onChangeCallback);
         } else {
             var labelDiv = menuBuilder.div();
             labelDiv.appendChild(menuBuilder.label(key));
-            inputDiv.appendChild(menuBuilder.input(key, value, function(inputKey, inputValue) {
-                onChangeCallback(map.set(inputKey, inputValue));
-            }));
+            inputDiv.appendChild(menuBuilder.input(key, value, onChangeCallback));
 
             containerDiv.appendChild(labelDiv);
             containerDiv.appendChild(inputDiv);
@@ -91,16 +109,18 @@ function createMenu(map, onChangeCallback) {
 }
 
 function updateMenu(menu, map) {
-    var element = menu.get('element');
+    var menuElement = menu.get('element');
     map.forEach(function(value, key) {
-        var elements = element.querySelectorAll('[name=' + key + ']');
-        Array.prototype.forEach.call(elements, function(element) {
+        var elements = menuElement.querySelectorAll('[name=' + key + ']');
+        var element = elements[0];
+
+        if (element) {
             element.setAttribute('value', value);
             element.value = value;
-        });
+        }
     });
     
-    menu = menu.set('element', element);
+    menu = menu.set('element', menuElement);
     
     return menu;
 }
@@ -116,7 +136,10 @@ var namespace = {
         }
 
         if (menu === null || menu.get('element') === undefined) {
-            menu = createMenu(map, changeCallback);
+            menu = createMenu(map, function(key, value) {
+                menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
+                changeCallback(menu.get('map_obj'));
+            });
             menu = menu.set('map_obj', map);
 
             container.appendChild(menu.get('element'));
@@ -125,9 +148,9 @@ var namespace = {
         } else if (menu.get('map_obj') !== map) {
             if (menu.get('map_obj').get('id') === map.get('id')) {
                 // update menu
-                //console.log('update menu', 'value', map.get('value'), 'relative change', map.get('relativeChange'));
                 menu = updateMenu(menu, map);
-                menu.set('map_obj', map);
+                //container.appendChild(menu.get('element'));
+                menu = menu.set('map_obj', map);
             } else {
                 // remake menu
                 
@@ -137,7 +160,11 @@ var namespace = {
                     /* Node not found -- continuing. */
                 }
         
-                menu = createMenu(map, changeCallback);
+                menu = createMenu(map, function(key, value) {
+                    menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
+                    changeCallback(menu.get('map_obj'));
+                });
+                
                 container.appendChild(menu.get('element'));
                 menu = menu.set('map_obj', map);
         
@@ -258,7 +285,7 @@ var namespace = {
             ));
         }
 
-        UIRefresh();
+        //UIRefresh();
         refresh();
     }
 };

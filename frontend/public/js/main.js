@@ -254,7 +254,6 @@ function _refresh() {
     loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
     if (selected.last()) {
-        console.log(selected.last().get('value'));
         selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
     } else {    // draw menu for the model
         selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected);
