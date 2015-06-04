@@ -90,6 +90,21 @@ function createMenu(map, onChangeCallback) {
     return menu;
 }
 
+function updateMenu(menu, map) {
+    var element = menu.get('element');
+    map.forEach(function(value, key) {
+        var elements = element.querySelectorAll('[name=' + key + ']');
+        Array.prototype.forEach.call(elements, function(element) {
+            element.setAttribute('value', value);
+            element.value = value;
+        });
+    });
+    
+    menu = menu.set('element', element);
+    
+    return menu;
+}
+
 var namespace = {
     drawSelectedMenu: function(container, menu, map, changeCallback) {
         if (map === null || map === undefined) {
@@ -108,17 +123,26 @@ var namespace = {
 
             return menu;
         } else if (menu.get('map_obj') !== map) {
-            try {
-                container.removeChild(menu.get('element'));
-            } catch(err) {
-                /* Node not found -- continuing. */
+            if (menu.get('map_obj').get('id') === map.get('id')) {
+                // update menu
+                //console.log('update menu', 'value', map.get('value'), 'relative change', map.get('relativeChange'));
+                menu = updateMenu(menu, map);
+                menu.set('map_obj', map);
+            } else {
+                // remake menu
+                
+                try {
+                    container.removeChild(menu.get('element'));
+                } catch(err) {
+                    /* Node not found -- continuing. */
+                }
+        
+                menu = createMenu(map, changeCallback);
+                container.appendChild(menu.get('element'));
+                menu = menu.set('map_obj', map);
+        
+                return menu;
             }
-
-            menu = createMenu(map, changeCallback);
-            container.appendChild(menu.get('element'));
-            menu = menu.set('map_obj', map);
-
-            return menu;
         }
 
         return menu;
