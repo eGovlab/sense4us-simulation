@@ -39,7 +39,6 @@ function link(data) {
 					id = data.links.size;
 				}
 
-				// TODO: Add all relevant links to nodes so they may be deleted on node deletion.
 				var nodeLinks = node.get('links');
 				if(nodeLinks === undefined) {
 					node = node.set('links', Immutable.List());
@@ -63,12 +62,12 @@ function link(data) {
 
 				data.links = data.links.set(id, Immutable.Map({
 					id: id,
-					node1: node.get('id'),
-					node2: collided.get('id'),
+					node1:       node.get('id'),
+					node2:       collided.get('id'),
 					coefficient: 1,
-					type: 'fullchannel',
-					timelag: 0,
-					width: 14
+					type:        'fullchannel',
+					timelag:     0,
+					width:       14
 				}));
 			});
 		});
