@@ -79,8 +79,11 @@ module.exports = {
             nodeGui:  Immutable.Map({}),
             links:    Immutable.Map({}),
             settings: Immutable.Map({
-                name:     "New Model",
-                maxIterable: 0
+                name:          "New Model",
+                maxIterations: 0,
+                offsetX:       0,
+                offsetY:       0,
+                zoom:          1
             })
         });
 
@@ -92,11 +95,13 @@ module.exports = {
     saveModel: function(_loadedModel, refresh) {
         var loadedModel = _loadedModel();
         var data = {
-            modelId: loadedModel.get('syncId'),
-            model:   loadedModel.get('settings').get('name'),
-            nodes:   breakout.nodes(loadedModel),
-            links:   breakout.links(loadedModel)
+            modelId:  loadedModel.get('syncId'),
+            settings: loadedModel.get('settings').toJSON(),
+            nodes:    breakout.nodes(loadedModel),
+            links:    breakout.links(loadedModel)
         };
+
+        console.log(data);
 
         network.postData('/models/save', data, function(response, err) {
             if (err) {
@@ -160,8 +165,7 @@ module.exports = {
 
             var nodes    = response.response.nodes,
                 links    = response.response.links,
-                name     = response.response.name,
-                iterable = response.response.maxIterable
+                settings = response.response.settings
 
             var nextId = 0;
             nodes.forEach(function() {
@@ -178,11 +182,7 @@ module.exports = {
                 synced: true
             }));
             var s = newState.get('settings');
-            s = s.merge(Immutable.Map({
-                name:        name,
-                maxIterable: iterable,
-                saved:       true
-            }));
+            s = s.merge(Immutable.Map(settings));
             newState = newState.set('settings', s);
 
             nodes.forEach(function(node) {
@@ -200,7 +200,9 @@ module.exports = {
                     x:      node.x,
                     y:      node.y,
                     radius: node.radius,
-                    links:  Immutable.List()
+                    links:  Immutable.List(),
+                    avatar: node.avatar,
+                    icon:   node.icon
                 }));
                 newState = newState.set('nodeGui', ng);
             });
