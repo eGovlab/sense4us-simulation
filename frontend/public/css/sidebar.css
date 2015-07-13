@@ -100,6 +100,11 @@
     border-radius: 50%;
 }
 
+#sidebar label {
+    clear: both;
+    display: block;
+}
+
 #sidebar .menu .avatarPreview.selected:hover {
     -webkit-animation: nonde;
     -moz-animation:    nonde;

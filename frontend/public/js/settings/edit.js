@@ -2,7 +2,7 @@
 
 var Immutable = require('Immutable');
 
-var createNode = function(model, type) {
+var createNode = function(model, type, attrs) {
     var id = model.get('nextId');
     model = model.set('nextId', id + 1);
 
@@ -14,6 +14,12 @@ var createNode = function(model, type) {
         type:           type || 'intermediate',
         description:    ''
     });
+
+    if (attrs !== undefined) {
+        nodeData = nodeData.merge(attrs);
+    } else {
+        console.log(attrs);
+    }
 
     model = model.set('nodeData', model.get('nodeData').set(id, nodeData));
 
@@ -29,28 +35,72 @@ var createNode = function(model, type) {
     return model;
 };
 
-var createOriginNode = function(model) {
-    return createNode(model, 'origin');
+var createOriginNode = function(model, attrs) {
+    return createNode(model, 'origin', attrs);
 };
 
-var createActorNode = function(model) {
-    return createNode(model, 'actor');
+var createActorNode = function(model, attrs) {
+    return createNode(model, 'actor', attrs);
 };
 
 var model = Immutable.List([
-    Immutable.Map( {
-        header: "Create Intermediate",
+/*    Immutable.Map( {
+        header: 'Create Intermediate',
         callback: createNode
     }),
 
     Immutable.Map( {
-        header: "Create Origin",
+        header: 'Create Origin',
         callback: createOriginNode
     }),
 
     Immutable.Map( {
-        header: "Create Actor",
+        header: 'Create Actor',
         callback: createActorNode
+    }),
+*/
+    Immutable.Map({
+        header: 'Policy Instruments',
+        callback: createActorNode,
+        images: [
+            {
+                src: 'img/avatars/barriers_and_forces.png'
+            },
+            {
+                src: 'img/avatars/instrument_financial.png'
+            },
+            {
+                src: 'img/avatars/instrument_regulatory.png'
+            },
+            {
+                src: 'img/avatars/constraints.png'
+            },
+            {
+                src: 'img/avatars/instrument_fiscal.png'
+            },
+            {
+                src: 'img/avatars/social_change.png'
+            }
+        ]
+    }),
+
+    Immutable.Map({
+        header: 'Controlling actors',
+        callback: createOriginNode,
+        images: [
+            {
+                src: 'img/avatars/instrument_capacitybuilding.png'
+            },
+            {
+                src: 'img/avatars/instrument_informational.png'
+            },
+            {
+                src: 'img/avatars/instrument_cooperation.png'
+            },
+            {
+                src: 'img/avatars/instrument_market.png'
+            }
+        ]
     })
 ]);
 
