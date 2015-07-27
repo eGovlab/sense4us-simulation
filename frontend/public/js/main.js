@@ -2,7 +2,7 @@
 
 var curry      = require('./curry.js'),
     Immutable  = require('Immutable'),
-    canvas     = require('./canvas/'),
+    canvas     = require('./canvas'),
     linker     = require('./linker.js'),
     generateId = require('./generate_id.js');
 
@@ -168,8 +168,8 @@ dragHandler(
     }
 );
 
-window.addEventListener("mousewheel", MouseWheelHandler, false);
-window.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+mainCanvas.addEventListener("mousewheel",     MouseWheelHandler, false);
+mainCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
 
 var zoom = 1;
 
