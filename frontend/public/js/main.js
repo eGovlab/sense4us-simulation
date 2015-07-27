@@ -207,7 +207,6 @@ function MouseWheelHandler(e) {
 UIRefresh();
 
 var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
-
 var aggregatedLink = require('./aggregated_link.js');
 function _refresh() {
     context.clearRect(
