@@ -10,28 +10,52 @@
 */
 
 /* The CONFIG object has its config loaded in main.js */
-var CONFIG      = require('rh_config-parser'),
-    menuBuilder = require('./../menu_builder');
+var CONFIG       = require('rh_config-parser'),
+    menuBuilder  = require('./../menu_builder'),
+    selectedMenu = require('./../selected_menu/selected_menu'),
+    Immutable    = require('Immutable');
 
 var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateCallback) {
     var sidebarMenu = document.createElement('div');
     sidebarMenu.className = 'menu';
     container.appendChild(sidebarMenu);
 
-    UIData.get('sidebar').forEach(function(button) {
-        var buttonElement;
-        if(button.get('ajax') === true) {
-            buttonElement = menuBuilder.button(button.get('header'), function() {
-                button.get('callback')(refresh, changeCallbacks);
-            });
-        } else {
-            buttonElement = menuBuilder.button(button.get('header'), function() {
-                updateCallback(button.get('callback')(changeCallbacks.get('loadedModel')()));
-            });
-        }
-        
+    UIData.get('sidebar').forEach(function(element) {
+        if (element.get('images')) {
+            (function() {
+                var avatarsElement = selectedMenu.createAvatarButtons('avatar', null, function(key, value) {
+                    updateCallback(
+                        element.get('callback')(
+                            changeCallbacks.get('loadedModel')(),
+                            Immutable.Map({avatar: value})
+                        )
+                    );
+                },
+                element.get('images'));
+                
+                var labelElement = menuBuilder.label(element.get('header'));
+                sidebarMenu.appendChild(labelElement);
 
-        sidebarMenu.appendChild(buttonElement);
+                sidebarMenu.appendChild(avatarsElement);
+            }());
+        } else if (element.get('header') !== undefined && element.get('callback') !== undefined) {
+            var buttonElement;
+            if(element.get('ajax') === true) {
+                buttonElement = menuBuilder.button(element.get('header'), function() {
+                    element.get('callback')(refresh, changeCallbacks);
+                });
+            } else {
+                buttonElement = menuBuilder.button(element.get('header'), function() {
+                    updateCallback(element.get('callback')(changeCallbacks.get('loadedModel')()));
+                });
+            }
+            
+
+            sidebarMenu.appendChild(buttonElement);
+        } else {
+            var labelElement = menuBuilder.label(element.get('header'));
+            sidebarMenu.appendChild(labelElement);
+        }
     });
 };
 

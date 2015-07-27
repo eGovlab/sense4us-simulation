@@ -24,7 +24,7 @@ notificationBar.setContainer(document.getElementById('notification-bar'));
 CONFIG.setConfig(require('./config.js'));
 network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
 
-var selectedMenu  = Immutable.Map({}),
+var selectedMenu = Immutable.Map({}),
     /*
     ** modelLayer.newModel(id) 
     ** (USE PARAMETER WITH HIGH CAUTION.
@@ -168,21 +168,62 @@ dragHandler(
     }
 );
 
+window.addEventListener("mousewheel", MouseWheelHandler, false);
+window.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+
+var zoom = 1;
+
+function MouseWheelHandler(e) {
+	var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
+	var mouse_canvas_y = e.y - mainCanvas.offsetTop;
+    var scaleX = loadedModel.get('settings').get('scaleX') || 1;
+    var scaleY = loadedModel.get('settings').get('scaleX') || 1;
+	var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.get('settings').get('offsetX') || 0) / scaleX;
+	var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.get('settings').get('offsetY') || 0) / scaleY;
+
+	if (Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) > 0)
+		zoom = 1.05;
+	else
+		zoom = 1/1.05;
+    
+	scaleX = scaleY *= zoom;
+
+	var mouse_stage_new_x = mouse_canvas_x / scaleX - (loadedModel.get('settings').get('offsetX') || 0) / scaleX;
+	var mouse_stage_new_y = mouse_canvas_y / scaleY - (loadedModel.get('settings').get('offsetY') || 0) / scaleY;
+
+	var zoom_effect_x = (mouse_stage_new_x - mouse_stage_x) * scaleX;
+	var zoom_effect_y = (mouse_stage_new_y - mouse_stage_y) * scaleY;
+    
+    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetX', (loadedModel.get('settings').get('offsetX') || 0) + zoom_effect_x));
+    console.log('derp', loadedModel.get('settings').get('offsetX'));
+    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetY', (loadedModel.get('settings').get('offsetY') || 0) + zoom_effect_y));
+    
+    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('scaleX', scaleX));
+    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('scaleY', scaleY));
+    
+    refresh();
+}
+
 UIRefresh();
 
 var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
 
 var aggregatedLink = require('./aggregated_link.js');
 function _refresh() {
-    if (loadedModel.get('settings').get('offsetX') && loadedModel.get('settings').get('offsetY')) {
-        context.setTransform(1, 0, 0, 1, -loadedModel.get('settings').get('offsetX'), -loadedModel.get('settings').get('offsetY'));
-    }
-
     context.clearRect(
-        loadedModel.get('settings').get('offsetX') || 0,
-        loadedModel.get('settings').get('offsetY') || 0,
-        mainCanvas.width,
-        mainCanvas.height
+        (-loadedModel.get('settings').get('offsetX') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
+        (-loadedModel.get('settings').get('offsetY') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
+        mainCanvas.width * (2 - (loadedModel.get('settings').get('scaleX') || 1)),
+        mainCanvas.height * (2 - (loadedModel.get('settings').get('scaleY') || 1))
+    );
+    
+    context.setTransform(
+        loadedModel.get('settings').get('scaleX') || 1,
+        0,
+        0,
+        loadedModel.get('settings').get('scaleY') || 1,
+        loadedModel.get('settings').get('offsetX') || 0,
+        loadedModel.get('settings').get('offsetY') || 0
     );
 
     // draw the links and arrows

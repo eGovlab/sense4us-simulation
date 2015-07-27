@@ -20,64 +20,69 @@ function createButtons(list, model, onChangeCallback) {
     });
 
     return containerDiv;
-};
+}
 
-function createAvatarSelector(header, value, callback) {
-    var containerDiv = menuBuilder.div(),
-        labelDiv     = menuBuilder.div(),
-        avatarsDiv   = menuBuilder.div();
+function generateAvatarDiv(avatar, selected, name) {
+    var avatarDiv = menuBuilder.div();
+    var img = menuBuilder.img();
+
+    avatarDiv.className = 'avatarPreview';
+
+    if (selected === avatar.src) {
+        avatarDiv.className += ' selected';
+    }
+
+    img.src = avatar.src;
+    avatarDiv.value = avatar.src;
+    avatarDiv.name = name;
+
+    avatarDiv.appendChild(img);
+
+    return avatarDiv;
+}
+
+function createAvatarButtons(header, value, callback, images) {
+    var avatarsDiv   = menuBuilder.div();
     
     avatarsDiv.className = 'avatars';
+    
+    images.forEach(function(avatar) {
+        var avatarDiv = generateAvatarDiv(avatar, value, header);
 
-    labelDiv.appendChild(menuBuilder.label(header));
-    
-    settings.avatars.forEach(function(avatar) {
-        var avatarDiv = menuBuilder.div();
-        var img = menuBuilder.img();
-        
-        avatarDiv.className = 'avatarPreview';
-        
-        if (value === avatar.src) {
-            avatarDiv.className += ' selected';
-        }
-    
-        img.src = avatar.src;
-        avatarDiv.value = avatar.src;
-        avatarDiv.name = header;
-        
-        menuBuilder.addValueCallback(avatarDiv, function(key, value) {
-            var oldAvatar = avatarsDiv.querySelectorAll('.selected')[0];
-            if (oldAvatar) {
-                oldAvatar.className = 'avatarPreview';            
-            }
-            
-            var newAvatar = avatarsDiv.querySelectorAll('[src="' + value + '"]')[0].parentElement;
-            newAvatar.className = 'avatarPreview selected';
-            callback(key, value);
-        }, 'click');
-        
-        avatarDiv.appendChild(img);
+        menuBuilder.addValueCallback(avatarDiv, callback, 'click');
+
         avatarsDiv.appendChild(avatarDiv);
     });
-    
-    /*var input = menuBuilder.input(header, value, function(key, value) {
-        console.log(key, ': ', value);
-        
-        var oldAvatar = avatarsDiv.querySelectorAll('[src=' + value + ']')[0];
-        oldAvatar.className = 'selected';
-        
-        var newAvatar = avatarsDiv.querySelectorAll('[src=' + value + ']')[0];
-        newAvatar.className = 'avatarPreview selected';
-    });*/
-//    input.type = 'hidden';
-    
- //   containerDiv.appendChild(input);
 
-    containerDiv.appendChild(labelDiv);
-    containerDiv.appendChild(avatarsDiv);
+    return avatarsDiv;
+}
+
+function createAvatarSelector(header, value, callback) {
+    var containerDiv = menuBuilder.div();
+
+    containerDiv.appendChild(menuBuilder.label(header));
+
+    settings.avatars.forEach(function(avatarGroup) {
+        var avatarsDiv = createAvatarButtons(header, value, 
+            function(key, value) {
+                var oldAvatar = avatarsDiv.querySelectorAll('.selected')[0];
+                if (oldAvatar) {
+                    oldAvatar.className = 'avatarPreview';            
+                }
+                
+                var newAvatar = avatarsDiv.querySelectorAll('[src="' + value + '"]')[0].parentElement;
+                newAvatar.className = 'avatarPreview selected';
+                callback(key, value);
+            },
+            avatarGroup.images
+        );
+    
+        containerDiv.appendChild(menuBuilder.label(avatarGroup.header));
+        containerDiv.appendChild(avatarsDiv);
+    });
 
     return containerDiv;
-};
+}
 
 function createMenu(map, onChangeCallback) {
     var menu = Immutable.Map({
@@ -126,6 +131,8 @@ function updateMenu(menu, map) {
 }
 
 var namespace = {
+    createAvatarSelector: createAvatarSelector,
+    createAvatarButtons: createAvatarButtons,
     drawSelectedMenu: function(container, menu, map, changeCallback) {
         if (map === null || map === undefined) {
             if (menu !== null) {
