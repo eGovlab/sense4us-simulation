@@ -82,9 +82,9 @@ body {
 .container .main {
 	width: 85%;
 }
-
+/* #334354 */
 .container .main canvas {
-	background-color: #334354;
+	background-color: #FFFFFF;
 }
 
 .container .right {

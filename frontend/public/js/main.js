@@ -195,15 +195,15 @@ function _refresh() {
         .filter(function(node) { return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true; })
         .map(function(node) {
             return Immutable.Map({
-                id: node.get('id'),
-                value: node.get('value'),
+                id:             node.get('id'),
+                value:          node.get('value'),
                 relativeChange: node.get('relativeChange'),
-                description: node.get('description')
+                description:    node.get('description')
             }).merge(
                 Immutable.Map({
                         radius: loadedModel.get('nodeGui').get(node.get('id')).get('radius'),
                         avatar: loadedModel.get('nodeGui').get(node.get('id')).get('avatar'),
-                        icon: loadedModel.get('nodeGui').get(node.get('id')).get('icon')
+                        icon:   loadedModel.get('nodeGui').get(node.get('id')).get('icon')
                     })
             );
             
@@ -213,12 +213,12 @@ function _refresh() {
             loadedModel.get('links').filter(function(link) {return link.get('selected') === true;})
             .map(function(link) {
                 return Immutable.Map({
-                    id: link.get('id'),
-                    timelag: link.get('timelag'),
+                    id:          link.get('id'),
+                    timelag:     link.get('timelag'),
                     coefficient: link.get('coefficient'),
-                    type: link.get('type'),
-                    node1: link.get('node1'),
-                    node2: link.get('node2')
+                    type:        link.get('type'),
+                    node1:       link.get('node1'),
+                    node2:       link.get('node2')
                 });
             })
         );
