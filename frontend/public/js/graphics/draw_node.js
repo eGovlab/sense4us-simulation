@@ -5,39 +5,39 @@ var drawCircle = require('./draw_circle');
 
 var settings = [
 	{
-		color: 'rgba(255, 75, 75, 0.8)',
+		color: 'rgba(255, 85, 85, 1)',
 		conditions: [
 			function(node) { return node.get('type') === 'actor'; },
 			function(node) { return node.get('selected') === true; }
 		]
 	},
 	{
-		color: 'rgba(255, 75, 75, 0.6)',
+		color: 'rgba(255, 75, 75, 0.9)',
 		conditions: [
 			function(node) { return node.get('type') === 'actor'; }
 		]
 	},
 	{
-		color: 'rgba(175, 75, 255, 0.8)',
+		color: 'rgba(195, 85, 255, 1)',
 		conditions: [
 			function(node) { return node.get('type') === 'origin'; },
 			function(node) { return node.get('selected') === true; }
 		]
 	},
 	{
-		color: 'rgba(175, 75, 255, 0.6)',
+		color: 'rgba(175, 75, 255, 0.9)',
 		conditions: [
 			function(node) { return node.get('type') === 'origin'; }
 		]
 	},
 	{
-		color: 'rgba(255, 175, 75, 0.8)',
+		color: 'rgba(255, 195, 85, 1)',
 		conditions: [
 			function(node) { return node.get('selected') === true; }
 		]
 	},
 	{
-		color: 'rgba(255, 175, 75, 0.6)',
+		color: 'rgba(255, 175, 75, 0.9)',
 		conditions: []
 	}
 ];

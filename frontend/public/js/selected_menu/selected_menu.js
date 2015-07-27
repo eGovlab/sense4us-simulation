@@ -219,7 +219,7 @@ var namespace = {
                     })
                 )
             )));
-        } else if (newSelected.get('maxIterable') !== undefined) {
+        } else if (newSelected.get('offsetY') !== undefined || newSelected.get('offsetX') !== undefined) {
             _loadedModel(loadedModel.set('settings', newSelected));
         } else {
             var nodeData = loadedModel.get('nodeData'),
