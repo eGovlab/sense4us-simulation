@@ -8,10 +8,11 @@ var middleware = require('./../middleware.js'),
 
 var mouseDownWare = middleware([
 	link,
-	select,
-	stopClicked,
+	//stopClicked,
 	stopLinking,
-	stopMovingIcon
+	stopMovingIcon,
+	deselect,
+	select
 ]);
 
 function stopClicked(data) {
@@ -34,60 +35,17 @@ function select(data, error, done) {
 			}, 200);
 		}
 
-		doubleTap = true;
+		var selectedNodes = data.nodeGui.filter(function(node) {
+			return node.get('clicked');
+		});
+
+		doubleTap = selectedNodes;
 		return data;
 	}
-    // if we click on a icon we want to start moving it!
-    collidedNodes = data.nodeGui.
-        filter(function(node) { return node.get('icon') !== undefined && hitTest(data.pos, icon(node)); }).
-        slice(-1).
-        map(function(node) {
-            return node.concat({
-                movingIcon: true,
-                selected: true
-            });
-         });
-    data.nodeGui = data.nodeGui.merge(collidedNodes);
 
-    if (collidedNodes.size > 0) {
-        return done(data);
-    }
-    
-    // but if we click on the node, we want to move the actual node
-    var collidedNodes = data.nodeGui.
-        filter(function(node) { return hitTest(node, data.pos); }).
-        slice(-1).
-        map(function(node) {
-            return node.concat({
-                offsetX: data.pos.get('x') - (node.get('x') || 0),
-                offsetY: data.pos.get('y') - (node.get('y') || 0),
-                clicked: true,
-                selected: true
-            });
-         });
-    data.nodeGui = data.nodeGui.merge(collidedNodes);
-
-    if (collidedNodes.size > 0) {
-        return done(data);
-    }
-
-    // if we didn't click any nodes, we check if we clicked any links
-    var collidedLinks = data.links.
-        filter(function(link) { return hitTest(aggregatedLink(link, data.nodeGui), data.pos); }).
-        slice(-1).
-        map(function(link) {
-            return link.concat({
-                offsetX: data.pos.get('x') - (link.get('x') || 0),
-                offsetY: data.pos.get('y') - (link.get('y') || 0),
-                clicked: true,
-                selected: true
-            });
-         })
-    data.links = data.links.merge(collidedLinks);
-
-    if (collidedLinks.size > 0) {
-        return done(data);
-    }
+	data.nodeGui = data.nodeGui.merge(doubleTap.map(function(node) {
+		return node.set('selected', true);
+	}));
 
     return data;
 }
@@ -167,6 +125,22 @@ function stopMovingIcon(data) {
 	);
 
 	return data;
+}
+
+function deselect(data) {
+    data.nodeGui = data.nodeGui.merge(
+        data.nodeGui.
+            filter(function(node) { return node.get('selected') === true && !node.get('clicked'); }).
+            map(function(node)    { return node.delete('selected').delete('offsetX').delete('offsetY'); })
+    );
+
+    data.links = data.links.merge(
+        data.links.
+            filter(function(node) { return node.get('selected') === true && !node.get('clicked'); }).
+            map(function(node)    { return node.delete('selected').delete('offsetX').delete('offsetY'); })
+    );
+
+    return data;
 }
 
 module.exports = mouseDownWare;
