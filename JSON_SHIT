@@ -1,0 +1,87 @@
+
+{
+    problemTitle: "Hello, world",
+    problemId:    10,
+    userId:     1,
+
+    textItems: [
+        {   
+            text:     "Tax treatments"
+        },
+
+        {   
+            category: 12,
+            text:     "Tax treatments"
+        },
+
+        {   
+            category: 12,
+            mainIssue: 1,
+            text:     "Tax treatments"
+        },
+
+        {   
+            mainIssue: 1,
+            text:     "Tax treatments"
+        },
+
+        {   
+            category: 12,
+            text:     "Tax treatments"
+        },
+
+        {   
+            category: 12,
+            mainIssue: 1,
+            text:     "Tax treatments"
+        },
+
+        {   
+            category: 12,
+            mainIssue: 1,
+            text:     "Tax treatments"
+        },
+
+        {   
+            category: 12,
+            mainIssue: 1,
+            text:     "Tax treatments"
+        }
+    ],
+}
+
+
+<tag value="hello">
+</tag>
+
+<tag>
+    value
+</tag>
+
+{
+    tag:
+}
+
+S4U_POLICY_INSTRUMENT
+id, type
+1,  "Financial"
+2,  "Fiscal"
+3,  "Market"
+.,  ...
+.,  ...
+.,  ...
+.,  ...
+.,  ...
+.,  ...
+.,  ...
+?,  "General"
+
+S4U_TEXT_ITEMS
+id, problem_id, instrument_id, text
+1,  1,          2,             "Tax treatments ..."
+
+2,  2,          2,             "Tax treatments ..."
+
+3,  1,          3,             "Contracts"
+4,  1,          3,             "Demand"
+

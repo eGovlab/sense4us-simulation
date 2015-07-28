@@ -132,7 +132,7 @@ function updateMenu(menu, map) {
 
 var namespace = {
     createAvatarSelector: createAvatarSelector,
-    createAvatarButtons: createAvatarButtons,
+    createAvatarButtons:  createAvatarButtons,
     drawSelectedMenu: function(container, menu, map, changeCallback) {
         if (map === null || map === undefined) {
             if (menu !== null) {

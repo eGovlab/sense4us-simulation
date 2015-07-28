@@ -53,7 +53,7 @@ var selectedMenu = Immutable.Map({}),
         local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
         synced: Immutable.Map()
     }),
-    environment   = 'edit';
+    environment   = 'modelling';
 
 var settings = require('./settings');
 
@@ -135,7 +135,6 @@ var dragHandler   = require('./mechanics/drag_handler.js'),
 
 dragHandler(
     mainCanvas,
-    
     function mouseDown(pos) {
         var data = mouseDownWare({pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
         loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
@@ -168,11 +167,10 @@ dragHandler(
     }
 );
 
-mainCanvas.addEventListener("mousewheel",     MouseWheelHandler, false);
-mainCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+//mainCanvas.addEventListener("mousewheel",     MouseWheelHandler, false);
+//mainCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
 
 var zoom = 1;
-
 function MouseWheelHandler(e) {
 	var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
 	var mouse_canvas_y = e.y - mainCanvas.offsetTop;
@@ -217,10 +215,10 @@ function _refresh() {
     );
     
     context.setTransform(
-        loadedModel.get('settings').get('scaleX') || 1,
+        loadedModel.get('settings').get('scaleX')  || 1,
         0,
         0,
-        loadedModel.get('settings').get('scaleY') || 1,
+        loadedModel.get('settings').get('scaleY')  || 1,
         loadedModel.get('settings').get('offsetX') || 0,
         loadedModel.get('settings').get('offsetY') || 0
     );
@@ -293,11 +291,12 @@ function _refresh() {
     // if we are linking, we want to draw the dot above everything else
     loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
-    if (selected.last()) {
+    /*if (selected.last()) {
         selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
     } else {    // draw menu for the model
         selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected);
-    }
+    }*/
+
     //update the menu
 }
 

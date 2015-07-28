@@ -2,7 +2,7 @@
 
 var Immutable  = require('Immutable'),
     network    = require('./../network'),
-    edit       = require('./edit.js'),
+    modelling  = require('./modelling.js'),
     simulate   = require('./simulate.js'),
     modelLayer = require('./../model_layer.js');
 
@@ -10,7 +10,7 @@ var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
     var element = this;
 
     element.resetOptions();
-    element.addOption('edit', "Edit");
+    element.addOption('modelling', "Modelling");
     element.addOption('simulate', "Simulate");
 
     element.refreshList();
@@ -26,9 +26,9 @@ var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
     this.parent.toggle();
 
     switch(option) {
-        case 'edit':
-            ui = ui.set('sidebar', edit);
-            environment('edit');
+        case 'modelling':
+            ui = ui.set('sidebar', modelling);
+            environment('modelling');
             UIData(ui);
             UIRefresh();
             refresh();

@@ -16,8 +16,8 @@ module.exports = function(ctx, line) {
         distance       = Math.sqrt(dx*dx + dy*dy),
         angle          = Math.atan2(dy, dx),
         
-        fromRadius     = line.get('fromRadius'),
-        targetRadius   = line.get('targetRadius'),
+        fromRadius     = line.get('fromRadius')   + 6,
+        targetRadius   = line.get('targetRadius') + 6,
         lineWidth      = line.get('width'),
         halfLineWidth  = lineWidth * 0.80,
 
@@ -47,10 +47,10 @@ module.exports = function(ctx, line) {
     ** Draw the initial arrow.
     */
 
-    ctx.shadowOffsetX = 0;
+    /*ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
     ctx.shadowBlur    = 10;
-    ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowColor   = 'rgba(0, 0, 0, 0.5)';*/
 
     ctx.lineJoin = 'miter';
     ctx.lineCap  = 'square';
@@ -74,14 +74,16 @@ module.exports = function(ctx, line) {
     ctx.closePath();
     ctx.stroke();
 
+    return;
+
     /*
     ** Draw another smaller line on top if the initial arrow.
     */
 
-    ctx.shadowOffsetX = 0;
+    /*ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
     ctx.shadowBlur = 0;
-    ctx.shadowColor = 'rgba(0, 0, 0, 1)';
+    ctx.shadowColor = 'rgba(0, 0, 0, 1)';*/
 
     if (line.get('selected') === true) {
         ctx.strokeStyle = 'rgba(90, 255, 200, 0.8)';
@@ -103,5 +105,4 @@ module.exports = function(ctx, line) {
     ctx.lineTo(arrowStartX,  arrowStartY);
     ctx.closePath();
     ctx.stroke();
-
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-var edit      = require('./edit.js'),
+var modelling = require('./modelling.js'),
     menu      = require('./menu.js');
 
 var data = {
@@ -79,7 +79,7 @@ var data = {
         }
     ],
 
-    sidebar: edit,
+    sidebar: modelling,
     menu:    menu
 };
 

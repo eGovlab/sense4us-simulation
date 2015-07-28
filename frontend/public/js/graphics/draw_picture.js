@@ -35,17 +35,18 @@ function drawScaledImage(ctx, image, x, y, w, h) {
 }
 
 function drawImage(ctx, image, map) {
-    ctx.globalCompositeOperation = 'source-atop';
+    ctx.globalCompositeOperation = 'source-over';
     // Save the state, so we can undo the clipping
     ctx.save();
+
     // Create a circle
     ctx.beginPath();
-    ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
-    
+    ctx.arc(map.get('x'), map.get('y'), map.get('radius') + 2, 0, 360);
+
     // Clip to the current path
     ctx.clip();
     
-    drawScaledImage(ctx, image, map.get('x') - map.get('radius'), map.get('y') - map.get('radius'), map.get('radius') * 2, map.get('radius') * 2);	
+    drawScaledImage(ctx, image, map.get('x') - map.get('radius'), map.get('y') - map.get('radius'), map.get('radius') * 2, map.get('radius') * 2);
     
     // Undo the clipping
     ctx.restore();
