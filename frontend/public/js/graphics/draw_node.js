@@ -53,7 +53,6 @@ module.exports = function drawNode(ctx, map, env) {
 
     if (map.get('avatar')) {
         drawPicture(ctx, map.get('avatar'), map, function(_ctx, _imagePath, _map, _refresh) {
-            console.log("imagePath?", _imagePath);
             drawNode(ctx, map, env);
         });
     } else {

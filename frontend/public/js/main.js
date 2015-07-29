@@ -291,11 +291,17 @@ function _refresh() {
     // if we are linking, we want to draw the dot above everything else
     loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
-    /*if (selected.last()) {
+    if (selected.last()) {
+        var sidebar = document.getElementById("sidebar");
+        sidebar.firstElementChild.style.display = "none";
+        
         selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
     } else {    // draw menu for the model
+        var sidebar = document.getElementById("sidebar");
+        sidebar.firstElementChild.style.display = "block";
+
         selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected);
-    }*/
+    }
 
     //update the menu
 }

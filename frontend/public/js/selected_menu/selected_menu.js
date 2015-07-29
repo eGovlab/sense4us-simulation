@@ -10,7 +10,7 @@ function createButtons(list, model, onChangeCallback) {
     containerDiv.className = 'menu';
 
     list.forEach(function(button) {
-        if(model.get('maxIterable') !== undefined && button.get('ignoreModelSettings') === true) {
+        if(model.get('maxIterations') !== undefined && button.get('ignoreModelSettings') === true) {
             return;
         }
 
