@@ -114,6 +114,8 @@ UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
 var drawNode = require('./graphics/draw_node.js');
     drawNode = curry(drawNode, mainCanvas.getContext('2d'));
 
+var drawOriginTable = require('./graphics/draw_origin_table.js');
+
 window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
 
@@ -234,6 +236,7 @@ function _refresh() {
         .map(function(node) {
             return Immutable.Map({
                 id:             node.get('id'),
+                type:           node.get('type'),
                 value:          node.get('value'),
                 relativeChange: node.get('relativeChange'),
                 description:    node.get('description')
@@ -290,6 +293,10 @@ function _refresh() {
 
     // if we are linking, we want to draw the dot above everything else
     loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
+
+    if(environment === 'simulate') {
+        return;
+    }
 
     if (selected.last()) {
         var sidebar = document.getElementById("sidebar");

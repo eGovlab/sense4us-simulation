@@ -88,11 +88,79 @@ module.exports = function drawNode(ctx, map, env) {
     } else if (map.get('type') === 'origin') {
         text = map.get('relativeChange') + '';
     } else {
-        if (env === 'edit') {
+        if (env === 'modelling') {
             text = map.get('value') + '';
         } else if (env === 'simulate') {
             text = map.get('simulateChange') + '';
         }
+    }
+
+    if(env === 'simulate') {
+        var data = map.get('timeTable');
+        var amount = (data.size > 3 ? 3 : data.size) - 1;
+
+        var size   = 24;
+        var startY = ((map.get('y') - size / 2) - ((size * amount) / 2));
+
+        var longestString = 0;
+        var rowStrings    = [];
+
+        ctx.font = size + 'px Arial';
+
+        data.forEach(function(value, timeStep) {
+            var symbol = " ";
+            if(value > 0) {
+                symbol = "+";
+            } else if(value < 0) {
+                symbol = "-";
+            }
+
+            var rowString = "T" + timeStep + ": " + symbol + " " + Math.abs(value) + "%";
+            var length = ctx.measureText(rowString).width;
+
+            if(length > longestString) {
+                longestString = length;
+            }
+
+            rowStrings.push({
+                step:   timeStep,
+                symbol: symbol,
+                value:  value
+            });
+        });
+
+        rowStrings.forEach(function(stringInformation, index) {
+            var stepString   = "T"+stringInformation.step+", ";
+            var stepLength   = ctx.measureText(stepString).width;
+            var stepX        = map.get('x') - map.get('radius') - longestString - 8;
+
+            var symbolString = stringInformation.symbol + " ";
+            var symbolLength = ctx.measureText(symbolString).width;
+            var symbolX      = stepX + stepLength;
+
+            var valueString  = Math.abs(stringInformation.value) + "%";
+            var valueLength  = ctx.measureText(valueString).width;
+            var valueX       = symbolX + symbolLength;
+
+            ctx.textBaseline = 'top';
+            var y = startY + (size * index);
+
+            ctx.fillStyle = 'rgba(30, 50, 100, 1.0)';
+            ctx.fillText(stepString,   stepX,   y);
+
+            var changeColor = 'rgba(80, 80, 80, 1.0)';
+            if(stringInformation.value > 0) {
+                changeColor = 'rgba(20, 150, 40, 1.0)';
+            } else if(stringInformation.value < 0) {
+                changeColor = 'rgba(150, 20, 40, 1.0)';
+            }
+
+            ctx.fillStyle = changeColor;
+            ctx.fillText(symbolString, symbolX, y);
+
+            ctx.fillStyle = changeColor;
+            ctx.fillText(valueString,  valueX,  y);
+        });
     }
 
     /*ctx.shadowOffsetX = 0;

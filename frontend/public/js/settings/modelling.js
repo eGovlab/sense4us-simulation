@@ -36,6 +36,11 @@ var createNode = function(model, type, attrs) {
 };
 
 var createOriginNode = function(model, attrs) {
+    attrs = attrs.set('timeTable', Immutable.Map({
+        0: 0,
+        1: 10,
+        2: -4
+    }));
     return createNode(model, 'origin', attrs);
 };
 
@@ -85,7 +90,7 @@ var model = Immutable.List([
     }),
 
     Immutable.Map({
-        header: 'Controlling actors',
+        header: 'Controllable actors',
         callback: createOriginNode,
         images: [
             {
