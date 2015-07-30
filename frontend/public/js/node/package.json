@@ -1,0 +1,4 @@
+{
+    "name": "sense4us-node",
+    "main": "./node.js"
+}

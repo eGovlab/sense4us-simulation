@@ -17,7 +17,7 @@ module.exports = function(ctx, line) {
         angle          = Math.atan2(dy, dx),
         
         fromRadius     = line.get('fromRadius')   + 6,
-        targetRadius   = line.get('targetRadius') + 6,
+        targetRadius   = line.get('targetRadius') + 8,
         lineWidth      = line.get('width'),
         halfLineWidth  = lineWidth * 0.80,
 
@@ -42,6 +42,10 @@ module.exports = function(ctx, line) {
         
         rightAnchorX   = arrowStartX + Math.cos(rightAngle) * anchorDistance,
         rightAnchorY   = arrowStartY + Math.sin(rightAngle) * anchorDistance;
+
+    if(distance < fromRadius) {
+        return;
+    }
 
     /*
     ** Draw the initial arrow.

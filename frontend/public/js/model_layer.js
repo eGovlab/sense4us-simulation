@@ -83,7 +83,9 @@ module.exports = {
                 maxIterations: 0,
                 offsetX:       0,
                 offsetY:       0,
-                zoom:          1
+                zoom:          1,
+
+                timeStepT:     "Week"
             })
         });
 

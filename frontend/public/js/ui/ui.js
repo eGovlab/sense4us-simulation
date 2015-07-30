@@ -15,6 +15,46 @@ var CONFIG       = require('rh_config-parser'),
     selectedMenu = require('./../selected_menu/selected_menu'),
     Immutable    = require('Immutable');
 
+function createDropdown(element, select, refresh, updateCallback, changeCallbacks) {
+    var dropdownElement = document.createElement('select');
+    var values = element.get('values');
+
+    var selected = select(changeCallbacks.get('loadedModel')(), element.get('values'));
+
+    values.forEach(function(value, index) {
+        var option = document.createElement('option');
+        option.innerHTML = value;
+        option.value     = value;
+
+        if(selected === index) {
+            option.selected = true;
+        }
+
+        dropdownElement.appendChild(option);
+    });
+
+    dropdownElement.addEventListener('change', function(e) {
+        updateCallback(element.get('callback')(changeCallbacks.get('loadedModel')(), null, dropdownElement.value));
+    });
+
+    return dropdownElement;
+}
+
+function createButton(element, refresh, updateCallback, changeCallbacks) {
+    var buttonElement;
+    if(element.get('ajax') === true) {
+        buttonElement = menuBuilder.button(element.get('header'), function() {
+            element.get('callback')(refresh, changeCallbacks);
+        });
+    } else {
+        buttonElement = menuBuilder.button(element.get('header'), function() {
+            updateCallback(element.get('callback')(changeCallbacks.get('loadedModel')()));
+        });
+    }
+
+    return buttonElement;
+}
+
 var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateCallback) {
     var sidebarMenu = document.createElement('div');
     sidebarMenu.className = 'menu';
@@ -40,16 +80,13 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
             }());
         } else if (element.get('header') !== undefined && element.get('callback') !== undefined) {
             var buttonElement;
-            if(element.get('ajax') === true) {
-                buttonElement = menuBuilder.button(element.get('header'), function() {
-                    element.get('callback')(refresh, changeCallbacks);
-                });
-            } else {
-                buttonElement = menuBuilder.button(element.get('header'), function() {
-                    updateCallback(element.get('callback')(changeCallbacks.get('loadedModel')()));
-                });
+            switch(element.get('type')) {
+                case 'DROPDOWN':
+                    buttonElement = createDropdown(element, element.get('select'), refresh, updateCallback, changeCallbacks);
+                    break;
+                default:
+                    buttonElement = createButton(element, refresh, updateCallback, changeCallbacks);
             }
-            
 
             sidebarMenu.appendChild(buttonElement);
         } else {

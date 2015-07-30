@@ -41,6 +41,7 @@ var createOriginNode = function(model, attrs) {
         1: 10,
         2: -4
     }));
+    
     return createNode(model, 'origin', attrs);
 };
 

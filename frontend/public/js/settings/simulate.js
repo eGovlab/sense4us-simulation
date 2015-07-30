@@ -36,7 +36,31 @@ var simulate = Immutable.List([
                 refresh();
             });
         }
-    })
+    }),
+
+    Immutable.Map( {
+        header: 'Time step T',
+        type:   'DROPDOWN',
+        values: [
+            "Week",
+            "Month",
+            "Year"
+        ],
+        select: function(model, values) {
+            var selected = model.get('settings').get('timeStepT');
+            for(var i = 0; i < values.length; i++) {
+                if(values[i] === selected) {
+                    return i;
+                }
+            }
+
+            return 0;
+        },
+        callback: function(model, attrs, value) {
+            model = model.set('settings', model.get('settings').set('timeStepT', value));
+            return model;
+        }
+    }),
 ]);
 
 module.exports = simulate;

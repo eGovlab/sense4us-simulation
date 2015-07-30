@@ -307,7 +307,7 @@ function _refresh() {
         var sidebar = document.getElementById("sidebar");
         sidebar.firstElementChild.style.display = "block";
 
-        selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected);
+        selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings').delete('timeStepT'), updateSelected);
     }
 
     //update the menu

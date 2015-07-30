@@ -1,7 +1,7 @@
 'use strict';
 
-var drawPicture = require('./draw_picture');
-var drawCircle = require('./draw_circle');
+var drawPicture = require('./draw_picture'),
+    drawCircle  = require('./draw_circle');
 
 var settings = [
     {
@@ -82,8 +82,8 @@ module.exports = function drawNode(ctx, map, env) {
         });
     }
     
-    var text = '';
-    if (map.get('type') === 'actor') {
+    var text = map.get('description');
+    /*if (map.get('type') === 'actor') {
         text = 'Actor' + map.get('id');
     } else if (map.get('type') === 'origin') {
         text = map.get('relativeChange') + '';
@@ -93,7 +93,7 @@ module.exports = function drawNode(ctx, map, env) {
         } else if (env === 'simulate') {
             text = map.get('simulateChange') + '';
         }
-    }
+    }*/
 
     /*ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
