@@ -2,7 +2,7 @@
 
 var Immutable = require('Immutable');
 
-var createNode = function(model, type, attrs) {
+var createNode = function(model, type, attrs, gui) {
     var id = model.get('nextId');
     model = model.set('nextId', id + 1);
 
@@ -30,6 +30,10 @@ var createNode = function(model, type, attrs) {
         radius: 75
     });
 
+    if(gui) {
+        nodeGui = nodeGui.merge(gui);
+    }
+
     model = model.set('nodeGui', model.get('nodeGui').set(id, nodeGui));
 
     return model;
@@ -41,8 +45,13 @@ var createOriginNode = function(model, attrs) {
         1: 10,
         2: -4
     }));
+
+    var gui = Immutable.Map({
+        tableWidth: 110,
+        tableHeight: 72
+    });
     
-    return createNode(model, 'origin', attrs);
+    return createNode(model, 'origin', attrs, gui);
 };
 
 var createActorNode = function(model, attrs) {

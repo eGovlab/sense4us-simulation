@@ -182,6 +182,47 @@ var namespace = {
         return menu;
     },
 
+    drawOriginTable: function(container, menu, map) {
+        if (map === null || map === undefined) {
+            if (menu !== null) {
+                container.removeChild(menu.get('element'));
+            }
+
+            return null;
+        }
+
+        if (menu === null || menu.get('element') === undefined) {
+            menu = Immutable.Map({
+                element: menuBuilder.div(),
+                map_obj: map
+            });
+
+            var element = menu.get('element');
+            element.className = 'menu';
+
+            map.forEach(function(value, key) {
+                console.log(key, value);
+            });
+
+            container.appendChild(element);
+        }
+
+        if(menu.get('map_obj') === map) {
+            return menu;
+        } else {
+            var element = menu.get('element');
+            while(element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+
+            map.forEach(function(value, key) {
+                console.log(key, value);
+            });
+        }
+
+        return menu;
+    },
+
     updateSelected: function(refresh, UIRefresh, changeCallbacks, newSelected) {
         var _loadedModel = changeCallbacks.get('loadedModel'),
             loadedModel  = _loadedModel(),

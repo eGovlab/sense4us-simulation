@@ -24,32 +24,6 @@ function stopClicked(data) {
 	return data;
 }
 
-var doubleTap      = false,
-	doubleTapTimer = false;
-function select(data, error, done) {
-	if(doubleTap === false) {
-		if(doubleTapTimer === false) {
-			doubleTapTimer = setTimeout(function() {
-				doubleTap      = false;
-				doubleTapTimer = false;
-			}, 200);
-		}
-
-		var selectedNodes = data.nodeGui.filter(function(node) {
-			return node.get('clicked');
-		});
-
-		doubleTap = selectedNodes;
-		return data;
-	}
-
-	data.nodeGui = data.nodeGui.merge(doubleTap.map(function(node) {
-		return node.set('selected', true);
-	}));
-
-    return data;
-}
-
 function link(data) {
 	data.nodeGui
 		.filter(function(node) { return node.get('linking') === true; })
@@ -139,6 +113,32 @@ function deselect(data) {
             filter(function(node) { return node.get('selected') === true && !node.get('clicked'); }).
             map(function(node)    { return node.delete('selected').delete('offsetX').delete('offsetY'); })
     );
+
+    return data;
+}
+
+var doubleTap      = false,
+	doubleTapTimer = false;
+function select(data, error, done) {
+	if(doubleTap === false) {
+		if(doubleTapTimer === false) {
+			doubleTapTimer = setTimeout(function() {
+				doubleTap      = false;
+				doubleTapTimer = false;
+			}, 200);
+		}
+
+		var selectedNodes = data.nodeGui.filter(function(node) {
+			return node.get('clicked');
+		});
+
+		doubleTap = selectedNodes;
+		return data;
+	}
+
+	data.nodeGui = data.nodeGui.merge(doubleTap.map(function(node) {
+		return node.set('selected', true);
+	}));
 
     return data;
 }

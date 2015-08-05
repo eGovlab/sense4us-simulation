@@ -133,3 +133,8 @@
 #sidebar .menu .avatarPreview::nth-child(2n+1) {
     clear: both;
 }
+
+#sidebar .menu select {
+    width: 100%;
+    margin: 10px 0px;
+}

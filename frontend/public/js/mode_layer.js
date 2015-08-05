@@ -7,6 +7,8 @@ function ModeLayer() {
 
     this.currentMode = false;
     this.modes = {};
+
+    this.refresh;
 }
 
 ModeLayer.prototype = {
@@ -28,6 +30,10 @@ ModeLayer.prototype = {
         }
 
         this.currentMode = this.modes[name];
+
+        if(this.refresh) {
+            this.refresh();
+        }
     },
 
     iterateModes: function(callback) {

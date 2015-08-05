@@ -9,6 +9,7 @@ var curry      = require('./curry.js'),
 var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 
 var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
+    drawOriginTable  = curry(require('./selected_menu').drawOriginTable, document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
     modelLayer       = require('./model_layer.js'),
@@ -114,8 +115,6 @@ UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
 var drawNode = require('./graphics/draw_node.js');
     drawNode = curry(drawNode, mainCanvas.getContext('2d'));
 
-var drawOriginTable = require('./graphics/draw_origin_table.js');
-
 window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
 
@@ -135,10 +134,12 @@ var dragHandler   = require('./mechanics/drag_handler.js'),
     mouseMoveWare = require('./mouse_handling/handle_drag.js'),
     mouseUpWare   = require('./mouse_handling/handle_up.js');
 
+var isMoving = false;
+
 dragHandler(
     mainCanvas,
     function mouseDown(pos) {
-        var data = mouseDownWare({pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
+        var data = mouseDownWare({env: environment, pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')}, environment);
         loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
         loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
 
@@ -153,6 +154,8 @@ dragHandler(
         loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
         loadedModel = loadedModel.set('settings', loadedModel.get('settings').merge(data.settings));
 
+        isMoving = true;
+
         refresh();
     },
     
@@ -164,6 +167,8 @@ dragHandler(
 
         mainCanvas.panX = -loadedModel.get('settings').get('offsetX');
         mainCanvas.panY = -loadedModel.get('settings').get('offsetY');
+
+        isMoving = false;
 
         refresh();
     }
@@ -195,7 +200,6 @@ function MouseWheelHandler(e) {
 	var zoom_effect_y = (mouse_stage_new_y - mouse_stage_y) * scaleY;
     
     loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetX', (loadedModel.get('settings').get('offsetX') || 0) + zoom_effect_x));
-    console.log('derp', loadedModel.get('settings').get('offsetX'));
     loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetY', (loadedModel.get('settings').get('offsetY') || 0) + zoom_effect_y));
     
     loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('scaleX', scaleX));
@@ -212,7 +216,7 @@ function _refresh() {
     context.clearRect(
         (-loadedModel.get('settings').get('offsetX') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
         (-loadedModel.get('settings').get('offsetY') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
-        mainCanvas.width * (2 - (loadedModel.get('settings').get('scaleX') || 1)),
+        mainCanvas.width  * (2 - (loadedModel.get('settings').get('scaleX') || 1)),
         mainCanvas.height * (2 - (loadedModel.get('settings').get('scaleY') || 1))
     );
     
@@ -239,7 +243,8 @@ function _refresh() {
                 type:           node.get('type'),
                 value:          node.get('value'),
                 relativeChange: node.get('relativeChange'),
-                description:    node.get('description')
+                description:    node.get('description'),
+                timeTable:      node.get('timeTable')
             }).merge(
                 Immutable.Map({
                         radius: loadedModel.get('nodeGui').get(node.get('id')).get('radius'),
@@ -287,30 +292,36 @@ function _refresh() {
     loadedModel.get('nodeData').forEach(
         function(n) { 
             var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
-            drawNode(nodeGui, environment);
+            drawNode(nodeGui, environment, isMoving);
         }
     );
 
     // if we are linking, we want to draw the dot above everything else
     loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
-    if(environment === 'simulate') {
-        return;
-    }
-
-    if (selected.last()) {
-        var sidebar = document.getElementById("sidebar");
-        sidebar.firstElementChild.style.display = "none";
-        
-        selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
-    } else {    // draw menu for the model
-        var sidebar = document.getElementById("sidebar");
-        sidebar.firstElementChild.style.display = "block";
-
-        selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings').delete('timeStepT'), updateSelected);
-    }
-
     //update the menu
+    var sidebar = document.getElementById('sidebar');
+    if(selected.last()) {
+        sidebar.firstElementChild.style.display = 'none';
+    } else {
+        sidebar.firstElementChild.style.display = 'block';
+    }
+
+    switch(environment) {
+        case 'modelling':
+            if(selected.last()) {
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
+            } else {
+                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings').delete('timeStepT'), updateSelected);
+            }
+            break;
+        case 'simulate':
+            if(selected.last()) {
+                selectedMenu = drawOriginTable(selectedMenu, selected.last().get('timeTable'));
+            }
+            break;
+        default:
+    }
 }
 
 function refresh() {

@@ -1,10 +1,11 @@
 'use strict';
 
-var middleware = require('./../middleware.js');
-var hitTest = require('./../collisions.js').hitTest;
-var linker = require('./../linker.js');
-var aggregatedLink = require('./../aggregated_link.js');
-var icon = require('../icon');
+var middleware     = require('./../middleware.js'),
+    pointRect      = require('./../collisions.js').pointRect,
+    hitTest        = require('./../collisions.js').hitTest,
+    linker         = require('./../linker.js'),
+    aggregatedLink = require('./../aggregated_link.js'),
+    icon           = require('../icon');
 
 var mouseDownWare = middleware([
     startLinkingIfSelected,
@@ -12,7 +13,7 @@ var mouseDownWare = middleware([
     clickAndMove
 ]);
 
-function clickAndMove(data, error, done) {
+function clickAndMove(data, error, done, env) {
     var previouslyClickedNodes = data.nodeGui.filter(function(node) {
         return node.get('clicked');
     }).map(function(node) {
@@ -69,6 +70,35 @@ function clickAndMove(data, error, done) {
     data.links = data.links.merge(collidedLinks);
 
     if (collidedLinks.size > 0) {
+        return done(data);
+    }
+
+    if(data.env !== 'simulate') {
+        return data;
+    }
+
+    // If we didn't hit any links, look for clicked origin tables.
+    var collidedTables = data.nodeGui.
+        filter(function(node) {
+            var w = node.get('tableWidth'),
+                h = node.get('tableHeight');
+
+            var x = node.get('x') - node.get('radius') - w - 8,
+                y = node.get('y') - (h / 2);
+
+            return pointRect(data.pos, Immutable.Map({x: x, y: y, width: w, height: h}));
+        }).
+        map(function(node) {
+            return node.concat({
+                offsetX: data.pos.get('x') - (node.get('x') || 0),
+                offsetY: data.pos.get('y') - (node.get('y') || 0),
+                clicked: true
+            });
+        });
+
+    data.nodeGui = data.nodeGui.merge(collidedTables);
+
+    if (collidedTables.size > 0) {
         return done(data);
     }
 

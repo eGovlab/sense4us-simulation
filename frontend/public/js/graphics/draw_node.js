@@ -1,7 +1,8 @@
 'use strict';
 
-var drawPicture = require('./draw_picture'),
-    drawCircle  = require('./draw_circle');
+var drawPicture     = require('./draw_picture'),
+    drawCircle      = require('./draw_circle'),
+    drawOriginTable = require('./draw_origin_table');
 
 var settings = [
     {
@@ -42,7 +43,7 @@ var settings = [
     }
 ];
 
-module.exports = function drawNode(ctx, map, env) {
+module.exports = function drawNode(ctx, map, env, isMoving) {
 /*
     if (map.get('selected') === true) {
         ctx.fillStyle = 'rgba(255, 175, 75, 0.8)';
@@ -123,6 +124,17 @@ module.exports = function drawNode(ctx, map, env) {
         return;
     }
 
+    /*ctx.beginPath();
+
+    var rectWidth  = 110,
+        rectHeight = 72,
+        rectX      = map.get('x') - map.get('radius') - rectWidth - 8,
+        rectY      = map.get('y') - (rectHeight / 2);
+
+    ctx.rect(rectX, rectY, rectWidth, rectHeight);
+    ctx.fillStyle = 'rgba(80, 80, 80, 0.4)';
+    ctx.fill();*/
+
     var data = map.get('timeTable');
     var amount = (data.size > 3 ? 3 : data.size) - 1;
 
@@ -171,6 +183,11 @@ module.exports = function drawNode(ctx, map, env) {
     var startX  = map.get('x') - map.get('radius') - longestString - 8,
         symbolX = startX  + longestTimeStep,
         valueX  = symbolX + longestSymbol;
+
+    //console.log("X:",      startX);
+    //console.log("Y:",      startY);
+    //console.log("Width:",  longestString);
+    //console.log("Height:", size * 3);
 
     rowStrings.forEach(function(stringInformation, index) {
         var stepString   = "T"+stringInformation.step+", ",
