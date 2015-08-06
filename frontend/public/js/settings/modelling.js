@@ -39,17 +39,25 @@ var createNode = function(model, type, attrs, gui) {
     return model;
 };
 
-var createOriginNode = function(model, attrs) {
+var createOriginNode = function(model, attrs, gui) {
+    if(!attrs) {
+        attrs = Immutable.Map({});
+    }
+    
     attrs = attrs.set('timeTable', Immutable.Map({
         0: 0,
         1: 10,
         2: -4
     }));
 
-    var gui = Immutable.Map({
-        tableWidth: 110,
-        tableHeight: 72
-    });
+    console.log("GUI:", gui);
+
+    if(gui) {
+        gui = gui.merge(Immutable.Map({
+            tableWidth: 110,
+            tableHeight: 72
+        }));
+    }
     
     return createNode(model, 'origin', attrs, gui);
 };

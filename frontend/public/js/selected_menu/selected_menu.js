@@ -89,15 +89,20 @@ function createMenu(map, onChangeCallback) {
         element: menuBuilder.div()
     });
 
-    menu.get('element').className = 'menu';
-    menu.get('element').appendChild(createButtons(buttons, map, onChangeCallback));
+    var element = menu.get('element');
+
+    element.className = 'menu';
+    element.appendChild(createButtons(buttons, map, onChangeCallback));
+
+    var appendToEnd = [];
 
     map.forEach(function(value, key) {
         var containerDiv = menuBuilder.div(),
             inputDiv     = menuBuilder.div();
 
         if(key === 'avatar' || key === 'icon') {
-            containerDiv = createAvatarSelector(key, value, onChangeCallback);
+            appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
+            return;
         } else {
             var labelDiv = menuBuilder.div();
             labelDiv.appendChild(menuBuilder.label(key));
@@ -107,7 +112,11 @@ function createMenu(map, onChangeCallback) {
             containerDiv.appendChild(inputDiv);
         }
 
-        menu.get('element').appendChild(containerDiv);
+        element.appendChild(containerDiv);
+    });
+
+    appendToEnd.forEach(function(c) {
+        element.appendChild(c);
     });
 
     return menu;
@@ -116,7 +125,7 @@ function createMenu(map, onChangeCallback) {
 function updateMenu(menu, map) {
     var menuElement = menu.get('element');
     map.forEach(function(value, key) {
-        var elements = menuElement.querySelectorAll('[name=' + key + ']');
+        var elements = menuElement.querySelectorAll('[name="' + key + '"]');
         var element = elements[0];
 
         if (element) {
@@ -136,7 +145,11 @@ var namespace = {
     drawSelectedMenu: function(container, menu, map, changeCallback) {
         if (map === null || map === undefined) {
             if (menu !== null) {
-                container.removeChild(menu.get('element'));
+                try {
+                    container.removeChild(menu.get('element'));
+                } catch(e) {
+                    /* Node not found. Removed by other means? */
+                }
             }
 
             return null;
@@ -160,7 +173,6 @@ var namespace = {
                 menu = menu.set('map_obj', map);
             } else {
                 // remake menu
-                
                 try {
                     container.removeChild(menu.get('element'));
                 } catch(err) {
@@ -296,7 +308,9 @@ var namespace = {
                 id:             newSelected.get('id'),
                 value:          newSelected.get('value'),
                 relativeChange: newSelected.get('relativeChange'),
-                description:    newSelected.get('description')
+                description:    newSelected.get('description'),
+                type:           newSelected.get('type'),
+                timeTable:      newSelected.get('timeTable')
             }));
 
             nodeData = nodeData.set(node.get('id'), node);

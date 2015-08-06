@@ -67,6 +67,7 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
                     updateCallback(
                         element.get('callback')(
                             changeCallbacks.get('loadedModel')(),
+                            null, 
                             Immutable.Map({avatar: value})
                         )
                     );
@@ -74,8 +75,8 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
                 element.get('images'));
                 
                 var labelElement = menuBuilder.label(element.get('header'));
-                sidebarMenu.appendChild(labelElement);
 
+                sidebarMenu.appendChild(labelElement);
                 sidebarMenu.appendChild(avatarsElement);
             }());
         } else if (element.get('header') !== undefined && element.get('callback') !== undefined) {

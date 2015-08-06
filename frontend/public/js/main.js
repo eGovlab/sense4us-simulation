@@ -317,10 +317,16 @@ function _refresh() {
             break;
         case 'simulate':
             if(selected.last()) {
-                selectedMenu = drawOriginTable(selectedMenu, selected.last().get('timeTable'));
+                console.log(selected.last());
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last().get('timeTable'),
+                    function(value) {
+                        updateSelected(selected.last().set('timeTable', value));
+                    }
+                );
+            } else {
+                selectedMenu = drawSelectedMenu(selectedMenu, null, null);
             }
             break;
-        default:
     }
 }
 
