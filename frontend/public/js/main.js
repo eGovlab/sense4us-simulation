@@ -9,7 +9,6 @@ var curry      = require('./curry.js'),
 var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 
 var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
-    drawOriginTable  = curry(require('./selected_menu').drawOriginTable, document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
     modelLayer       = require('./model_layer.js'),
@@ -112,8 +111,10 @@ var changeCallbacks = Immutable.Map({
 
 UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
 
-var drawNode = require('./graphics/draw_node.js');
-    drawNode = curry(drawNode, mainCanvas.getContext('2d'));
+var drawNode      = require('./graphics/draw_node.js'),
+    drawTimeTable = require('./graphics/draw_time_table.js');
+    drawNode      = curry(drawNode, mainCanvas.getContext('2d'));
+    drawTimeTable = curry(drawTimeTable, mainCanvas.getContext('2d'));
 
 window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
@@ -134,8 +135,6 @@ var dragHandler   = require('./mechanics/drag_handler.js'),
     mouseMoveWare = require('./mouse_handling/handle_drag.js'),
     mouseUpWare   = require('./mouse_handling/handle_up.js');
 
-var isMoving = false;
-
 dragHandler(
     mainCanvas,
     function mouseDown(pos) {
@@ -154,8 +153,6 @@ dragHandler(
         loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
         loadedModel = loadedModel.set('settings', loadedModel.get('settings').merge(data.settings));
 
-        isMoving = true;
-
         refresh();
     },
     
@@ -167,8 +164,6 @@ dragHandler(
 
         mainCanvas.panX = -loadedModel.get('settings').get('offsetX');
         mainCanvas.panY = -loadedModel.get('settings').get('offsetY');
-
-        isMoving = false;
 
         refresh();
     }
@@ -292,7 +287,17 @@ function _refresh() {
     loadedModel.get('nodeData').forEach(
         function(n) { 
             var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
-            drawNode(nodeGui, environment, isMoving);
+            drawNode(nodeGui);
+
+            /*
+            ** If you add more environment specific code, please bundle
+            ** it up into another method.
+            **
+            ** e.g. drawNodeInSimulation(nodeGui)
+            */
+            if(environment === 'simulate' && nodeGui.get('timeTable')) {
+                drawTimeTable(nodeGui);
+            }
         }
     );
 

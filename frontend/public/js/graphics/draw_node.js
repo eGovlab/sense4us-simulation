@@ -1,8 +1,7 @@
 'use strict';
 
 var drawPicture     = require('./draw_picture'),
-    drawCircle      = require('./draw_circle'),
-    drawOriginTable = require('./draw_origin_table');
+    drawCircle      = require('./draw_circle');
 
 var settings = [
     {
@@ -43,8 +42,8 @@ var settings = [
     }
 ];
 
-module.exports = function drawNode(ctx, map, env, isMoving) {
-/*
+module.exports = function drawNode(ctx, map) {
+    /*
     if (map.get('selected') === true) {
         ctx.fillStyle = 'rgba(255, 175, 75, 0.8)';
     } else {
@@ -54,7 +53,7 @@ module.exports = function drawNode(ctx, map, env, isMoving) {
 
     if (map.get('avatar')) {
         drawPicture(ctx, map.get('avatar'), map, function(_ctx, _imagePath, _map, _refresh) {
-            drawNode(ctx, map, env);
+            drawNode(ctx, map);
         });
     } else {
         var colors = settings.filter(function(style) {
@@ -119,98 +118,4 @@ module.exports = function drawNode(ctx, map, env, isMoving) {
     var descriptionData = ctx.measureText(description)
     ctx.fillText(description, map.get('x') - descriptionData.width / 2, map.get('y') - map.get('radius'));
     */
-
-    if(env !== 'simulate') {
-        return;
-    }
-
-    /*ctx.beginPath();
-
-    var rectWidth  = 110,
-        rectHeight = 72,
-        rectX      = map.get('x') - map.get('radius') - rectWidth - 8,
-        rectY      = map.get('y') - (rectHeight / 2);
-
-    ctx.rect(rectX, rectY, rectWidth, rectHeight);
-    ctx.fillStyle = 'rgba(80, 80, 80, 0.4)';
-    ctx.fill();*/
-
-    var data = map.get('timeTable');
-    var amount = (data.size > 3 ? 3 : data.size) - 1;
-
-    var size   = 24;
-    var startY = ((map.get('y') - size / 2) - ((size * amount) / 2));
-
-    var longestTimeStep = 0;
-    var longestSymbol   = 0;
-    var longestString   = 0;
-    var rowStrings      = [];
-
-    ctx.font = size + 'px Arial';
-
-    data.forEach(function(value, timeStep) {
-        var symbol = " ";
-        if(value > 0) {
-            symbol = "+";
-        } else if(value < 0) {
-            symbol = "-";
-        }
-
-        var rowString      = "T" + timeStep + ", " + symbol + " " + Math.abs(value) + "%";
-        var timeStepLength = ctx.measureText("T" + timeStep + ", ").width;
-        var symbolLength   = ctx.measureText(symbol + " ").width;
-        var stringLength   = ctx.measureText(rowString).width;
-
-        if(timeStepLength > longestTimeStep) {
-            longestTimeStep = timeStepLength;
-        }
-
-        if(symbolLength > longestSymbol) {
-            longestSymbol = symbolLength;
-        }
-
-        if(stringLength > longestString) {
-            longestString = stringLength;
-        }
-
-        rowStrings.push({
-            step:   timeStep,
-            symbol: symbol,
-            value:  value
-        });
-    });
-
-    var startX  = map.get('x') - map.get('radius') - longestString - 8,
-        symbolX = startX  + longestTimeStep,
-        valueX  = symbolX + longestSymbol;
-
-    //console.log("X:",      startX);
-    //console.log("Y:",      startY);
-    //console.log("Width:",  longestString);
-    //console.log("Height:", size * 3);
-
-    rowStrings.forEach(function(stringInformation, index) {
-        var stepString   = "T"+stringInformation.step+", ",
-            symbolString = stringInformation.symbol + " ",
-            valueString  = Math.abs(stringInformation.value) + "%";
-
-        ctx.textBaseline = 'top';
-        var y = startY + (size * index);
-
-        ctx.fillStyle = 'rgba(30, 50, 100, 1.0)';
-        ctx.fillText(stepString,   startX,   y);
-
-        var changeColor = 'rgba(80, 80, 80, 1.0)';
-        if(stringInformation.value > 0) {
-            changeColor = 'rgba(20, 150, 40, 1.0)';
-        } else if(stringInformation.value < 0) {
-            changeColor = 'rgba(150, 20, 40, 1.0)';
-        }
-
-        ctx.fillStyle = changeColor;
-        ctx.fillText(symbolString, symbolX, y);
-
-        ctx.fillStyle = changeColor;
-        ctx.fillText(valueString,  valueX,  y);
-    });
 };
