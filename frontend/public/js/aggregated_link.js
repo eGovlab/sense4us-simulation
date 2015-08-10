@@ -6,6 +6,7 @@ function aggregatedLink(link, nodes) {
     return Immutable.Map({
         selected:     link.get('selected'),
         loop:         link.get('loop'),
+        type:         link.get('type'),
         x1:           nodes.get(link.get('node1')).get('x'),
         y1:           nodes.get(link.get('node1')).get('y'),
         x2:           nodes.get(link.get('node2')).get('x'),

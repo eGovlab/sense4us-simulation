@@ -78,7 +78,9 @@ module.exports = function(ctx, line) {
     ctx.closePath();
     ctx.stroke();
 
-    return;
+    if(line.get('type') === 'fullchannel') {
+        return;
+    }
 
     /*
     ** Draw another smaller line on top if the initial arrow.
@@ -89,13 +91,8 @@ module.exports = function(ctx, line) {
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'rgba(0, 0, 0, 1)';*/
 
-    if (line.get('selected') === true) {
-        ctx.strokeStyle = 'rgba(90, 255, 200, 0.8)';
-    } else if(line.get('loop') === true) {
-        ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
-    } else {
-        ctx.strokeStyle = 'rgba(75, 255, 175, 0.6)';
-    }
+    
+    ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
 
     ctx.lineWidth = line.get('width');
     ctx.lineJoin = 'miter';
