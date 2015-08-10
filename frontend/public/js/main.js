@@ -203,6 +203,7 @@ function MouseWheelHandler(e) {
     refresh();
 }
 
+/* This method is retarded. */
 UIRefresh();
 
 var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
