@@ -6,17 +6,17 @@ module.exports = function drawNode(ctx, map) {
     var data = map.get('timeTable');
     var amount = (data.size > 3 ? 3 : data.size) - 1;
 
-    var size   = 24;
-    var startY = ((map.get('y') - size / 2) - ((size * amount) / 2));
+    var size   = 24,
+        startY = ((map.get('y') - size / 2) - ((size * amount) / 2)),
 
-    var longestTimeStep = 0;
-    var longestSymbol   = 0;
-    var longestString   = 0;
-    var rowStrings      = [];
+        longestTimeStep = 0,
+        longestSymbol   = 0,
+        longestString   = 0,
+        rowStrings      = [];
 
     ctx.font = size + 'px Arial';
 
-    data.forEach(function(value, timeStep) {
+    data.forEach(function getRowLength(value, timeStep) {
         var symbol = " ";
         if(value > 0) {
             symbol = "+";
@@ -24,10 +24,10 @@ module.exports = function drawNode(ctx, map) {
             symbol = "-";
         }
 
-        var rowString      = "T" + timeStep + ", " + symbol + " " + Math.abs(value) + "%";
-        var timeStepLength = ctx.measureText("T" + timeStep + ", ").width;
-        var symbolLength   = ctx.measureText(symbol + " ").width;
-        var stringLength   = ctx.measureText(rowString).width;
+        var rowString      = "T" + timeStep + ", " + symbol + " " + Math.abs(value) + "%",
+            timeStepLength = ctx.measureText("T" + timeStep + ", ").width,
+            symbolLength   = ctx.measureText(symbol + " ").width,
+            stringLength   = ctx.measureText(rowString).width;
 
         if(timeStepLength > longestTimeStep) {
             longestTimeStep = timeStepLength;
@@ -52,12 +52,7 @@ module.exports = function drawNode(ctx, map) {
         symbolX = startX  + longestTimeStep,
         valueX  = symbolX + longestSymbol;
 
-    //console.log("X:",      startX);
-    //console.log("Y:",      startY);
-    //console.log("Width:",  longestString);
-    //console.log("Height:", size * 3);
-
-    rowStrings.forEach(function(stringInformation, index) {
+    rowStrings.forEach(function drawTableRow(stringInformation, index) {
         var stepString   = "T"+stringInformation.step+", ",
             symbolString = stringInformation.symbol + " ",
             valueString  = Math.abs(stringInformation.value) + "%";
