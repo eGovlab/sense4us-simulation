@@ -2,7 +2,7 @@
 
 var Immutable = require('Immutable');
 
-var createNode = function(model, type, attrs, gui) {
+var createNode = function(model, type, data, gui) {
     var id = model.get('nextId');
     model = model.set('nextId', id + 1);
 
@@ -15,14 +15,6 @@ var createNode = function(model, type, attrs, gui) {
         description:    ''
     });
 
-    if (attrs !== undefined) {
-        nodeData = nodeData.merge(attrs);
-    } else {
-        console.log(attrs);
-    }
-
-    model = model.set('nodeData', model.get('nodeData').set(id, nodeData));
-
     var nodeGui = Immutable.Map({
         id:     id,
         x:      200,
@@ -30,40 +22,36 @@ var createNode = function(model, type, attrs, gui) {
         radius: 75
     });
 
-    if(gui) {
+    if(data !== undefined) {
+        nodeData = nodeData.merge(data);
+    }
+
+    if(gui !== undefined) {
         nodeGui = nodeGui.merge(gui);
     }
 
+    model = model.set('nodeData', model.get('nodeData').set(id, nodeData));
     model = model.set('nodeGui', model.get('nodeGui').set(id, nodeGui));
 
     return model;
 };
 
-var createOriginNode = function(model, attrs, gui) {
-    if(!attrs) {
-        attrs = Immutable.Map({});
+var createOriginNode = function(model, data, gui) {
+    if(!data) {
+        data = Immutable.Map({});
     }
     
-    attrs = attrs.set('timeTable', Immutable.Map({
+    data = data.set('timeTable', Immutable.Map({
         0: 0,
         1: 10,
         2: -4
     }));
-
-    console.log("GUI:", gui);
-
-    if(gui) {
-        gui = gui.merge(Immutable.Map({
-            tableWidth: 110,
-            tableHeight: 72
-        }));
-    }
     
-    return createNode(model, 'origin', attrs, gui);
+    return createNode(model, 'origin', data, gui);
 };
 
-var createActorNode = function(model, attrs) {
-    return createNode(model, 'actor', attrs);
+var createActorNode = function(model, data, gui) {
+    return createNode(model, 'actor', data, gui);
 };
 
 var model = Immutable.List([
