@@ -87,19 +87,44 @@ function createAvatarSelector(header, value, callback) {
 function createTimeTableEditor(key, timeTable, callback) {
     var containerDiv = menuBuilder.div();
 
-    containerDiv.appendChild(menuBuilder.label(key));
+    (function addToContainer(key, timeTable, callback) {
+        containerDiv.appendChild(menuBuilder.label(key));
 
-    if (timeTable !== undefined && timeTable.forEach !== undefined) {
-        timeTable.forEach(function(value, rowNumber) {
-            containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
-            var input = menuBuilder.input('T' + rowNumber, value, function whenTimeTableChanges(inputName, value) {
-                timeTable = timeTable.set(rowNumber, value);
-                callback(key, timeTable);
-                input.value = value;
+        if (timeTable !== undefined && timeTable.forEach !== undefined) {
+            timeTable.forEach(function(value, rowNumber) {
+                containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
+                var input = menuBuilder.input('T' + rowNumber, value, function whenTimeTableChanges(inputName, value) {
+                    timeTable = timeTable.set(rowNumber, value);
+                    callback(key, timeTable);
+                    input.value = value;
+                });
+                containerDiv.appendChild(input);
             });
-            containerDiv.appendChild(input);
-        });
-    }
+        }
+
+        containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
+            if (timeTable === undefined || timeTable === null) {
+                timeTable = Immutable.Map({0: 0});
+            } else {
+                timeTable = timeTable.set(timeTable.size, 0);
+            }
+
+            callback(key, timeTable);
+            containerDiv.innerHTML = '';
+            addToContainer(key, timeTable, callback);
+        }));
+
+        containerDiv.appendChild(menuBuilder.button('Remove row', function removeTimeTableRow() {
+            if (timeTable === undefined || timeTable === null) {
+            } else {
+                timeTable = timeTable.slice(0, -1);
+            }
+
+            callback(key, timeTable);
+            containerDiv.innerHTML = '';
+            addToContainer(key, timeTable, callback);
+        }));
+    }(key, timeTable, callback));
 
     return containerDiv;
 }
@@ -200,7 +225,6 @@ var namespace = {
                 }
         
                 menu = createMenu(map, function(key, value) {
-                    console.log(key, value);
                     menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
                     changeCallback(menu.get('map_obj'));
                 });
