@@ -4,7 +4,8 @@ var middleware = require('./../middleware.js'),
 	hitTest      = require('./../collisions.js').hitTest,
 	linker       = require('./../linker.js'),
 	Immutable    = require('Immutable'),
-	modelLayer   = require('./../model_layer.js');
+	modelLayer   = require('./../model_layer.js'),
+	createLink   = require('../structures/create_link');
 
 var mouseDownWare = middleware([
 	link,
@@ -62,15 +63,7 @@ function link(data) {
 					})
 				));
 
-				data.links = data.links.set(id, Immutable.Map({
-					id: id,
-					node1:       node.get('id'),
-					node2:       collided.get('id'),
-					coefficient: 1,
-					type:        'fullchannel',
-					timelag:     0,
-					width:       14
-				}));
+				data.links = data.links.set(id, createLink(id, nodeId, collidedId));
 			});
 		});
 
