@@ -52,7 +52,7 @@ MenuBuilder.prototype = {
     addValueCallback: function(element, callback, event) {
         event = event || 'change';
         
-        var cb = function(event) {callback(element.name, element.value);};
+        var cb = function(event) { callback(element.name, element.value); };
         
         element.addEventListener(event, cb);
         element.deleteEvent = function() {
@@ -65,7 +65,6 @@ MenuBuilder.prototype = {
         
         MenuBuilder.prototype.addValueCallback(input, callback);
 
-        //input.addEventListener('keydown', function(event) {callback(input.value, input.name);});
         input.setAttribute('value', value);
         input.name = key;
         input.value = value;

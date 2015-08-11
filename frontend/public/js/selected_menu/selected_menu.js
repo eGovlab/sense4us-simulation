@@ -84,6 +84,35 @@ function createAvatarSelector(header, value, callback) {
     return containerDiv;
 }
 
+function createTimeTableEditor(key, timeTable, callback) {
+    var containerDiv = menuBuilder.div();
+
+    containerDiv.appendChild(menuBuilder.label(key));
+
+    if (timeTable !== undefined && timeTable.forEach !== undefined) {
+        timeTable.forEach(function(value, rowNumber) {
+            containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
+            var input = menuBuilder.input('T' + rowNumber, value, function whenTimeTableChanges(inputName, value) {
+                timeTable = timeTable.set(rowNumber, value);
+                callback(key, timeTable);
+                input.value = value;
+            });
+            containerDiv.appendChild(input);
+        });
+    }
+
+    return containerDiv;
+}
+
+function generateInput(key, value, callback) {
+    var containerDiv = menuBuilder.div();
+
+    containerDiv.appendChild(menuBuilder.label(key));
+    containerDiv.appendChild(menuBuilder.input(key, value, callback));
+
+    return containerDiv;
+}
+
 function createMenu(map, onChangeCallback) {
     var menu = Immutable.Map({
         element: menuBuilder.div()
@@ -97,22 +126,13 @@ function createMenu(map, onChangeCallback) {
     var appendToEnd = [];
 
     map.forEach(function(value, key) {
-        var containerDiv = menuBuilder.div(),
-            inputDiv     = menuBuilder.div();
-
         if(key === 'avatar' || key === 'icon') {
             appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
-            return;
+        } else if (key === 'timeTable') {
+            appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
         } else {
-            var labelDiv = menuBuilder.div();
-            labelDiv.appendChild(menuBuilder.label(key));
-            inputDiv.appendChild(menuBuilder.input(key, value, onChangeCallback));
-
-            containerDiv.appendChild(labelDiv);
-            containerDiv.appendChild(inputDiv);
+            appendToEnd.push(generateInput(key, value, onChangeCallback));
         }
-
-        element.appendChild(containerDiv);
     });
 
     appendToEnd.forEach(function(c) {
@@ -180,6 +200,7 @@ var namespace = {
                 }
         
                 menu = createMenu(map, function(key, value) {
+                    console.log(key, value);
                     menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
                     changeCallback(menu.get('map_obj'));
                 });
