@@ -20,7 +20,15 @@ function clickAndMove(data, error, done, env) {
         return node.delete('clicked');
     });
 
+    var previouslyClickedLinks = data.links.filter(function(link) {
+        return link.get('clicked');
+    }).map(function(link) {
+        return link.delete('clicked');
+    });
+
     data.nodeGui = data.nodeGui.merge(previouslyClickedNodes);
+    data.links = data.links.merge(previouslyClickedLinks);
+
     // if we click on a icon we want to start moving it!
     var collidedNodes = data.nodeGui.
         filter(function(node) { return node.get('icon') !== undefined && hitTest(data.pos, icon(node)); }).

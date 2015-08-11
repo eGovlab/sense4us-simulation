@@ -16,14 +16,14 @@ var mouseDownWare = middleware([
 	select
 ]);
 
-function stopClicked(data) {
+/*function stopClicked(data) {
 	data.nodeGui = data.nodeGui.merge(
 			data.nodeGui.filter(function(obj) { return obj.get('clicked') === true; })
 				.map(function(obj) { return obj.delete('clicked').delete('offsetX').delete('offsetY'); })
 	);
 
 	return data;
-}
+}*/
 
 function link(data) {
 	data.nodeGui
@@ -103,8 +103,8 @@ function deselect(data) {
 
     data.links = data.links.merge(
         data.links.
-            filter(function(node) { return node.get('selected') === true && !node.get('clicked'); }).
-            map(function(node)    { return node.delete('selected').delete('offsetX').delete('offsetY'); })
+            filter(function(link) { return link.get('selected') === true && !link.get('clicked'); }).
+            map(function(link)    { return link.delete('selected').delete('offsetX').delete('offsetY'); })
     );
 
     return data;
@@ -121,16 +121,24 @@ function select(data, error, done) {
 			}, 200);
 		}
 
-		var selectedNodes = data.nodeGui.filter(function(node) {
-			return node.get('clicked');
-		});
-
-		doubleTap = selectedNodes;
+		doubleTap = true;
 		return data;
 	}
 
-	data.nodeGui = data.nodeGui.merge(doubleTap.map(function(node) {
+	var selectedNodes = data.nodeGui.filter(function(node) {
+		return node.get('clicked');
+	});
+
+	var selectedLinks = data.links.filter(function(link) {
+		return link.get('clicked');
+	});
+
+	data.nodeGui = data.nodeGui.merge(selectedNodes.map(function(node) {
 		return node.set('selected', true);
+	}));
+
+	data.links = data.links.merge(selectedLinks.map(function(link) {
+		return link.set('selected', true);
 	}));
 
     return data;
