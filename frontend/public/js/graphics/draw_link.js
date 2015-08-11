@@ -16,7 +16,7 @@ module.exports = function(ctx, line) {
         distance       = Math.sqrt(dx*dx + dy*dy),
         angle          = Math.atan2(dy, dx),
         
-        fromRadius     = line.get('fromRadius')   + 6,
+        fromRadius     = line.get('fromRadius')   + 8,
         targetRadius   = line.get('targetRadius') + 8,
         lineWidth      = line.get('width'),
         halfLineWidth  = lineWidth * 0.80,
@@ -78,7 +78,7 @@ module.exports = function(ctx, line) {
     ctx.closePath();
     ctx.stroke();
 
-    if(line.get('type') === 'fullchannel') {
+    if(line.get('type') === 'fullchannel' || line.get('type') !== 'halfchannel') {
         return;
     }
 
