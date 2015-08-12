@@ -4,10 +4,9 @@ var menuBuilder = require('../menu_builder');
 
 module.exports = function drawNode(ctx, map) {
     var data = map.get('timeTable');
-    var amount = (data.size > 3 ? 3 : data.size) - 1;
 
     var size   = 24,
-        startY = ((map.get('y') - size / 2) - ((size * amount) / 2)),
+        startY = ((map.get('y') - size / 2) - ((size * data.size) / 2)),
 
         longestTimeStep = 0,
         longestSymbol   = 0,
