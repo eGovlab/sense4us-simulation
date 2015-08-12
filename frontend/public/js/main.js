@@ -273,6 +273,7 @@ function _refresh() {
         var linkerForNode = linker(node);
         drawLink(
             Immutable.Map({
+                type:         'fullchannel',
                 x1:           node.get('x'),
                 y1:           node.get('y'),
                 x2:           node.get('linkerX'),

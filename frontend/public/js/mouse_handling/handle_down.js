@@ -20,25 +20,32 @@ function clickAndMove(data, error, done, env) {
         return node.delete('clicked');
     });
 
+    var previouslyClickedLinks = data.links.filter(function(link) {
+        return link.get('clicked');
+    }).map(function(link) {
+        return link.delete('clicked');
+    });
+
     data.nodeGui = data.nodeGui.merge(previouslyClickedNodes);
-    // if we click on a icon we want to start moving it!
+    data.links = data.links.merge(previouslyClickedLinks);
+
+    /*// if we click on a icon we want to start moving it!
     var collidedNodes = data.nodeGui.
         filter(function(node) { return node.get('icon') !== undefined && hitTest(data.pos, icon(node)); }).
         slice(-1).
         map(function(node) {
             return node.concat({
-                movingIcon: true,
-                selected:   true
+                movingIcon: true
             });
          });
     data.nodeGui = data.nodeGui.merge(collidedNodes);
 
     if (collidedNodes.size > 0) {
         return done(data);
-    }
+    }*/
     
     // but if we click on the node, we want to move the actual node
-    collidedNodes = data.nodeGui.
+    var collidedNodes = data.nodeGui.
         filter(function(node) { return hitTest(node, data.pos); }).
         slice(-1).
         map(function(node) {
