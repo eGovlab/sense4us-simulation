@@ -55,6 +55,22 @@ function createButton(element, refresh, updateCallback, changeCallbacks) {
     return buttonElement;
 }
 
+function createSlider(element, refresh, changeCallbacks, updateCallback) {
+    var inputElement;
+    if(element.get('ajax') === true) {
+        inputElement = menuBuilder.slider(element.get('min'), element.get('max'), function() {
+            element.get('callback')();
+        });
+    } else {
+
+    }
+    return inputElement;
+}
+
+function createElementFromType() {
+
+}
+
 var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateCallback) {
     var sidebarMenu = document.createElement('div');
     sidebarMenu.className = 'menu';
@@ -85,8 +101,12 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
                 case 'DROPDOWN':
                     buttonElement = createDropdown(element, element.get('select'), refresh, updateCallback, changeCallbacks);
                     break;
-                default:
+                case 'BUTTON':
                     buttonElement = createButton(element, refresh, updateCallback, changeCallbacks);
+                    break;
+                case 'SLIDER':
+                default:
+                    throw new Error("Type does not exist.");
             }
 
             sidebarMenu.appendChild(buttonElement);

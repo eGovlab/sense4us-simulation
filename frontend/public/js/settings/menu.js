@@ -167,13 +167,15 @@ var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
 
 var menu = Immutable.List([
     Immutable.Map({
-        header:   "Project",
+        header:   'Project',
+        type:     'DROPDOWN',
         update:   projectUpdate,
         callback: projectCallback
     }),
 
     Immutable.Map({
-        header:   "Mode",
+        header:   'Mode',
+        type:     'DROPDOWN',
         update:   modeUpdate,
         callback: modeCallback
     })
