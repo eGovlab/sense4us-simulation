@@ -188,7 +188,6 @@ module.exports = {
             newState = newState.set('settings', s);
 
             nodes.forEach(function(node) {
-                console.log(node);
                 var nd = newState.get('nodeData').set(node.id, Immutable.Map({
                     id:             node.id,
                     value:          node.starting_value,
