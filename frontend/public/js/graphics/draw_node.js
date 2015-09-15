@@ -51,21 +51,21 @@ module.exports = function drawNode(ctx, map) {
     }
     */
 
+    var colors = settings.filter(function(style) {
+        for (var i = 0; i < style.conditions.length; i++) {
+            if (!style.conditions[i](map)) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+
     if (map.get('avatar')) {
         drawPicture(ctx, map.get('avatar'), map, function(_ctx, _imagePath, _map, _refresh) {
             drawNode(ctx, map);
         });
     } else {
-        var colors = settings.filter(function(style) {
-            for (var i = 0; i < style.conditions.length; i++) {
-                if (!style.conditions[i](map)) {
-                    return false;
-                }
-            }
-            
-            return true;
-        });
-        
         ctx.fillStyle = colors[0].color;
         
         ctx.beginPath();
@@ -78,7 +78,7 @@ module.exports = function drawNode(ctx, map) {
         
         drawCircle(ctx, iconCircle, colors[0].color);
         drawPicture(ctx, map.get('icon'), iconCircle, function() {
-            drawNode(ctx, map, env);
+            drawNode(ctx, map);
         });
     }
     

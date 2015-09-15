@@ -273,6 +273,7 @@ function _refresh() {
         var linkerForNode = linker(node);
         drawLink(
             Immutable.Map({
+                type:         'fullchannel',
                 x1:           node.get('x'),
                 y1:           node.get('y'),
                 x2:           node.get('linkerX'),
@@ -316,21 +317,16 @@ function _refresh() {
     switch(environment) {
         case 'modelling':
             if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected);
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, null);
             } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings').delete('timeStepT'), updateSelected);
+                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings').delete('timeStepT'), updateSelected, null);
             }
             break;
         case 'simulate':
             if(selected.last()) {
-                console.log(selected.last());
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last().get('timeTable'),
-                    function(value) {
-                        updateSelected(selected.last().set('timeTable', value));
-                    }
-                );
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable']);
             } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, null, null);
+                selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
             }
             break;
     }

@@ -4,8 +4,8 @@ var middleware = require('./../middleware.js');
 
 var mouseDownWare = middleware([
 	moveLinker,
-	moveClickedNodes,
 	moveIcon,
+	moveClickedNodes,
 	pan
 ]);
 
