@@ -188,11 +188,13 @@ module.exports = {
             newState = newState.set('settings', s);
 
             nodes.forEach(function(node) {
+                console.log(node);
                 var nd = newState.get('nodeData').set(node.id, Immutable.Map({
                     id:             node.id,
                     value:          node.starting_value,
                     relativeChange: node.change_value || 0,
                     simulateChange: 0,
+                    timeTable:      Immutable.Map(node.timeTable) || undefined,
                     type:           node.type
                 }));
                 newState = newState.set('nodeData', nd);

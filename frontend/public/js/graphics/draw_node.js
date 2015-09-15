@@ -83,6 +83,9 @@ module.exports = function drawNode(ctx, map) {
     }
     
     var text = map.get('description');
+    if(!text) {
+        return;
+    }
     /*if (map.get('type') === 'actor') {
         text = 'Actor' + map.get('id');
     } else if (map.get('type') === 'origin') {

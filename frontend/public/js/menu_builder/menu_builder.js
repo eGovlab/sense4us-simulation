@@ -20,6 +20,18 @@ MenuBuilder.prototype = {
         });
     },
 
+    slider: function(min, max, callback) {
+        var input = document.createElement('input');
+        
+        input.type = 'range';
+        input.min = min;
+        input.max = max;
+
+        input.addEventListener('change', callback);
+
+        return input;
+    },
+
     div: function() {
         var div = document.createElement('div');
 

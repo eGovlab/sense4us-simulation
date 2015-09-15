@@ -7,6 +7,7 @@ var Immutable = require('Immutable'),
 var simulate = Immutable.List([
     Immutable.Map( {
         header: 'Simulate',
+        type:   'BUTTON',
         ajax:   true,
         callback: function(refresh, changeCallbacks) {
             var loadedModel = changeCallbacks.get('loadedModel'),
@@ -46,6 +47,7 @@ var simulate = Immutable.List([
             "Month",
             "Year"
         ],
+        /* This is a stupid name for a method. It sets the default selected value. */
         select: function(model, values) {
             var selected = model.get('settings').get('timeStepT');
             for(var i = 0; i < values.length; i++) {
@@ -61,6 +63,18 @@ var simulate = Immutable.List([
             return model;
         }
     }),
+
+    Immutable.Map({
+        header: "Time step N",
+        type:   "SLIDER",
+        range: function(model) {
+            return [0, 100];
+        },
+
+        callback: function(model) {
+            return model;
+        }
+    })
 ]);
 
 module.exports = simulate;

@@ -24,6 +24,7 @@ var model = Immutable.List([
     Immutable.Map({
         header: 'Policy Instruments',
         callback: createActorNode,
+        type: 'LIST',
         images: [
             {
                 src: 'img/avatars/barriers_and_forces.png'
@@ -49,6 +50,7 @@ var model = Immutable.List([
     Immutable.Map({
         header: 'Controllable actors',
         callback: createOriginNode,
+        type: 'LIST',
         images: [
             {
                 src: 'img/avatars/instrument_capacitybuilding.png'
