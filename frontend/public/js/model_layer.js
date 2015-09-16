@@ -80,12 +80,13 @@ module.exports = {
             links:    Immutable.Map({}),
             settings: Immutable.Map({
                 name:          "New Model",
-                maxIterations: 0,
+                maxIterations: 4,
                 offsetX:       0,
                 offsetY:       0,
                 zoom:          1,
 
-                timeStepT:     "Week"
+                timeStepT:     "Week",
+                timeStepN:     0
             })
         });
 

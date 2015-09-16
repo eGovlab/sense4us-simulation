@@ -14,7 +14,7 @@ var simulate = Immutable.List([
                 newState    = loadedModel();
 
             var data = {
-                timestep: 1,
+                timestep: newState.get('settings').get('timeStepN'),
                 nodes: breakout.nodes(newState),
                 links: breakout.links(newState)
             };
@@ -43,9 +43,9 @@ var simulate = Immutable.List([
         header: 'Time step T',
         type:   'DROPDOWN',
         values: [
-            "Week",
-            "Month",
-            "Year"
+            'Week',
+            'Month',
+            'Year'
         ],
         /* This is a stupid name for a method. It sets the default selected value. */
         select: function(model, values) {
@@ -65,13 +65,19 @@ var simulate = Immutable.List([
     }),
 
     Immutable.Map({
-        header: "Time step N",
-        type:   "SLIDER",
-        range: function(model) {
-            return [0, 100];
+        header: 'Time step N',
+        type:   'SLIDER',
+
+        defaultValue: function(model) {
+            return model.get('settings').get('timeStepN');
         },
 
-        callback: function(model) {
+        range: function(model) {
+            return [0, model.get('settings').get('maxIterations')];
+        },
+
+        callback: function(value, model) {
+            model = model.set('settings', model.get('settings').set('timeStepN', value));
             return model;
         }
     })

@@ -20,12 +20,13 @@ MenuBuilder.prototype = {
         });
     },
 
-    slider: function(min, max, callback) {
+    slider: function(defaultValue, min, max, callback) {
         var input = document.createElement('input');
         
         input.type = 'range';
         input.min = min;
         input.max = max;
+        input.value = defaultValue;
 
         input.addEventListener('change', callback);
 

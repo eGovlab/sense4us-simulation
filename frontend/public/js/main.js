@@ -11,6 +11,7 @@ var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
     drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
+    drawChange       = curry(require('./graphics/draw_change.js'), mainCanvas.getContext('2d')),
     modelLayer       = require('./model_layer.js'),
     menuBuilder      = require('./menu_builder'),
     notificationBar  = require('./notification_bar'),
@@ -297,8 +298,12 @@ function _refresh() {
             **
             ** e.g. drawNodeInSimulation(nodeGui)
             */
-            if(environment === 'simulate' && nodeGui.get('timeTable')) {
-                drawTimeTable(nodeGui);
+            if(environment === 'simulate' ) {
+                if(nodeGui.get('timeTable')) {
+                    drawTimeTable(nodeGui);
+                } else if(n.get('simulateChange') !== 0) {
+                    drawChange(nodeGui.get('x'), nodeGui.get('y'), n.get('simulateChange'));
+                }
             }
         }
     );
