@@ -250,9 +250,6 @@ function _refresh() {
 
     // draw the links and arrows
     loadedModel.get('links').forEach(function(link) {
-        console.log("Drawing link!");
-        console.log(link);
-        console.log(loadedModel.get('nodeGui'));
         drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
     });
 
