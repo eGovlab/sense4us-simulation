@@ -1,8 +1,8 @@
 'use strict';
 
-var Immutable = require('Immutable'),
-    breakout  = require('./../breakout.js'),
-    network   = require('./../network');
+var Immutable  = require('Immutable'),
+    breakout   = require('./../breakout.js'),
+    backendApi = require('./../api/backend_api.js');
 
 var simulate = Immutable.List([
     Immutable.Map( {
@@ -19,7 +19,7 @@ var simulate = Immutable.List([
                 links: breakout.links(newState)
             };
 
-            network.postData('/models/simulate', data, function(response, err) {
+            backendApi('/models/simulate', data, function(response, err) {
                 if(err) {
                     console.log(err);
                     console.log(response);

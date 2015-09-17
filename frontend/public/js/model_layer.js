@@ -1,17 +1,10 @@
 'use strict';
 
 /*
-** Author:      Robin Swenson
-** Description: Namespace to create local maps containing general data for a model.
-**              Uses AJAX to save and load models from remote server.
-*/
-
-
-/*
 ** Dependencies
 */
 var Model           = require('./model.js'),
-    network         = require('./network'),
+    backendApi      = require('./api/backend_api.js'),
     Immutable       = require('Immutable'),
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
@@ -39,7 +32,7 @@ var generateId = 0;
 **                  The loadedModelCallback should return a map with a model if called
 **                  without parameters. If called with one argument, it should replace
 **                  the model with the argument.
-**                  This method will try to save a model on a remote server using the network
+**                  This method will try to save a model on a remote server using the backendApi
 **                  dependency above. If successful, will notify the user with notificationBar.
 
 **     name:        deleteModel()
@@ -106,7 +99,7 @@ module.exports = {
 
         console.log(data);
 
-        network.postData('/models/save', data, function(response, err) {
+        backendApi('/models/save', data, function(response, err) {
             if (err) {
                 console.log(response);
                 notificationBar.notify("Couldn't save model: " + response.errors);
@@ -128,7 +121,7 @@ module.exports = {
             that        = this;
 
         if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
-            network.deleteData('/models/' + loadedModel.get('syncId'), {}, function(response, err) {
+            backendApi('/models/' + loadedModel.get('syncId'), {}, function(response, err) {
                 if(err) {
                     console.log(response);
                     console.log(err);
@@ -142,11 +135,11 @@ module.exports = {
                     loadedModel = that.newModel();
                 }
 
-                notificationBar.notify(response.response.message);
+                notificationBar.notify(response.response);
                 _savedModels(savedModels);
                 _loadedModel(loadedModel);
                 refresh();
-            });
+            }, "DELETE");
         } else {
             savedModels = savedModels.set('local', savedModels.get('local').delete(loadedModel.get('id')));
             loadedModel = this.newModel();
@@ -159,7 +152,7 @@ module.exports = {
     
     loadSyncModel: function(modelId, callback) {
         var that = this;
-        network.getData('/models/' + modelId, function(response, error) {
+        backendApi('/models/' + modelId, function(response, error) {
             if (error) {
                 console.log(response);
                 console.log(error);

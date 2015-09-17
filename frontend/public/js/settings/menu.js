@@ -1,7 +1,7 @@
 'use strict';
 
 var Immutable  = require('Immutable'),
-    network    = require('./../network'),
+    backendApi = require('./../api/backend_api.js'),
     modelling  = require('./modelling.js'),
     simulate   = require('./simulate.js'),
     modelLayer = require('./../model_layer.js');
@@ -54,7 +54,7 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
     element.addOption('save', 'Save Current');
     element.addOption('delete', 'Delete Current');
 
-    network.getData('/models/all', function(response, error) {
+    backendApi('/models/all', function(response, error) {
         var sm = savedModels();
         sm.get('local').forEach(function(model) {
             if(model.get('synced') === true) {

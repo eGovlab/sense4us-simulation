@@ -23,7 +23,7 @@ var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, docume
 notificationBar.setContainer(document.getElementById('notification-bar'));
 
 CONFIG.setConfig(require('./config.js'));
-network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
+//network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
 
 var selectedMenu = Immutable.Map({}),
     /*
