@@ -1,6 +1,7 @@
 'use strict';
 
-var menuBuilder = require('../menu_builder');
+var menuBuilder = require('../menu_builder'),
+    valueColors = require('./value_colors.js');
 
 module.exports = function drawNode(ctx, map) {
     var data = map.get('timeTable');
@@ -62,11 +63,11 @@ module.exports = function drawNode(ctx, map) {
         ctx.fillStyle = 'rgba(30, 50, 100, 1.0)';
         ctx.fillText(stepString,   startX,   y);
 
-        var changeColor = 'rgba(80, 80, 80, 1.0)';
+        var changeColor = valueColors.neutral;
         if(stringInformation.value > 0) {
-            changeColor = 'rgba(20, 150, 40, 1.0)';
+            changeColor = valueColors.positive;
         } else if(stringInformation.value < 0) {
-            changeColor = 'rgba(150, 20, 40, 1.0)';
+            changeColor = valueColors.negative;
         }
 
         ctx.fillStyle = changeColor;

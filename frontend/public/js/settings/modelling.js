@@ -22,6 +22,43 @@ var model = Immutable.List([
     }),
 */
     Immutable.Map({
+        header:   'Independent variables',
+        callback: createOriginNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/instrument_financial.png'},
+            {src: 'img/avatars/instrument_fiscal.png'},
+            {src: 'img/avatars/instrument_market.png'},
+            {src: 'img/avatars/instrument_regulatory.png'},
+            {src: 'img/avatars/instrument_informational.png'},
+            {src: 'img/avatars/instrument_capacitybuilding.png'},
+            {src: 'img/avatars/instrument_cooperation.png'}
+        ]
+    }),
+
+    Immutable.Map({
+        header:   'Uncontrollable sources',
+        callback: createOriginNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/barriers_and_forces.png'},
+            {src: 'img/avatars/constraints.png'},
+            {src: 'img/avatars/social_change.png'}
+        ]
+    }),
+
+    Immutable.Map({
+        header:   'Dependent variables',
+        callback: createNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/Impact_node1.png'},
+            {src: 'img/avatars/Impact_node4.png'},
+            {src: 'img/avatars/Impact_node7.png'}
+        ]
+    })
+
+    /*Immutable.Map({
         header: 'Policy Instruments',
         callback: createActorNode,
         type: 'LIST',
@@ -65,7 +102,7 @@ var model = Immutable.List([
                 src: 'img/avatars/instrument_market.png'
             }
         ]
-    })
+    })*/
 ]);
 
 module.exports = model;
