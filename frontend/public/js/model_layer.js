@@ -197,7 +197,7 @@ module.exports = {
                     id:     node.id,
                     x:      parseInt(node.x),
                     y:      parseInt(node.y),
-                    radius: node.radius,
+                    radius: parseFloat(node.radius),
                     links:  Immutable.List(),
                     avatar: node.avatar,
                     icon:   node.icon
