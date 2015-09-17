@@ -195,8 +195,8 @@ module.exports = {
 
                 var ng = newState.get('nodeGui').set(node.id, Immutable.Map({
                     id:     node.id,
-                    x:      node.x,
-                    y:      node.y,
+                    x:      parseInt(node.x),
+                    y:      parseInt(node.y),
                     radius: node.radius,
                     links:  Immutable.List(),
                     avatar: node.avatar,

@@ -226,8 +226,33 @@ function _refresh() {
         loadedModel.get('settings').get('offsetY') || 0
     );
 
+    // draw all the nodes
+    loadedModel.get('nodeData').forEach(
+        function(n) { 
+            var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
+            drawNode(nodeGui);
+
+            /*
+            ** If you add more environment specific code, please bundle
+            ** it up into another method.
+            **
+            ** e.g. drawNodeInSimulation(nodeGui)
+            */
+            if(environment === 'simulate' ) {
+                if(nodeGui.get('timeTable')) {
+                    drawTimeTable(nodeGui);
+                } else if(n.get('simulateChange') !== 0) {
+                    drawChange(nodeGui.get('x'), nodeGui.get('y') + nodeGui.get('radius') / 6, n.get('simulateChange'));
+                }
+            }
+        }
+    );
+
     // draw the links and arrows
     loadedModel.get('links').forEach(function(link) {
+        console.log("Drawing link!");
+        console.log(link);
+        console.log(loadedModel.get('nodeGui'));
         drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
     });
 
@@ -285,28 +310,6 @@ function _refresh() {
             })
         );
     });
-
-    // draw all the nodes
-    loadedModel.get('nodeData').forEach(
-        function(n) { 
-            var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
-            drawNode(nodeGui);
-
-            /*
-            ** If you add more environment specific code, please bundle
-            ** it up into another method.
-            **
-            ** e.g. drawNodeInSimulation(nodeGui)
-            */
-            if(environment === 'simulate' ) {
-                if(nodeGui.get('timeTable')) {
-                    drawTimeTable(nodeGui);
-                } else if(n.get('simulateChange') !== 0) {
-                    drawChange(nodeGui.get('x'), nodeGui.get('y') + nodeGui.get('radius') / 6, n.get('simulateChange'));
-                }
-            }
-        }
-    );
 
     // if we are linking, we want to draw the dot above everything else
     loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
