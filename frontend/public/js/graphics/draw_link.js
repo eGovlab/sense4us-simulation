@@ -83,7 +83,7 @@ module.exports = function(ctx, line) {
     }
 
     /*
-    ** Draw another smaller line on top if the initial arrow.
+    ** Draw another smaller line on top of the initial arrow.
     */
 
     /*ctx.shadowOffsetX = 0;

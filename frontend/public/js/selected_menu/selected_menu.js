@@ -34,7 +34,7 @@ function generateAvatarDiv(avatar, selected, name) {
 
     img.src = avatar.src;
     avatarDiv.value = avatar.src;
-    avatarDiv.name = name;
+    avatarDiv.name = avatar.header || name;
 
     avatarDiv.appendChild(img);
 
@@ -155,9 +155,9 @@ function createMenu(map, onChangeCallback, includedAttributes) {
             return;
         }
 
-        if(key === 'avatar' || key === 'icon') {
+        /*if(key === 'avatar' || key === 'icon') {
             appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
-        } else if (key === 'timeTable') {
+        } else*/ if (key === 'timeTable') {
             appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
         } else {
             appendToEnd.push(generateInput(key, value, onChangeCallback));

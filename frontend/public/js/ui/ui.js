@@ -87,12 +87,11 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
                     updateModelCallback(
                         element.get('callback')(
                             changeCallbacks.get('loadedModel')(),
-                            null, 
+                            Immutable.Map({description: key}), 
                             Immutable.Map({avatar: value})
                         )
                     );
-                },
-                element.get('images'));
+                }, element.get('images'));
                 
                 var labelElement = menuBuilder.label(element.get('header'));
 

@@ -107,7 +107,7 @@ module.exports = function drawNode(ctx, map) {
     ctx.fillStyle = 'rgba(80, 80, 80, 1.0)';
     
     var size = 48 - text.length * 2.4;
-    size = size < 12 ? 12 : size;
+    size = size < 16 ? 16 : size;
     ctx.font = size + 'px sans-serif';
     var textData = ctx.measureText(text);
     ctx.fillText(text, map.get('x') - textData.width / 2, map.get('y') + map.get('radius') + 4);

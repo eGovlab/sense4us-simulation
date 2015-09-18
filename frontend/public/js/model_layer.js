@@ -163,18 +163,28 @@ module.exports = {
                 links    = response.response.links,
                 settings = response.response.settings
 
-            var nextId = 0;
-            nodes.forEach(function() {
-                nextId += 1;
+            var highestId = 0;
+            //var nextId = 0;
+            nodes.forEach(function(n) {
+                if(n.id > highestId) {
+                    highestId = n.id;
+                }
+
+                //nextId += 1;
             });
-            links.forEach(function() {
-                nextId += 1;
+
+            links.forEach(function(l) {
+                if(l.id > highestId) {
+                    highestId = l.id;
+                }
+
+                //nextId += 1;
             });
 
             var newState = that.newModel();
             newState = newState.merge(Immutable.Map({
                 syncId: response.response.id,
-                nextId: nextId,
+                nextId: highestId + 1,
                 synced: true
             }));
             var s = newState.get('settings');
