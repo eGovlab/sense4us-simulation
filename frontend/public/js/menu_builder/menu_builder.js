@@ -53,6 +53,16 @@ MenuBuilder.prototype = {
         return select.element;
     },
 
+    select: function(name, callback) {
+        var select = document.createElement('select');
+
+        select.name = name;
+
+        select.addEventListener('change', callback);
+
+        return select;
+    },
+
     option: function(value, text) {
         var option = document.createElement('option');
 
@@ -65,7 +75,7 @@ MenuBuilder.prototype = {
     addValueCallback: function(element, callback, event) {
         event = event || 'change';
         
-        var cb = function(event) { callback(element.name, element.value); };
+        var cb = function(event) {callback(element.name, element.value); };
         
         element.addEventListener(event, cb);
         element.deleteEvent = function() {

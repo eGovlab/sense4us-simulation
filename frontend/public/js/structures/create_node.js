@@ -2,7 +2,7 @@
 
 var Immutable = require('Immutable');
 
-module.exports = function createNode(model, type, data, gui) {
+module.exports = function createNode(model, data, gui, type) {
     var id = model.get('nextId');
     model = model.set('nextId', id + 1);
 

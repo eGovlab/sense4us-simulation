@@ -198,7 +198,8 @@ module.exports = {
                     relativeChange: node.change_value || 0,
                     simulateChange: 0,
                     timeTable:      node.timeTable ? Immutable.Map(node.timeTable) : undefined,
-                    type:           node.type
+                    type:           node.type,
+                    description:    node.description || undefined
                 }));
                 newState = newState.set('nodeData', nd);
 

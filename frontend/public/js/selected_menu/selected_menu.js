@@ -142,6 +142,23 @@ function generateInput(key, value, callback) {
     return containerDiv;
 }
 
+function generateDropdown(key, options, defaultValue, callback) {
+    var containerSelect = menuBuilder.select(key, function(evt) {
+        callback(this.name, this.value);
+    });
+
+    options.forEach(function(option) {
+        var optionElement = menuBuilder.option(option, option);
+        if(option === defaultValue) {
+            optionElement.selected = 'selected';
+        }
+        
+        containerSelect.appendChild(optionElement);
+    });
+
+    return containerSelect;
+}
+
 function createMenu(map, onChangeCallback, includedAttributes) {
     var menu = Immutable.Map({
         element: menuBuilder.div()
@@ -163,6 +180,8 @@ function createMenu(map, onChangeCallback, includedAttributes) {
             appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
         } else*/ if (key === 'timeTable') {
             appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
+        } else if(map.get('coefficient') !== undefined && key === 'type') {
+            appendToEnd.push(generateDropdown(key, ['fullchannel', 'halfchannel'], value, onChangeCallback));
         } else {
             appendToEnd.push(generateInput(key, value, onChangeCallback));
         }

@@ -14,5 +14,5 @@ module.exports = function createOriginNode(model, data, gui) {
         2: -4
     }));
     
-    return createNode(model, 'origin', data, gui);
+    return createNode(model, data, gui, 'origin');
 };
