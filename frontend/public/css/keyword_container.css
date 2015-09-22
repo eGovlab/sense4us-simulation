@@ -1,0 +1,35 @@
+#keyword-container {
+    position: absolute;
+    right: 12px;
+    width: 200px;
+
+    overflow: auto;
+}
+
+#keyword-container .category {
+    
+}
+
+#keyword-container .category .header {
+    cursor: pointer;
+    text-align: center;
+}
+
+#keyword-container .category .keyword {
+    padding-left: 18px;
+    margin: 4px 0px;
+}
+
+#keyword-container .category .keyword .span {
+    float: left;
+}
+
+#keyword-container .category .keyword .import-button {
+    float: right;
+
+    cursor: pointer;
+
+    background-color: #882288;
+    width: 18px;
+    height: 18px;    
+}

@@ -1,8 +1,9 @@
 'use strict';
 
-var Immutable  = require('Immutable'),
-    breakout   = require('./../breakout.js'),
-    backendApi = require('./../api/backend_api.js');
+var Immutable       = require('Immutable'),
+    breakout        = require('./../breakout.js'),
+    backendApi      = require('./../api/backend_api.js'),
+    notificationBar = require('./../notification_bar');
 
 var simulate = Immutable.List([
     Immutable.Map( {
@@ -23,6 +24,7 @@ var simulate = Immutable.List([
                 if(err) {
                     console.log(err);
                     console.log(response);
+                    notificationBar.notify(response.response.message);
                     return;
                 }
 

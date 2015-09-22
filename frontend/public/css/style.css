@@ -72,7 +72,6 @@ body {
 
 .container .left {
 	float: left;
-	height: 100%;
 }
 
 .container .sidebar {
@@ -81,6 +80,7 @@ body {
 
 .container .main {
 	width: 85%;
+	height: 100%;
 }
 /* #334354 */
 .container .main canvas {

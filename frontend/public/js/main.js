@@ -17,6 +17,7 @@ var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, docume
     notificationBar  = require('./notification_bar'),
     network          = require('./network'),
     CONFIG           = require('rh_config-parser'),
+    keywordSidebar   = require('./keyword_sidebar'),
     /* UIRefresh is curried after changeCallbacks is defined. */
     UIRefresh        = require('./ui');
 
@@ -44,11 +45,15 @@ var selectedMenu = Immutable.Map({}),
     **     nodeGui:  Immutable.Map({}),
     **     links:    Immutable.Map({}),
     **     settings: Immutable.Map({
-    **         name:     "New Model",
+    **         name:     'New Model',
     **         maxIterable: 0
     **     })
     ** });
     */
+    textStrings   = Immutable.Map({
+        unsorted: Immutable.List(),
+        saved:    Immutable.List()
+    }),
     loadedModel   = modelLayer.newModel(),
     savedModels   = Immutable.Map({
         local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
@@ -63,6 +68,80 @@ var UIData = Immutable.Map({
     menu:         settings.menu,
     selectedMenu: Immutable.List()
 });
+
+textStrings = textStrings.set('unsorted', textStrings.get('unsorted').merge(Immutable.List([
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    'incoming text string',
+    Immutable.Map({
+        header: 'category 1',
+        keys: Immutable.List([
+            'c11',
+            'c12',
+            'c13'
+        ])
+    }),
+
+    Immutable.Map({
+        header: 'category 2',
+        keys: Immutable.List([
+            'c21',
+            'c22',
+            'c23'
+        ])
+    }),
+
+    Immutable.Map({
+        header: 'category 3',
+        keys: Immutable.List([
+            'c31',
+            'c32',
+            'c33'
+        ])
+    })
+])));
+
+var keywordContainer = CONFIG.get('KEYWORD_CONTAINER');
+
+keywordContainer.style.height = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
+window.addEventListener('resize', function() {
+    keywordContainer.style.height = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
+});
+
+keywordSidebar.addStrings(keywordContainer, textStrings.get('unsorted'));
 
 /*
 ** Object to give buttons a callback to relate and influence the current state.
@@ -170,8 +249,8 @@ dragHandler(
     }
 );
 
-//mainCanvas.addEventListener("mousewheel",     MouseWheelHandler, false);
-//mainCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+//mainCanvas.addEventListener('mousewheel',     MouseWheelHandler, false);
+//mainCanvas.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
 
 var zoom = 1;
 function MouseWheelHandler(e) {
@@ -322,14 +401,14 @@ function _refresh() {
     switch(environment) {
         case 'modelling':
             if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, null);
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'description', 'type', 'coefficient', 'timelag']);
             } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings').delete('timeStepT'), updateSelected, null);
+                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['name', 'maxIterations']);
             }
             break;
         case 'simulate':
             if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable']);
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag']);
             } else {
                 selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
             }
