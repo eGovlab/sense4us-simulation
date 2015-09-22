@@ -6,9 +6,24 @@
     overflow: auto;
 }
 
+#keyword-container .save-button {
+    cursor: pointer;
+    text-align: center;
+
+    background-color: #228822;
+    width: 100%;
+    height: 18px;
+}
+
 #keyword-container .category {
     
 }
+
+#keyword-container .save-button,
+#keyword-container .category .header {
+    padding: 2px;
+}
+
 
 #keyword-container .category .header {
     cursor: pointer;

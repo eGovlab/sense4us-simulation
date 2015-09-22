@@ -2,10 +2,6 @@
 
 var Immutable = require('Immutable');
 
-function resizeListener() {
-
-}
-
 function hide(evt) {
     var element = this.nextElementSibling;
     while(element) {
@@ -102,13 +98,24 @@ function migrateButton(button, importTo, importedFrom) {
     button.addEventListener('click', callback);
 }
 
+function createSaveButton() {
+    var buttonElement = document.createElement('div');
+
+    buttonElement.className = 'save-button';
+    buttonElement.innerHTML = 'Import selected keywords';
+
+    buttonElement.addEventListener('mousedown', unselect, false);
+
+    return buttonElement;
+}
+
 module.exports = {
     addStrings: function(element, list) {
         var categories = {},
             unsorted   = [];
 
         var imported = createCategoryElement(),
-            importedHeader = createCategoryHeader('Imported');
+            importedHeader = createCategoryHeader('To be imported');
 
         imported.appendChild(importedHeader);
 
@@ -151,6 +158,7 @@ module.exports = {
 
         element.appendChild(unsortedElement);
         element.appendChild(imported);
+        element.appendChild(createSaveButton());
 
         return element;
     }

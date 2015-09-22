@@ -136,9 +136,9 @@ textStrings = textStrings.set('unsorted', textStrings.get('unsorted').merge(Immu
 
 var keywordContainer = CONFIG.get('KEYWORD_CONTAINER');
 
-keywordContainer.style.height = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
+keywordContainer.style.maxHeight = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
 window.addEventListener('resize', function() {
-    keywordContainer.style.height = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
+    keywordContainer.style.maxHeight = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
 });
 
 keywordSidebar.addStrings(keywordContainer, textStrings.get('unsorted'));
@@ -408,7 +408,7 @@ function _refresh() {
             break;
         case 'simulate':
             if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag']);
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag', 'type']);
             } else {
                 selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
             }
