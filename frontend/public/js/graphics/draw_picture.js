@@ -76,7 +76,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         }
     } else {
         img = new Image();   // Create new img element
-        window.derp = img;
+        //window.derp = img;
         images[imagePath] = img;
         img.src = imagePath; // Set source path
         img.isLoading = true;

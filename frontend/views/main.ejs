@@ -12,18 +12,19 @@
     <link rel="stylesheet" href="/css/sidebar.css" />
     <link rel="stylesheet" href="/css/dropdown.css" />
     <link rel="stylesheet" href="/css/notification_bar.css" />
+    <link rel="stylesheet" href="/css/keyword_container.css" />
     <link rel="stylesheet" href="/css/save.css" />
     <link rel="stylesheet" href="/css/origin_table.css" />
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h3>Hello, world!</h3>
+            <h3 id="policy-issue">Replace with current policy issue?</h3>
+            <!-- <input type="button" value="Button" />
             <input type="button" value="Button" />
             <input type="button" value="Button" />
             <input type="button" value="Button" />
-            <input type="button" value="Button" />
-            <input type="button" value="Button" />
+            <input type="button" value="Button" /> -->
         </div>
 
         <div class="menu-header">
@@ -36,8 +37,10 @@
 
         <div class="left main">
             <div id="notification-bar"></div>
-            <div id="time-tables"></div>
             <canvas id="canvas"></canvas>
+        </div>
+        <div class="right">
+            <div id="keyword-container"></div>
         </div>
         <div class="clear"></div>
     </div>

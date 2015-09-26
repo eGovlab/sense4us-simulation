@@ -5,18 +5,22 @@ var Immutable   = require('Immutable'),
     settings    = require('./../settings'),
     buttons     = require('./buttons.js');
 
-function createButtons(list, model, onChangeCallback) {
+function createButtons(list, map, updateModelCallback) {
     var containerDiv = menuBuilder.div();
     containerDiv.className = 'menu';
 
     list.forEach(function(button) {
-        if(model.get('maxIterations') !== undefined && button.get('ignoreModelSettings') === true) {
+        if(map.get('maxIterations') !== undefined && button.get('ignoreModelSettings') === true) {
             return;
         }
 
-        containerDiv.appendChild(menuBuilder.button(button.get('header'), function() {
-            onChangeCallback(button.get('callback')(model));
-        }));
+        if(button.get('replacingObj')) {
+            containerDiv.appendChild(menuBuilder.button(button.get('header'), function() {
+                updateModelCallback(null, null, button.get('callback')(map));
+            }));
+        } else {
+            /* No buttons are not replacing obj right now. There is one button. */
+        }
     });
 
     return containerDiv;
@@ -34,7 +38,7 @@ function generateAvatarDiv(avatar, selected, name) {
 
     img.src = avatar.src;
     avatarDiv.value = avatar.src;
-    avatarDiv.name = name;
+    avatarDiv.name = avatar.header || name;
 
     avatarDiv.appendChild(img);
 
@@ -138,6 +142,23 @@ function generateInput(key, value, callback) {
     return containerDiv;
 }
 
+function generateDropdown(key, options, defaultValue, callback) {
+    var containerSelect = menuBuilder.select(key, function(evt) {
+        callback(this.name, this.value);
+    });
+
+    options.forEach(function(option) {
+        var optionElement = menuBuilder.option(option, option);
+        if(option === defaultValue) {
+            optionElement.selected = 'selected';
+        }
+        
+        containerSelect.appendChild(optionElement);
+    });
+
+    return containerSelect;
+}
+
 function createMenu(map, onChangeCallback, includedAttributes) {
     var menu = Immutable.Map({
         element: menuBuilder.div()
@@ -155,10 +176,12 @@ function createMenu(map, onChangeCallback, includedAttributes) {
             return;
         }
 
-        if(key === 'avatar' || key === 'icon') {
+        /*if(key === 'avatar' || key === 'icon') {
             appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
-        } else if (key === 'timeTable') {
+        } else*/ if (key === 'timeTable') {
             appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
+        } else if(map.get('coefficient') !== undefined && key === 'type') {
+            appendToEnd.push(generateDropdown(key, ['fullchannel', 'halfchannel'], value, onChangeCallback));
         } else {
             appendToEnd.push(generateInput(key, value, onChangeCallback));
         }
@@ -204,11 +227,18 @@ var namespace = {
             return null;
         }
 
-        if (menu === null || menu.get('element') === undefined) {
-            menu = createMenu(map, function(key, value) {
+        var updateMenuMapObj = function(key, value, replacedObj) {
+            if(replacedObj) {
+                menu = menu.set('map_obj', replacedObj);
+            } else {
                 menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
-                changeCallback(menu.get('map_obj'));
-            }, includedAttributes);
+            }
+
+            changeCallback(menu.get('map_obj'));
+        };
+
+        if (menu === null || menu.get('element') === undefined) {
+            menu = createMenu(map, updateMenuMapObj, includedAttributes);
             menu = menu.set('map_obj', map);
 
             container.appendChild(menu.get('element'));
@@ -228,10 +258,7 @@ var namespace = {
                     /* Node not found -- continuing. */
                 }
         
-                menu = createMenu(map, function(key, value) {
-                    menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
-                    changeCallback(menu.get('map_obj'));
-                }, includedAttributes);
+                menu = createMenu(map, updateMenuMapObj, includedAttributes);
                 
                 container.appendChild(menu.get('element'));
                 menu = menu.set('map_obj', map);
@@ -249,6 +276,8 @@ var namespace = {
             _savedModels = changeCallbacks.get('savedModels'),
             savedModels  = _savedModels();
 
+        console.log(newSelected);
+
         if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
             var coefficient = parseFloat(newSelected.get('coefficient')),
                 timelag     = parseInt(newSelected.get('timelag')),
@@ -261,6 +290,7 @@ var namespace = {
             }
 
             if(newSelected.get('delete') === true) {
+                console.log("Deleting!");
                 var links = loadedModel.get('links');
 
                 links = links.delete(newSelected.get('id'));
@@ -326,7 +356,7 @@ var namespace = {
 
             node = nodeGui.get(newSelected.get('id'));
             node = node.merge(Immutable.Map({
-                radius: newSelected.get('radius'),
+                radius: parseFloat(newSelected.get('radius')),
                 avatar: newSelected.get('avatar'),
                 icon:   newSelected.get('icon')
             }));

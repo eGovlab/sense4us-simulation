@@ -1,5 +1,7 @@
 'use strict';
 
+var valueColors = require('./value_colors.js');
+
 module.exports = function(ctx, line) {
     /*
     ** Variable initiation
@@ -26,6 +28,9 @@ module.exports = function(ctx, line) {
         
         arrowEndX      = x1 + Math.cos(angle) * (distance - (targetRadius + halfLineWidth)),
         arrowEndY      = y1 + Math.sin(angle) * (distance - (targetRadius + halfLineWidth)),
+
+        arrowMiddleX   = x1 + Math.cos(angle) * ((distance - targetRadius) / 2),
+        arrowMiddleY   = y1 + Math.sin(angle) * ((distance - targetRadius) / 2),
         
         arrowStartX    = x1 + Math.cos(angle) * (distance - (targetRadius + 25)),
         arrowStartY    = y1 + Math.sin(angle) * (distance - (targetRadius + 25)),
@@ -41,7 +46,10 @@ module.exports = function(ctx, line) {
         leftAnchorY    = arrowStartY + Math.sin(leftAngle) * anchorDistance,
         
         rightAnchorX   = arrowStartX + Math.cos(rightAngle) * anchorDistance,
-        rightAnchorY   = arrowStartY + Math.sin(rightAngle) * anchorDistance;
+        rightAnchorY   = arrowStartY + Math.sin(rightAngle) * anchorDistance,
+
+        coefficientX   = arrowMiddleX + Math.cos(leftAngle) * anchorDistance,
+        coefficientY   = arrowMiddleY + Math.sin(leftAngle) * anchorDistance;
 
     if(distance < fromRadius) {
         return;
@@ -78,12 +86,19 @@ module.exports = function(ctx, line) {
     ctx.closePath();
     ctx.stroke();
 
+    if(line.get('coefficient') !== undefined) {
+        ctx.fillStyle    = valueColors.neutral;
+        ctx.textBaseline = 'top';
+        ctx.font         = '22px Arial';
+        ctx.fillText(line.get('coefficient'), coefficientX, coefficientY);
+    }
+
     if(line.get('type') === 'fullchannel' || line.get('type') !== 'halfchannel') {
         return;
     }
 
     /*
-    ** Draw another smaller line on top if the initial arrow.
+    ** Draw another smaller line on top of the initial arrow.
     */
 
     /*ctx.shadowOffsetX = 0;
