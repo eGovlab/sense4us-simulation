@@ -69,7 +69,7 @@ var UIData = Immutable.Map({
     selectedMenu: Immutable.List()
 });
 
-textStrings = textStrings.set('unsorted', textStrings.get('unsorted').merge(Immutable.List([
+/*textStrings = textStrings.set('unsorted', textStrings.get('unsorted').merge(Immutable.List([
     'incoming text string',
     'incoming text string',
     'incoming text string',
@@ -141,7 +141,7 @@ window.addEventListener('resize', function() {
     keywordContainer.style.maxHeight = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
 });
 
-keywordSidebar.addStrings(keywordContainer, textStrings.get('unsorted'));
+keywordSidebar.addStrings(keywordContainer, textStrings.get('unsorted'));*/
 
 /*
 ** Object to give buttons a callback to relate and influence the current state.

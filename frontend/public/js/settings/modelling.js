@@ -22,7 +22,7 @@ var model = Immutable.List([
     }),
 */
     Immutable.Map({
-        header:   'Independent variables',
+        header:   'Policy Instruments',
         callback: createOriginNode,
         type:     'LIST',
         images: [
@@ -37,7 +37,7 @@ var model = Immutable.List([
     }),
 
     Immutable.Map({
-        header:   'Uncontrollable sources',
+        header:   'External Factors',
         callback: createOriginNode,
         type:     'LIST',
         images: [
@@ -48,7 +48,7 @@ var model = Immutable.List([
     }),
 
     Immutable.Map({
-        header:   'Dependent variables',
+        header:   'Policy Impacts',
         callback: createNode,
         type:     'LIST',
         images: [
