@@ -131,7 +131,7 @@ module.exports = function(ctx, line) {
 
         var concatenatedString = line.get('coefficient');
         var timelag = line.get('timelag');
-        if(timelag) {
+        if(timelag !== undefined && typeof timelag === 'number') {
              concatenatedString += ", T: " + timelag;
         }
         var textMeasurement = ctx.measureText(concatenatedString);
@@ -153,7 +153,7 @@ module.exports = function(ctx, line) {
         }
 
         ctx.fillText(coefficient, coefficientX, coefficientY);
-        if(timelag) {
+        if(timelag !== undefined && typeof timelag === 'number') {
             ctx.fillStyle = valueColors.neutral;
             ctx.fillText(", T: " + line.get('timelag'), coefficientX + coefficientMeasurement.width, coefficientY);
         }

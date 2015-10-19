@@ -19,7 +19,7 @@ module.exports = function createNode(model, data, gui, type) {
         id:     id,
         x:      200,
         y:      100,
-        radius: 75
+        radius: 45
     });
 
     if(data !== undefined) {

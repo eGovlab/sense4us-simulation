@@ -360,7 +360,7 @@ function _refresh() {
                 y2:           node.get('linkerY'),
                 fromRadius:   node.get('radius'),
                 targetRadius: 0,
-                width:        14
+                width:        8
             })
         );
     });
