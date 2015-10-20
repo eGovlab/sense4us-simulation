@@ -117,7 +117,8 @@ module.exports = function(ctx, line) {
     
 
     if(line.get('coefficient') !== undefined) {
-        ctx.font         = '22px Arial';
+        var textHeight = 22;
+        ctx.font = textHeight + 'px Arial';
         var coefficient = line.get('coefficient');
         if(coefficient > 0) {
             ctx.fillStyle = valueColors.positive;
@@ -129,7 +130,7 @@ module.exports = function(ctx, line) {
 
         var coefficientMeasurement = ctx.measureText(coefficient);
 
-        var concatenatedString = line.get('coefficient');
+        var concatenatedString = coefficient;
         var timelag = line.get('timelag');
         if(timelag !== undefined) {
              concatenatedString += ", T: " + timelag;
@@ -141,21 +142,22 @@ module.exports = function(ctx, line) {
         
         ctx.textBaseline = 'middle';
 
-        if(angle > 0) {
-            coefficientX = coefficientX + (Math.cos(leftAngle) * textMeasurement.width);
-        }
+        /*
+        ** String aligned with arrow */
 
-        var __angle = Math.cos(angle);
-        if(angle > 0 && angle < 1) {
-            coefficientY = coefficientY + ((1 - Math.cos(angle)) * 10);
-        } else if(angle >= 1) {
-            coefficientY = coefficientY + ((Math.cos(angle)) * 10);
-        }
+        var halfTextWidth  = textMeasurement.width / 2,
+            halfTextHeight = textHeight / 2;
 
-        ctx.fillText(coefficient, coefficientX, coefficientY);
+        var offsetX = halfTextWidth  + 22, // padding X
+            offsetY = halfTextHeight + 22; // padding Y
+
+        var textX = arrowMiddleX - halfTextWidth  + Math.cos(angle + halfPI)*offsetX,
+            textY = arrowMiddleY + halfTextHeight + Math.sin(angle + halfPI)*offsetY;
+
+        ctx.fillText(coefficient, textX, textY);
         if(timelag !== undefined) {
             ctx.fillStyle = valueColors.neutral;
-            ctx.fillText(", T: " + line.get('timelag'), coefficientX + coefficientMeasurement.width, coefficientY);
+            ctx.fillText(", T: " + line.get('timelag'), textX + coefficientMeasurement.width, textY);
         }
 
         /*
@@ -165,8 +167,15 @@ module.exports = function(ctx, line) {
         ctx.translate(coefficientX, coefficientY);
         ctx.rotate(angle);
 
-        console.log(textMeasurement);
-        ctx.fillText(megaString, 0 - (textMeasurement.width / 2), 0);
+        coefficientX = 0 - (textMeasurement.width / 2);
+        
+        ctx.fillText(coefficient, coefficientX, 0);
+        
+        if(timelag !== undefined) {
+            ctx.fillStyle = valueColors.neutral;
+            ctx.fillText(", T: " + line.get('timelag'), coefficientX + coefficientMeasurement.width, 0);
+        }
+
         ctx.restore();
         */
     }
