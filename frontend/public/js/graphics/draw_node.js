@@ -81,6 +81,8 @@ module.exports = function drawNode(ctx, map) {
             drawNode(ctx, map);
         });
     }
+
+    return;
     
     var text = map.get('description');
     if(!text) {

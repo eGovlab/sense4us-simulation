@@ -1,17 +1,20 @@
 'use strict';
 
-var curry      = require('./curry.js'),
-    Immutable  = require('Immutable'),
-    canvas     = require('./canvas'),
-    linker     = require('./linker.js'),
-    generateId = require('./generate_id.js');
+var curry       = require('./curry.js'),
+    strictCurry = require('./strict_curry.js'),
+    Immutable   = require('Immutable'),
+    canvas      = require('./canvas'),
+    linker      = require('./linker.js'),
+    generateId  = require('./generate_id.js');
 
 var mainCanvas = canvas(document.getElementById('canvas'), refresh);
 
 var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
-    drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
-    drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
-    drawChange       = curry(require('./graphics/draw_change.js'), mainCanvas.getContext('2d')),
+    drawLinker       = curry(require('./graphics/draw_linker.js'),     mainCanvas.getContext('2d'), linker),
+    drawLink         = curry(require('./graphics/draw_link.js'),       mainCanvas.getContext('2d')),
+    drawChange       = curry(require('./graphics/draw_change.js'),     mainCanvas.getContext('2d')),
+    drawText         = strictCurry(require('./graphics/draw_text.js'), mainCanvas.getContext('2d')),
+    colorValues      = require('./graphics/value_colors.js'),
     modelLayer       = require('./model_layer.js'),
     menuBuilder      = require('./menu_builder'),
     notificationBar  = require('./notification_bar'),
@@ -288,6 +291,7 @@ UIRefresh();
 
 var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
 var aggregatedLink = require('./aggregated_link.js');
+
 function _refresh() {
     context.clearRect(
         (-loadedModel.get('settings').get('offsetX') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
@@ -304,11 +308,6 @@ function _refresh() {
         loadedModel.get('settings').get('offsetX') || 0,
         loadedModel.get('settings').get('offsetY') || 0
     );
-
-    // draw the links and arrows
-    loadedModel.get('links').forEach(function drawLinksAndArrows(link) {
-        drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
-    });
 
     // get all the selected objects
     var selected = loadedModel.get('nodeData')
@@ -370,7 +369,24 @@ function _refresh() {
         function drawEachNode(n) { 
             var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
             drawNode(nodeGui);
+        }
+    );
 
+    // draw the links and arrows
+    loadedModel.get('links').forEach(function drawLinksAndArrows(link) {
+        drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
+    });
+
+    // draw all the node descriptions
+    loadedModel.get('nodeData').forEach(
+        function drawEachNodeText(n) { 
+            var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
+            drawText(
+                nodeGui.get('description'),
+                nodeGui.get('x'),
+                nodeGui.get('y') + nodeGui.get('radius') + 4,
+                colorValues.neutral,
+                true);
             /*
             ** If you add more environment specific code, please bundle
             ** it up into another method.
