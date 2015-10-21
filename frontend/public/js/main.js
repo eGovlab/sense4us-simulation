@@ -344,26 +344,6 @@ function _refresh() {
             })
         );
 
-    // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.get('nodeGui').filter(function drawLinkerOnSelectedNodes(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
-
-    // if we are currently linking, we want to draw the link we're creating
-    loadedModel.get('nodeGui').filter(function drawLinkingArrow(node) {return node.get('linking') === true; }).forEach(function(node) {
-        var linkerForNode = linker(node);
-        drawLink(
-            Immutable.Map({
-                type:         'fullchannel',
-                x1:           node.get('x'),
-                y1:           node.get('y'),
-                x2:           node.get('linkerX'),
-                y2:           node.get('linkerY'),
-                fromRadius:   node.get('radius'),
-                targetRadius: 0,
-                width:        8
-            })
-        );
-    });
-
     // draw all the nodes
     loadedModel.get('nodeData').forEach(
         function drawEachNode(n) { 
@@ -402,6 +382,26 @@ function _refresh() {
             }
         }
     );
+
+    // if there are nodes selected that aren't currently linking, we want to draw the linker
+    loadedModel.get('nodeGui').filter(function drawLinkerOnSelectedNodes(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
+
+    // if we are currently linking, we want to draw the link we're creating
+    loadedModel.get('nodeGui').filter(function drawLinkingArrow(node) {return node.get('linking') === true; }).forEach(function(node) {
+        var linkerForNode = linker(node);
+        drawLink(
+            Immutable.Map({
+                type:         'fullchannel',
+                x1:           node.get('x'),
+                y1:           node.get('y'),
+                x2:           node.get('linkerX'),
+                y2:           node.get('linkerY'),
+                fromRadius:   node.get('radius'),
+                targetRadius: 0,
+                width:        8
+            })
+        );
+    });
 
     // if we are linking, we want to draw the dot above everything else
     loadedModel.get('nodeGui').filter(function drawLinkerDotWhileLinking(node) {return node.get('linking') === true; }).forEach(drawLinker);
