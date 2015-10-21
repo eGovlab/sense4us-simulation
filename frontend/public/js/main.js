@@ -306,14 +306,14 @@ function _refresh() {
     );
 
     // draw the links and arrows
-    loadedModel.get('links').forEach(function(link) {
+    loadedModel.get('links').forEach(function drawLinksAndArrows(link) {
         drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
     });
 
     // get all the selected objects
     var selected = loadedModel.get('nodeData')
-        .filter(function(node) { return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true; })
-        .map(function(node) {
+        .filter(function filterNodesForSelection(node) { return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true; })
+        .map(function removeUnnecessaryDataFromSelectedNodes(node) {
             return Immutable.Map({
                 id:             node.get('id'),
                 type:           node.get('type'),
@@ -332,8 +332,8 @@ function _refresh() {
             //return node.merge(loadedModel.get('nodeGui').get(node.get('id')));
         })
         .merge(
-            loadedModel.get('links').filter(function(link) {return link.get('selected') === true;})
-            .map(function(link) {
+            loadedModel.get('links').filter(function filterLinksForSelection(link) {return link.get('selected') === true;})
+            .map(function removeUnnecessaryDataFromSelectedLinks(link) {
                 return Immutable.Map({
                     id:          link.get('id'),
                     timelag:     link.get('timelag'),
@@ -346,10 +346,10 @@ function _refresh() {
         );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.get('nodeGui').filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
+    loadedModel.get('nodeGui').filter(function drawLinkerOnSelectedNodes(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
 
     // if we are currently linking, we want to draw the link we're creating
-    loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(function(node) {
+    loadedModel.get('nodeGui').filter(function drawLinkingArrow(node) {return node.get('linking') === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
         drawLink(
             Immutable.Map({
@@ -367,7 +367,7 @@ function _refresh() {
 
     // draw all the nodes
     loadedModel.get('nodeData').forEach(
-        function(n) { 
+        function drawEachNode(n) { 
             var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
             drawNode(nodeGui);
 
@@ -388,7 +388,7 @@ function _refresh() {
     );
 
     // if we are linking, we want to draw the dot above everything else
-    loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
+    loadedModel.get('nodeGui').filter(function drawLinkerDotWhileLinking(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
     //update the menu
     var sidebar = document.getElementById('sidebar');

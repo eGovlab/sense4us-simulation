@@ -3,7 +3,7 @@
 var valueColors    = require('./value_colors.js'),
     drawCoordinate = require('./draw_coordinate.js');
 
-module.exports = function(ctx, line) {
+module.exports = function drawLink(ctx, line) {
     /*
     ** Variable initiation
     */

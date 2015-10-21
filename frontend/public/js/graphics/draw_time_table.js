@@ -3,7 +3,7 @@
 var menuBuilder = require('../menu_builder'),
     valueColors = require('./value_colors.js');
 
-module.exports = function drawNode(ctx, map) {
+module.exports = function drawTimeTable(ctx, map) {
     var data = map.get('timeTable');
 
     var size   = 24,
