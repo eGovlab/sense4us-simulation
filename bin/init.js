@@ -99,24 +99,6 @@
         controllerLayer.addControllerToRouter(router, bundle);
         onDone(router);
     });
-
-    /*var expressDaemon = express();
-    expressDaemon.set("views", CONFIG.get("ROOT") + CONFIG.get("VIEWS"));
-    expressDaemon.set("view engine", "ejs");
-    expressDaemon.engine("ejs", ejs);
-    expressDaemon.use(bodyParser.json()
-                    , bodyParser.urlencoded({extended: true})
-                    , cookieParser()
-                    , setupGlobalView
-                    , addPathToGlobal
-                    , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
-                    , logger.middleware
-                    , cookieCutter.middleware
-                    , router.middleware
-                    , notFound
-                    , errorHandler);
-
-    httpCB(expressDaemon, _PORT);*/
 }(function(daemon, _PORT) {
     var http = require("http");
     http.createServer(daemon).listen(_PORT, function() {
