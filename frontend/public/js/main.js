@@ -377,7 +377,7 @@ function _refresh() {
                 if(nodeGui.get('timeTable')) {
                     drawTimeTable(nodeGui);
                 } else if(n.get('simulateChange') !== 0) {
-                    drawChange(nodeGui.get('x'), nodeGui.get('y') + nodeGui.get('radius') / 6, n.get('simulateChange'));
+                    drawChange(nodeGui.get('x'), nodeGui.get('y') + nodeGui.get('radius') / 6, Math.round(n.get('simulateChange') * 100) / 100);
                 }
             }
         }

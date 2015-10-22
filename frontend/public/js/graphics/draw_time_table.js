@@ -17,6 +17,7 @@ module.exports = function drawTimeTable(ctx, map) {
     ctx.font = size + 'px Arial';
 
     data.forEach(function getRowLength(value, timeStep) {
+        value = Math.round(value * 100) / 100;
         var symbol = " ";
         if(value > 0) {
             symbol = "+";
