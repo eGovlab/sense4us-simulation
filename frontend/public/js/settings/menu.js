@@ -83,7 +83,7 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
             return;
         }
 
-        var models = response.response.models;
+        var models = response.response;
 
         var local  = sm.get('local'),
             synced = sm.get('synced');

@@ -121,7 +121,7 @@ module.exports = {
             that        = this;
 
         if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
-            backendApi('/models/' + loadedModel.get('syncId'), {}, function(response, err) {
+            backendApi('/models/bundle/' + loadedModel.get('syncId'), {}, function(response, err) {
                 if(err) {
                     console.log(response);
                     console.log(err);
@@ -152,7 +152,7 @@ module.exports = {
     
     loadSyncModel: function(modelId, callback) {
         var that = this;
-        backendApi('/models/' + modelId, function(response, error) {
+        backendApi('/models/bundle/' + modelId, function(response, error) {
             if (error) {
                 console.log(response);
                 console.log(error);
