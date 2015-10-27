@@ -44,8 +44,8 @@ function drawImage(ctx, image, map) {
     ctx.beginPath();
     ctx.arc(map.get('x'), map.get('y'), map.get('radius') + 2, 0, 360);
 
-    // Clip to the current path
-    //ctx.clip();
+    // Clip to the current circle
+    ctx.clip();
     
     ctx.drawImage(image, map.get('x') - map.get('radius'), map.get('y') - map.get('radius'), map.get('radius') * 2, map.get('radius') * 2);
 
