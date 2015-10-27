@@ -366,7 +366,8 @@ function _refresh() {
                 nodeGui.get('x'),
                 nodeGui.get('y') + nodeGui.get('radius') + 4,
                 colorValues.neutral,
-                true);
+                true
+            );
             /*
             ** If you add more environment specific code, please bundle
             ** it up into another method.

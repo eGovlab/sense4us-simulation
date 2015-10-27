@@ -235,8 +235,8 @@ module.exports = {
                 ng2 = ng2.set('links', ng2.get('links').push(link.id));
 
                 var ng = newState.get('nodeGui');
-                ng = ng.set(link.from_node, ng1);
-                ng = ng.set(link.to_node, ng2);
+                ng = ng.set(link.upstream, ng1);
+                ng = ng.set(link.downstream, ng2);
 
                 newState = newState.set('nodeGui', ng);
             });
