@@ -218,20 +218,20 @@ module.exports = {
             links.forEach(function(link) {
                 var l = newState.get('links').set(link.id, Immutable.Map({
                     id:          link.id,
-                    node1:       link.from_node,
-                    node2:       link.to_node,
+                    node1:       link.upstream,
+                    node2:       link.downstream,
                     coefficient: link.threshold,
                     type:        link.type,
                     timelag:     link.timelag,
-                    width:       14
+                    width:       8
                 }));
 
                 newState = newState.set('links', l);
 
-                var ng1 = newState.get('nodeGui').get(link.from_node);
+                var ng1 = newState.get('nodeGui').get(link.upstream);
                 ng1 = ng1.set('links', ng1.get('links').push(link.id));
 
-                var ng2 = newState.get('nodeGui').get(link.to_node);
+                var ng2 = newState.get('nodeGui').get(link.downstream);
                 ng2 = ng2.set('links', ng2.get('links').push(link.id));
 
                 var ng = newState.get('nodeGui');
