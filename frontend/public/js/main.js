@@ -20,7 +20,7 @@ var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, docume
     notificationBar  = require('./notification_bar'),
     network          = require('./network'),
     CONFIG           = require('rh_config-parser'),
-    keywordSidebar   = require('./keyword_sidebar'),
+    informationTree  = require('./information_tree'),
     /* UIRefresh is curried after changeCallbacks is defined. */
     UIRefresh        = require('./ui');
 
@@ -137,14 +137,14 @@ var UIData = Immutable.Map({
     })
 ])));
 
-var keywordContainer = CONFIG.get('KEYWORD_CONTAINER');
+var informationTreeContainer = CONFIG.get('KEYWORD_CONTAINER');
 
-keywordContainer.style.maxHeight = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
+informationTreeContainer.style.maxHeight = (informationTreeContainer.parentElement.parentElement.offsetHeight - 64) + "px";
 window.addEventListener('resize', function() {
-    keywordContainer.style.maxHeight = (keywordContainer.parentElement.parentElement.offsetHeight - 64) + "px";
+    informationTreeContainer.style.maxHeight = (informationTreeContainer.parentElement.parentElement.offsetHeight - 64) + "px";
 });
 
-keywordSidebar.addStrings(keywordContainer, textStrings.get('unsorted'));*/
+informationTree.addStrings(informationTreeContainer, textStrings.get('unsorted'));*/
 
 /*
 ** Object to give buttons a callback to relate and influence the current state.
@@ -286,6 +286,18 @@ function MouseWheelHandler(e) {
     refresh();
 }
 
+function alignWithList(item) {
+    if(!item.selected && item.y !== 0) {
+        if(item.y > -2 && item.y < 2) {
+            item.y = 0;
+            return;
+        }
+
+        item.y = item.y / 2;
+        refresh();
+    }
+}
+
 /* This method is retarded. */
 UIRefresh();
 
@@ -318,6 +330,7 @@ function _refresh() {
                 type:           node.get('type'),
                 value:          node.get('value'),
                 relativeChange: node.get('relativeChange'),
+                name:           node.get('name'),
                 description:    node.get('description'),
                 timeTable:      node.get('timeTable')
             }).merge(
@@ -362,7 +375,7 @@ function _refresh() {
         function drawEachNodeText(n) { 
             var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
             drawText(
-                nodeGui.get('description'),
+                nodeGui.get('name'),
                 nodeGui.get('x'),
                 nodeGui.get('y') + nodeGui.get('radius') + 4,
                 colorValues.neutral,
@@ -418,7 +431,7 @@ function _refresh() {
     switch(environment) {
         case 'modelling':
             if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'description', 'type', 'coefficient', 'timelag']);
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'name', 'description', 'type', 'coefficient', 'timelag']);
             } else {
                 selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['name', 'maxIterations']);
             }

@@ -80,6 +80,13 @@ module.exports = {
 
                 timeStepT:     "Week",
                 timeStepN:     0
+            }),
+            treeSettings: Immutable.Map({
+                x:      400,
+                y:      20,
+                width:  200,
+                height: 0,
+                scroll: 0
             })
         });
 
@@ -199,6 +206,7 @@ module.exports = {
                     simulateChange: 0,
                     timeTable:      node.timeTable ? Immutable.Map(node.timeTable) : undefined,
                     type:           node.type,
+                    name:           node.name        || undefined,
                     description:    node.description || undefined
                 }));
                 newState = newState.set('nodeData', nd);

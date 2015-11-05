@@ -318,7 +318,7 @@ var namespace = {
                 node     = null;
 
             if(newSelected.get('delete') === true) {
-                node = nodeGui.get(newSelected.get('id'));
+                node      = nodeGui.get(newSelected.get('id'));
                 var links = loadedModel.get('links');
 
                 if(node.get('links') !== undefined){
@@ -342,14 +342,15 @@ var namespace = {
             }
 
             node = nodeData.get(newSelected.get('id'));
-            node = node.merge(Immutable.Map({
+            node = node.merge(newSelected);
+            /*node = node.merge(Immutable.Map({
                 id:             newSelected.get('id'),
                 value:          newSelected.get('value'),
                 relativeChange: newSelected.get('relativeChange'),
                 description:    newSelected.get('description'),
                 type:           newSelected.get('type'),
                 timeTable:      newSelected.get('timeTable')
-            }));
+            }));*/
 
             nodeData = nodeData.set(node.get('id'), node);
             loadedModel = loadedModel.set('nodeData', nodeData);
