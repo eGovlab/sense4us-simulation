@@ -92,17 +92,50 @@ function createTimeTableEditor(key, timeTable, callback) {
     var containerDiv = menuBuilder.div();
 
     (function addToContainer(key, timeTable, callback) {
+        while(containerDiv.firstChild) {
+            containerDiv.removeChild(containerDiv.firstChild);
+        }
         containerDiv.appendChild(menuBuilder.label(key));
 
         if (timeTable !== undefined && timeTable.forEach !== undefined) {
+            timeTable = timeTable.sortBy(function(value, key) {
+                return parseInt(key);
+            });
+
             timeTable.forEach(function(value, rowNumber) {
                 containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
-                var input = menuBuilder.input('T' + rowNumber, value, function whenTimeTableChanges(inputName, value) {
-                    timeTable = timeTable.set(rowNumber, value);
+
+                var timeStep = menuBuilder.input("", rowNumber, function changedTimeStep(input, newTimeStep) {
+                    if(isNaN(parseInt(newTimeStep))) {
+                        addToContainer(key, timeTable, callback);
+                        return;
+                    }
+                    var tempStorage = timeTable.get(rowNumber);
+                    console.log(value, tempStorage, timeTable);
+                    timeTable = timeTable.set(newTimeStep, parseInt(tempStorage));
+                    timeTable = timeTable.delete(rowNumber);
+
+                    rowNumber = newTimeStep;
+                    timeTable = timeTable.sortBy(function(value, key) {
+                        return parseInt(key);
+                    });
+
                     callback(key, timeTable);
-                    input.value = value;
+                    addToContainer(key, timeTable, callback);
                 });
-                containerDiv.appendChild(input);
+
+                var timeStepValue = menuBuilder.input("", value, function changedTimeStepValue(input, newTimeValue) {
+                    if(isNaN(parseInt(newTimeValue))) {
+                        addToContainer(key, timeTable, callback);
+                        return;
+                    }
+                    timeTable = timeTable.set(rowNumber, parseInt(newTimeValue));
+                    callback(key, timeTable);
+                    timeStepValue.value = newTimeValue;
+                });
+
+                containerDiv.appendChild(timeStep);
+                containerDiv.appendChild(timeStepValue);
             });
         }
 
@@ -110,7 +143,14 @@ function createTimeTableEditor(key, timeTable, callback) {
             if (timeTable === undefined || timeTable === null) {
                 timeTable = Immutable.Map({0: 0});
             } else {
-                timeTable = timeTable.set(timeTable.size, 0);
+                var highestIndex = 0;
+                timeTable.forEach(function(value, index) {
+                    var x;
+                    if(!isNaN(x = parseInt(index)) && x > highestIndex) {
+                        highestIndex = x;
+                    }
+                });
+                timeTable = timeTable.set(highestIndex + 1, 0);
             }
 
             callback(key, timeTable);

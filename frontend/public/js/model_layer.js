@@ -176,16 +176,12 @@ module.exports = {
                 if(n.id > highestId) {
                     highestId = n.id;
                 }
-
-                //nextId += 1;
             });
 
             links.forEach(function(l) {
                 if(l.id > highestId) {
                     highestId = l.id;
                 }
-
-                //nextId += 1;
             });
 
             var newState = that.newModel();
