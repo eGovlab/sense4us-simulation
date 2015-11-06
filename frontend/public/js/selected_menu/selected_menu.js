@@ -71,7 +71,7 @@ function createAvatarSelector(header, value, callback) {
             function(key, value) {
                 var oldAvatar = avatarsDiv.querySelectorAll('.selected')[0];
                 if (oldAvatar) {
-                    oldAvatar.className = 'avatarPreview';            
+                    oldAvatar.className = 'avatarPreview';
                 }
                 
                 var newAvatar = avatarsDiv.querySelectorAll('[src="' + value + '"]')[0].parentElement;
