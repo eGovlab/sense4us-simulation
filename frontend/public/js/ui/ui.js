@@ -87,7 +87,7 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
                     updateModelCallback(
                         element.get('callback')(
                             changeCallbacks.get('loadedModel')(),
-                            Immutable.Map({description: key}), 
+                            Immutable.Map({name: key}), 
                             Immutable.Map({avatar: value})
                         )
                     );

@@ -10,7 +10,7 @@ module.exports = function createNode(model, data, gui, type) {
         id:             id,
         value:          0,
         relativeChange: 0,
-        simulateChange: 0,
+        simulateChange: Immutable.List(),
         type:           type || 'intermediate',
         description:    ''
     });

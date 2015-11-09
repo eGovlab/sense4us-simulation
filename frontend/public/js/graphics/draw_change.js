@@ -8,6 +8,8 @@ module.exports = function drawChange(ctx, x, y, value) {
         ctx.fillStyle = valueColors.positive;
     } else if(value < 0) {
         ctx.fillStyle = valueColors.negative;
+    } else if(isNaN(value)) {
+        return;
     }
     
     ctx.textBaseline = 'top';
