@@ -6,7 +6,7 @@ var Immutable       = require('Immutable'),
     notificationBar = require('./../notification_bar');
 
 var simulate = Immutable.List([
-    Immutable.Map( {
+    Immutable.Map({
         header: 'Simulate',
         type:   'BUTTON',
         ajax:   true,
@@ -51,6 +51,28 @@ var simulate = Immutable.List([
                 loadedModel(newState);
                 refresh();
             });
+        }
+    }),
+
+    Immutable.Map({
+        header: 'Linegraph',
+        type:   'BUTTON',
+        ajax:   true,
+        callback: function(refresh, changeCallbacks) {
+            var loadedModel = changeCallbacks.get('loadedModel'),
+                newState    = loadedModel();
+
+            var settings = newState.get('settings');
+            if(!settings.get('linegraph')) {
+                settings = settings.set('linegraph', true);
+            } else {
+                settings = settings.set('linegraph', false);
+            }
+
+            newState = newState.set('settings', settings);
+            loadedModel(newState);
+
+            refresh();
         }
     }),
 

@@ -7,7 +7,8 @@ var curry       = require('./curry.js'),
     linker      = require('./linker.js'),
     generateId  = require('./generate_id.js');
 
-var mainCanvas = canvas(document.getElementById('canvas'), refresh);
+var mainCanvas      = canvas(document.getElementById('canvas'),    refresh);
+var linegraphCanvas = canvas(document.getElementById('linegraph'), linegraphRefresh);
 
 var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'),     mainCanvas.getContext('2d'), linker),
@@ -221,11 +222,15 @@ var dragHandler   = require('./mechanics/drag_handler.js'),
 dragHandler(
     mainCanvas,
     function mouseDown(pos) {
-        var data = mouseDownWare({env: environment, pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')}, environment);
+        var data = mouseDownWare({env: environment, pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links'), linegraph: loadedModel.get('settings').get('linegraph')}, environment);
         loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
         loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
 
         refresh();
+
+        if(loadedModel.get('settings').get('linegraph')) {
+            linegraphRefresh();
+        }
 
         return true;
     },
@@ -304,7 +309,30 @@ UIRefresh();
 var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
 var aggregatedLink = require('./aggregated_link.js');
 
+var lastShow = false;
+function showLineGraph(show) {
+    var parent = linegraphCanvas.parentElement;
+    if(show === lastShow) {
+        return;
+    }
+
+    if(show) {
+        mainCanvas.height      = (parent.offsetHeight - 70) * 0.5;
+        linegraphCanvas.height = (parent.offsetHeight - 70) * 0.5;
+
+        linegraphRefresh();
+    } else {
+        mainCanvas.height      = parent.offsetHeight;
+        linegraphCanvas.height = 0;
+    }
+
+    lastShow = show;
+}
+
 function _refresh() {
+    var showingLineGraph = loadedModel.get('settings').get('linegraph');
+    showLineGraph(showingLineGraph);
+
     context.clearRect(
         (-loadedModel.get('settings').get('offsetX') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
         (-loadedModel.get('settings').get('offsetY') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
@@ -361,6 +389,10 @@ function _refresh() {
     loadedModel.get('nodeData').forEach(
         function drawEachNode(n) { 
             var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
+            if(!showingLineGraph) {
+                nodeGui = nodeGui.set('linegraph', false);
+            }
+
             drawNode(nodeGui);
         }
     );
@@ -446,8 +478,40 @@ function _refresh() {
     }
 }
 
+var drawLineGraph = require('./graphics/draw_line_graph.js');
+function _linegraphRefresh() {
+    var lctx = linegraphCanvas.getContext('2d');
+    lctx.clearRect(
+        0,
+        0,
+        linegraphCanvas.width,
+        linegraphCanvas.height
+    );
+
+    var selectedNodes = loadedModel.get('nodeGui').filter(function(node) {
+        return node.get('linegraph');
+    });
+
+    var nodeData = loadedModel.get('nodeData');
+    var lineValues = selectedNodes.map(function(nodegui) {
+        var node = nodeData.get(nodegui.get('id'));
+        return {
+            name:   node.get('name'),
+            values: node.get('simulateChange'),
+            color:  nodegui.get('graphColor')
+        }
+    });
+
+    drawLineGraph(lctx, 20, 20, linegraphCanvas.width - 40, linegraphCanvas.height - 30, lineValues);
+}
+
 function refresh() {
     window.requestAnimationFrame(_refresh);
 }
 
+function linegraphRefresh() {
+    window.requestAnimationFrame(_linegraphRefresh);
+}
+
 refresh();
+linegraphRefresh();

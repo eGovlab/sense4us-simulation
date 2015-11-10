@@ -4,9 +4,9 @@ module.exports = function(canvas, refresh) {
     var parent = canvas.parentElement;
     if (parent !== null) {
         canvas.width  = parent.offsetWidth;
-        canvas.height = parent.offsetHeight;
+        canvas.height = (parent.offsetHeight - 70) * 0.50;
 
-        var timer = null;
+        /*var timer = null;
         window.addEventListener('resize', function() {
             if (timer !== null) {
                 clearTimeout(timer);
@@ -18,7 +18,7 @@ module.exports = function(canvas, refresh) {
 
                 refresh();
             }, 500);
-        });
+        });*/
     }
 
 	canvas.onmousedown = function(event){

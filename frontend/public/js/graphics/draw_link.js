@@ -114,8 +114,6 @@ module.exports = function drawLink(ctx, line) {
         ctx.stroke();
     }
 
-    
-
     if(line.get('coefficient') !== undefined) {
         var textHeight = 22;
         ctx.font = textHeight + 'px Arial';
