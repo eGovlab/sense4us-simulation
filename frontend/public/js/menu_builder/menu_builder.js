@@ -89,7 +89,7 @@ MenuBuilder.prototype = {
         MenuBuilder.prototype.addValueCallback(input, callback);
 
         input.setAttribute('value', value);
-        input.name = key;
+        input.name  = key;
         input.value = value;
       
         return input;
@@ -113,6 +113,15 @@ MenuBuilder.prototype = {
         var img = document.createElement('img');
 
         return img;
+    },
+
+    span: function(key) {
+        var span = document.createElement('span');
+        if(key && typeof key === "string") {
+            span.innerHTML = key;
+        }
+
+        return span;
     },
 
     menu: function(text, callback) {

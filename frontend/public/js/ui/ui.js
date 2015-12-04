@@ -188,6 +188,12 @@ var UIRefresh = function(refresh, changeCallbacks) {
         UIData       = _UIData(),
         that         = this;
 
+    /*
+     * This resets the selected menu to force the refresh to create a new one.
+     * This way there won't be any hiccups after the above loops removing everything.
+     */
+    changeCallbacks.get('selectedMenu')(Immutable.Map({}));
+
     /* The sidebar may only update the model as of right now. */
     sidebarRefresh(UIData, sidebarContainer, refresh, changeCallbacks, function(updatedModel) {
         _loadedModel(updatedModel);

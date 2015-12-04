@@ -66,7 +66,6 @@ var selectedMenu = Immutable.Map({}),
     environment   = 'modelling';
 
 var settings = require('./settings');
-
 var UIData = Immutable.Map({
     sidebar:      settings.sidebar,
     menu:         settings.menu,

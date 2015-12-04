@@ -90,6 +90,7 @@ function createAvatarSelector(header, value, callback) {
 
 function createTimeTableEditor(key, timeTable, callback) {
     var containerDiv = menuBuilder.div();
+    containerDiv.className = "time-table";
 
     (function addToContainer(key, timeTable, callback) {
         while(containerDiv.firstChild) {
@@ -102,10 +103,18 @@ function createTimeTableEditor(key, timeTable, callback) {
                 return parseInt(key);
             });
 
+            var rowContainer = menuBuilder.div();
+            rowContainer.className = "row-container";
+            containerDiv.appendChild(rowContainer);
             timeTable.forEach(function(value, rowNumber) {
-                containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
+                //containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
 
-                var timeStep = menuBuilder.input("", rowNumber, function changedTimeStep(input, newTimeStep) {
+                var rowDiv = menuBuilder.div();
+                rowDiv.className = "time-row";
+
+                var timeStepLabel = menuBuilder.span("T");
+                timeStepLabel.className = "label"
+                var timeStep = menuBuilder.input("time-step", rowNumber, function changedTimeStep(input, newTimeStep) {
                     if(isNaN(parseInt(newTimeStep))) {
                         addToContainer(key, timeTable, callback);
                         return;
@@ -124,7 +133,11 @@ function createTimeTableEditor(key, timeTable, callback) {
                     addToContainer(key, timeTable, callback);
                 });
 
-                var timeStepValue = menuBuilder.input("", value, function changedTimeStepValue(input, newTimeValue) {
+                timeStep.className = "time-step";
+
+                var timeStepValueLabel = menuBuilder.span("V");
+                timeStepValueLabel.className = "label"
+                var timeStepValue = menuBuilder.input("time-value", value, function changedTimeStepValue(input, newTimeValue) {
                     if(isNaN(parseInt(newTimeValue))) {
                         addToContainer(key, timeTable, callback);
                         return;
@@ -134,8 +147,14 @@ function createTimeTableEditor(key, timeTable, callback) {
                     timeStepValue.value = newTimeValue;
                 });
 
-                containerDiv.appendChild(timeStep);
-                containerDiv.appendChild(timeStepValue);
+                timeStepValue.className = "time-value";
+
+                rowDiv.appendChild(timeStepLabel);
+                rowDiv.appendChild(timeStep);
+                rowDiv.appendChild(timeStepValueLabel);
+                rowDiv.appendChild(timeStepValue);
+
+                rowContainer.appendChild(rowDiv);
             });
         }
 
