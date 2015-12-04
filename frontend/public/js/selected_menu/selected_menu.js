@@ -335,8 +335,6 @@ var namespace = {
             _savedModels = changeCallbacks.get('savedModels'),
             savedModels  = _savedModels();
 
-        console.log(newSelected);
-
         if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
             var coefficient = parseFloat(newSelected.get('coefficient')),
                 timelag     = parseInt(newSelected.get('timelag')),

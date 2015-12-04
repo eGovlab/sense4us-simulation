@@ -61,6 +61,12 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     var defaultValue = element.get('defaultValue')(setupModel);
     var ranges = element.get('range')(setupModel);
 
+    var container = menuBuilder.div();
+    container.className = "sidebar-slider";
+    var valueSpan = menuBuilder.span();
+
+    valueSpan.innerHTML = defaultValue;
+
     if(element.get('ajax') === true) {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
             element.get('callback')(parseInt(this.value), changeCallbacks);
@@ -68,11 +74,19 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     } else {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
             var model = changeCallbacks.get('loadedModel')();
+            valueSpan.innerHTML = this.value;
             updateModelCallback(element.get('callback')(parseInt(this.value), model));
         });
     }
 
-    return inputElement;
+    container.appendChild(inputElement);
+    container.appendChild(valueSpan);
+    
+    var clearer = menuBuilder.div();
+    clearer.style.clear = "right";
+    container.appendChild(clearer);
+
+    return container;
 }
 
 var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateModelCallback) {
@@ -102,12 +116,14 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
             var buttonElement;
             switch(element.get('type')) {
                 case 'DROPDOWN':
+                    sidebarMenu.appendChild(menuBuilder.label(element.get('header')));
                     buttonElement = createDropdown(element, element.get('select'), refresh, changeCallbacks, updateModelCallback);
                     break;
                 case 'BUTTON':
                     buttonElement = createButton(element, refresh, changeCallbacks, updateModelCallback);
                     break;
                 case 'SLIDER':
+                    sidebarMenu.appendChild(menuBuilder.label(element.get('header')));
                     buttonElement = createSlider(element, changeCallbacks, updateModelCallback);
                     break;
                 default:

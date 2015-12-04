@@ -1,0 +1,8 @@
+.sidebar-slider {}
+.sidebar-slider input {}
+.sidebar-slider span {
+    display: inline-block;
+    margin-right: 6px;
+    margin-top: 3px;
+    float: right;
+}

@@ -352,23 +352,13 @@ function _refresh() {
     var selected = loadedModel.get('nodeData')
         .filter(function filterNodesForSelection(node) { return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true; })
         .map(function removeUnnecessaryDataFromSelectedNodes(node) {
-            return Immutable.Map({
-                id:             node.get('id'),
-                type:           node.get('type'),
-                value:          node.get('value'),
-                relativeChange: node.get('relativeChange'),
-                name:           node.get('name'),
-                description:    node.get('description'),
-                timeTable:      node.get('timeTable')
-            }).merge(
+            return node.merge(
                 Immutable.Map({
-                        radius: loadedModel.get('nodeGui').get(node.get('id')).get('radius'),
-                        avatar: loadedModel.get('nodeGui').get(node.get('id')).get('avatar'),
-                        icon:   loadedModel.get('nodeGui').get(node.get('id')).get('icon')
-                    })
+                    radius: loadedModel.get('nodeGui').get(node.get('id')).get('radius'),
+                    avatar: loadedModel.get('nodeGui').get(node.get('id')).get('avatar'),
+                    icon:   loadedModel.get('nodeGui').get(node.get('id')).get('icon')
+                })
             );
-            
-            //return node.merge(loadedModel.get('nodeGui').get(node.get('id')));
         })
         .merge(
             loadedModel.get('links').filter(function filterLinksForSelection(link) {return link.get('selected') === true;})
@@ -462,16 +452,17 @@ function _refresh() {
     switch(environment) {
         case 'modelling':
             if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'name', 'description', 'type', 'coefficient', 'timelag']);
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'name', 'description', 'type', 'threshold', 'coefficient', 'timelag']);
             } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['name', 'maxIterations']);
+                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['name']);
             }
             break;
         case 'simulate':
             if(selected.last()) {
                 selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag', 'type']);
             } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
+                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['maxIterations']);
+                //selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
             }
             break;
     }
