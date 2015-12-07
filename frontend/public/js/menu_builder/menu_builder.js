@@ -20,7 +20,7 @@ MenuBuilder.prototype = {
         });
     },
 
-    slider: function(defaultValue, min, max, callback) {
+    slider: function(defaultValue, min, max, callback, onSlideCallback) {
         var input = document.createElement('input');
         
         input.type = 'range';
@@ -29,6 +29,16 @@ MenuBuilder.prototype = {
         input.value = defaultValue;
 
         input.addEventListener('change', callback);
+        if(onSlideCallback) {
+            input.addEventListener('input',  onSlideCallback);
+        }
+
+        input.deleteCallbacks = function() {
+            input.removeEventListener('change', callback);
+            if(onSlideCallback) {
+                input.removeEventListener('input',  onSlideCallback);
+            }
+        }
 
         return input;
     },

@@ -113,6 +113,11 @@ var simulate = Immutable.List([
             return [0, model.get('settings').get('maxIterations')];
         },
 
+        onSlide: function(value, model) {
+            model = model.set('settings', model.get('settings').set('timeStepN', value));
+            return model;
+        },
+
         callback: function(value, model) {
             model = model.set('settings', model.get('settings').set('timeStepN', value));
             return model;

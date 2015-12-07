@@ -81,16 +81,19 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
             var model = changeCallbacks.get('loadedModel')();
             valueSpan.innerHTML = this.value;
             updateModelCallback(element.get('callback')(parseInt(this.value), model));
+        }, function(value) {
+            valueSpan.innerHTML = this.value;
         });
     }
 
     container.appendChild(valueSpan);
-    container.appendChild(inputElement);
     container.appendChild(maxValueSpan);
-    
+
     var clearer = menuBuilder.div();
     clearer.style.clear = "right";
+
     container.appendChild(clearer);
+    container.appendChild(inputElement);
 
     return container;
 }
