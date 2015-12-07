@@ -63,9 +63,14 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
 
     var container = menuBuilder.div();
     container.className = "sidebar-slider";
-    var valueSpan = menuBuilder.span();
 
+    var valueSpan = menuBuilder.span();
     valueSpan.innerHTML = defaultValue;
+    valueSpan.className = "value";
+
+    var maxValueSpan = menuBuilder.span();
+    maxValueSpan.innerHTML = ranges[1];
+    maxValueSpan.className = "max-value";
 
     if(element.get('ajax') === true) {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
@@ -79,8 +84,9 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
         });
     }
 
-    container.appendChild(inputElement);
     container.appendChild(valueSpan);
+    container.appendChild(inputElement);
+    container.appendChild(maxValueSpan);
     
     var clearer = menuBuilder.div();
     clearer.style.clear = "right";
@@ -213,6 +219,10 @@ var UIRefresh = function(refresh, changeCallbacks) {
     /* The sidebar may only update the model as of right now. */
     sidebarRefresh(UIData, sidebarContainer, refresh, changeCallbacks, function(updatedModel) {
         _loadedModel(updatedModel);
+
+        var _selectedMenu = changeCallbacks.get('selectedMenu');
+        _selectedMenu(Immutable.Map({}).set('element', _selectedMenu().get('element')));
+
         refresh();
     });
 

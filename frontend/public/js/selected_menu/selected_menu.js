@@ -304,7 +304,7 @@ var namespace = {
 
             return menu;
         } else if (menu.get('map_obj') !== map) {
-            if (menu.get('map_obj').get('id') === map.get('id')) {
+            if (menu.get('map_obj') && menu.get('map_obj').get('id') === map.get('id')) {
                 // update menu
                 menu = updateMenu(menu, map);
                 //container.appendChild(menu.get('element'));
@@ -443,7 +443,7 @@ var namespace = {
             ));
         }
 
-        //UIRefresh();
+        UIRefresh();
         refresh();
     }
 };
