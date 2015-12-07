@@ -195,16 +195,23 @@ module.exports = {
             newState = newState.set('settings', s);
 
             nodes.forEach(function(node) {
-                var nd = newState.get('nodeData').set(node.id, Immutable.Map({
+                var newNode = Immutable.Map({
                     id:             node.id,
                     value:          node.starting_value,
-                    relativeChange: node.change_value || 0,
+                    relativeChange: node.change_value   || 0,
                     simulateChange: Immutable.List(),
-                    timeTable:      node.timeTable ? Immutable.Map(node.timeTable) : undefined,
+                    threshold:      node.threshold      || 0,
                     type:           node.type,
-                    name:           node.name        || undefined,
-                    description:    node.description || undefined
-                }));
+                    name:           node.name           || undefined,
+                    description:    node.description    || undefined
+                });
+
+                if(node.timeTable) {
+                    newNode = newNode.set('timeTable', Immutable.Map(node.timeTable));
+                }
+
+                var nd = newState.get('nodeData').set(node.id, newNode);
+
                 newState = newState.set('nodeData', nd);
 
                 var ng = newState.get('nodeGui').set(node.id, Immutable.Map({

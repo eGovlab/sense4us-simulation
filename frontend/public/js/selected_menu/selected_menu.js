@@ -92,6 +92,8 @@ function createTimeTableEditor(key, timeTable, callback) {
     var containerDiv = menuBuilder.div();
     containerDiv.className = "time-table";
 
+    console.log(timeTable);
+
     (function addToContainer(key, timeTable, callback) {
         while(containerDiv.firstChild) {
             containerDiv.removeChild(containerDiv.firstChild);
@@ -237,7 +239,9 @@ function createMenu(map, onChangeCallback, includedAttributes) {
 
         /*if(key === 'avatar' || key === 'icon') {
             appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
-        } else*/ if (key === 'timeTable') {
+        } else*/
+
+        if (key === 'timeTable') {
             appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
         } else if(map.get('coefficient') !== undefined && key === 'type') {
             appendToEnd.push(generateDropdown(key, ['fullchannel', 'halfchannel'], value, onChangeCallback));

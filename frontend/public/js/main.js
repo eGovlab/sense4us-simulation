@@ -350,7 +350,9 @@ function _refresh() {
 
     // get all the selected objects
     var selected = loadedModel.get('nodeData')
-        .filter(function filterNodesForSelection(node) { return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true; })
+        .filter(function filterNodesForSelection(node) {
+            return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true;
+        })
         .map(function removeUnnecessaryDataFromSelectedNodes(node) {
             return node.merge(
                 Immutable.Map({
