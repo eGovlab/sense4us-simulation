@@ -67,6 +67,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
     if (images.hasOwnProperty(imagePath)) {
         img = images[imagePath];
         if (img.isLoading === true) {
+            img.nodesWaiting.push(map);
             return;
         }
         
@@ -83,17 +84,31 @@ function drawPicture(ctx, imagePath, map, refresh) {
         images[imagePath] = img;
         img.src = imagePath; // Set source path
         img.isLoading = true;
+        img.nodesWaiting = [
+            map
+        ];
         
         img.onload = function() {
             img.isLoading = false;
-            refresh(ctx, imagePath, map, refresh);
+            
+            img.nodesWaiting.forEach(function(_map) {
+                console.log(_map);
+                drawImage(ctx, img, _map);
+                //refresh(ctx, imagePath, _map, refresh);
+            });
+
+            img.nodesWaiting = undefined;
         };
         
         img.onerror = function(error) {
             console.log('the image with path', imagePath, 'doesn\'t seem to exist');
             images[imagePath] = placeholder;
-            
-            refresh(ctx, imagePath, map, refresh);
+            img.nodesWaiting.forEach(function(_map) {
+                drawImage(ctx, placeholder, _map);
+            });
+
+            img.nodesWaiting = undefined;
+            //refresh(ctx, imagePath, map, refresh);
         };
     }
 }
