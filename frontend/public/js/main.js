@@ -7,8 +7,8 @@ var curry       = require('./curry.js'),
     linker      = require('./linker.js'),
     generateId  = require('./generate_id.js');
 
-var mainCanvas      = canvas(document.getElementById('canvas'),    refresh);
-var linegraphCanvas = canvas(document.getElementById('linegraph'), linegraphRefresh);
+var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
+var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);
 
 var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
     drawLinker       = curry(require('./graphics/draw_linker.js'),     mainCanvas.getContext('2d'), linker),
