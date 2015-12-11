@@ -117,7 +117,12 @@ module.exports = {
             loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('saved', true));
             _loadedModel(loadedModel);
 
-            notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+            if(response.response.message) {
+                notificationBar.notify(response.response.message);
+            } else {
+                notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+            }
+
             refresh();
         });
     },
@@ -190,6 +195,7 @@ module.exports = {
                 nextId: highestId + 1,
                 synced: true
             }));
+            console.log();
             var s = newState.get('settings');
             s = s.merge(Immutable.Map(settings));
             newState = newState.set('settings', s);

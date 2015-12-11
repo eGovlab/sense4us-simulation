@@ -92,8 +92,6 @@ function createTimeTableEditor(key, timeTable, callback) {
     var containerDiv = menuBuilder.div();
     containerDiv.className = "time-table";
 
-    console.log(timeTable);
-
     (function addToContainer(key, timeTable, callback) {
         while(containerDiv.firstChild) {
             containerDiv.removeChild(containerDiv.firstChild);
@@ -342,9 +340,10 @@ var namespace = {
         if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
             var coefficient = parseFloat(newSelected.get('coefficient')),
                 timelag     = parseInt(newSelected.get('timelag')),
+                threshold   = parseFloat(newSelected.get('threshold')),
                 type        = newSelected.get('type');
 
-            if (isNaN(coefficient) || isNaN(timelag)) {
+            if (isNaN(coefficient) || isNaN(timelag) || isNaN(threshold)) {
                 console.log('Coefficient:', newSelected.get('coefficient'));
                 console.log('Timelag:',     newSelected.get('timelag'));
                 return;
@@ -365,9 +364,10 @@ var namespace = {
             
             _loadedModel(loadedModel.set('links', loadedModel.get('links').set(newSelected.get('id'),
                 loadedModel.get('links').get(newSelected.get('id')).merge(Immutable.Map({
-                        coefficient: newSelected.get('coefficient'),
-                        timelag:     newSelected.get('timelag'),
-                        type:        newSelected.get('type')
+                        coefficient: coefficient,
+                        timelag:     timelag,
+                        threshold:   threshold,
+                        type:        type
                     })
                 )
             )));

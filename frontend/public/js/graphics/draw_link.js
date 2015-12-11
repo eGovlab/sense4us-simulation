@@ -73,7 +73,7 @@ module.exports = function drawLink(ctx, line) {
     } else if(line.get('loop') === true) {
         ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
     }  else {
-        ctx.strokeStyle = 'rgba(20, 200, 120, 0.6)';
+        ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
     }
 
     ctx.lineWidth = line.get('width') * 1.2;

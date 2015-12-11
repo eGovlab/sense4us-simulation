@@ -7,13 +7,14 @@ module.exports = function createNode(model, data, gui, type) {
     model = model.set('nextId', id + 1);
 
     var nodeData = Immutable.Map({
-        id:             id,
-        value:          0,
-        relativeChange: 0,
-        simulateChange: Immutable.List(),
-        threshold:      0,
-        type:           type || 'intermediate',
-        description:    ''
+        id:              id,
+        value:           0,
+        relativeChange:  0,
+        simulateChange:  Immutable.List(),
+        type:            type || 'intermediate',
+        initialValue:    0,
+        measurementUnit: "",
+        description:     ''
     });
 
     var nodeGui = Immutable.Map({

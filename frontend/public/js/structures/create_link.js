@@ -10,6 +10,7 @@ module.exports = function createLink(id, source, destination) {
         coefficient: 1,
         type:        'fullchannel',
         timelag:     0,
+        threshold:   0,
         width:       8
     });
 };

@@ -369,6 +369,7 @@ function _refresh() {
                     id:          link.get('id'),
                     timelag:     link.get('timelag'),
                     coefficient: link.get('coefficient'),
+                    threshold:   link.get('threshold'),
                     type:        link.get('type'),
                     node1:       link.get('node1'),
                     node2:       link.get('node2')
@@ -461,7 +462,7 @@ function _refresh() {
             break;
         case 'simulate':
             if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag', 'type']);
+                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag', 'type', 'threshold']);
             } else {
                 selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['maxIterations']);
                 //selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
