@@ -72,6 +72,14 @@ module.exports = function drawNode(ctx, map) {
         ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
         ctx.fill();
     }
+
+    if(map.get('linegraph') && map.get('graphColor')) {
+        ctx.strokeStyle = map.get('graphColor');
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(map.get('x'), map.get('y'), map.get('radius') + 8, 0, 360);
+        ctx.stroke();
+    }
     
     if (map.get('icon')) {
         var iconCircle = require('../icon')(map);
@@ -81,6 +89,8 @@ module.exports = function drawNode(ctx, map) {
             drawNode(ctx, map);
         });
     }
+
+    return;
     
     var text = map.get('description');
     if(!text) {

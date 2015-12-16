@@ -11,7 +11,7 @@ var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
 
     element.resetOptions();
     element.addOption('modelling', "Modelling");
-    element.addOption('simulate', "Simulate");
+    element.addOption('simulate',  "Simulate");
 
     element.refreshList();
 };
@@ -50,8 +50,8 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
         loadedModel = changeCallbacks.get('loadedModel');
 
     element.resetOptions();
-    element.addOption('new', 'New Model');
-    element.addOption('save', 'Save Current');
+    element.addOption('new',    'New Model');
+    element.addOption('save',   'Save Current');
     element.addOption('delete', 'Delete Current');
 
     backendApi('/models/all', function(response, error) {
@@ -83,7 +83,7 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
             return;
         }
 
-        var models = response.response.models;
+        var models = response.response;
 
         var local  = sm.get('local'),
             synced = sm.get('synced');

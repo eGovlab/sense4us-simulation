@@ -61,6 +61,17 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     var defaultValue = element.get('defaultValue')(setupModel);
     var ranges = element.get('range')(setupModel);
 
+    var container = menuBuilder.div();
+    container.className = "sidebar-slider";
+
+    var valueSpan = menuBuilder.span();
+    valueSpan.innerHTML = defaultValue;
+    valueSpan.className = "value";
+
+    var maxValueSpan = menuBuilder.span();
+    maxValueSpan.innerHTML = ranges[1];
+    maxValueSpan.className = "max-value";
+
     if(element.get('ajax') === true) {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
             element.get('callback')(parseInt(this.value), changeCallbacks);
@@ -68,11 +79,23 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     } else {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
             var model = changeCallbacks.get('loadedModel')();
+            valueSpan.innerHTML = this.value;
             updateModelCallback(element.get('callback')(parseInt(this.value), model));
+        }, function(value) {
+            valueSpan.innerHTML = this.value;
         });
     }
 
-    return inputElement;
+    container.appendChild(valueSpan);
+    container.appendChild(maxValueSpan);
+
+    var clearer = menuBuilder.div();
+    clearer.style.clear = "right";
+
+    container.appendChild(clearer);
+    container.appendChild(inputElement);
+
+    return container;
 }
 
 var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateModelCallback) {
@@ -87,7 +110,7 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
                     updateModelCallback(
                         element.get('callback')(
                             changeCallbacks.get('loadedModel')(),
-                            Immutable.Map({description: key}), 
+                            Immutable.Map({name: key}), 
                             Immutable.Map({avatar: value})
                         )
                     );
@@ -102,12 +125,14 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
             var buttonElement;
             switch(element.get('type')) {
                 case 'DROPDOWN':
+                    sidebarMenu.appendChild(menuBuilder.label(element.get('header')));
                     buttonElement = createDropdown(element, element.get('select'), refresh, changeCallbacks, updateModelCallback);
                     break;
                 case 'BUTTON':
                     buttonElement = createButton(element, refresh, changeCallbacks, updateModelCallback);
                     break;
                 case 'SLIDER':
+                    sidebarMenu.appendChild(menuBuilder.label(element.get('header')));
                     buttonElement = createSlider(element, changeCallbacks, updateModelCallback);
                     break;
                 default:
@@ -188,9 +213,19 @@ var UIRefresh = function(refresh, changeCallbacks) {
         UIData       = _UIData(),
         that         = this;
 
+    /*
+     * This resets the selected menu to force the refresh to create a new one.
+     * This way there won't be any hiccups after the above loops removing everything.
+     */
+    changeCallbacks.get('selectedMenu')(Immutable.Map({}));
+
     /* The sidebar may only update the model as of right now. */
     sidebarRefresh(UIData, sidebarContainer, refresh, changeCallbacks, function(updatedModel) {
         _loadedModel(updatedModel);
+
+        var _selectedMenu = changeCallbacks.get('selectedMenu');
+        _selectedMenu(Immutable.Map({}).set('element', _selectedMenu().get('element')));
+
         refresh();
     });
 

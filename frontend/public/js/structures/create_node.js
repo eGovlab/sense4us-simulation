@@ -7,19 +7,21 @@ module.exports = function createNode(model, data, gui, type) {
     model = model.set('nextId', id + 1);
 
     var nodeData = Immutable.Map({
-        id:             id,
-        value:          0,
-        relativeChange: 0,
-        simulateChange: 0,
-        type:           type || 'intermediate',
-        description:    ''
+        id:              id,
+        value:           0,
+        relativeChange:  0,
+        simulateChange:  Immutable.List(),
+        type:            type || 'intermediate',
+        initialValue:    0,
+        measurementUnit: "",
+        description:     ''
     });
 
     var nodeGui = Immutable.Map({
         id:     id,
         x:      200,
         y:      100,
-        radius: 75
+        radius: 45
     });
 
     if(data !== undefined) {

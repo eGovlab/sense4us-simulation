@@ -20,7 +20,7 @@ MenuBuilder.prototype = {
         });
     },
 
-    slider: function(defaultValue, min, max, callback) {
+    slider: function(defaultValue, min, max, callback, onSlideCallback) {
         var input = document.createElement('input');
         
         input.type = 'range';
@@ -29,6 +29,16 @@ MenuBuilder.prototype = {
         input.value = defaultValue;
 
         input.addEventListener('change', callback);
+        if(onSlideCallback) {
+            input.addEventListener('input',  onSlideCallback);
+        }
+
+        input.deleteCallbacks = function() {
+            input.removeEventListener('change', callback);
+            if(onSlideCallback) {
+                input.removeEventListener('input',  onSlideCallback);
+            }
+        }
 
         return input;
     },
@@ -89,7 +99,7 @@ MenuBuilder.prototype = {
         MenuBuilder.prototype.addValueCallback(input, callback);
 
         input.setAttribute('value', value);
-        input.name = key;
+        input.name  = key;
         input.value = value;
       
         return input;
@@ -113,6 +123,15 @@ MenuBuilder.prototype = {
         var img = document.createElement('img');
 
         return img;
+    },
+
+    span: function(key) {
+        var span = document.createElement('span');
+        if(key && typeof key === "string") {
+            span.innerHTML = key;
+        }
+
+        return span;
     },
 
     menu: function(text, callback) {

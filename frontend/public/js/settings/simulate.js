@@ -6,7 +6,7 @@ var Immutable       = require('Immutable'),
     notificationBar = require('./../notification_bar');
 
 var simulate = Immutable.List([
-    Immutable.Map( {
+    Immutable.Map({
         header: 'Simulate',
         type:   'BUTTON',
         ajax:   true,
@@ -15,10 +15,13 @@ var simulate = Immutable.List([
                 newState    = loadedModel();
 
             var data = {
-                timestep: newState.get('settings').get('timeStepN'),
-                nodes: breakout.nodes(newState),
-                links: breakout.links(newState)
+                timestep: newState.get('settings').get('maxIterations'),
+                nodes:    breakout.nodes(newState),
+                links:    breakout.links(newState)
             };
+
+            var resetNodes = newState.get('nodeData').map(function(node) { return node.set('simulateChange', Immutable.List()); });
+            newState = newState.set('nodeData', resetNodes);
 
             backendApi('/models/simulate', data, function(response, err) {
                 if(err) {
@@ -28,16 +31,48 @@ var simulate = Immutable.List([
                     return;
                 }
 
-                var nodes = response.response.nodes;
-                nodes.forEach(function(node) {
+                var timeSteps = response.response;
+                timeSteps.forEach(function(timeStep) {
+                    timeStep.forEach(function(node) {
+                        var nodeData = newState.get('nodeData');
+                        var currentNode = nodeData.get(node.id);
+                        currentNode = currentNode.set('simulateChange', currentNode.get('simulateChange').push(node.relativeChange));
+                        nodeData = nodeData.set(node.id, currentNode);
+                        newState = newState.set('nodeData', nodeData);
+                    });
+                });
+
+                /*nodes.forEach(function(node) {
                     var nodeData = newState.get('nodeData');
                     nodeData = nodeData.set(node.id, nodeData.get(node.id).set('simulateChange', node.relativeChange));
                     newState = newState.set('nodeData', nodeData);
-                });
+                });*/
 
                 loadedModel(newState);
                 refresh();
             });
+        }
+    }),
+
+    Immutable.Map({
+        header: 'Linegraph',
+        type:   'BUTTON',
+        ajax:   true,
+        callback: function(refresh, changeCallbacks) {
+            var loadedModel = changeCallbacks.get('loadedModel'),
+                newState    = loadedModel();
+
+            var settings = newState.get('settings');
+            if(!settings.get('linegraph')) {
+                settings = settings.set('linegraph', true);
+            } else {
+                settings = settings.set('linegraph', false);
+            }
+
+            newState = newState.set('settings', settings);
+            loadedModel(newState);
+
+            refresh();
         }
     }),
 
@@ -76,6 +111,11 @@ var simulate = Immutable.List([
 
         range: function(model) {
             return [0, model.get('settings').get('maxIterations')];
+        },
+
+        onSlide: function(value, model) {
+            model = model.set('settings', model.get('settings').set('timeStepN', value));
+            return model;
         },
 
         callback: function(value, model) {

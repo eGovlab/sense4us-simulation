@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(ctx, linker, node) {
+module.exports = function drawLinker(ctx, linker, node) {
 	ctx.shadowOffsetX = 0;
 	ctx.shadowOffsetY = 0;
 	ctx.shadowBlur = 10;

@@ -3,7 +3,7 @@
 var menuBuilder = require('../menu_builder'),
     valueColors = require('./value_colors.js');
 
-module.exports = function drawNode(ctx, map) {
+module.exports = function drawTimeTable(ctx, map) {
     var data = map.get('timeTable');
 
     var size   = 24,
@@ -11,12 +11,14 @@ module.exports = function drawNode(ctx, map) {
 
         longestTimeStep = 0,
         longestSymbol   = 0,
+        longestValue    = 0,
         longestString   = 0,
         rowStrings      = [];
 
     ctx.font = size + 'px Arial';
 
     data.forEach(function getRowLength(value, timeStep) {
+        value = Math.round(value * 100) / 100;
         var symbol = " ";
         if(value > 0) {
             symbol = "+";
@@ -27,7 +29,7 @@ module.exports = function drawNode(ctx, map) {
         var rowString      = "T" + timeStep + ", " + symbol + " " + Math.abs(value) + "%",
             timeStepLength = ctx.measureText("T" + timeStep + ", ").width,
             symbolLength   = ctx.measureText(symbol + " ").width,
-            stringLength   = ctx.measureText(rowString).width;
+            valueLength    = ctx.measureText(Math.abs(value) + "%").width;
 
         if(timeStepLength > longestTimeStep) {
             longestTimeStep = timeStepLength;
@@ -37,8 +39,8 @@ module.exports = function drawNode(ctx, map) {
             longestSymbol = symbolLength;
         }
 
-        if(stringLength > longestString) {
-            longestString = stringLength;
+        if(valueLength > longestValue) {
+            longestValue = valueLength;
         }
 
         rowStrings.push({
@@ -48,9 +50,9 @@ module.exports = function drawNode(ctx, map) {
         });
     });
 
-    var startX  = map.get('x') - map.get('radius') - longestString - 8,
-        symbolX = startX  + longestTimeStep,
-        valueX  = symbolX + longestSymbol;
+    var valueX   = map.get('x') - map.get('radius') - longestValue - 8,
+        symbolX  = valueX - longestSymbol,
+        startX   = symbolX - longestTimeStep;
 
     rowStrings.forEach(function drawTableRow(stringInformation, index) {
         var stepString   = "T"+stringInformation.step+", ",

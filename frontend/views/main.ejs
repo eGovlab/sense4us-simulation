@@ -1,49 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        Sense4us Simulator
-    </title>
-    <link rel="stylesheet" href="/css/animations.css" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/shorthands.css" />
-    <link rel="stylesheet" href="/css/z-index.css" />
-    <link rel="stylesheet" href="/css/upper_menu.css" />
-    <link rel="stylesheet" href="/css/sidebar.css" />
-    <link rel="stylesheet" href="/css/dropdown.css" />
-    <link rel="stylesheet" href="/css/notification_bar.css" />
-    <link rel="stylesheet" href="/css/keyword_container.css" />
-    <link rel="stylesheet" href="/css/save.css" />
-    <link rel="stylesheet" href="/css/origin_table.css" />
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h3 id="policy-issue">Replace with current policy issue?</h3>
-            <!-- <input type="button" value="Button" />
-            <input type="button" value="Button" />
-            <input type="button" value="Button" />
-            <input type="button" value="Button" />
-            <input type="button" value="Button" /> -->
-        </div>
+<% layout("layout") %>
 
-        <div class="menu-header">
-            <div id="upper-menu"></div>
-        </div>
-        
-        <div class="left sidebar">
-            <div id="sidebar"></div>
-        </div>
+<div class="header">
+    <h3 id="policy-issue">Replace with current policy issue?</h3>
+    <!-- <input type="button" value="Button" />
+    <input type="button" value="Button" />
+    <input type="button" value="Button" />
+    <input type="button" value="Button" />
+    <input type="button" value="Button" /> -->
+</div>
 
-        <div class="left main">
-            <div id="notification-bar"></div>
-            <canvas id="canvas"></canvas>
-        </div>
-        <div class="right">
-            <div id="keyword-container"></div>
-        </div>
-        <div class="clear"></div>
-    </div>
-    <script src="/js/bundle.js"></script>
-</body>
-</html>
+<div class="menu-header">
+    <div id="upper-menu"></div>
+</div>
+
+<div class="sidebar">
+    <div id="sidebar"></div>
+</div>
+
+<div class="left main">
+    <div id="notification-bar"></div>
+    <canvas id="canvas"></canvas>
+    <canvas id="linegraph"></canvas>
+</div>
+<div class="right">
+    <div id="keyword-container"></div>
+</div>
+<div class="clear"></div>
+<script src="/js/bundle.js"></script>

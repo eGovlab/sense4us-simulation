@@ -19,8 +19,7 @@
     "watchify": "latest",
     "rh_config-parser": "latest",
     "rh_cookie-cutter": "latest",
-    "rh_fe": "latest",
-    "rh_fe-controller": "latest",
+    "rh_controller-layer": "latest",
     "rh_logger": "latest",
     "rh_router": "latest"
   },

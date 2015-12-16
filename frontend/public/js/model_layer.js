@@ -80,6 +80,13 @@ module.exports = {
 
                 timeStepT:     "Week",
                 timeStepN:     0
+            }),
+            treeSettings: Immutable.Map({
+                x:      400,
+                y:      20,
+                width:  200,
+                height: 0,
+                scroll: 0
             })
         });
 
@@ -110,7 +117,12 @@ module.exports = {
             loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('saved', true));
             _loadedModel(loadedModel);
 
-            notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+            if(response.response.message) {
+                notificationBar.notify(response.response.message);
+            } else {
+                notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+            }
+
             refresh();
         });
     },
@@ -121,7 +133,7 @@ module.exports = {
             that        = this;
 
         if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
-            backendApi('/models/' + loadedModel.get('syncId'), {}, function(response, err) {
+            backendApi('/models/bundle/' + loadedModel.get('syncId'), {}, function(response, err) {
                 if(err) {
                     console.log(response);
                     console.log(err);
@@ -152,7 +164,7 @@ module.exports = {
     
     loadSyncModel: function(modelId, callback) {
         var that = this;
-        backendApi('/models/' + modelId, function(response, error) {
+        backendApi('/models/bundle/' + modelId, function(response, error) {
             if (error) {
                 console.log(response);
                 console.log(error);
@@ -169,16 +181,12 @@ module.exports = {
                 if(n.id > highestId) {
                     highestId = n.id;
                 }
-
-                //nextId += 1;
             });
 
             links.forEach(function(l) {
                 if(l.id > highestId) {
                     highestId = l.id;
                 }
-
-                //nextId += 1;
             });
 
             var newState = that.newModel();
@@ -187,20 +195,29 @@ module.exports = {
                 nextId: highestId + 1,
                 synced: true
             }));
+            console.log();
             var s = newState.get('settings');
             s = s.merge(Immutable.Map(settings));
             newState = newState.set('settings', s);
 
             nodes.forEach(function(node) {
-                var nd = newState.get('nodeData').set(node.id, Immutable.Map({
+                var newNode = Immutable.Map({
                     id:             node.id,
                     value:          node.starting_value,
-                    relativeChange: node.change_value || 0,
-                    simulateChange: 0,
-                    timeTable:      node.timeTable ? Immutable.Map(node.timeTable) : undefined,
+                    relativeChange: node.change_value   || 0,
+                    simulateChange: Immutable.List(),
+                    threshold:      node.threshold      || 0,
                     type:           node.type,
-                    description:    node.description || undefined
-                }));
+                    name:           node.name           || undefined,
+                    description:    node.description    || undefined
+                });
+
+                if(node.timeTable) {
+                    newNode = newNode.set('timeTable', Immutable.Map(node.timeTable));
+                }
+
+                var nd = newState.get('nodeData').set(node.id, newNode);
+
                 newState = newState.set('nodeData', nd);
 
                 var ng = newState.get('nodeGui').set(node.id, Immutable.Map({
@@ -218,25 +235,25 @@ module.exports = {
             links.forEach(function(link) {
                 var l = newState.get('links').set(link.id, Immutable.Map({
                     id:          link.id,
-                    node1:       link.from_node,
-                    node2:       link.to_node,
+                    node1:       link.upstream,
+                    node2:       link.downstream,
                     coefficient: link.threshold,
                     type:        link.type,
                     timelag:     link.timelag,
-                    width:       14
+                    width:       8
                 }));
 
                 newState = newState.set('links', l);
 
-                var ng1 = newState.get('nodeGui').get(link.from_node);
+                var ng1 = newState.get('nodeGui').get(link.upstream);
                 ng1 = ng1.set('links', ng1.get('links').push(link.id));
 
-                var ng2 = newState.get('nodeGui').get(link.to_node);
+                var ng2 = newState.get('nodeGui').get(link.downstream);
                 ng2 = ng2.set('links', ng2.get('links').push(link.id));
 
                 var ng = newState.get('nodeGui');
-                ng = ng.set(link.from_node, ng1);
-                ng = ng.set(link.to_node, ng2);
+                ng = ng.set(link.upstream, ng1);
+                ng = ng.set(link.downstream, ng2);
 
                 newState = newState.set('nodeGui', ng);
             });

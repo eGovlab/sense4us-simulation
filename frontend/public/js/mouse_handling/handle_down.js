@@ -13,6 +13,14 @@ var mouseDownWare = middleware([
     clickAndMove
 ]);
 
+function generateHexColor() {
+    return Math.round(Math.random() * 255).toString(16);
+}
+
+function generateColor() {
+    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+}
+
 function clickAndMove(data, error, done, env) {
     var previouslyClickedNodes = data.nodeGui.filter(function(node) {
         return node.get('clicked');
@@ -49,12 +57,16 @@ function clickAndMove(data, error, done, env) {
         filter(function(node) { return hitTest(node, data.pos); }).
         slice(-1).
         map(function(node) {
-            return node.concat({
-                offsetX:  data.pos.get('x') - (node.get('x') || 0),
-                offsetY:  data.pos.get('y') - (node.get('y') || 0),
-                clicked:  true
+            node = node.concat({
+                offsetX:   data.pos.get('x') - (node.get('x') || 0),
+                offsetY:   data.pos.get('y') - (node.get('y') || 0),
+                clicked:   true,
+                linegraph: data.linegraph ? !node.get('linegraph') : false,
+                graphColor: generateColor()
                 //selected: true
             });
+
+            return node;
          });
     data.nodeGui = data.nodeGui.merge(collidedNodes);
 
