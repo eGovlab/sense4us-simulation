@@ -3,8 +3,7 @@
 /*
 ** Dependencies
 */
-var Model           = require('./model.js'),
-    backendApi      = require('./api/backend_api.js'),
+var backendApi      = require('./api/backend_api.js'),
     Immutable       = require('Immutable'),
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
@@ -62,16 +61,16 @@ var generateId = 0;
 module.exports = {
     newModel: function(id) {
         var map = Immutable.Map({
-            id:       id || generateId,
-            saved:    false,
-            synced:   false,
-            syncId:   null,
+            id:        id || generateId,
+            saved:     false,
+            synced:    false,
+            syncId:    null,
 
-            nextId:   0,
-            nodeData: Immutable.Map({}),
-            nodeGui:  Immutable.Map({}),
-            links:    Immutable.Map({}),
-            settings: Immutable.Map({
+            nextId:    0,
+            nodeData:  Immutable.Map({}),
+            nodeGui:   Immutable.Map({}),
+            links:     Immutable.Map({}),
+            settings:  Immutable.Map({
                 name:          "New Model",
                 maxIterations: 4,
                 offsetX:       0,
@@ -87,7 +86,9 @@ module.exports = {
                 width:  200,
                 height: 0,
                 scroll: 0
-            })
+            }),
+            loadedScenario: 0,
+            scenarios:      Immutable.List([]),
         });
 
         generateId += 1;

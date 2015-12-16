@@ -67,9 +67,10 @@ var selectedMenu = Immutable.Map({}),
 
 var settings = require('./settings');
 var UIData = Immutable.Map({
-    sidebar:      settings.sidebar,
-    menu:         settings.menu,
-    selectedMenu: Immutable.List()
+    sidebar:         settings.sidebar,
+    menu:            settings.menu,
+    selectedMenu:    Immutable.List(),
+    floatingWindows: Immutable.List()
 });
 
 /*textStrings = textStrings.set('unsorted', textStrings.get('unsorted').merge(Immutable.List([

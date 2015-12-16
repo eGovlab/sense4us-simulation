@@ -1,0 +1,79 @@
+.floating-window {
+    position: absolute;
+    background-color: rgba(43, 56, 70, 1);
+    padding: 4px;
+
+    overflow: auto;
+}
+
+.floating-window .title {
+    width: 100%;
+    background-color: rgba(60, 85, 120, 1);
+}
+
+.floating-window .clear {
+    clear: both;
+}
+
+.floating-window .kill-button {
+    background-color: #A26;
+    width: 20px;
+    height: 20px;
+    float: right;
+
+    cursor: pointer;
+}
+
+.scenario-editor {
+}
+
+.scenario-table {
+
+}
+
+.scenario-table .node {
+    width: 196px;
+    display: inline-block;
+}
+
+.scenario-table .node:nth-child(3n+1) {
+    float: left;
+}
+
+.scenario-table .node:nth-child(3n+2) {
+    float: right;
+}
+
+.scenario-table .node-header {
+    color: #fafafa;
+}
+
+.node .step-container {
+
+}
+
+.step-container .step {
+    display: inline-block;
+    color: #fafafa;
+    width: 30%;
+}
+
+.step-container .step label,
+.step-container .value label {
+    display: inline-block;
+    margin: 0px 4px;
+}
+
+.step-container .step input {
+    width: 60%;
+}
+
+.step-container .value {
+    display: inline-block;
+    color: #fafafa;
+    width: 60%;
+}
+
+.step-container .value input {
+    width: 80%;
+}
