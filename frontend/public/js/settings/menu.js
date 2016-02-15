@@ -20,8 +20,8 @@ var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
 var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
     var option = this.value;
 
-    var UIData      = changeCallbacks.get('UIData'),
-        environment = changeCallbacks.get('environment'),
+    var UIData      = changeCallbacks.UIData,
+        environment = changeCallbacks.environment,
         ui          = UIData();
 
     this.parent.toggle();
@@ -47,8 +47,8 @@ var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
 var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
     var element = this;
 
-    var savedModels = changeCallbacks.get('savedModels'),
-        loadedModel = changeCallbacks.get('loadedModel');
+    var savedModels = changeCallbacks.savedModels,
+        loadedModel = changeCallbacks.loadedModel;
 
     element.resetOptions();
     element.addOption('new',    'New Model');
@@ -57,26 +57,26 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
 
     backendApi('/models/all', function(response, error) {
         var sm = savedModels();
-        sm.get('local').forEach(function(model) {
-            if(model.get('synced') === true) {
+        sm.local.forEach(function(model) {
+            if(model.synced === true) {
                 return;
             }
 
             var savedString = "";
-            if(model.get('saved') === false) {
+            if(model.saved === false) {
                 savedString = " * ";
             }
 
-            element.addOption(model.get('id'), '[' + model.get('id') + ']' +savedString + model.get('settings').get('name'));
+            element.addOption(model.id, '[' + model.id + ']' +savedString + model.settings.name);
         });
 
-        sm.get('synced').forEach(function(model) {
+        sm.synced.forEach(function(model) {
             var savedString = "";
-            if(model.get('saved') === false) {
+            if(model.saved === false) {
                 savedString = " * ";
             }
 
-            element.addOption(model.get('syncId'), savedString + model.get('settings').get('name'));
+            element.addOption(model.syncId, savedString + model.settings.name);
         });
 
         if(error) {
@@ -86,8 +86,8 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
 
         var models = response.response;
 
-        var local  = sm.get('local'),
-            synced = sm.get('synced');
+        var local  = sm.local,
+            synced = sm.synced;
 
         models.forEach(function(model) {
             element.addOption(model.id, model.name);
@@ -99,18 +99,18 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
 
 var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
     var option      = this.value,
-        savedModels = changeCallbacks.get('savedModels'),
-        loadedModel = changeCallbacks.get('loadedModel'),
+        savedModels = changeCallbacks.savedModels,
+        loadedModel = changeCallbacks.loadedModel,
         s           = savedModels(),
         text        = this.text.match(/^(\[\w+\])?(\s\*\s)?(.*)$/)[3],
         loaded      = loadedModel(),
         that        = this;
 
-    if(loaded.get('synced') === true) {
-        s = s.set('synced', s.get('synced').set(loaded.get('syncId'), loaded));
+    if(loaded.synced === true) {
+        s = s.set('synced', s.synced.set(loaded.syncId, loaded));
         savedModels(s)
     } else {
-        s = s.set('local', s.get('local').set(loaded.get('id'), loaded));
+        s = s.set('local', s.local.set(loaded.id, loaded));
         savedModels(s)
     }
 
@@ -121,7 +121,7 @@ var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
             var m = modelLayer.newModel(),
                 s = savedModels();
 
-            s = s.set('local', s.get('local').set(m.get('id'), m));
+            s = s.set('local', s.local.set(m.id, m));
 
             savedModels(s);
             loadedModel(m);
@@ -145,20 +145,20 @@ var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
         case undefined:
             break;
         default:
-            if(s.get('local').get(option) === undefined || s.get('local').get(option).get('settings').get('name') !== text) {
-                if(s.get('synced').get(option) === undefined) {
+            if(s.local.get(option) === undefined || s.local.get(option).settings.name !== text) {
+                if(s.synced.get(option) === undefined) {
                     modelLayer.loadSyncModel(option, function(newState) {
-                        s = s.set('synced', s.get('synced').set(option, newState));
+                        s = s.set('synced', s.synced.set(option, newState));
                         savedModels(s);
                         loadedModel(newState);
                         refresh();
                     });
                 } else {
-                    loadedModel(s.get('synced').get(option));
+                    loadedModel(s.synced.get(option));
                     refresh();
                 }
             } else {
-                loadedModel(s.get('local').get(option));
+                loadedModel(s.local.get(option));
                 refresh();
             }
     }

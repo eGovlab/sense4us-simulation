@@ -224,9 +224,9 @@ informationTree.addStrings(informationTreeContainer, textStrings.get('unsorted')
 ** Object to give buttons a callback to relate and influence the current state.
 ** This is used within the UIRefresh() context below.
 */
-var changeCallbacks = Immutable.Map({
+var changeCallbacks = {
     loadedModel: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+        if(arg === undefined || typeof arg !== "object") {
             return loadedModel;
         }
 
@@ -234,7 +234,7 @@ var changeCallbacks = Immutable.Map({
     },
 
     selectedMenu: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+        if(arg === undefined || typeof arg !== "object") {
             return selectedMenu;
         }
 
@@ -250,7 +250,7 @@ var changeCallbacks = Immutable.Map({
     },
 
     savedModels: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+        if(arg === undefined || typeof arg !== "object") {
             return savedModels;
         }
 
@@ -258,13 +258,13 @@ var changeCallbacks = Immutable.Map({
     },
 
     UIData: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
+        if(arg === undefined || typeof arg !== "object") {
             return UIData;
         }
 
         return UIData = arg;
     }
-});
+};
 
 UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
 
@@ -556,17 +556,17 @@ function _linegraphRefresh() {
         linegraphCanvas.height
     );
 
-    var selectedNodes = loadedModel.get('nodeGui').filter(function(node) {
-        return node.get('linegraph');
+    var selectedNodes = loadedModel.nodeGui.filter(function(node) {
+        return node.linegraph;
     });
 
-    var nodeData = loadedModel.get('nodeData');
+    var nodeData = loadedModel.nodeData;
     var lineValues = selectedNodes.map(function(nodegui) {
-        var node = nodeData.get(nodegui.get('id'));
+        var node = nodeData.get(nodegui.id);
         return {
-            name:   node.get('name'),
-            values: node.get('simulateChange'),
-            color:  nodegui.get('graphColor')
+            name:   node.name,
+            values: node.simulateChange,
+            color:  nodegui.graphColor
         }
     });
 

@@ -10,13 +10,13 @@ function createButtons(list, map, updateModelCallback) {
     containerDiv.className = 'menu';
 
     list.forEach(function(button) {
-        if(map.get('maxIterations') !== undefined && button.get('ignoreModelSettings') === true) {
+        if(map.maxIterations !== undefined && button.ignoreModelSettings === true) {
             return;
         }
 
-        if(button.get('replacingObj')) {
-            containerDiv.appendChild(menuBuilder.button(button.get('header'), function() {
-                updateModelCallback(null, null, button.get('callback')(map));
+        if(button.replacingObj) {
+            containerDiv.appendChild(menuBuilder.button(button.header, function() {
+                updateModelCallback(null, null, button.callback(map));
             }));
         } else {
             /* No buttons are not replacing obj right now. There is one button. */
@@ -219,11 +219,11 @@ function generateDropdown(key, options, defaultValue, callback) {
 }
 
 function createMenu(map, onChangeCallback, includedAttributes) {
-    var menu = Immutable.Map({
+    var menu = {
         element: menuBuilder.div()
-    });
+    };
 
-    var element = menu.get('element');
+    var element = menu.element;
 
     element.className = 'menu';
     element.appendChild(createButtons(buttons, map, onChangeCallback));
@@ -241,7 +241,7 @@ function createMenu(map, onChangeCallback, includedAttributes) {
 
         if (key === 'timeTable') {
             appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
-        } else if(map.get('coefficient') !== undefined && key === 'type') {
+        } else if(map.coefficient !== undefined && key === 'type') {
             appendToEnd.push(generateDropdown(key, ['fullchannel', 'halfchannel'], value, onChangeCallback));
         } else {
             appendToEnd.push(generateInput(key, value, onChangeCallback));
@@ -256,7 +256,7 @@ function createMenu(map, onChangeCallback, includedAttributes) {
 }
 
 function updateMenu(menu, map) {
-    var menuElement = menu.get('element');
+    var menuElement = menu.element;
     map.forEach(function(value, key) {
         var elements = menuElement.querySelectorAll('[name="' + key + '"]');
         var element = elements[0];
@@ -279,7 +279,7 @@ var namespace = {
         if (map === null || map === undefined) {
             if (menu !== null) {
                 try {
-                    container.removeChild(menu.get('element'));
+                    container.removeChild(menu.element);
                 } catch(e) {
                     /* Node not found. Removed by other means? */
                 }
@@ -292,37 +292,37 @@ var namespace = {
             if(replacedObj) {
                 menu = menu.set('map_obj', replacedObj);
             } else {
-                menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
+                menu = menu.set('map_obj', menu.map_obj.set(key, value));
             }
 
-            changeCallback(menu.get('map_obj'));
+            changeCallback(menu.map_obj);
         };
 
-        if (menu === null || menu.get('element') === undefined) {
+        if (menu === null || menu.element === undefined) {
             menu = createMenu(map, updateMenuMapObj, includedAttributes);
-            menu = menu.set('map_obj', map);
+            menu.map_obj = map;
 
-            container.appendChild(menu.get('element'));
+            container.appendChild(menu.element);
 
             return menu;
-        } else if (menu.get('map_obj') !== map) {
-            if (menu.get('map_obj') && menu.get('map_obj').get('id') === map.get('id')) {
+        } else if (menu.map_obj !== map) {
+            if (menu.map_obj && menu.map_obj.id === map.id) {
                 // update menu
                 menu = updateMenu(menu, map);
-                //container.appendChild(menu.get('element'));
-                menu = menu.set('map_obj', map);
+                //container.appendChild(menu.element);
+                menu.map_obj = map;
             } else {
                 // remake menu
                 try {
-                    container.removeChild(menu.get('element'));
+                    container.removeChild(menu.element);
                 } catch(err) {
                     /* Node not found -- continuing. */
                 }
         
                 menu = createMenu(map, updateMenuMapObj, includedAttributes);
                 
-                container.appendChild(menu.get('element'));
-                menu = menu.set('map_obj', map);
+                container.appendChild(menu.element);
+                menu.map_obj = map;
         
                 return menu;
             }
@@ -332,28 +332,28 @@ var namespace = {
     },
 
     updateSelected: function(refresh, UIRefresh, changeCallbacks, newSelected) {
-        var _loadedModel = changeCallbacks.get('loadedModel'),
+        var _loadedModel = changeCallbacks.loadedModel,
             loadedModel  = _loadedModel(),
-            _savedModels = changeCallbacks.get('savedModels'),
+            _savedModels = changeCallbacks.savedModels,
             savedModels  = _savedModels();
 
-        if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
-            var coefficient = parseFloat(newSelected.get('coefficient')),
-                timelag     = parseInt(newSelected.get('timelag')),
-                threshold   = parseFloat(newSelected.get('threshold')),
-                type        = newSelected.get('type');
+        if (newSelected.timelag !== undefined && newSelected.coefficient !== undefined) {
+            var coefficient = parseFloat(newSelected.coefficient),
+                timelag     = parseInt(newSelected.timelag),
+                threshold   = parseFloat(newSelected.threshold),
+                type        = newSelected.type;
 
             if (isNaN(coefficient) || isNaN(timelag) || isNaN(threshold)) {
-                console.log('Coefficient:', newSelected.get('coefficient'));
-                console.log('Timelag:',     newSelected.get('timelag'));
+                console.log('Coefficient:', newSelected.coefficient);
+                console.log('Timelag:',     newSelected.timelag);
                 return;
             }
 
-            if(newSelected.get('delete') === true) {
+            if(newSelected.delete === true) {
                 console.log("Deleting!");
-                var links = loadedModel.get('links');
+                var links = loadedModel.links;
 
-                links = links.delete(newSelected.get('id'));
+                links = links.delete(newSelected.id);
                 loadedModel = loadedModel.set('links', links);
 
                 _loadedModel(loadedModel);
@@ -362,8 +362,8 @@ var namespace = {
                 return;
             }
             
-            _loadedModel(loadedModel.set('links', loadedModel.get('links').set(newSelected.get('id'),
-                loadedModel.get('links').get(newSelected.get('id')).merge(Immutable.Map({
+            _loadedModel(loadedModel.set('links', loadedModel.links.set(newSelected.id,
+                loadedModel.links.get(newSelected.id).merge(Immutable.Map({
                         coefficient: coefficient,
                         timelag:     timelag,
                         threshold:   threshold,
@@ -371,25 +371,25 @@ var namespace = {
                     })
                 )
             )));
-        } else if (newSelected.get('offsetY') !== undefined || newSelected.get('offsetX') !== undefined) {
+        } else if (newSelected.offsetY !== undefined || newSelected.offsetX !== undefined) {
             _loadedModel(loadedModel.set('settings', newSelected));
         } else {
-            var nodeData = loadedModel.get('nodeData'),
-                nodeGui  = loadedModel.get('nodeGui'),
+            var nodeData = loadedModel.nodeData,
+                nodeGui  = loadedModel.nodeGui,
                 node     = null;
 
-            if(newSelected.get('delete') === true) {
-                node      = nodeGui.get(newSelected.get('id'));
-                var links = loadedModel.get('links');
+            if(newSelected.delete === true) {
+                node      = nodeGui.get(newSelected.id);
+                var links = loadedModel.links;
 
-                if(node.get('links') !== undefined){
-                    node.get('links').forEach(function(link) {
+                if(node.links !== undefined){
+                    node.links.forEach(function(link) {
                         links = links.delete(link);
                     });
                 }
 
-                nodeData = nodeData.delete(newSelected.get('id'));
-                nodeGui  = nodeGui.delete(newSelected.get('id'));
+                nodeData = nodeData.delete(newSelected.id);
+                nodeGui  = nodeGui.delete(newSelected.id);
 
                 loadedModel = loadedModel.set('nodeData', nodeData);
                 loadedModel = loadedModel.set('nodeGui', nodeGui);
@@ -402,45 +402,45 @@ var namespace = {
                 return;
             }
 
-            node = nodeData.get(newSelected.get('id'));
+            node = nodeData.get(newSelected.id);
             node = node.merge(newSelected);
             /*node = node.merge(Immutable.Map({
-                id:             newSelected.get('id'),
-                value:          newSelected.get('value'),
-                relativeChange: newSelected.get('relativeChange'),
-                description:    newSelected.get('description'),
-                type:           newSelected.get('type'),
-                timeTable:      newSelected.get('timeTable')
+                id:             newSelected.id,
+                value:          newSelected.value,
+                relativeChange: newSelected.relativeChange,
+                description:    newSelected.description,
+                type:           newSelected.type,
+                timeTable:      newSelected.timeTable
             }));*/
 
-            nodeData = nodeData.set(node.get('id'), node);
+            nodeData = nodeData.set(node.id, node);
             loadedModel = loadedModel.set('nodeData', nodeData);
 
-            node = nodeGui.get(newSelected.get('id'));
+            node = nodeGui.get(newSelected.id);
             node = node.merge(Immutable.Map({
-                radius: parseFloat(newSelected.get('radius')),
-                avatar: newSelected.get('avatar'),
-                icon:   newSelected.get('icon')
+                radius: parseFloat(newSelected.radius),
+                avatar: newSelected.avatar,
+                icon:   newSelected.icon
             }));
 
-            nodeGui = nodeGui.set(node.get('id'), node);
+            nodeGui = nodeGui.set(node.id, node);
             loadedModel = loadedModel.set('nodeGui', nodeGui);
 
             _loadedModel(loadedModel);
         }
 
-        if(savedModels.get('synced').get(loadedModel.get('id')) !== undefined) {
+        if(savedModels.synced.get(loadedModel.id) !== undefined) {
             _savedModels(savedModels.set('synced',
-                savedModels.get('synced').set(loadedModel.get('id'),
-                    loadedModel.set('settings', loadedModel.get('settings').set('saved',
+                savedModels.synced.set(loadedModel.id,
+                    loadedModel.set('settings', loadedModel.settings.set('saved',
                         false)
                     )
                 )
             ));
         } else {
             _savedModels(savedModels.set('local',
-                savedModels.get('local').set(loadedModel.get('id'),
-                    loadedModel.set('settings', loadedModel.get('settings').set('saved',
+                savedModels.local.set(loadedModel.id,
+                    loadedModel.set('settings', loadedModel.settings.set('saved',
                         false)
                     )
                 )

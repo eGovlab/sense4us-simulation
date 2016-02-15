@@ -17,9 +17,9 @@ var CONFIG       = require('rh_config-parser'),
 
 function createDropdown(element, select, refresh, changeCallbacks, updateModelCallback) {
     var dropdownElement = document.createElement('select');
-    var values = element.get('values');
+    var values = element.values;
 
-    var selected = select(changeCallbacks.get('loadedModel')(), element.get('values'));
+    var selected = select(changeCallbacks.loadedModel(), element.values);
 
     values.forEach(function(value, index) {
         var option = document.createElement('option');
@@ -34,7 +34,7 @@ function createDropdown(element, select, refresh, changeCallbacks, updateModelCa
     });
 
     dropdownElement.addEventListener('change', function(e) {
-        updateModelCallback(element.get('callback')(changeCallbacks.get('loadedModel')(), null, dropdownElement.value));
+        updateModelCallback(element.callback(changeCallbacks.loadedModel(), null, dropdownElement.value));
     });
 
     return dropdownElement;
@@ -42,13 +42,13 @@ function createDropdown(element, select, refresh, changeCallbacks, updateModelCa
 
 function createButton(element, refresh, changeCallbacks, updateModelCallback) {
     var buttonElement;
-    if(element.get('ajax') === true) {
-        buttonElement = menuBuilder.button(element.get('header'), function() {
-            element.get('callback')(refresh, changeCallbacks);
+    if(element.ajax === true) {
+        buttonElement = menuBuilder.button(element.header, function() {
+            element.callback(refresh, changeCallbacks);
         });
     } else {
-        buttonElement = menuBuilder.button(element.get('header'), function() {
-            updateModelCallback(element.get('callback')(changeCallbacks.get('loadedModel')()));
+        buttonElement = menuBuilder.button(element.header, function() {
+            updateModelCallback(element.callback(changeCallbacks.loadedModel()));
         });
     }
 
@@ -57,9 +57,9 @@ function createButton(element, refresh, changeCallbacks, updateModelCallback) {
 
 function createSlider(element, changeCallbacks, updateModelCallback) {
     var inputElement;
-    var setupModel = changeCallbacks.get('loadedModel')();
-    var defaultValue = element.get('defaultValue')(setupModel);
-    var ranges = element.get('range')(setupModel);
+    var setupModel = changeCallbacks.loadedModel();
+    var defaultValue = element.defaultValue(setupModel);
+    var ranges = element.range(setupModel);
 
     var container = menuBuilder.div();
     container.className = "sidebar-slider";
@@ -72,15 +72,15 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     maxValueSpan.innerHTML = ranges[1];
     maxValueSpan.className = "max-value";
 
-    if(element.get('ajax') === true) {
+    if(element.ajax === true) {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
-            element.get('callback')(parseInt(this.value), changeCallbacks);
+            element.callback(parseInt(this.value), changeCallbacks);
         });
     } else {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
-            var model = changeCallbacks.get('loadedModel')();
+            var model = changeCallbacks.loadedModel();
             valueSpan.innerHTML = this.value;
-            updateModelCallback(element.get('callback')(parseInt(this.value), model));
+            updateModelCallback(element.callback(parseInt(this.value), model));
         }, function(value) {
             valueSpan.innerHTML = this.value;
         });
@@ -104,35 +104,35 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
     container.appendChild(sidebarMenu);
 
     UIData.sidebar.forEach(function(element) {
-        if (element.get('images')) {
+        if (element.images) {
             (function() {
                 var avatarsElement = selectedMenu.createAvatarButtons('avatar', null, function(key, value) {
                     updateModelCallback(
-                        element.get('callback')(
-                            changeCallbacks.get('loadedModel')(),
+                        element.callback(
+                            changeCallbacks.loadedModel(),
                             Immutable.Map({name: key}), 
                             Immutable.Map({avatar: value})
                         )
                     );
-                }, element.get('images'));
+                }, element.images);
                 
-                var labelElement = menuBuilder.label(element.get('header'));
+                var labelElement = menuBuilder.label(element.header);
 
                 sidebarMenu.appendChild(labelElement);
                 sidebarMenu.appendChild(avatarsElement);
             }());
-        } else if (element.get('header') !== undefined && element.get('callback') !== undefined) {
+        } else if (element.header !== undefined && element.callback !== undefined) {
             var buttonElement;
-            switch(element.get('type')) {
+            switch(element.type) {
                 case 'DROPDOWN':
-                    sidebarMenu.appendChild(menuBuilder.label(element.get('header')));
-                    buttonElement = createDropdown(element, element.get('select'), refresh, changeCallbacks, updateModelCallback);
+                    sidebarMenu.appendChild(menuBuilder.label(element.header));
+                    buttonElement = createDropdown(element, element.select, refresh, changeCallbacks, updateModelCallback);
                     break;
                 case 'BUTTON':
                     buttonElement = createButton(element, refresh, changeCallbacks, updateModelCallback);
                     break;
                 case 'SLIDER':
-                    sidebarMenu.appendChild(menuBuilder.label(element.get('header')));
+                    sidebarMenu.appendChild(menuBuilder.label(element.header));
                     buttonElement = createSlider(element, changeCallbacks, updateModelCallback);
                     break;
                 default:
@@ -141,7 +141,7 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
 
             sidebarMenu.appendChild(buttonElement);
         } else {
-            var labelElement = menuBuilder.label(element.get('header'));
+            var labelElement = menuBuilder.label(element.header);
             sidebarMenu.appendChild(labelElement);
         }
     });
@@ -155,11 +155,11 @@ var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallback
     UIData.menu.forEach(function(menu) {
         var button = null;
 
-        if(menu.get('callback') !== undefined && menu.get('update') !== undefined) {
+        if(menu.callback !== undefined && menu.update !== undefined) {
             var dd = menuBuilder.dropdown(
-                menu.get('header'),
+                menu.header,
                 function onClick() {
-                    menu.get('callback').call(
+                    menu.callback.call(
                         this,
                         refresh,
                         function() {
@@ -170,7 +170,7 @@ var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallback
                 },
                 
                 function update() {
-                    menu.get('update').call(
+                    menu.update.call(
                         this,
                         refresh,
                         function() {
@@ -182,9 +182,9 @@ var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallback
             );
 
             button = dd;
-        } else if (menu.get('callback') !== undefined) {
-            button = menuBuilder.button(menu.get('header'), function() {
-                updateModelCallback(menu.get('callback')(UIData));
+        } else if (menu.callback !== undefined) {
+            button = menuBuilder.button(menu.header, function() {
+                updateModelCallback(menu.callback(UIData));
             });
         }
 
@@ -208,8 +208,8 @@ var UIRefresh = function(refresh, changeCallbacks) {
         menuContainer.removeChild(menuContainer.firstChild);
     }
 
-    var _UIData      = changeCallbacks.get('UIData'),
-        _loadedModel = changeCallbacks.get('loadedModel'),
+    var _UIData      = changeCallbacks.UIData,
+        _loadedModel = changeCallbacks.loadedModel,
         UIData       = _UIData(),
         that         = this;
 
@@ -217,14 +217,17 @@ var UIRefresh = function(refresh, changeCallbacks) {
      * This resets the selected menu to force the refresh to create a new one.
      * This way there won't be any hiccups after the above loops removing everything.
      */
-    changeCallbacks.get('selectedMenu')(Immutable.Map({}));
+    changeCallbacks.selectedMenu({});
 
     /* The sidebar may only update the model as of right now. */
     sidebarRefresh(UIData, sidebarContainer, refresh, changeCallbacks, function(updatedModel) {
         _loadedModel(updatedModel);
 
-        var _selectedMenu = changeCallbacks.get('selectedMenu');
-        _selectedMenu(Immutable.Map({}).set('element', _selectedMenu().get('element')));
+        var _selectedMenu = changeCallbacks.selectedMenu;
+        var __ = {
+            element: _selectedMenu().element
+        };
+        _selectedMenu(__);
 
         refresh();
     });
