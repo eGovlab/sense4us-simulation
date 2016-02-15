@@ -85,7 +85,7 @@
                         , bodyParser.urlencoded({extended: true})
                         , cookieParser()
                         , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
-                        , logger.middleware
+                        , logger.httpLogger(CONFIG.get("LOGGER"))
                         , cookieCutter.middleware
                         , router
                         , notFound

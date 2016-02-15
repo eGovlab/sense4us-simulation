@@ -3,6 +3,7 @@ docs/
 bundle.js
 typings/
 frontend/public/js/config.js
+logs/
 
 local_storage
 
