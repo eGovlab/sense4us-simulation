@@ -10,8 +10,8 @@ var mouseDownWare = middleware([
 ]);
 
 function pan(data) {
-	data.settings = data.settings.set('offsetX', (data.settings.get('offsetX') || 0) - data.deltaPos.get('x'));
-	data.settings = data.settings.set('offsetY', (data.settings.get('offsetY') || 0) - data.deltaPos.get('y'));
+	data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.get('x');
+	data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.get('y');
 	
 	return data;
 }
