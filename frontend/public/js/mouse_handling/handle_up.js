@@ -1,11 +1,11 @@
 'use strict';
 
 var middleware = require('./../middleware.js'),
-    hitTest      = require('./../collisions.js').hitTest,
-    linker       = require('./../linker.js'),
-    Immutable    = null,
-    modelLayer   = require('./../model_layer.js'),
-    createLink   = require('../structures/create_link');
+    hitTest    = require('./../collisions.js').hitTest,
+    linker     = require('./../linker.js'),
+    Immutable  = null,
+    modelLayer = require('./../model_layer.js'),
+    createLink = require('../structures/create_link');
 
 var mouseDownWare = middleware([
     link,
@@ -44,26 +44,28 @@ function link(data) {
 
                 var nodeLinks = node.links;
                 if(nodeLinks === undefined) {
-                    node = node.set('links', Immutable.List());
+                    node.links = [];
                 }
 
                 var collidedLinks = collided.links;
                 if(collidedLinks === undefined) {
-                    collided = collided.set('links', Immutable.List());
+                    collided.links = [];
                 }
 
                 var nodeId     = node.id,
                     collidedId = collided.id;
 
-                data.nodeGui = data.nodeGui.set(nodeId, data.nodeGui.get(nodeId).merge(Immutable.Map({
+                data.nodeGui[nodeId] = data.nodeGui[nodeId].merge({
                         links: node.links.push(id)
-                    })
-                )).set(collidedId, data.nodeGui.get(collidedId).merge(Immutable.Map({
-                        links: collided.links.push(id)
-                    })
-                ));
+                    }
+                );
 
-                data.links = data.links.set(id, createLink(id, nodeId, collidedId));
+                data.nodeGui[collidedId] = data.nodeGui[collidedId].merge({
+                        links: collided.links.push(id)
+                    }
+                );
+
+                data.links[id] = createLink(id, nodeId, collidedId);
             });
         });
 
@@ -75,7 +77,10 @@ function stopLinking(data) {
         data.nodeGui
         .filter(function(node) { return node.linking === true; })
         .map(function(node) {
-            return node.delete('linkerX').delete('linkerY').delete('linking');
+            delete node.linkerX;
+            delete node.linkerY;
+            delete node.linking;
+            return node;
         })
     );
 
@@ -112,7 +117,12 @@ function deselect(data) {
     data.links = data.links.merge(
         data.links.
             filter(function(link) { return link.selected === true && !link.clicked}).
-            map(function(link)    { return link.delete('selected').delete('offsetX').delete('offsetY'); })
+            map(function(link)    {
+                delete link.selected;
+                delete link.offsetX;
+                delete link.offsetY;
+                return link;
+            })
     );
 
     return data;

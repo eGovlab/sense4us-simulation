@@ -119,15 +119,15 @@ function createTimeTableEditor(key, timeTable, callback) {
                         addToContainer(key, timeTable, callback);
                         return;
                     }
-                    var tempStorage = timeTable.get(rowNumber);
+                    var tempStorage = timeTable[rowNumber];
                     console.log(value, tempStorage, timeTable);
-                    timeTable = timeTable.set(newTimeStep, parseInt(tempStorage));
-                    timeTable = timeTable.delete(rowNumber);
+                    timeTable[newTimeStep] = parseInt(tempStorage);
+                    delete timeTable[rowNumber];
 
-                    rowNumber = newTimeStep;
+                    /*rowNumber = newTimeStep;
                     timeTable = timeTable.sortBy(function(value, key) {
                         return parseInt(key);
-                    });
+                    });*/
 
                     callback(key, timeTable);
                     addToContainer(key, timeTable, callback);
@@ -142,7 +142,7 @@ function createTimeTableEditor(key, timeTable, callback) {
                         addToContainer(key, timeTable, callback);
                         return;
                     }
-                    timeTable = timeTable.set(rowNumber, parseInt(newTimeValue));
+                    timeTable[rowNumber] = parseInt(newTimeValue);
                     callback(key, timeTable);
                     timeStepValue.value = newTimeValue;
                 });
@@ -160,7 +160,7 @@ function createTimeTableEditor(key, timeTable, callback) {
 
         containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
             if (timeTable === undefined || timeTable === null) {
-                timeTable = Immutable.Map({0: 0});
+                timeTable = {0: 0};
             } else {
                 var highestIndex = 0;
                 timeTable.forEach(function(value, index) {
@@ -169,7 +169,8 @@ function createTimeTableEditor(key, timeTable, callback) {
                         highestIndex = x;
                     }
                 });
-                timeTable = timeTable.set(highestIndex + 1, 0);
+
+                timeTable[highestIndex + 1] = 0;
             }
 
             callback(key, timeTable);
@@ -267,7 +268,6 @@ function updateMenu(menu, map) {
         }
     });
     
-    console.log("UPDATING MENU?!");
     menu.element = menuElement;
     
     return menu;
@@ -290,10 +290,13 @@ var namespace = {
         }
 
         var updateMenuMapObj = function(key, value, replacedObj) {
+            console.log("REPLACING MAPOBJ");
             if(replacedObj) {
-                menu = menu.set('map_obj', replacedObj);
+                //menu = menu.set('map_obj', replacedObj);
+                menu.map_obj = replacedObj;
             } else {
-                menu = menu.set('map_obj', menu.map_obj.set(key, value));
+                menu.map_obj[key] = value;
+                //menu = menu.set('map_obj', menu.map_obj.set(key, value));
             }
 
             changeCallback(menu.map_obj);
@@ -303,6 +306,7 @@ var namespace = {
             menu = createMenu(map, updateMenuMapObj, includedAttributes);
             menu.map_obj = map;
 
+            console.log(menu.map_obj, map, menu.map_obj === map);
             container.appendChild(menu.element);
 
             return menu;
@@ -363,15 +367,14 @@ var namespace = {
                 return;
             }
             
-            _loadedModel(loadedModel.set('links', loadedModel.links.set(newSelected.id,
-                loadedModel.links.get(newSelected.id).merge(Immutable.Map({
-                        coefficient: coefficient,
-                        timelag:     timelag,
-                        threshold:   threshold,
-                        type:        type
-                    })
-                )
-            )));
+            loadedModel.links[newSelected.id] = loadedModel.links[newSelected.id].merge({
+                coefficient: coefficient,
+                timelag:     timelag,
+                threshold:   threshold,
+                type:        type
+            });
+
+            _loadedModel(loadedModel);
         } else if (newSelected.offsetY !== undefined || newSelected.offsetX !== undefined) {
             _loadedModel(loadedModel.set('settings', newSelected));
         } else {
@@ -403,8 +406,9 @@ var namespace = {
                 return;
             }
 
-            node = nodeData.get(newSelected.id);
-            node = node.merge(newSelected);
+            node = nodeData[newSelected.id];
+            nodeData[newSelected.id] = node.merge(newSelected);
+
             /*node = node.merge(Immutable.Map({
                 id:             newSelected.id,
                 value:          newSelected.value,
@@ -414,38 +418,45 @@ var namespace = {
                 timeTable:      newSelected.timeTable
             }));*/
 
-            nodeData = nodeData.set(node.id, node);
-            loadedModel = loadedModel.set('nodeData', nodeData);
+            //nodeData = nodeData.set(node.id, node);
+            //loadedModel = loadedModel.set('nodeData', nodeData);
 
-            node = nodeGui.get(newSelected.id);
-            node = node.merge(Immutable.Map({
+            node = nodeGui[newSelected.id];
+            node = node.merge({
                 radius: parseFloat(newSelected.radius),
                 avatar: newSelected.avatar,
                 icon:   newSelected.icon
-            }));
+            });
 
-            nodeGui = nodeGui.set(node.id, node);
-            loadedModel = loadedModel.set('nodeGui', nodeGui);
+            nodeGui[node.id] = node;
+            //loadedModel = loadedModel.set('nodeGui', nodeGui);
 
             _loadedModel(loadedModel);
         }
 
-        if(savedModels.synced.get(loadedModel.id) !== undefined) {
+        if(savedModels.synced[loadedModel.id] !== undefined) {
+            loadedModel.settings.saved = false;
+            savedModels.synced[loadedModel.id] = loadedModel;
+            _savedModels(savedModels);
+            /*
             _savedModels(savedModels.set('synced',
                 savedModels.synced.set(loadedModel.id,
                     loadedModel.set('settings', loadedModel.settings.set('saved',
                         false)
                     )
                 )
-            ));
+            ));*/
         } else {
-            _savedModels(savedModels.set('local',
+            loadedModel.settings.saved = false;
+            savedModels.local[loadedModel.id] = loadedModel;
+            _savedModels(savedModels);
+            /*_savedModels(savedModels.set('local',
                 savedModels.local.set(loadedModel.id,
                     loadedModel.set('settings', loadedModel.settings.set('saved',
                         false)
                     )
                 )
-            ));
+            ));*/
         }
 
         UIRefresh();

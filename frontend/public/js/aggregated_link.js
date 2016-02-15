@@ -3,21 +3,21 @@
 var Immutable = null;
 
 function aggregatedLink(link, nodes) {
-    return Immutable.Map({
-        selected:     link.get('selected'),
-        loop:         link.get('loop'),
-        type:         link.get('type'),
-        coefficient:  link.get('coefficient'),
-        timelag:      link.get('timelag'),
-        debugNode:    nodes.get(link.get('node1')).get('selected'),
-        x1:           nodes.get(link.get('node1')).get('x'),
-        y1:           nodes.get(link.get('node1')).get('y'),
-        x2:           nodes.get(link.get('node2')).get('x'),
-        y2:           nodes.get(link.get('node2')).get('y'),
-        width:        parseFloat(link.get('width')),
-        fromRadius:   parseFloat(nodes.get(link.get('node1')).get('radius')),
-        targetRadius: parseFloat(nodes.get(link.get('node2')).get('radius'))
-    });
+    return {
+        selected:     link.selected,
+        loop:         link.loop,
+        type:         link.type,
+        coefficient:  link.coefficient,
+        timelag:      link.timelag,
+        debugNode:    nodes[link.node1].selected,
+        x1:           nodes[link.node1].x,
+        y1:           nodes[link.node1].y,
+        x2:           nodes[link.node2].x,
+        y2:           nodes[link.node2].y,
+        width:        parseFloat(link.width),
+        fromRadius:   parseFloat(nodes[link.node1].radius),
+        targetRadius: parseFloat(nodes[link.node2].radius)
+    };
 };
 
 module.exports = aggregatedLink;

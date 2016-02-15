@@ -166,22 +166,22 @@ var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
     return loadedModel;
 };
 
-var menu = Immutable.List([
-    Immutable.Map({
+var menu = [
+    {
         header:   'Project',
         type:     'DROPDOWN',
         update:   projectUpdate,
         callback: projectCallback
-    }),
+    },
 
-    Immutable.Map({
+    {
         header:   'Mode',
         type:     'DROPDOWN',
         update:   modeUpdate,
         callback: modeCallback
-    }),
+    },
 
-    Immutable.Map(windows)
-]);
+    windows
+];
 
 module.exports = menu;

@@ -329,7 +329,10 @@ dragHandler(
 
         loadedModel.nodeGui  = loadedModel.nodeGui.merge(data.nodeGui);
         loadedModel.links    = loadedModel.links.merge(data.links);
-        loadedModel.settings = loadedModel.settings.merge(data.settings);
+        
+        loadedModel.settings.offsetX = data.settings.offsetX;
+        loadedModel.settings.offsetY = data.settings.offsetY;
+        //loadedModel.settings = loadedModel.settings.merge(data.settings);
 
         refresh();
     },
@@ -453,11 +456,11 @@ function _refresh() {
         })
         .map(function removeUnnecessaryDataFromSelectedNodes(node) {
             return node.merge(
-                Immutable.Map({
+                {
                     radius: loadedModel.nodeGui[node.id].radius,
                     avatar: loadedModel.nodeGui[node.id].avatar,
                     icon:   loadedModel.nodeGui[node.id].icon
-                })
+                }
             );
         })
         .merge(
@@ -526,7 +529,7 @@ function _refresh() {
     loadedModel.nodeGui.filter(function drawLinkingArrow(node) {return node.linking === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
         drawLink(
-            Immutable.Map({
+            {
                 type:         'fullchannel',
                 x1:           node.x,
                 y1:           node.y,
@@ -535,7 +538,7 @@ function _refresh() {
                 fromRadius:   node.radius,
                 targetRadius: 0,
                 width:        8
-            })
+            }
         );
     });
 

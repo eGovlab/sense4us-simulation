@@ -11,12 +11,12 @@ var lineToRect = function(line) {
 		line = line.merge({y1: line.y2, y2: line.y1});
 	}
 
-	return Immutable.Map({
+	return {
 		x: line.x1 - line.width / 2,
 		y: line.y1 - line.width / 2,
 		width: line.x2 - line.x1 + line.width / 2,
 		height: line.y2 - line.y1 + line.width / 2
-	});
+	};
 };
 
 var collisions = {
@@ -37,7 +37,7 @@ var collisions = {
 			return false;
 		}
 
-		var line2 = Immutable.Map({x1: point.x, y1: point.y, x2: line.x2, y2: line.y2});
+		var line2 = {x1: point.x, y1: point.y, x2: line.x2, y2: line.y2};
 
 		var line1Angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
 		var line2Angle = Math.atan2(line2.y2 - line2.y1, line2.x2 - line2.x1);

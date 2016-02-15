@@ -133,7 +133,10 @@ function startLinkingIfSelected(data, error, done) {
 	var linkingNodes = data.nodeGui.
 			filter(function(node) { return node.selected === true; }).
 			filter(function(node) { return hitTest(data.pos, linker(node)); }).
-			map(function(node)    { return node.set('linking', true); });
+			map(function(node)    {
+                node.linking = true;
+                return node;
+            });
 
 	data.nodeGui = data.nodeGui.merge(linkingNodes);
 
