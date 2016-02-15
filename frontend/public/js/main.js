@@ -30,7 +30,7 @@ notificationBar.setContainer(document.getElementById('notification-bar'));
 CONFIG.setConfig(require('./config.js'));
 //network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
 
-var selectedMenu = Immutable.Map({}),
+var selectedMenu = {},
     /*
     ** modelLayer.newModel(id) 
     ** (USE PARAMETER WITH HIGH CAUTION.
@@ -54,24 +54,26 @@ var selectedMenu = Immutable.Map({}),
     **     })
     ** });
     */
-    textStrings   = Immutable.Map({
-        unsorted: Immutable.List(),
-        saved:    Immutable.List()
-    }),
+    textStrings   = {
+        unsorted: [],
+        saved:    []
+    },
     loadedModel   = modelLayer.newModel(),
-    savedModels   = Immutable.Map({
-        local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
-        synced: Immutable.Map()
-    }),
+    savedModels   = {
+        local:  {},
+        synced: {}
+    },
     environment   = 'modelling';
 
+savedModels.local[loadedModel.get('id')] =  loadedModel;
+
 var settings = require('./settings');
-var UIData = Immutable.Map({
+var UIData = {
     sidebar:         settings.sidebar,
     menu:            settings.menu,
-    selectedMenu:    Immutable.List(),
-    floatingWindows: Immutable.List()
-});
+    selectedMenu:    [],
+    floatingWindows: []
+};
 
 /*textStrings = textStrings.set('unsorted', textStrings.get('unsorted').merge(Immutable.List([
     'incoming text string',

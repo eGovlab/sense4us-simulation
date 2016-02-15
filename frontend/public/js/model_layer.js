@@ -60,17 +60,17 @@ var generateId = 0;
 */
 module.exports = {
     newModel: function(id) {
-        var map = Immutable.Map({
+        var map = {
             id:        id || generateId,
             saved:     false,
             synced:    false,
             syncId:    null,
 
             nextId:    0,
-            nodeData:  Immutable.Map({}),
-            nodeGui:   Immutable.Map({}),
-            links:     Immutable.Map({}),
-            settings:  Immutable.Map({
+            nodeData:  {},
+            nodeGui:   {},
+            links:     {},
+            settings:  {
                 name:          "New Model",
                 maxIterations: 4,
                 offsetX:       0,
@@ -79,17 +79,17 @@ module.exports = {
 
                 timeStepT:     "Week",
                 timeStepN:     0
-            }),
-            treeSettings: Immutable.Map({
+            },
+            treeSettings: {
                 x:      400,
                 y:      20,
                 width:  200,
                 height: 0,
                 scroll: 0
-            }),
+            },
             loadedScenario: 0,
-            scenarios:      Immutable.List([]),
-        });
+            scenarios:      [],
+        };
 
         generateId += 1;
 
