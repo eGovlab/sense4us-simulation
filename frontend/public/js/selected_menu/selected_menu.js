@@ -10,7 +10,7 @@ function createButtons(list, map, updateModelCallback) {
     containerDiv.className = 'menu';
 
     list.forEach(function(button) {
-        if(map.get('maxIterations') !== undefined && button.get('ignoreModelSettings') === true) {
+        if(map.maxIterations !== undefined && button.get('ignoreModelSettings') === true) {
             return;
         }
 
@@ -241,7 +241,7 @@ function createMenu(map, onChangeCallback, includedAttributes) {
 
         if (key === 'timeTable') {
             appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
-        } else if(map.get('coefficient') !== undefined && key === 'type') {
+        } else if(map.coefficient !== undefined && key === 'type') {
             appendToEnd.push(generateDropdown(key, ['fullchannel', 'halfchannel'], value, onChangeCallback));
         } else {
             appendToEnd.push(generateInput(key, value, onChangeCallback));
