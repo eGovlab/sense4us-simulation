@@ -4,6 +4,7 @@ var Immutable  = require('Immutable'),
     backendApi = require('./../api/backend_api.js'),
     modelling  = require('./modelling.js'),
     simulate   = require('./simulate.js'),
+    windows    = require('./windows.js'),
     modelLayer = require('./../model_layer.js');
 
 var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
@@ -178,7 +179,9 @@ var menu = Immutable.List([
         type:     'DROPDOWN',
         update:   modeUpdate,
         callback: modeCallback
-    })
+    }),
+
+    Immutable.Map(windows)
 ]);
 
 module.exports = menu;

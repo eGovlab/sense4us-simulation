@@ -1,0 +1,4 @@
+{
+    'name': 'floating_window',
+    'main': './floating_window.js'
+}
