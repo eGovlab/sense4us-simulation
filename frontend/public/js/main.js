@@ -59,6 +59,11 @@ Object.prototype.merge = function() {
     return newObj;
 };
 
+Object.prototype.last = function() {
+    var arr = Object.keys(this);
+    return this[arr[arr.length-1]];
+}
+
 console.log(Object.prototype);
 
 var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
@@ -435,9 +440,9 @@ function _refresh() {
         );
 
     // draw all the nodes
-    loadedModel.get('nodeData').forEach(
+    loadedModel.nodeData.forEach(
         function drawEachNode(n) { 
-            var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
+            var nodeGui = n.merge(loadedModel.nodeGui.get(n.get('id')));
             if(!showingLineGraph) {
                 nodeGui = nodeGui.set('linegraph', false);
             }
@@ -447,12 +452,12 @@ function _refresh() {
     );
 
     // draw the links and arrows
-    loadedModel.get('links').forEach(function drawLinksAndArrows(link) {
-        drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
+    loadedModel.links.forEach(function drawLinksAndArrows(link) {
+        drawLink(aggregatedLink(link, loadedModel.nodeGui));
     });
 
     // draw all the node descriptions
-    loadedModel.get('nodeData').forEach(
+    loadedModel.nodeData.forEach(
         function drawEachNodeText(n) { 
             var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
             drawText(
@@ -479,10 +484,10 @@ function _refresh() {
     );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.get('nodeGui').filter(function drawLinkerOnSelectedNodes(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
+    loadedModel.nodeGui.filter(function drawLinkerOnSelectedNodes(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
 
     // if we are currently linking, we want to draw the link we're creating
-    loadedModel.get('nodeGui').filter(function drawLinkingArrow(node) {return node.get('linking') === true; }).forEach(function(node) {
+    loadedModel.nodeGui.filter(function drawLinkingArrow(node) {return node.get('linking') === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
         drawLink(
             Immutable.Map({
@@ -499,10 +504,11 @@ function _refresh() {
     });
 
     // if we are linking, we want to draw the dot above everything else
-    loadedModel.get('nodeGui').filter(function drawLinkerDotWhileLinking(node) {return node.get('linking') === true; }).forEach(drawLinker);
+    loadedModel.nodeGui.filter(function drawLinkerDotWhileLinking(node) {return node.get('linking') === true; }).forEach(drawLinker);
 
     //update the menu
     var sidebar = document.getElementById('sidebar');
+    console.log(selected);
     if(selected.last()) {
         sidebar.firstElementChild.style.display = 'none';
     } else {
@@ -514,14 +520,14 @@ function _refresh() {
             if(selected.last()) {
                 selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'name', 'description', 'type', 'threshold', 'coefficient', 'timelag']);
             } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['name']);
+                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected, ['name']);
             }
             break;
         case 'simulate':
             if(selected.last()) {
                 selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag', 'type', 'threshold']);
             } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings'), updateSelected, ['maxIterations']);
+                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected, ['maxIterations']);
                 //selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
             }
             break;
