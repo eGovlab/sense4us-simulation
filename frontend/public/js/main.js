@@ -37,7 +37,7 @@ Object.prototype.map = function(callback) {
     return newObj;
 };
 
-Object.prototype.merge = function(obj) {
+Object.prototype.merge = function() {
     var newObj = {},
         that   = this;
 
@@ -45,9 +45,16 @@ Object.prototype.merge = function(obj) {
         newObj[key] = that[key];
     });
 
-    Object.keys(obj).forEach(function(key) {
-        newObj[key] = obj[key];
-    });
+    for(var i = 0; i < arguments.length; i++) {
+        if(typeof arguments[i] !== "object") {
+            return;
+        }
+
+        var obj = arguments[i];
+        Object.keys(obj).forEach(function(key) {
+            newObj[key] = obj[key];
+        });
+    }
 
     return newObj;
 };
