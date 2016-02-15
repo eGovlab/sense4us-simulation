@@ -103,7 +103,7 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
     sidebarMenu.className = 'menu';
     container.appendChild(sidebarMenu);
 
-    UIData.get('sidebar').forEach(function(element) {
+    UIData.sidebar.forEach(function(element) {
         if (element.get('images')) {
             (function() {
                 var avatarsElement = selectedMenu.createAvatarButtons('avatar', null, function(key, value) {
@@ -152,7 +152,7 @@ var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallback
     menuBar.className = 'menu';
     container.appendChild(menuBar);
 
-    UIData.get('menu').forEach(function(menu) {
+    UIData.menu.forEach(function(menu) {
         var button = null;
 
         if(menu.get('callback') !== undefined && menu.get('update') !== undefined) {

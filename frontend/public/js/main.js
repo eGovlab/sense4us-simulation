@@ -7,6 +7,53 @@ var curry       = require('./curry.js'),
     linker      = require('./linker.js'),
     generateId  = require('./generate_id.js');
 
+
+Object.prototype.forEach = function(callback) {
+    var that = this;
+    Object.keys(this).forEach(function(key, i, arr) {
+        callback(that[key], key, i, arr);
+    });
+};
+
+Object.prototype.filter = function(callback) {
+    var newObj = {},
+        that   = this;
+    Object.keys(this).forEach(function(key, i, arr) {
+        if(callback(that[key], key, i, arr)) {
+            newObj[key] = that[key];
+        }
+    });
+
+    return newObj;
+};
+
+Object.prototype.map = function(callback) {
+    var newObj = {},
+        that   = this;
+    Object.keys(this).forEach(function(key, i, arr) {
+        newObj[key] = callback(that[key], key, i, arr);
+    });
+
+    return newObj;
+};
+
+Object.prototype.merge = function(obj) {
+    var newObj = {},
+        that   = this;
+
+    Object.keys(this).forEach(function(key) {
+        newObj[key] = that[key];
+    });
+
+    Object.keys(obj).forEach(function(key) {
+        newObj[key] = obj[key];
+    });
+
+    return newObj;
+};
+
+console.log(Object.prototype);
+
 var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
 var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);
 
@@ -65,7 +112,7 @@ var selectedMenu = {},
     },
     environment   = 'modelling';
 
-savedModels.local[loadedModel.get('id')] =  loadedModel;
+savedModels.local[loadedModel.id] = loadedModel;
 
 var settings = require('./settings');
 var UIData = {
@@ -332,50 +379,50 @@ function showLineGraph(show) {
 }
 
 function _refresh() {
-    var showingLineGraph = loadedModel.get('settings').get('linegraph');
+    var showingLineGraph = loadedModel.settings.linegraph;
     showLineGraph(showingLineGraph);
 
     context.clearRect(
-        (-loadedModel.get('settings').get('offsetX') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
-        (-loadedModel.get('settings').get('offsetY') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
-        mainCanvas.width  * (2 - (loadedModel.get('settings').get('scaleX') || 1)),
-        mainCanvas.height * (2 - (loadedModel.get('settings').get('scaleY') || 1))
+        (-loadedModel.settings.offsetX || 0) * (2 - loadedModel.settings.scaleX || 1),
+        (-loadedModel.settings.offsetY || 0) * (2 - loadedModel.settings.scaleX || 1),
+        mainCanvas.width  * (2 - (loadedModel.settings.scaleX || 1)),
+        mainCanvas.height * (2 - (loadedModel.settings.scaleY || 1))
     );
     
     context.setTransform(
-        loadedModel.get('settings').get('scaleX')  || 1,
+        loadedModel.settings.scaleX  || 1,
         0,
         0,
-        loadedModel.get('settings').get('scaleY')  || 1,
-        loadedModel.get('settings').get('offsetX') || 0,
-        loadedModel.get('settings').get('offsetY') || 0
+        loadedModel.settings.scaleY  || 1,
+        loadedModel.settings.offsetX || 0,
+        loadedModel.settings.offsetY || 0
     );
 
     // get all the selected objects
-    var selected = loadedModel.get('nodeData')
+    var selected = loadedModel.nodeData
         .filter(function filterNodesForSelection(node) {
-            return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true;
+            return loadedModel.nodeGui.get(node.id).selected === true;
         })
         .map(function removeUnnecessaryDataFromSelectedNodes(node) {
             return node.merge(
                 Immutable.Map({
-                    radius: loadedModel.get('nodeGui').get(node.get('id')).get('radius'),
-                    avatar: loadedModel.get('nodeGui').get(node.get('id')).get('avatar'),
-                    icon:   loadedModel.get('nodeGui').get(node.get('id')).get('icon')
+                    radius: loadedModel.nodeGui.get(node.id).radius,
+                    avatar: loadedModel.nodeGui.get(node.id).avatar,
+                    icon:   loadedModel.nodeGui.get(node.id).icon
                 })
             );
         })
         .merge(
-            loadedModel.get('links').filter(function filterLinksForSelection(link) {return link.get('selected') === true;})
+            loadedModel.links.filter(function filterLinksForSelection(link) {return link.selected === true;})
             .map(function removeUnnecessaryDataFromSelectedLinks(link) {
                 return Immutable.Map({
-                    id:          link.get('id'),
-                    timelag:     link.get('timelag'),
-                    coefficient: link.get('coefficient'),
-                    threshold:   link.get('threshold'),
-                    type:        link.get('type'),
-                    node1:       link.get('node1'),
-                    node2:       link.get('node2')
+                    id:          link.id,
+                    timelag:     link.timelag,
+                    coefficient: link.coefficient,
+                    threshold:   link.threshold,
+                    type:        link.type,
+                    node1:       link.node1,
+                    node2:       link.node2
                 });
             })
         );
