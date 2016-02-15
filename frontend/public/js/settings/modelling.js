@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable        = require('Immutable'),
+var Immutable        = null,
     createNode       = require('../structures/create_node'),
     createOriginNode = require('../structures/create_origin'),
     createActorNode  = require('../structures/create_actor');

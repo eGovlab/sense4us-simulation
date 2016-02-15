@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable       = require('Immutable'),
+var Immutable       = null,
     breakout        = require('./../breakout.js'),
     backendApi      = require('./../api/backend_api.js'),
     notificationBar = require('./../notification_bar');

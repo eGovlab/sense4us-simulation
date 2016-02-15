@@ -4,7 +4,7 @@
 ** Dependencies
 */
 var backendApi      = require('./api/backend_api.js'),
-    Immutable       = require('Immutable'),
+    Immutable       = null,
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
     menuBuilder     = require('./menu_builder');

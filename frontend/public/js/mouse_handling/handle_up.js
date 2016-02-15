@@ -3,7 +3,7 @@
 var middleware = require('./../middleware.js'),
     hitTest      = require('./../collisions.js').hitTest,
     linker       = require('./../linker.js'),
-    Immutable    = require('Immutable'),
+    Immutable    = null,
     modelLayer   = require('./../model_layer.js'),
     createLink   = require('../structures/create_link');
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable = null;
 
 function icon(map) {
 	var x = map.get('x');

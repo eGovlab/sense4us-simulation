@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable = require('Immutable'),
+var Immutable = null,
     Dropdown  = require('./dropdown.js');
 
 function MenuBuilder() {

@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable = null;
 
 var lineToRect = function(line) {
 	if (line.x1 > line.x2) {

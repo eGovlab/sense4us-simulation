@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable = null;
 
 module.exports = Immutable.List([
     Immutable.Map({

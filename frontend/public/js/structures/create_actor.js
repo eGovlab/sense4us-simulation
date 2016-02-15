@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable  = require('Immutable'),
+var Immutable  = null,
     createNode = require('./create_node');
 
 module.exports = function createActorNode(model, data, gui) {

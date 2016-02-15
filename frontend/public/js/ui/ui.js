@@ -13,7 +13,7 @@
 var CONFIG       = require('rh_config-parser'),
     menuBuilder  = require('./../menu_builder'),
     selectedMenu = require('./../selected_menu/selected_menu'),
-    Immutable    = require('Immutable');
+    Immutable    = null;
 
 function createDropdown(element, select, refresh, changeCallbacks, updateModelCallback) {
     var dropdownElement = document.createElement('select');

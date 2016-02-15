@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable   = require('Immutable'),
+var Immutable   = null,
     menuBuilder = require('./../menu_builder'),
     settings    = require('./../settings'),
     buttons     = require('./buttons.js');

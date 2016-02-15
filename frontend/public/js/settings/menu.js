@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable  = require('Immutable'),
+var Immutable  = null,
     backendApi = require('./../api/backend_api.js'),
     modelling  = require('./modelling.js'),
     simulate   = require('./simulate.js'),

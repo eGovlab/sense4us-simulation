@@ -2,7 +2,7 @@
 
 var curry       = require('./curry.js'),
     strictCurry = require('./strict_curry.js'),
-    Immutable   = require('Immutable'),
+    Immutable   = null,
     canvas      = require('./canvas'),
     linker      = require('./linker.js'),
     generateId  = require('./generate_id.js');
