@@ -99,7 +99,7 @@ var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, docume
 notificationBar.setContainer(document.getElementById('notification-bar'));
 
 CONFIG.setConfig(require('./config.js'));
-//network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
+//network.setDomain(CONFIG.BACKEND_HOSTNAME);
 
 var selectedMenu = {},
     /*
@@ -146,7 +146,7 @@ var UIData = {
     floatingWindows: []
 };
 
-/*textStrings = textStrings.set('unsorted', textStrings.get('unsorted').merge(Immutable.List([
+/*textStrings = textStrings.set('unsorted', textStrings.unsorted.merge(Immutable.List([
     'incoming text string',
     'incoming text string',
     'incoming text string',
@@ -211,14 +211,14 @@ var UIData = {
     })
 ])));
 
-var informationTreeContainer = CONFIG.get('KEYWORD_CONTAINER');
+var informationTreeContainer = CONFIG.KEYWORD_CONTAINER;
 
 informationTreeContainer.style.maxHeight = (informationTreeContainer.parentElement.parentElement.offsetHeight - 64) + "px";
 window.addEventListener('resize', function() {
     informationTreeContainer.style.maxHeight = (informationTreeContainer.parentElement.parentElement.offsetHeight - 64) + "px";
 });
 
-informationTree.addStrings(informationTreeContainer, textStrings.get('unsorted'));*/
+informationTree.addStrings(informationTreeContainer, textStrings.unsorted);*/
 
 /*
 ** Object to give buttons a callback to relate and influence the current state.
@@ -280,8 +280,8 @@ var context = mainCanvas.getContext('2d');
 
 var fixInputForLink = function(link) {
     link = link.concat({
-        node1: parseInt(link.get('node1')),
-        node2: parseInt(link.get('node2'))
+        node1: parseInt(link.node1),
+        node2: parseInt(link.node2)
     });
 
     return link;
@@ -295,7 +295,15 @@ var dragHandler   = require('./mechanics/drag_handler.js'),
 dragHandler(
     mainCanvas,
     function mouseDown(pos) {
-        var data = mouseDownWare({env: environment, pos: pos, nodeGui: loadedModel.nodeGui, links: loadedModel.links, linegraph: loadedModel.settings.linegraph}, environment);
+        var _data = {
+            env:       environment,
+            pos:       pos,
+            nodeGui:   loadedModel.nodeGui,
+            links:     loadedModel.links,
+            linegraph: loadedModel.settings.linegraph
+        };
+
+        var data = mouseDownWare(_data, environment);
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
         loadedModel.links   = loadedModel.links.merge(data.links);
 
@@ -309,7 +317,16 @@ dragHandler(
     },
 
     function mouseMove(pos, deltaPos) {
-        var data = mouseMoveWare({pos: Immutable.Map(pos), deltaPos: Immutable.Map(deltaPos), settings: loadedModel.settings, nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+        var _data = {
+            pos:      pos,
+            deltaPos: deltaPos,
+            settings: loadedModel.settings,
+            nodeGui:  loadedModel.nodeGui,
+            links:    loadedModel.links
+        };
+
+        var data = mouseMoveWare(_data);
+
         loadedModel.nodeGui  = loadedModel.nodeGui.merge(data.nodeGui);
         loadedModel.links    = loadedModel.links.merge(data.links);
         loadedModel.settings = loadedModel.settings.merge(data.settings);
@@ -318,7 +335,14 @@ dragHandler(
     },
     
     function mouseUp(pos) {
-        var data = mouseUpWare({pos: Immutable.Map(pos), nextId: loadedModel.nextId, nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+        var _data = {
+            pos:     pos,
+            nextId:  loadedModel.nextId,
+            nodeGui: loadedModel.nodeGui,
+            links:   loadedModel.links
+        };
+
+        var data = mouseUpWare(_data);
         loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
         loadedModel.links   = loadedModel.links.merge(data.links);
         loadedModel.nextId  = data.nextId;
@@ -330,7 +354,7 @@ dragHandler(
     }
 );
 
-//mainCanvas.addEventListener('mousewheel',     MouseWheelHandler, false);
+//mainCanvas.addEventListener('mousewheel',MouseWheelHandler, false);
 //mainCanvas.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
 
 var zoom = 1;
@@ -339,8 +363,8 @@ function MouseWheelHandler(e) {
 	var mouse_canvas_y = e.y - mainCanvas.offsetTop;
     var scaleX = loadedModel.settings.scaleX || 1;
     var scaleY = loadedModel.settings.scaleX || 1;
-	var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.get('settings').get('offsetX') || 0) / scaleX;
-	var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.get('settings').get('offsetY') || 0) / scaleY;
+	var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
+	var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
 
 	if (Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) > 0)
 		zoom = 1.05;
@@ -349,17 +373,17 @@ function MouseWheelHandler(e) {
     
 	scaleX = scaleY *= zoom;
 
-	var mouse_stage_new_x = mouse_canvas_x / scaleX - (loadedModel.get('settings').get('offsetX') || 0) / scaleX;
-	var mouse_stage_new_y = mouse_canvas_y / scaleY - (loadedModel.get('settings').get('offsetY') || 0) / scaleY;
+	var mouse_stage_new_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
+	var mouse_stage_new_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
 
 	var zoom_effect_x = (mouse_stage_new_x - mouse_stage_x) * scaleX;
 	var zoom_effect_y = (mouse_stage_new_y - mouse_stage_y) * scaleY;
     
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetX', (loadedModel.get('settings').get('offsetX') || 0) + zoom_effect_x));
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetY', (loadedModel.get('settings').get('offsetY') || 0) + zoom_effect_y));
+    loadedModel = loadedModel.set('settings', loadedModel.settings.set('offsetX', (loadedModel.settings.offsetX || 0) + zoom_effect_x));
+    loadedModel = loadedModel.set('settings', loadedModel.settings.set('offsetY', (loadedModel.settings.offsetY || 0) + zoom_effect_y));
     
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('scaleX', scaleX));
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('scaleY', scaleY));
+    loadedModel = loadedModel.set('settings', loadedModel.settings.set('scaleX', scaleX));
+    loadedModel = loadedModel.set('settings', loadedModel.settings.set('scaleY', scaleY));
     
     refresh();
 }
@@ -425,21 +449,21 @@ function _refresh() {
     // get all the selected objects
     var selected = loadedModel.nodeData
         .filter(function filterNodesForSelection(node) {
-            return loadedModel.nodeGui.get(node.id).selected === true;
+            return loadedModel.nodeGui[node.id].selected === true;
         })
         .map(function removeUnnecessaryDataFromSelectedNodes(node) {
             return node.merge(
                 Immutable.Map({
-                    radius: loadedModel.nodeGui.get(node.id).radius,
-                    avatar: loadedModel.nodeGui.get(node.id).avatar,
-                    icon:   loadedModel.nodeGui.get(node.id).icon
+                    radius: loadedModel.nodeGui[node.id].radius,
+                    avatar: loadedModel.nodeGui[node.id].avatar,
+                    icon:   loadedModel.nodeGui[node.id].icon
                 })
             );
         })
         .merge(
             loadedModel.links.filter(function filterLinksForSelection(link) {return link.selected === true;})
             .map(function removeUnnecessaryDataFromSelectedLinks(link) {
-                return Immutable.Map({
+                return {
                     id:          link.id,
                     timelag:     link.timelag,
                     coefficient: link.coefficient,
@@ -447,16 +471,16 @@ function _refresh() {
                     type:        link.type,
                     node1:       link.node1,
                     node2:       link.node2
-                });
+                };
             })
         );
 
     // draw all the nodes
     loadedModel.nodeData.forEach(
         function drawEachNode(n) { 
-            var nodeGui = n.merge(loadedModel.nodeGui.get(n.get('id')));
+            var nodeGui = n.merge(loadedModel.nodeGui[n.id]);
             if(!showingLineGraph) {
-                nodeGui = nodeGui.set('linegraph', false);
+                nodeGui.linegraph = false;
             }
 
             drawNode(nodeGui);
@@ -471,11 +495,11 @@ function _refresh() {
     // draw all the node descriptions
     loadedModel.nodeData.forEach(
         function drawEachNodeText(n) { 
-            var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
+            var nodeGui = n.merge(loadedModel.nodeGui[n.id]);
             drawText(
-                nodeGui.get('name'),
-                nodeGui.get('x'),
-                nodeGui.get('y') + nodeGui.get('radius') + 4,
+                nodeGui.name,
+                nodeGui.x,
+                nodeGui.y + nodeGui.radius + 4,
                 colorValues.neutral,
                 true
             );
@@ -486,29 +510,29 @@ function _refresh() {
             ** e.g. drawNodeInSimulation(nodeGui)
             */
             if(environment === 'simulate' ) {
-                if(nodeGui.get('timeTable')) {
+                if(nodeGui.timeTable) {
                     drawTimeTable(nodeGui);
                 } else {
-                    drawChange(nodeGui.get('x'), nodeGui.get('y') + nodeGui.get('radius') / 6, Math.round(n.get('simulateChange').get(loadedModel.get('settings').get('timeStepN')) * 100) / 100);
+                    drawChange(nodeGui.x, nodeGui.y + nodeGui.radius / 6, Math.round(n.simulateChange[loadedModel.settings.timeStepN] * 100) / 100);
                 }
             }
         }
     );
 
     // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.nodeGui.filter(function drawLinkerOnSelectedNodes(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
+    loadedModel.nodeGui.filter(function drawLinkerOnSelectedNodes(node) {return node.selected === true && node.linking !== true;}).forEach(drawLinker);
 
     // if we are currently linking, we want to draw the link we're creating
-    loadedModel.nodeGui.filter(function drawLinkingArrow(node) {return node.get('linking') === true; }).forEach(function(node) {
+    loadedModel.nodeGui.filter(function drawLinkingArrow(node) {return node.linking === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
         drawLink(
             Immutable.Map({
                 type:         'fullchannel',
-                x1:           node.get('x'),
-                y1:           node.get('y'),
-                x2:           node.get('linkerX'),
-                y2:           node.get('linkerY'),
-                fromRadius:   node.get('radius'),
+                x1:           node.x,
+                y1:           node.y,
+                x2:           node.linkerX,
+                y2:           node.linkerY,
+                fromRadius:   node.radius,
                 targetRadius: 0,
                 width:        8
             })
@@ -516,11 +540,10 @@ function _refresh() {
     });
 
     // if we are linking, we want to draw the dot above everything else
-    loadedModel.nodeGui.filter(function drawLinkerDotWhileLinking(node) {return node.get('linking') === true; }).forEach(drawLinker);
+    loadedModel.nodeGui.filter(function drawLinkerDotWhileLinking(node) {return node.linking === true; }).forEach(drawLinker);
 
     //update the menu
     var sidebar = document.getElementById('sidebar');
-    console.log(selected);
     if(selected.last()) {
         sidebar.firstElementChild.style.display = 'none';
     } else {

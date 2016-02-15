@@ -10,25 +10,25 @@ var mouseDownWare = middleware([
 ]);
 
 function pan(data) {
-	data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.get('x');
-	data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.get('y');
+	data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.x;
+	data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.y;
 	
 	return data;
 }
 
 function moveClickedNodes(data, error, done) {
 	var movingNodes = data.nodeGui
-		.filter(function(node) {return node.get('clicked') === true;})
+		.filter(function(node) {return node.clicked === true;})
 		.map(function(node) {
-			return node.concat({
-				x: data.pos.get('x') - node.get('offsetX'),
-				y: data.pos.get('y') - node.get('offsetY')
+			return node.merge({
+				x: data.pos.x - node.offsetX,
+				y: data.pos.y - node.offsetY
 			});
 		});
 	
 	data.nodeGui = data.nodeGui.merge(movingNodes);
 	
-	if (movingNodes.size > 0) {
+	if (Object.keys(movingNodes).length > 0) {
 		return done(data);
 	}
 
@@ -37,17 +37,17 @@ function moveClickedNodes(data, error, done) {
 
 function moveLinker(data, error, done) {
 	var movingLinker = data.nodeGui
-		.filter(function(node) { return node.get('linking') === true; })
+		.filter(function(node) { return node.linking === true; })
 		.map(function(node) {
-			return node.concat({
-				linkerX: data.pos.get('x'),
-				linkerY: data.pos.get('y')
+			return node.merge({
+				linkerX: data.pos.x,
+				linkerY: data.pos.y
 			});
 		});
 			
 	data.nodeGui = data.nodeGui.merge(movingLinker);
 	
-	if (movingLinker.size > 0) {
+	if (Object.keys(movingLinker).length > 0) {
 		return done(data);
 	}
 
@@ -56,17 +56,17 @@ function moveLinker(data, error, done) {
 
 function moveIcon(data, error, done) {
 	var movingIcons = data.nodeGui
-		.filter(function(node) { return node.get('movingIcon') === true; })
+		.filter(function(node) { return node.movingIcon === true; })
 		.map(function(node) {
-			return node.concat({
-				iconXOffset: data.pos.get('x') - node.get('x'),
-				iconYOffset: data.pos.get('y') - node.get('y')
+			return node.merge({
+				iconXOffset: data.pos.x - node.x,
+				iconYOffset: data.pos.y - node.y
 			});
 		});
 
 	data.nodeGui = data.nodeGui.merge(movingIcons);
 
-	if (movingIcons.size > 0) {
+	if (Object.keys(movingIcons).length > 0) {
 		return done(data);
 	}
 	

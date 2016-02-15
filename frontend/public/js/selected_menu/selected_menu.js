@@ -99,9 +99,9 @@ function createTimeTableEditor(key, timeTable, callback) {
         containerDiv.appendChild(menuBuilder.label(key));
 
         if (timeTable !== undefined && timeTable.forEach !== undefined) {
-            timeTable = timeTable.sortBy(function(value, key) {
+            /*timeTable = timeTable.sortBy(function(value, key) {
                 return parseInt(key);
-            });
+            });*/
 
             var rowContainer = menuBuilder.div();
             rowContainer.className = "row-container";
@@ -267,7 +267,8 @@ function updateMenu(menu, map) {
         }
     });
     
-    menu = menu.set('element', menuElement);
+    console.log("UPDATING MENU?!");
+    menu.element = menuElement;
     
     return menu;
 }

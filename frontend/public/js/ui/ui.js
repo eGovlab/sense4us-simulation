@@ -107,11 +107,12 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
         if (element.images) {
             (function() {
                 var avatarsElement = selectedMenu.createAvatarButtons('avatar', null, function(key, value) {
+                    console.log("CREATED NODE?");
                     updateModelCallback(
                         element.callback(
                             changeCallbacks.loadedModel(),
-                            Immutable.Map({name: key}), 
-                            Immutable.Map({avatar: value})
+                            {name:   key}, 
+                            {avatar: value}
                         )
                     );
                 }, element.images);
@@ -219,8 +220,11 @@ var UIRefresh = function(refresh, changeCallbacks) {
      */
     changeCallbacks.selectedMenu({});
 
+    console.log(UIData)
     /* The sidebar may only update the model as of right now. */
     sidebarRefresh(UIData, sidebarContainer, refresh, changeCallbacks, function(updatedModel) {
+        console.log("CREATED NEW NODE?");
+        console.log(updatedModel);
         _loadedModel(updatedModel);
 
         var _selectedMenu = changeCallbacks.selectedMenu;

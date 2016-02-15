@@ -3,7 +3,7 @@
 var Immutable = require('Immutable');
 
 module.exports = function createLink(id, source, destination) {
-    return Immutable.Map({
+    return {
         id:          id,
         node1:       source,
         node2:       destination,
@@ -12,5 +12,5 @@ module.exports = function createLink(id, source, destination) {
         timelag:     0,
         threshold:   0,
         width:       8
-    });
+    };
 };

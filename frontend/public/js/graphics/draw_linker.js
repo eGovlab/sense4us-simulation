@@ -8,7 +8,8 @@ module.exports = function drawLinker(ctx, linker, node) {
 
 	ctx.fillStyle = 'red';
 	ctx.beginPath();
-	ctx.arc(linker(node).get('x'), linker(node).get('y'), linker(node).get('radius'), 0, 360);
+	var linkerNode = linker(node);
+	ctx.arc(linkerNode.x, linkerNode.y, linkerNode.radius, 0, 360);
 	ctx.fill();
 
 	ctx.shadowOffsetX = 0;

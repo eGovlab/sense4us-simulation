@@ -5,14 +5,14 @@ var Immutable  = require('Immutable'),
 
 module.exports = function createOriginNode(model, data, gui) {
     if(!data) {
-        data = Immutable.Map({});
+        data = {};
     }
     
-    data = data.set('timeTable', Immutable.Map({
+    data.timeTable = {
         0: 0,
         1: 10,
         2: -4
-    }));
+    };
     
     return createNode(model, data, gui, 'origin');
 };
