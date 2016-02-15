@@ -1,17 +1,10 @@
 'use strict';
 
 /*
-** Author:      Robin Swenson
-** Description: Namespace to create local maps containing general data for a model.
-**              Uses AJAX to save and load models from remote server.
-*/
-
-
-/*
 ** Dependencies
 */
 var Model           = require('./model.js'),
-    network         = require('./network'),
+    backendApi      = require('./api/backend_api.js'),
     Immutable       = require('Immutable'),
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
@@ -39,7 +32,7 @@ var generateId = 0;
 **                  The loadedModelCallback should return a map with a model if called
 **                  without parameters. If called with one argument, it should replace
 **                  the model with the argument.
-**                  This method will try to save a model on a remote server using the network
+**                  This method will try to save a model on a remote server using the backendApi
 **                  dependency above. If successful, will notify the user with notificationBar.
 
 **     name:        deleteModel()
@@ -80,12 +73,20 @@ module.exports = {
             links:    Immutable.Map({}),
             settings: Immutable.Map({
                 name:          "New Model",
-                maxIterations: 0,
+                maxIterations: 4,
                 offsetX:       0,
                 offsetY:       0,
                 zoom:          1,
 
-                timeStepT:     "Week"
+                timeStepT:     "Week",
+                timeStepN:     0
+            }),
+            treeSettings: Immutable.Map({
+                x:      400,
+                y:      20,
+                width:  200,
+                height: 0,
+                scroll: 0
             })
         });
 
@@ -105,7 +106,7 @@ module.exports = {
 
         console.log(data);
 
-        network.postData('/models/save', data, function(response, err) {
+        backendApi('/models/save', data, function(response, err) {
             if (err) {
                 console.log(response);
                 notificationBar.notify("Couldn't save model: " + response.errors);
@@ -116,7 +117,12 @@ module.exports = {
             loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('saved', true));
             _loadedModel(loadedModel);
 
-            notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+            if(response.response.message) {
+                notificationBar.notify(response.response.message);
+            } else {
+                notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+            }
+
             refresh();
         });
     },
@@ -127,7 +133,7 @@ module.exports = {
             that        = this;
 
         if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
-            network.deleteData('/models/' + loadedModel.get('syncId'), {}, function(response, err) {
+            backendApi('/models/bundle/' + loadedModel.get('syncId'), {}, function(response, err) {
                 if(err) {
                     console.log(response);
                     console.log(err);
@@ -141,11 +147,11 @@ module.exports = {
                     loadedModel = that.newModel();
                 }
 
-                notificationBar.notify(response.response.message);
+                notificationBar.notify(response.response);
                 _savedModels(savedModels);
                 _loadedModel(loadedModel);
                 refresh();
-            });
+            }, "DELETE");
         } else {
             savedModels = savedModels.set('local', savedModels.get('local').delete(loadedModel.get('id')));
             loadedModel = this.newModel();
@@ -158,7 +164,7 @@ module.exports = {
     
     loadSyncModel: function(modelId, callback) {
         var that = this;
-        network.getData('/models/' + modelId, function(response, error) {
+        backendApi('/models/bundle/' + modelId, function(response, error) {
             if (error) {
                 console.log(response);
                 console.log(error);
@@ -169,39 +175,56 @@ module.exports = {
                 links    = response.response.links,
                 settings = response.response.settings
 
-            var nextId = 0;
-            nodes.forEach(function() {
-                nextId += 1;
+            var highestId = 0;
+            //var nextId = 0;
+            nodes.forEach(function(n) {
+                if(n.id > highestId) {
+                    highestId = n.id;
+                }
             });
-            links.forEach(function() {
-                nextId += 1;
+
+            links.forEach(function(l) {
+                if(l.id > highestId) {
+                    highestId = l.id;
+                }
             });
 
             var newState = that.newModel();
             newState = newState.merge(Immutable.Map({
                 syncId: response.response.id,
-                nextId: nextId,
+                nextId: highestId + 1,
                 synced: true
             }));
+            console.log();
             var s = newState.get('settings');
             s = s.merge(Immutable.Map(settings));
             newState = newState.set('settings', s);
 
             nodes.forEach(function(node) {
-                var nd = newState.get('nodeData').set(node.id, Immutable.Map({
+                var newNode = Immutable.Map({
                     id:             node.id,
                     value:          node.starting_value,
-                    relativeChange: node.change_value || 0,
-                    simulateChange: 0,
-                    type:           node.type
-                }));
+                    relativeChange: node.change_value   || 0,
+                    simulateChange: Immutable.List(),
+                    threshold:      node.threshold      || 0,
+                    type:           node.type,
+                    name:           node.name           || undefined,
+                    description:    node.description    || undefined
+                });
+
+                if(node.timeTable) {
+                    newNode = newNode.set('timeTable', Immutable.Map(node.timeTable));
+                }
+
+                var nd = newState.get('nodeData').set(node.id, newNode);
+
                 newState = newState.set('nodeData', nd);
 
                 var ng = newState.get('nodeGui').set(node.id, Immutable.Map({
                     id:     node.id,
-                    x:      node.x,
-                    y:      node.y,
-                    radius: node.radius,
+                    x:      parseInt(node.x),
+                    y:      parseInt(node.y),
+                    radius: parseFloat(node.radius),
                     links:  Immutable.List(),
                     avatar: node.avatar,
                     icon:   node.icon
@@ -212,25 +235,25 @@ module.exports = {
             links.forEach(function(link) {
                 var l = newState.get('links').set(link.id, Immutable.Map({
                     id:          link.id,
-                    node1:       link.from_node,
-                    node2:       link.to_node,
+                    node1:       link.upstream,
+                    node2:       link.downstream,
                     coefficient: link.threshold,
                     type:        link.type,
                     timelag:     link.timelag,
-                    width:       14
+                    width:       8
                 }));
 
                 newState = newState.set('links', l);
 
-                var ng1 = newState.get('nodeGui').get(link.from_node);
+                var ng1 = newState.get('nodeGui').get(link.upstream);
                 ng1 = ng1.set('links', ng1.get('links').push(link.id));
 
-                var ng2 = newState.get('nodeGui').get(link.to_node);
+                var ng2 = newState.get('nodeGui').get(link.downstream);
                 ng2 = ng2.set('links', ng2.get('links').push(link.id));
 
                 var ng = newState.get('nodeGui');
-                ng = ng.set(link.from_node, ng1);
-                ng = ng.set(link.to_node, ng2);
+                ng = ng.set(link.upstream, ng1);
+                ng = ng.set(link.downstream, ng2);
 
                 newState = newState.set('nodeGui', ng);
             });

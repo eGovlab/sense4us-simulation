@@ -20,6 +20,29 @@ MenuBuilder.prototype = {
         });
     },
 
+    slider: function(defaultValue, min, max, callback, onSlideCallback) {
+        var input = document.createElement('input');
+        
+        input.type = 'range';
+        input.min = min;
+        input.max = max;
+        input.value = defaultValue;
+
+        input.addEventListener('change', callback);
+        if(onSlideCallback) {
+            input.addEventListener('input',  onSlideCallback);
+        }
+
+        input.deleteCallbacks = function() {
+            input.removeEventListener('change', callback);
+            if(onSlideCallback) {
+                input.removeEventListener('input',  onSlideCallback);
+            }
+        }
+
+        return input;
+    },
+
     div: function() {
         var div = document.createElement('div');
 
@@ -40,6 +63,16 @@ MenuBuilder.prototype = {
         return select.element;
     },
 
+    select: function(name, callback) {
+        var select = document.createElement('select');
+
+        select.name = name;
+
+        select.addEventListener('change', callback);
+
+        return select;
+    },
+
     option: function(value, text) {
         var option = document.createElement('option');
 
@@ -52,7 +85,7 @@ MenuBuilder.prototype = {
     addValueCallback: function(element, callback, event) {
         event = event || 'change';
         
-        var cb = function(event) {callback(element.name, element.value);};
+        var cb = function(event) {callback(element.name, element.value); };
         
         element.addEventListener(event, cb);
         element.deleteEvent = function() {
@@ -65,9 +98,8 @@ MenuBuilder.prototype = {
         
         MenuBuilder.prototype.addValueCallback(input, callback);
 
-        //input.addEventListener('keydown', function(event) {callback(input.value, input.name);});
         input.setAttribute('value', value);
-        input.name = key;
+        input.name  = key;
         input.value = value;
       
         return input;
@@ -91,6 +123,15 @@ MenuBuilder.prototype = {
         var img = document.createElement('img');
 
         return img;
+    },
+
+    span: function(key) {
+        var span = document.createElement('span');
+        if(key && typeof key === "string") {
+            span.innerHTML = key;
+        }
+
+        return span;
     },
 
     menu: function(text, callback) {

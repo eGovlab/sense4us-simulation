@@ -51,26 +51,34 @@ module.exports = function drawNode(ctx, map) {
     }
     */
 
+    var colors = settings.filter(function(style) {
+        for (var i = 0; i < style.conditions.length; i++) {
+            if (!style.conditions[i](map)) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+
     if (map.get('avatar')) {
         drawPicture(ctx, map.get('avatar'), map, function(_ctx, _imagePath, _map, _refresh) {
             drawNode(ctx, map);
         });
     } else {
-        var colors = settings.filter(function(style) {
-            for (var i = 0; i < style.conditions.length; i++) {
-                if (!style.conditions[i](map)) {
-                    return false;
-                }
-            }
-            
-            return true;
-        });
-        
         ctx.fillStyle = colors[0].color;
         
         ctx.beginPath();
         ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
         ctx.fill();
+    }
+
+    if(map.get('linegraph') && map.get('graphColor')) {
+        ctx.strokeStyle = map.get('graphColor');
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(map.get('x'), map.get('y'), map.get('radius') + 8, 0, 360);
+        ctx.stroke();
     }
     
     if (map.get('icon')) {
@@ -78,11 +86,16 @@ module.exports = function drawNode(ctx, map) {
         
         drawCircle(ctx, iconCircle, colors[0].color);
         drawPicture(ctx, map.get('icon'), iconCircle, function() {
-            drawNode(ctx, map, env);
+            drawNode(ctx, map);
         });
     }
+
+    return;
     
     var text = map.get('description');
+    if(!text) {
+        return;
+    }
     /*if (map.get('type') === 'actor') {
         text = 'Actor' + map.get('id');
     } else if (map.get('type') === 'origin') {
@@ -104,7 +117,7 @@ module.exports = function drawNode(ctx, map) {
     ctx.fillStyle = 'rgba(80, 80, 80, 1.0)';
     
     var size = 48 - text.length * 2.4;
-    size = size < 12 ? 12 : size;
+    size = size < 16 ? 16 : size;
     ctx.font = size + 'px sans-serif';
     var textData = ctx.measureText(text);
     ctx.fillText(text, map.get('x') - textData.width / 2, map.get('y') + map.get('radius') + 4);

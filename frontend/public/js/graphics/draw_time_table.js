@@ -1,22 +1,24 @@
 'use strict';
 
-var menuBuilder = require('../menu_builder');
+var menuBuilder = require('../menu_builder'),
+    valueColors = require('./value_colors.js');
 
-module.exports = function drawNode(ctx, map) {
+module.exports = function drawTimeTable(ctx, map) {
     var data = map.get('timeTable');
-    var amount = (data.size > 3 ? 3 : data.size) - 1;
 
     var size   = 24,
-        startY = ((map.get('y') - size / 2) - ((size * amount) / 2)),
+        startY = ((map.get('y') - size / 2) - ((size * data.size) / 2)),
 
         longestTimeStep = 0,
         longestSymbol   = 0,
+        longestValue    = 0,
         longestString   = 0,
         rowStrings      = [];
 
     ctx.font = size + 'px Arial';
 
     data.forEach(function getRowLength(value, timeStep) {
+        value = Math.round(value * 100) / 100;
         var symbol = " ";
         if(value > 0) {
             symbol = "+";
@@ -27,7 +29,7 @@ module.exports = function drawNode(ctx, map) {
         var rowString      = "T" + timeStep + ", " + symbol + " " + Math.abs(value) + "%",
             timeStepLength = ctx.measureText("T" + timeStep + ", ").width,
             symbolLength   = ctx.measureText(symbol + " ").width,
-            stringLength   = ctx.measureText(rowString).width;
+            valueLength    = ctx.measureText(Math.abs(value) + "%").width;
 
         if(timeStepLength > longestTimeStep) {
             longestTimeStep = timeStepLength;
@@ -37,8 +39,8 @@ module.exports = function drawNode(ctx, map) {
             longestSymbol = symbolLength;
         }
 
-        if(stringLength > longestString) {
-            longestString = stringLength;
+        if(valueLength > longestValue) {
+            longestValue = valueLength;
         }
 
         rowStrings.push({
@@ -48,9 +50,9 @@ module.exports = function drawNode(ctx, map) {
         });
     });
 
-    var startX  = map.get('x') - map.get('radius') - longestString - 8,
-        symbolX = startX  + longestTimeStep,
-        valueX  = symbolX + longestSymbol;
+    var valueX   = map.get('x') - map.get('radius') - longestValue - 8,
+        symbolX  = valueX - longestSymbol,
+        startX   = symbolX - longestTimeStep;
 
     rowStrings.forEach(function drawTableRow(stringInformation, index) {
         var stepString   = "T"+stringInformation.step+", ",
@@ -63,11 +65,11 @@ module.exports = function drawNode(ctx, map) {
         ctx.fillStyle = 'rgba(30, 50, 100, 1.0)';
         ctx.fillText(stepString,   startX,   y);
 
-        var changeColor = 'rgba(80, 80, 80, 1.0)';
+        var changeColor = valueColors.neutral;
         if(stringInformation.value > 0) {
-            changeColor = 'rgba(20, 150, 40, 1.0)';
+            changeColor = valueColors.positive;
         } else if(stringInformation.value < 0) {
-            changeColor = 'rgba(150, 20, 40, 1.0)';
+            changeColor = valueColors.negative;
         }
 
         ctx.fillStyle = changeColor;

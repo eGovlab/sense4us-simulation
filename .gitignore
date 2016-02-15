@@ -4,6 +4,8 @@ bundle.js
 typings/
 frontend/public/js/config.js
 
+local_storage
+
 npm-debug.log
 config.json
 node_modules/*

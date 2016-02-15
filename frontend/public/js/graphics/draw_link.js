@@ -1,6 +1,9 @@
 'use strict';
 
-module.exports = function(ctx, line) {
+var valueColors    = require('./value_colors.js'),
+    drawCoordinate = require('./draw_coordinate.js');
+
+module.exports = function drawLink(ctx, line) {
     /*
     ** Variable initiation
     */
@@ -16,7 +19,7 @@ module.exports = function(ctx, line) {
         distance       = Math.sqrt(dx*dx + dy*dy),
         angle          = Math.atan2(dy, dx),
         
-        fromRadius     = line.get('fromRadius')   + 6,
+        fromRadius     = line.get('fromRadius')   + 8,
         targetRadius   = line.get('targetRadius') + 8,
         lineWidth      = line.get('width'),
         halfLineWidth  = lineWidth * 0.80,
@@ -26,6 +29,9 @@ module.exports = function(ctx, line) {
         
         arrowEndX      = x1 + Math.cos(angle) * (distance - (targetRadius + halfLineWidth)),
         arrowEndY      = y1 + Math.sin(angle) * (distance - (targetRadius + halfLineWidth)),
+
+        arrowMiddleX   = startX + Math.cos(angle) * ((distance - fromRadius - targetRadius) / 2),
+        arrowMiddleY   = startY + Math.sin(angle) * ((distance - fromRadius - targetRadius) / 2),
         
         arrowStartX    = x1 + Math.cos(angle) * (distance - (targetRadius + 25)),
         arrowStartY    = y1 + Math.sin(angle) * (distance - (targetRadius + 25)),
@@ -41,7 +47,10 @@ module.exports = function(ctx, line) {
         leftAnchorY    = arrowStartY + Math.sin(leftAngle) * anchorDistance,
         
         rightAnchorX   = arrowStartX + Math.cos(rightAngle) * anchorDistance,
-        rightAnchorY   = arrowStartY + Math.sin(rightAngle) * anchorDistance;
+        rightAnchorY   = arrowStartY + Math.sin(rightAngle) * anchorDistance,
+
+        coefficientX   = arrowMiddleX + Math.cos(leftAngle) * 20,
+        coefficientY   = arrowMiddleY + Math.sin(leftAngle) * 20;
 
     if(distance < fromRadius) {
         return;
@@ -64,7 +73,7 @@ module.exports = function(ctx, line) {
     } else if(line.get('loop') === true) {
         ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
     }  else {
-        ctx.strokeStyle = 'rgba(20, 200, 120, 0.6)';
+        ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
     }
 
     ctx.lineWidth = line.get('width') * 1.2;
@@ -78,35 +87,94 @@ module.exports = function(ctx, line) {
     ctx.closePath();
     ctx.stroke();
 
-    return;
+    if(line.get('type') === 'halfchannel') {
+        /*
+        ** Draw another smaller line on top of the initial arrow.
+        */
 
-    /*
-    ** Draw another smaller line on top if the initial arrow.
-    */
+        /*ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'rgba(0, 0, 0, 1)';*/
 
-    /*ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'rgba(0, 0, 0, 1)';*/
+        
+        ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
 
-    if (line.get('selected') === true) {
-        ctx.strokeStyle = 'rgba(90, 255, 200, 0.8)';
-    } else if(line.get('loop') === true) {
-        ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
-    } else {
-        ctx.strokeStyle = 'rgba(75, 255, 175, 0.6)';
+        ctx.lineWidth = line.get('width');
+        ctx.lineJoin = 'miter';
+        ctx.lineCap  = 'square';
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(arrowStartX, arrowStartY);
+        ctx.lineTo(leftAnchorX,  leftAnchorY);
+        ctx.lineTo(arrowEndX,    arrowEndY);
+        ctx.lineTo(rightAnchorX, rightAnchorY);
+        ctx.lineTo(arrowStartX,  arrowStartY);
+        ctx.closePath();
+        ctx.stroke();
     }
 
-    ctx.lineWidth = line.get('width');
-    ctx.lineJoin = 'miter';
-    ctx.lineCap  = 'square';
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(arrowStartX, arrowStartY);
-    ctx.lineTo(leftAnchorX,  leftAnchorY);
-    ctx.lineTo(arrowEndX,    arrowEndY);
-    ctx.lineTo(rightAnchorX, rightAnchorY);
-    ctx.lineTo(arrowStartX,  arrowStartY);
-    ctx.closePath();
-    ctx.stroke();
+    if(line.get('coefficient') !== undefined) {
+        var textHeight = 22;
+        ctx.font = textHeight + 'px Arial';
+        var coefficient = line.get('coefficient');
+        if(coefficient > 0) {
+            ctx.fillStyle = valueColors.positive;
+        } else if(coefficient < 0) {
+            ctx.fillStyle = valueColors.negative;
+        } else {
+            ctx.fillStyle = valueColors.neutral;
+        }
+
+        var coefficientMeasurement = ctx.measureText(coefficient);
+
+        var concatenatedString = coefficient;
+        var timelag = line.get('timelag');
+        if(timelag !== undefined) {
+             concatenatedString += ", T: " + timelag;
+        }
+        var textMeasurement = ctx.measureText(concatenatedString);
+
+        //console.log(megaString, textMeasurement.width);
+
+        
+        ctx.textBaseline = 'middle';
+
+        /*
+        ** String aligned with arrow */
+
+        var halfTextWidth  = textMeasurement.width / 2,
+            halfTextHeight = textHeight / 2;
+
+        var offsetX = halfTextWidth  + 22, // padding X
+            offsetY = halfTextHeight + 22; // padding Y
+
+        var textX = arrowMiddleX - halfTextWidth  + Math.cos(angle + halfPI)*offsetX,
+            textY = arrowMiddleY + halfTextHeight + Math.sin(angle + halfPI)*offsetY;
+
+        ctx.fillText(coefficient, textX, textY);
+        if(timelag !== undefined) {
+            ctx.fillStyle = valueColors.neutral;
+            ctx.fillText(", T: " + line.get('timelag'), textX + coefficientMeasurement.width, textY);
+        }
+
+        /*
+        ** String rotated WITH the arrow.
+
+        ctx.save();
+        ctx.translate(coefficientX, coefficientY);
+        ctx.rotate(angle);
+
+        coefficientX = 0 - (textMeasurement.width / 2);
+        
+        ctx.fillText(coefficient, coefficientX, 0);
+        
+        if(timelag !== undefined) {
+            ctx.fillStyle = valueColors.neutral;
+            ctx.fillText(", T: " + line.get('timelag'), coefficientX + coefficientMeasurement.width, 0);
+        }
+
+        ctx.restore();
+        */
+    }
 };

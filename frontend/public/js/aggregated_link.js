@@ -6,6 +6,10 @@ function aggregatedLink(link, nodes) {
     return Immutable.Map({
         selected:     link.get('selected'),
         loop:         link.get('loop'),
+        type:         link.get('type'),
+        coefficient:  link.get('coefficient'),
+        timelag:      link.get('timelag'),
+        debugNode:    nodes.get(link.get('node1')).get('selected'),
         x1:           nodes.get(link.get('node1')).get('x'),
         y1:           nodes.get(link.get('node1')).get('y'),
         x2:           nodes.get(link.get('node2')).get('x'),
