@@ -59,6 +59,23 @@ Object.prototype.merge = function() {
     return newObj;
 };
 
+Object.prototype.slice = function(from, to) {
+    var newObj = {},
+        that   = this;
+
+    var slice = Object.keys(this).slice(from, to);
+    slice.forEach(function(key) {
+        newObj[key] = that[key];
+    });
+
+    return newObj;
+};
+
+Object.prototype.last = function() {
+    var arr = Object.keys(this);
+    return this[arr[arr.length - 1]];
+};
+
 console.log(Object.prototype);
 
 var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
@@ -278,13 +295,13 @@ var dragHandler   = require('./mechanics/drag_handler.js'),
 dragHandler(
     mainCanvas,
     function mouseDown(pos) {
-        var data = mouseDownWare({env: environment, pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links'), linegraph: loadedModel.get('settings').get('linegraph')}, environment);
-        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
-        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
+        var data = mouseDownWare({env: environment, pos: pos, nodeGui: loadedModel.nodeGui, links: loadedModel.links, linegraph: loadedModel.settings.linegraph}, environment);
+        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
+        loadedModel.links   = loadedModel.links.merge(data.links);
 
         refresh();
 
-        if(loadedModel.get('settings').get('linegraph')) {
+        if(loadedModel.settings.linegraph) {
             linegraphRefresh();
         }
 
@@ -292,22 +309,22 @@ dragHandler(
     },
 
     function mouseMove(pos, deltaPos) {
-        var data = mouseMoveWare({pos: Immutable.Map(pos), deltaPos: Immutable.Map(deltaPos), settings: loadedModel.get('settings'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
-        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
-        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
-        loadedModel = loadedModel.set('settings', loadedModel.get('settings').merge(data.settings));
+        var data = mouseMoveWare({pos: Immutable.Map(pos), deltaPos: Immutable.Map(deltaPos), settings: loadedModel.settings, nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+        loadedModel.nodeGui  = loadedModel.nodeGui.merge(data.nodeGui);
+        loadedModel.links    = loadedModel.links.merge(data.links);
+        loadedModel.settings = loadedModel.settings.merge(data.settings);
 
         refresh();
     },
     
     function mouseUp(pos) {
-        var data = mouseUpWare({pos: Immutable.Map(pos), nextId: loadedModel.get('nextId'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
-        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
-        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
-        loadedModel = loadedModel.set('nextId', data.nextId);
+        var data = mouseUpWare({pos: Immutable.Map(pos), nextId: loadedModel.nextId, nodeGui: loadedModel.nodeGui, links: loadedModel.links});
+        loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
+        loadedModel.links   = loadedModel.links.merge(data.links);
+        loadedModel.nextId  = data.nextId;
 
-        mainCanvas.panX = -loadedModel.get('settings').get('offsetX');
-        mainCanvas.panY = -loadedModel.get('settings').get('offsetY');
+        mainCanvas.panX = -loadedModel.settings.offsetX;
+        mainCanvas.panY = -loadedModel.settings.offsetY;
 
         refresh();
     }
@@ -320,8 +337,8 @@ var zoom = 1;
 function MouseWheelHandler(e) {
 	var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
 	var mouse_canvas_y = e.y - mainCanvas.offsetTop;
-    var scaleX = loadedModel.get('settings').get('scaleX') || 1;
-    var scaleY = loadedModel.get('settings').get('scaleX') || 1;
+    var scaleX = loadedModel.settings.scaleX || 1;
+    var scaleY = loadedModel.settings.scaleX || 1;
 	var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.get('settings').get('offsetX') || 0) / scaleX;
 	var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.get('settings').get('offsetY') || 0) / scaleY;
 
