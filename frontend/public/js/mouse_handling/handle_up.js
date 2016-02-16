@@ -33,7 +33,7 @@ function link(data) {
                 return maybeCollidingNode.linking !== true && hitTest(maybeCollidingNode, linker(node));
             }).slice(-1);
 
-            hit = hit.forEach(function(collided) {
+            hit.forEach(function(collided) {
                 var id;
                 if(data.nextId !== undefined) {
                     id = data.nextId
@@ -55,15 +55,8 @@ function link(data) {
                 var nodeId     = node.id,
                     collidedId = collided.id;
 
-                data.nodeGui[nodeId] = data.nodeGui[nodeId].merge({
-                        links: node.links.push(id)
-                    }
-                );
-
-                data.nodeGui[collidedId] = data.nodeGui[collidedId].merge({
-                        links: collided.links.push(id)
-                    }
-                );
+                data.nodeGui[nodeId].links.push(id);
+                data.nodeGui[collidedId].links.push(id);
 
                 data.links[id] = createLink(id, nodeId, collidedId);
             });

@@ -73,7 +73,6 @@ function clickAndMove(data, error, done, env) {
     data.nodeGui = data.nodeGui.merge(collidedNodes);
 
     if (Object.keys(collidedNodes).length > 0) {
-        console.log("RETURNING", data);
         return done(data);
     }
 
@@ -109,7 +108,7 @@ function clickAndMove(data, error, done, env) {
             var x = node.x - node.radius - w - 8,
                 y = node.y - (h / 2);
 
-            return pointRect(data.pos, Immutable.Map({x: x, y: y, width: w, height: h}));
+            return pointRect(data.pos, {x: x, y: y, width: w, height: h});
         }).
         map(function(node) {
             return node.concat({

@@ -100,7 +100,7 @@ var simulate = [
             return 0;
         },
         callback: function(model, attrs, value) {
-            model = model.set('settings', model.settings.set('timeStepT', value));
+            model.settings.timeStepT = value;
             return model;
         }
     },

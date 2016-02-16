@@ -7,7 +7,7 @@ var Immutable  = null,
     windows    = require('./windows.js'),
     modelLayer = require('./../model_layer.js');
 
-var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
+var modeUpdate = function(refresh, loadedModel, savedModels, UIData) {
     var element = this;
 
     element.resetOptions();
@@ -17,7 +17,7 @@ var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
     element.refreshList();
 };
 
-var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
+var modeCallback = function(refresh, loadedModel, savedModels, UIData) {
     var option = this.value;
 
     var UIData      = changeCallbacks.UIData,
@@ -28,14 +28,14 @@ var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
 
     switch(option) {
         case 'modelling':
-            ui = ui.set('sidebar', modelling);
+            ui.sidebar = modelling;
             environment('modelling');
             UIData(ui);
             UIRefresh();
             refresh();
             break;
         case 'simulate':
-            ui = ui.set('sidebar', simulate);
+            ui.sidebar = simulate;
             environment('simulate');
             UIData(ui);
             UIRefresh();
@@ -44,11 +44,8 @@ var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
     }
 };
 
-var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
+var projectUpdate = function(refresh, loadedModel, savedModels, UIData) {
     var element = this;
-
-    var savedModels = changeCallbacks.savedModels,
-        loadedModel = changeCallbacks.loadedModel;
 
     element.resetOptions();
     element.addOption('new',    'New Model');
@@ -56,8 +53,7 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
     element.addOption('delete', 'Delete Current');
 
     backendApi('/models/all', function(response, error) {
-        var sm = savedModels();
-        sm.local.forEach(function(model) {
+        savedModels.local.forEach(function(model) {
             if(model.synced === true) {
                 return;
             }
@@ -70,7 +66,7 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
             element.addOption(model.id, '[' + model.id + ']' +savedString + model.settings.name);
         });
 
-        sm.synced.forEach(function(model) {
+        savedModels.synced.forEach(function(model) {
             var savedString = "";
             if(model.saved === false) {
                 savedString = " * ";
@@ -86,8 +82,8 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
 
         var models = response.response;
 
-        var local  = sm.local,
-            synced = sm.synced;
+        var local  = savedModels.local,
+            synced = savedModels.synced;
 
         models.forEach(function(model) {
             element.addOption(model.id, model.name);
@@ -97,7 +93,7 @@ var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
     });
 };
 
-var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
+var projectCallback = function(refresh, loadedModel, savedModels, UIData) {
     var option      = this.value,
         savedModels = changeCallbacks.savedModels,
         loadedModel = changeCallbacks.loadedModel,

@@ -67,6 +67,7 @@ module.exports = {
             syncId:    null,
 
             nextId:    0,
+            selected:  {},
             nodeData:  {},
             nodeGui:   {},
             links:     {},

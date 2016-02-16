@@ -4,10 +4,10 @@ var menuBuilder = require('../menu_builder'),
     valueColors = require('./value_colors.js');
 
 module.exports = function drawTimeTable(ctx, map) {
-    var data = map.get('timeTable');
+    var data = map.timeTable;
 
     var size   = 24,
-        startY = ((map.get('y') - size / 2) - ((size * data.size) / 2)),
+        startY = ((map.y - size / 2) - ((size * data.size()) / 2)),
 
         longestTimeStep = 0,
         longestSymbol   = 0,
@@ -50,7 +50,7 @@ module.exports = function drawTimeTable(ctx, map) {
         });
     });
 
-    var valueX   = map.get('x') - map.get('radius') - longestValue - 8,
+    var valueX   = map.x - map.radius - longestValue - 8,
         symbolX  = valueX - longestSymbol,
         startX   = symbolX - longestTimeStep;
 

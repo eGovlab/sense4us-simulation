@@ -276,7 +276,7 @@ function updateMenu(menu, map) {
 var namespace = {
     createAvatarSelector: createAvatarSelector,
     createAvatarButtons:  createAvatarButtons,
-    drawSelectedMenu: function(container, menu, map, changeCallback, includedAttributes) {
+    drawSelectedMenu: function(container, loadedModel, menu, map, changeCallback, includedAttributes) {
         if (map === null || map === undefined) {
             if (menu !== null) {
                 try {
@@ -299,14 +299,13 @@ var namespace = {
                 //menu = menu.set('map_obj', menu.map_obj.set(key, value));
             }
 
-            changeCallback(menu.map_obj);
+            changeCallback(loadedModel, menu.map_obj);
         };
 
-        if (menu === null || menu.element === undefined) {
+        if (!menu || menu.element === undefined) {
             menu = createMenu(map, updateMenuMapObj, includedAttributes);
             menu.map_obj = map;
 
-            console.log(menu.map_obj, map, menu.map_obj === map);
             container.appendChild(menu.element);
 
             return menu;
@@ -336,12 +335,7 @@ var namespace = {
         return menu;
     },
 
-    updateSelected: function(refresh, UIRefresh, changeCallbacks, newSelected) {
-        var _loadedModel = changeCallbacks.loadedModel,
-            loadedModel  = _loadedModel(),
-            _savedModels = changeCallbacks.savedModels,
-            savedModels  = _savedModels();
-
+    updateSelected: function(loadedModel, newSelected) {
         if (newSelected.timelag !== undefined && newSelected.coefficient !== undefined) {
             var coefficient = parseFloat(newSelected.coefficient),
                 timelag     = parseInt(newSelected.timelag),

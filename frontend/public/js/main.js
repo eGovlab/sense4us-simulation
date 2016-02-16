@@ -27,6 +27,10 @@ Object.prototype.filter = function(callback) {
     return newObj;
 };
 
+Object.prototype.size = function() {
+    return Object.keys(this).length;
+}
+
 Object.prototype.map = function(callback) {
     var newObj = {},
         that   = this;
@@ -73,6 +77,11 @@ Object.prototype.slice = function(from, to) {
 
 Object.prototype.last = function() {
     var arr = Object.keys(this);
+    var length = arr.length;
+    if(length === 0) {
+        return false;
+    }
+
     return this[arr[arr.length-1]];
 }
 
@@ -81,12 +90,7 @@ console.log(Object.prototype);
 var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
 var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);
 
-var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
-    drawLinker       = curry(require('./graphics/draw_linker.js'),     mainCanvas.getContext('2d'), linker),
-    drawLink         = curry(require('./graphics/draw_link.js'),       mainCanvas.getContext('2d')),
-    drawChange       = curry(require('./graphics/draw_change.js'),     mainCanvas.getContext('2d')),
-    drawText         = strictCurry(require('./graphics/draw_text.js'), mainCanvas.getContext('2d')),
-    colorValues      = require('./graphics/value_colors.js'),
+var colorValues      = require('./graphics/value_colors.js'),
     modelLayer       = require('./model_layer.js'),
     menuBuilder      = require('./menu_builder'),
     notificationBar  = require('./notification_bar'),
@@ -266,12 +270,7 @@ var changeCallbacks = {
     }
 };
 
-UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
-
-var drawNode      = require('./graphics/draw_node.js'),
-    drawTimeTable = require('./graphics/draw_time_table.js');
-    drawNode      = curry(drawNode, mainCanvas.getContext('2d'));
-    drawTimeTable = curry(drawTimeTable, mainCanvas.getContext('2d'));
+//UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
 
 window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
@@ -404,16 +403,24 @@ function alignWithList(item) {
 }
 
 /* This method is retarded. */
-UIRefresh();
+//UIRefresh();
 
 var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
 var aggregatedLink = require('./aggregated_link.js');
 
+var asyncMiddleware = require("./async_middleware");
+var uiParams        = asyncMiddleware(refresh, loadedModel, savedModels, UIData);
+var UIMiddleware = uiParams(
+    UIRefresh.menuRefresh,
+    UIRefresh.sidebarRefresh
+);
+
 var lastShow = false;
-function showLineGraph(show) {
+function showLineGraph(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+    var show = loadedModel.settings.linegraph;
     var parent = linegraphCanvas.parentElement;
     if(show === lastShow) {
-        return;
+        return next();
     }
 
     if(show) {
@@ -427,150 +434,27 @@ function showLineGraph(show) {
     }
 
     lastShow = show;
+
+    next();
 }
 
-function _refresh() {
-    var showingLineGraph = loadedModel.settings.linegraph;
-    showLineGraph(showingLineGraph);
+var refreshNamespace = require('./refresh');
+var ctx = mainCanvas.getContext('2d');
+var refreshParams = asyncMiddleware(ctx, mainCanvas, loadedModel, selectedMenu, environment);
+var _refresh = refreshParams(
+    showLineGraph,
+    refreshNamespace.clearCanvasAndTransform,
+    refreshNamespace.getSelectedObjects,
+    refreshNamespace.drawNodes,
+    refreshNamespace.drawLinks,
+    refreshNamespace.drawNodeDescriptions,
+    refreshNamespace._drawLinker,
+    refreshNamespace.drawLinkingLine,
+    refreshNamespace.updateSelectedMenu
+);
 
-    context.clearRect(
-        (-loadedModel.settings.offsetX || 0) * (2 - loadedModel.settings.scaleX || 1),
-        (-loadedModel.settings.offsetY || 0) * (2 - loadedModel.settings.scaleX || 1),
-        mainCanvas.width  * (2 - (loadedModel.settings.scaleX || 1)),
-        mainCanvas.height * (2 - (loadedModel.settings.scaleY || 1))
-    );
-    
-    context.setTransform(
-        loadedModel.settings.scaleX  || 1,
-        0,
-        0,
-        loadedModel.settings.scaleY  || 1,
-        loadedModel.settings.offsetX || 0,
-        loadedModel.settings.offsetY || 0
-    );
-
-    // get all the selected objects
-    var selected = loadedModel.nodeData
-        .filter(function filterNodesForSelection(node) {
-            return loadedModel.nodeGui[node.id].selected === true;
-        })
-        .map(function removeUnnecessaryDataFromSelectedNodes(node) {
-            return node.merge(
-                {
-                    radius: loadedModel.nodeGui[node.id].radius,
-                    avatar: loadedModel.nodeGui[node.id].avatar,
-                    icon:   loadedModel.nodeGui[node.id].icon
-                }
-            );
-        })
-        .merge(
-            loadedModel.links.filter(function filterLinksForSelection(link) {return link.selected === true;})
-            .map(function removeUnnecessaryDataFromSelectedLinks(link) {
-                return {
-                    id:          link.id,
-                    timelag:     link.timelag,
-                    coefficient: link.coefficient,
-                    threshold:   link.threshold,
-                    type:        link.type,
-                    node1:       link.node1,
-                    node2:       link.node2
-                };
-            })
-        );
-
-    // draw all the nodes
-    loadedModel.nodeData.forEach(
-        function drawEachNode(n) { 
-            var nodeGui = n.merge(loadedModel.nodeGui[n.id]);
-            if(!showingLineGraph) {
-                nodeGui.linegraph = false;
-            }
-
-            drawNode(nodeGui);
-        }
-    );
-
-    // draw the links and arrows
-    loadedModel.links.forEach(function drawLinksAndArrows(link) {
-        drawLink(aggregatedLink(link, loadedModel.nodeGui));
-    });
-
-    // draw all the node descriptions
-    loadedModel.nodeData.forEach(
-        function drawEachNodeText(n) { 
-            var nodeGui = n.merge(loadedModel.nodeGui[n.id]);
-            drawText(
-                nodeGui.name,
-                nodeGui.x,
-                nodeGui.y + nodeGui.radius + 4,
-                colorValues.neutral,
-                true
-            );
-            /*
-            ** If you add more environment specific code, please bundle
-            ** it up into another method.
-            **
-            ** e.g. drawNodeInSimulation(nodeGui)
-            */
-            if(environment === 'simulate' ) {
-                if(nodeGui.timeTable) {
-                    drawTimeTable(nodeGui);
-                } else {
-                    drawChange(nodeGui.x, nodeGui.y + nodeGui.radius / 6, Math.round(n.simulateChange[loadedModel.settings.timeStepN] * 100) / 100);
-                }
-            }
-        }
-    );
-
-    // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.nodeGui.filter(function drawLinkerOnSelectedNodes(node) {return node.selected === true && node.linking !== true;}).forEach(drawLinker);
-
-    // if we are currently linking, we want to draw the link we're creating
-    loadedModel.nodeGui.filter(function drawLinkingArrow(node) {return node.linking === true; }).forEach(function(node) {
-        var linkerForNode = linker(node);
-        drawLink(
-            {
-                type:         'fullchannel',
-                x1:           node.x,
-                y1:           node.y,
-                x2:           node.linkerX,
-                y2:           node.linkerY,
-                fromRadius:   node.radius,
-                targetRadius: 0,
-                width:        8
-            }
-        );
-    });
-
-    // if we are linking, we want to draw the dot above everything else
-    loadedModel.nodeGui.filter(function drawLinkerDotWhileLinking(node) {return node.linking === true; }).forEach(drawLinker);
-
-    //update the menu
-    var sidebar = document.getElementById('sidebar');
-    if(selected.last()) {
-        sidebar.firstElementChild.style.display = 'none';
-    } else {
-        sidebar.firstElementChild.style.display = 'block';
-    }
-
-    switch(environment) {
-        case 'modelling':
-            if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'name', 'description', 'type', 'threshold', 'coefficient', 'timelag']);
-            } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected, ['name']);
-            }
-            break;
-        case 'simulate':
-            if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag', 'type', 'threshold']);
-            } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.settings, updateSelected, ['maxIterations']);
-                //selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
-            }
-            break;
-    }
-}
+UIMiddleware();
+refresh();
 
 var drawLineGraph = require('./graphics/draw_line_graph.js');
 function _linegraphRefresh() {
@@ -607,5 +491,4 @@ function linegraphRefresh() {
     window.requestAnimationFrame(_linegraphRefresh);
 }
 
-refresh();
 linegraphRefresh();

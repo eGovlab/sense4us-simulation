@@ -98,7 +98,13 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     return container;
 }
 
-var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateModelCallback) {
+//var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateModelCallback) {
+var sidebarRefresh = function(refresh, loadedModel, savedModels, UIData, next) {
+    var container = CONFIG.get('SIDEBAR_CONTAINER');
+    while(container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+
     var sidebarMenu = document.createElement('div');
     sidebarMenu.className = 'menu';
     container.appendChild(sidebarMenu);
@@ -107,14 +113,13 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
         if (element.images) {
             (function() {
                 var avatarsElement = selectedMenu.createAvatarButtons('avatar', null, function(key, value) {
-                    console.log("CREATED NODE?");
-                    updateModelCallback(
-                        element.callback(
-                            changeCallbacks.loadedModel(),
-                            {name:   key}, 
-                            {avatar: value}
-                        )
+                    element.callback(
+                        loadedModel,
+                        {name:   key}, 
+                        {avatar: value}
                     );
+
+                    refresh();
                 }, element.images);
                 
                 var labelElement = menuBuilder.label(element.header);
@@ -148,7 +153,13 @@ var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updat
     });
 };
 
-var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallbacks, updateModelCallback) {
+//var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallbacks, updateModelCallback) {
+var menuRefresh = function(refresh, loadedModel, savedModels, UIData, next) {
+    var container = CONFIG.get('MENU_CONTAINER');
+    while(container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+
     var menuBar = document.createElement('div');
     menuBar.className = 'menu';
     container.appendChild(menuBar);
@@ -163,10 +174,9 @@ var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallback
                     menu.callback.call(
                         this,
                         refresh,
-                        function() {
-                            UIRefresh(refresh, changeCallbacks);
-                        },
-                        changeCallbacks
+                        loadedModel,
+                        savedModels,
+                        UIData
                     );
                 },
                 
@@ -174,10 +184,9 @@ var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallback
                     menu.update.call(
                         this,
                         refresh,
-                        function() {
-                            UIRefresh(refresh, changeCallbacks);
-                        },
-                        changeCallbacks
+                        loadedModel,
+                        savedModels,
+                        UIData
                     );
                 }
             );
@@ -195,6 +204,8 @@ var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallback
 
         menuBar.appendChild(button);
     });
+
+    next();
 };
 
 var UIRefresh = function(refresh, changeCallbacks) {
@@ -220,11 +231,8 @@ var UIRefresh = function(refresh, changeCallbacks) {
      */
     changeCallbacks.selectedMenu({});
 
-    console.log(UIData)
     /* The sidebar may only update the model as of right now. */
     sidebarRefresh(UIData, sidebarContainer, refresh, changeCallbacks, function(updatedModel) {
-        console.log("CREATED NEW NODE?");
-        console.log(updatedModel);
         _loadedModel(updatedModel);
 
         var _selectedMenu = changeCallbacks.selectedMenu;
@@ -244,4 +252,8 @@ var UIRefresh = function(refresh, changeCallbacks) {
     });
 };
 
-module.exports = UIRefresh;
+module.exports = {
+    UIRefresh:      UIRefresh,
+    menuRefresh:    menuRefresh,
+    sidebarRefresh: sidebarRefresh
+};
