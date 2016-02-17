@@ -2,12 +2,12 @@
 
 var arithmetics = require('../canvas/arithmetics.js');
 
-module.exports = function(canvas, startCallback, updateCallback, endCallback, missCallback) {
+module.exports = function(canvas, loadedModel, environment, startCallback, updateCallback, endCallback, missCallback) {
 	var active = false;
 
-	var startPos = {x: 0, y: 0};
-	var endPos = {x: 0, y: 0};
-	var lastPos = {x: 0, y: 0};
+	var startPos = {x: 0, y: 0},
+		endPos   = {x: 0, y: 0},
+		lastPos  = {x: 0, y: 0};
 
 	var deltaPos = {x: 0, y: 0};
 
@@ -17,7 +17,8 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 		startPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
 		lastPos = {x: startPos.x, y: startPos.y};
 
-		var result = startCallback(startPos);
+		var result = startCallback(canvas, loadedModel, environment, startPos);
+		loadedModel.propagate();
 
 		if (result) {
 			if (updateCallback) {
@@ -28,7 +29,7 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 				window.addEventListener('mouseup', mouseUp);
 			}
 		} else if (missCallback) {
-			missCallback(startPos);
+			missCallback(canvas, loadedModel, environment, startPos);
 		}
 	};
 
@@ -45,7 +46,8 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 		startPos.x = endPos.x;
 		startPos.y = endPos.y;
 
-		updateCallback(endPos, deltaPos);
+		updateCallback(canvas, loadedModel, environment, endPos, deltaPos);
+		loadedModel.propagate();
 		
 		lastPos = {x: endPos.x, y: endPos.y};
 	};
@@ -58,6 +60,7 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 		window.removeEventListener('mousemove', mouseMove);
 		window.removeEventListener('mouseup', mouseUp);
 
-		endCallback(endPos);
+		endCallback(canvas, loadedModel, environment, endPos);
+		loadedModel.propagate();
 	};
 };

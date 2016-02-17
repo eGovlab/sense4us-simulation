@@ -12,7 +12,7 @@ var backendApi      = require('./api/backend_api.js'),
 /*
 ** Used to generate a local and incremential ID to avoid collisions for models.
 */
-var generateId = 0;
+var generateId = -1;
 
 /*
 ** Said namespace.
@@ -58,43 +58,134 @@ var generateId = 0;
 **     returns:     Will call onDoneCallback with the remote models data in a map similar to
 **                  newModel as the only argument.
 */
+
+function definePropagations(obj, keys) {
+    keys.forEach(function(key) {
+        Object.defineProperty(obj, key, {get: function() {
+            return this["_"+key];
+        }, set: function(newValue) {
+            //console.log("Setting: ["+key+"]: " + newValue);
+            //console.log(new Error().stack);
+            this.changed[key]    = true;
+            this["_"+key] = newValue;
+        }});
+    });
+}
+
+function Model(id) {
+    this.changed    = {};
+    this.timestamps = {};
+
+    this.id       = id;
+    this.saved    = false;
+    this.synced   = false;
+    this.syncId   = null;
+
+    this.nextId   = 0;
+    this.selected = {};
+    this.nodeData = {};
+    this.nodeGui  = {};
+    this.links    = {};
+
+    this.settings = {
+        name:          "New Model",
+        maxIterations: 4,
+        offsetX:       0,
+        offsetY:       0,
+        zoom:          1,
+
+        timeStepT:     "Week",
+        timeStepN:     0
+    };
+
+    this.treeSettings = {
+        x:      400,
+        y:      20,
+        width:  200,
+        height: 0,
+        scroll: 0
+    };
+
+    this.loadedScenario = 0;
+    this.scenarios      = [];
+}
+
+Model.prototype = {
+    listeners:   {},
+    addListener: function(key, listener) {
+        if(!Model.prototype.listeners[key]) {
+            Model.prototype.listeners[key] = [];
+        }
+
+        if(Model.prototype.listeners[key].indexOf(listener) !== -1) {
+            return;
+        }
+
+        Model.prototype.listeners[key].push(listener);
+    },
+
+    removeListener: function(key, listener) {
+        if(!Model.prototype.listeners[key]) {
+            return;
+        }
+
+        Model.prototype.listeners[key] = Model.prototype.listeners[key].filter(function(value){return value !== listener;});
+    },
+
+    removeListeners: function(key) {
+        Model.prototype.listeners[key] = [];
+    },
+
+    propagate: function() {
+        var validListeners = [];
+        Object.keys(this.changed).forEach(function(key) {
+            var property = this[key];
+            if(!property) {
+                return;
+            }
+
+            var _l = Model.prototype.listeners[key];
+            if(!_l || _l.length === 0) {
+                return;
+            }
+
+            _l.forEach(function(listener) {
+                if(validListeners.indexOf(listener) !== -1) {
+                    return;
+                }
+
+                validListeners.push(listener);
+            });
+        }, this);
+
+        validListeners.forEach(function(listener) {
+            listener.call(this);
+        }, this);
+
+        this.changed = {};
+    }
+};
+
+definePropagations(Model.prototype, [
+    "id",
+    "saved",
+    "synced",
+    "syncId",
+    "nextId",
+    "selected",
+    "nodeData",
+    "nodeGui",
+    "links",
+    "settings",
+    "treeSettings",
+    "loadedScenario",
+    "scenarios"
+]);
+
 module.exports = {
     newModel: function(id) {
-        var map = {
-            id:        id || generateId,
-            saved:     false,
-            synced:    false,
-            syncId:    null,
-
-            nextId:    0,
-            selected:  {},
-            nodeData:  {},
-            nodeGui:   {},
-            links:     {},
-            settings:  {
-                name:          "New Model",
-                maxIterations: 4,
-                offsetX:       0,
-                offsetY:       0,
-                zoom:          1,
-
-                timeStepT:     "Week",
-                timeStepN:     0
-            },
-            treeSettings: {
-                x:      400,
-                y:      20,
-                width:  200,
-                height: 0,
-                scroll: 0
-            },
-            loadedScenario: 0,
-            scenarios:      [],
-        };
-
-        generateId += 1;
-
-        return map;
+        generateId++;
+        return new Model(generateId);
     },
 
     saveModel: function(_loadedModel, refresh) {

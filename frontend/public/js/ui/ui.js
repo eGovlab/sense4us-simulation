@@ -98,8 +98,27 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     return container;
 }
 
+function List() {
+
+}
+
+List.prototype = {
+
+};
+
 //var sidebarRefresh = function(UIData, container, refresh, changeCallbacks, updateModelCallback) {
+//var manager = new SidebarManager(CONFIG.get("SIDEBAR_CONTAINER"));
 var sidebarRefresh = function(refresh, loadedModel, savedModels, UIData, next) {
+    //manager.addSidebar(UIData.sidebar, loadedModel);
+
+    /*if(currentSidebar === UIData.sidebar) {
+        return;
+    }*/
+
+    return;
+
+    currentSidebar = UIData.sidebar;
+
     var container = CONFIG.get('SIDEBAR_CONTAINER');
     while(container.firstChild) {
         container.removeChild(container.firstChild);
@@ -205,7 +224,7 @@ var menuRefresh = function(refresh, loadedModel, savedModels, UIData, next) {
         menuBar.appendChild(button);
     });
 
-    next();
+    //next();
 };
 
 var UIRefresh = function(refresh, changeCallbacks) {
@@ -253,6 +272,8 @@ var UIRefresh = function(refresh, changeCallbacks) {
 };
 
 module.exports = {
+    Sidebar:        require("./sidebar"),
+    SidebarManager: require("./sidebar_manager"),
     UIRefresh:      UIRefresh,
     menuRefresh:    menuRefresh,
     sidebarRefresh: sidebarRefresh

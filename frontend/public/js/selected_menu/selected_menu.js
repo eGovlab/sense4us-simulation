@@ -335,7 +335,7 @@ var namespace = {
         return menu;
     },
 
-    updateSelected: function(loadedModel, newSelected) {
+    updateSelected: function(loadedModel, newSelected, refresh, UIRefresh) {
         if (newSelected.timelag !== undefined && newSelected.coefficient !== undefined) {
             var coefficient = parseFloat(newSelected.coefficient),
                 timelag     = parseInt(newSelected.timelag),
@@ -352,11 +352,9 @@ var namespace = {
                 console.log("Deleting!");
                 var links = loadedModel.links;
 
-                links = links.delete(newSelected.id);
-                loadedModel = loadedModel.set('links', links);
+                delete links[newSelected.id];
+                loadedModel.links = links;
 
-                _loadedModel(loadedModel);
-                
                 refresh();
                 return;
             }
@@ -367,17 +365,15 @@ var namespace = {
                 threshold:   threshold,
                 type:        type
             });
-
-            _loadedModel(loadedModel);
         } else if (newSelected.offsetY !== undefined || newSelected.offsetX !== undefined) {
-            _loadedModel(loadedModel.set('settings', newSelected));
+            loadedModel.settings = newSelected;
         } else {
             var nodeData = loadedModel.nodeData,
                 nodeGui  = loadedModel.nodeGui,
                 node     = null;
 
             if(newSelected.delete === true) {
-                node      = nodeGui.get(newSelected.id);
+                node      = nodeGui[newSelected.id];
                 var links = loadedModel.links;
 
                 if(node.links !== undefined){
@@ -386,14 +382,8 @@ var namespace = {
                     });
                 }
 
-                nodeData = nodeData.delete(newSelected.id);
-                nodeGui  = nodeGui.delete(newSelected.id);
-
-                loadedModel = loadedModel.set('nodeData', nodeData);
-                loadedModel = loadedModel.set('nodeGui', nodeGui);
-                loadedModel = loadedModel.set('links', links);
-
-                _loadedModel(loadedModel);
+                delete nodeData[newSelected.id];
+                delete nodeGui[newSelected.id];
 
                 refresh();
 
@@ -403,35 +393,18 @@ var namespace = {
             node = nodeData[newSelected.id];
             nodeData[newSelected.id] = node.merge(newSelected);
 
-            /*node = node.merge(Immutable.Map({
-                id:             newSelected.id,
-                value:          newSelected.value,
-                relativeChange: newSelected.relativeChange,
-                description:    newSelected.description,
-                type:           newSelected.type,
-                timeTable:      newSelected.timeTable
-            }));*/
-
-            //nodeData = nodeData.set(node.id, node);
-            //loadedModel = loadedModel.set('nodeData', nodeData);
-
             node = nodeGui[newSelected.id];
-            node = node.merge({
+            nodeGui[newSelected.id] = node.merge({
                 radius: parseFloat(newSelected.radius),
                 avatar: newSelected.avatar,
                 icon:   newSelected.icon
             });
-
-            nodeGui[node.id] = node;
-            //loadedModel = loadedModel.set('nodeGui', nodeGui);
-
-            _loadedModel(loadedModel);
         }
 
-        if(savedModels.synced[loadedModel.id] !== undefined) {
+        /*if(savedModels.synced[loadedModel.id] !== undefined) {
             loadedModel.settings.saved = false;
             savedModels.synced[loadedModel.id] = loadedModel;
-            _savedModels(savedModels);
+            _savedModels(savedModels);*/
             /*
             _savedModels(savedModels.set('synced',
                 savedModels.synced.set(loadedModel.id,
@@ -440,10 +413,10 @@ var namespace = {
                     )
                 )
             ));*/
-        } else {
+        /*} else {
             loadedModel.settings.saved = false;
             savedModels.local[loadedModel.id] = loadedModel;
-            _savedModels(savedModels);
+            _savedModels(savedModels);*/
             /*_savedModels(savedModels.set('local',
                 savedModels.local.set(loadedModel.id,
                     loadedModel.set('settings', loadedModel.settings.set('saved',
@@ -451,9 +424,9 @@ var namespace = {
                     )
                 )
             ));*/
-        }
+        //}
 
-        UIRefresh();
+        //UIRefresh();
         refresh();
     }
 };

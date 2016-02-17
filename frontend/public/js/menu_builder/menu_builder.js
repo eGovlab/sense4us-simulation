@@ -43,8 +43,11 @@ MenuBuilder.prototype = {
         return input;
     },
 
-    div: function() {
+    div: function(className) {
         var div = document.createElement('div');
+        if(className) {
+            div.className = className;
+        }
 
         return div;
     },

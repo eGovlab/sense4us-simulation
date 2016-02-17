@@ -33,5 +33,7 @@ module.exports = function createNode(model, data, gui, type) {
     model.nodeData[id] = nodeData;
     model.nodeGui[id]  = nodeGui;
 
+    model.propagate();
+
     return model;
 };

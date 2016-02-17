@@ -128,6 +128,42 @@ function drawLinkingLine(ctx, canvas, loadedModel, selectedMenu, environment, ne
     next();
 }
 
+function getSelectedObjects(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+    /*var selected = loadedModel.nodeData
+    .filter(function filterNodesForSelection(node) {
+        return loadedModel.nodeGui[node.id].selected === true;
+    })
+    .map(function removeUnnecessaryDataFromSelectedNodes(node) {
+        return node.merge(
+            {
+                radius: loadedModel.nodeGui[node.id].radius,
+                avatar: loadedModel.nodeGui[node.id].avatar,
+                icon:   loadedModel.nodeGui[node.id].icon
+            }
+        );
+    })
+    .merge(
+        loadedModel.links.filter(function filterLinksForSelection(link) {return link.selected === true;})
+        .map(function removeUnnecessaryDataFromSelectedLinks(link) {
+            return {
+                id:          link.id,
+                timelag:     link.timelag,
+                coefficient: link.coefficient,
+                threshold:   link.threshold,
+                type:        link.type,
+                node1:       link.node1,
+                node2:       link.node2
+            };
+        })
+    );
+
+    if(selected.size() > 0) {
+        loadedModel.selected = selected;
+    }*/
+
+    next();
+}
+
 function updateSelectedMenu(ctx, canvas, loadedModel, selectedMenu, environment, next) {
     //update the menu
     var selected = loadedModel.selected;
@@ -157,38 +193,6 @@ function updateSelectedMenu(ctx, canvas, loadedModel, selectedMenu, environment,
             }
             break;
     }
-
-    next();
-}
-
-function getSelectedObjects(ctx, canvas, loadedModel, selectedMenu, environment, next) {
-    loadedModel.selected = loadedModel.nodeData
-    .filter(function filterNodesForSelection(node) {
-        return loadedModel.nodeGui[node.id].selected === true;
-    })
-    .map(function removeUnnecessaryDataFromSelectedNodes(node) {
-        return node.merge(
-            {
-                radius: loadedModel.nodeGui[node.id].radius,
-                avatar: loadedModel.nodeGui[node.id].avatar,
-                icon:   loadedModel.nodeGui[node.id].icon
-            }
-        );
-    })
-    .merge(
-        loadedModel.links.filter(function filterLinksForSelection(link) {return link.selected === true;})
-        .map(function removeUnnecessaryDataFromSelectedLinks(link) {
-            return {
-                id:          link.id,
-                timelag:     link.timelag,
-                coefficient: link.coefficient,
-                threshold:   link.threshold,
-                type:        link.type,
-                node1:       link.node1,
-                node2:       link.node2
-            };
-        })
-    );
 
     next();
 }

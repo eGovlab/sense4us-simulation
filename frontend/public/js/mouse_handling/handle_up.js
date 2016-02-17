@@ -126,6 +126,7 @@ function select(data, error, done) {
         return node.clicked;
     }).map(function(node) {
         if(node.msSinceClicked !== undefined && node.msSinceClicked + 300 > Date.now()) {
+            data.selected = node;
             node.selected = true;
             delete node.msSinceClicked;
             return node;
@@ -139,6 +140,7 @@ function select(data, error, done) {
         return link.clicked;
     }).map(function(link) {
         if(link.msSinceClicked !== undefined && link.msSinceClicked + 300 > Date.now()) {
+            data.selected = link;
             link.selected = true;
             delete link.msSinceClicked;
             return link;
