@@ -92,7 +92,6 @@ function drawPicture(ctx, imagePath, map, refresh) {
             img.isLoading = false;
             
             img.nodesWaiting.forEach(function(_map) {
-                console.log(_map);
                 drawImage(ctx, img, _map);
                 //refresh(ctx, imagePath, _map, refresh);
             });

@@ -1,9 +1,9 @@
 "use strict";
 
-Object.prototype.forEach = function(callback) {
+Object.prototype.forEach = function(callback, thisArg) {
     var that = this;
     Object.keys(this).forEach(function(key, i, arr) {
-        callback(that[key], key, i, arr);
+        callback.call(thisArg, that[key], key, i, arr);
     });
 };
 
@@ -21,7 +21,7 @@ Object.prototype.filter = function(callback) {
 
 Object.prototype.size = function() {
     return Object.keys(this).length;
-}
+};
 
 Object.prototype.map = function(callback) {
     var newObj = {},
@@ -31,6 +31,39 @@ Object.prototype.map = function(callback) {
     });
 
     return newObj;
+};
+
+function copyArray(arr) {
+    var newArr = [];
+
+    arr.forEach(function(value) {
+        if(Array.isArray(value)) {
+            newArr.push(copyArray(value));
+        } else if(typeof value === "object") {
+            newArr.push(value.copy());
+        } else {
+            newArr.push(value);
+        }
+    });
+
+    return newArr;
+}
+
+Object.prototype.copy = function() {
+    var newObj = {};
+
+    Object.keys(this).forEach(function(key) {
+        var value = this[key];
+        if(Array.isArray(value)) {
+            newObj[key] = copyArray(value);
+        } else if(typeof value === "object" && value) {
+            newObj[key] = value.copy();
+        } else {
+            newObj[key] = value;
+        }
+    }, this);
+
+    return newObj
 };
 
 Object.prototype.merge = function() {
@@ -75,4 +108,4 @@ Object.prototype.last = function() {
     }
 
     return this[arr[arr.length-1]];
-}
+};

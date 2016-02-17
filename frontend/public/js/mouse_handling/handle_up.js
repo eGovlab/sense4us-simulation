@@ -93,12 +93,17 @@ function stopMovingIcon(data) {
 }
 
 function deselect(data) {
+    if(data.didDrag) {
+        return data;
+    }
+
     data.nodeGui = data.nodeGui.merge(
         data.nodeGui.
             filter(function(node) {
                 return node.selected === true && !node.clicked
             }).
             map(function(node)    {
+                data.selected = {};
                 delete node.selected;
                 delete node.offsetX;
                 delete node.offsetY;
@@ -111,6 +116,7 @@ function deselect(data) {
         data.links.
             filter(function(link) { return link.selected === true && !link.clicked}).
             map(function(link)    {
+                data.selected = {};
                 delete link.selected;
                 delete link.offsetX;
                 delete link.offsetY;

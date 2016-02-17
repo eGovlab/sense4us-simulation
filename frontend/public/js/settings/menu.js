@@ -7,7 +7,7 @@ var Immutable  = null,
     windows    = require('./windows.js'),
     modelLayer = require('./../model_layer.js');
 
-var modeUpdate = function(refresh, loadedModel, savedModels, UIData) {
+var modeUpdate = function(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
@@ -17,34 +17,30 @@ var modeUpdate = function(refresh, loadedModel, savedModels, UIData) {
     element.refreshList();
 };
 
-var modeCallback = function(refresh, loadedModel, savedModels, UIData) {
+var modeCallback = function(loadedModel, savedModels) {
     var option = this.value;
 
-    var UIData      = changeCallbacks.UIData,
+    /*var UIData      = changeCallbacks.UIData,
         environment = changeCallbacks.environment,
-        ui          = UIData();
+        ui          = UIData();*/
 
     this.parent.toggle();
-
     switch(option) {
         case 'modelling':
-            ui.sidebar = modelling;
-            environment('modelling');
-            UIData(ui);
-            UIRefresh();
-            refresh();
+            loadedModel.sidebar     = modelling;
+            loadedModel.environment = "modelling";
             break;
         case 'simulate':
-            ui.sidebar = simulate;
-            environment('simulate');
-            UIData(ui);
-            UIRefresh();
-            refresh();
+            loadedModel.sidebar     = simulate;
+            loadedModel.environment = "simulate";
             break;
     }
+
+    loadedModel.refresh = true;
+    loadedModel.propagate();
 };
 
-var projectUpdate = function(refresh, loadedModel, savedModels, UIData) {
+var projectUpdate = function(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
@@ -93,55 +89,81 @@ var projectUpdate = function(refresh, loadedModel, savedModels, UIData) {
     });
 };
 
-var projectCallback = function(refresh, loadedModel, savedModels, UIData) {
+var projectCallback = function(loadedModel, savedModels) {
     var option      = this.value,
-        savedModels = changeCallbacks.savedModels,
+        /*savedModels = changeCallbacks.savedModels,
         loadedModel = changeCallbacks.loadedModel,
         s           = savedModels(),
-        text        = this.text.match(/^(\[\w+\])?(\s\*\s)?(.*)$/)[3],
-        loaded      = loadedModel(),
-        that        = this;
+        loaded      = loadedModel(),*/
+        that        = this,
+        text        = this.text.match(/^(\[\w+\])?(\s\*\s)?(.*)$/)[3];
 
-    if(loaded.synced === true) {
-        s = s.set('synced', s.synced.set(loaded.syncId, loaded));
-        savedModels(s)
+    modelLayer = require("./../model_layer.js");
+
+    if(loadedModel.synced === true) {
+        savedModels.synced[loadedModel.syncId] = loadedModel;
+        /*s = s.set('synced', s.synced.set(loaded.syncId, loaded));
+        savedModels(s)*/
     } else {
-        s = s.set('local', s.local.set(loaded.id, loaded));
-        savedModels(s)
+        var m = modelLayer.newModel(loadedModel.copy());
+        savedModels.local[loadedModel.id] = m;
+        /*s = s.set('local', s.local.set(loaded.id, loaded));
+        savedModels(s)*/
     }
 
     this.parent.toggle();
-
     switch(option) {
         case 'new':
-            var m = modelLayer.newModel(),
-                s = savedModels();
+            var m = modelLayer.newModel();
 
-            s = s.set('local', s.local.set(m.id, m));
+            /*savedModels.local[m.id] = m;
+            s = s.set('local', s.local.set(m.id, m));*/
 
-            savedModels(s);
-            loadedModel(m);
+            m.forEach(function(value, key) {
+                loadedModel[key] = value;
+            });
+
+            //loadedModel = loadedModel.merge(m);
+
+            /*savedModels(s);
+            loadedModel(m);*/
 
             that.parent.toggle();
-            projectUpdate.call(this.parent, refresh, UIRefresh, changeCallbacks);
-            refresh();
+            projectUpdate.call(this.parent, loadedModel, savedModels);
             break;
         case 'save':
             modelLayer.saveModel(loadedModel, function() {
-                projectUpdate.call(that.parent, refresh, UIRefresh, changeCallbacks);
-                refresh();
+                projectUpdate.call(that.parent, loadedModel, savedModels);
             });
             break;
         case 'delete':
             modelLayer.deleteModel(loadedModel, savedModels, function() {
-                projectUpdate.call(that.parent, refresh, UIRefresh, changeCallbacks);
-                refresh();
+                projectUpdate.call(that.parent, loadedModel, savedModels);
             });
             break;
         case undefined:
             break;
         default:
-            if(s.local.get(option) === undefined || s.local.get(option).settings.name !== text) {
+            console.log("OPTION", option);
+            console.log("SAVED MODELS", savedModels);
+
+            if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
+                if(savedModels.synced[option] === undefined) {
+                    modelLayer.loadSyncModel(option, function(newState) {
+                        savedModels.synced[option] = newState;
+                        newState.forEach(function(value, key) {
+                            loadedModel[key] = value;
+                        });
+                    });
+                }
+            } else {
+                var savedModel = savedModels.local[option];
+                savedModel.forEach(function(value, key) {
+                    loadedModel[key] = value;
+                });
+            }
+
+            /*if(s.local.get(option) === undefined || s.local.get(option).settings.name !== text) {
                 if(s.synced.get(option) === undefined) {
                     modelLayer.loadSyncModel(option, function(newState) {
                         s = s.set('synced', s.synced.set(option, newState));
@@ -156,8 +178,11 @@ var projectCallback = function(refresh, loadedModel, savedModels, UIData) {
             } else {
                 loadedModel(s.local.get(option));
                 refresh();
-            }
+            }*/
     }
+
+    loadedModel.resetUI = true;
+    loadedModel.propagate();
 
     return loadedModel;
 };

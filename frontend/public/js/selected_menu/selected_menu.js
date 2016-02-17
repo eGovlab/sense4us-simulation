@@ -6,24 +6,7 @@ var Immutable   = null,
     buttons     = require('./buttons.js');
 
 function createButtons(list, map, updateModelCallback) {
-    var containerDiv = menuBuilder.div();
-    containerDiv.className = 'menu';
-
-    list.forEach(function(button) {
-        if(map.maxIterations !== undefined && button.ignoreModelSettings === true) {
-            return;
-        }
-
-        if(button.replacingObj) {
-            containerDiv.appendChild(menuBuilder.button(button.header, function() {
-                updateModelCallback(null, null, button.callback(map));
-            }));
-        } else {
-            /* No buttons are not replacing obj right now. There is one button. */
-        }
-    });
-
-    return containerDiv;
+    
 }
 
 function generateAvatarDiv(avatar, selected, name) {
@@ -89,108 +72,7 @@ function createAvatarSelector(header, value, callback) {
 }
 
 function createTimeTableEditor(key, timeTable, callback) {
-    var containerDiv = menuBuilder.div();
-    containerDiv.className = "time-table";
-
-    (function addToContainer(key, timeTable, callback) {
-        while(containerDiv.firstChild) {
-            containerDiv.removeChild(containerDiv.firstChild);
-        }
-        containerDiv.appendChild(menuBuilder.label(key));
-
-        if (timeTable !== undefined && timeTable.forEach !== undefined) {
-            /*timeTable = timeTable.sortBy(function(value, key) {
-                return parseInt(key);
-            });*/
-
-            var rowContainer = menuBuilder.div();
-            rowContainer.className = "row-container";
-            containerDiv.appendChild(rowContainer);
-            timeTable.forEach(function(value, rowNumber) {
-                //containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
-
-                var rowDiv = menuBuilder.div();
-                rowDiv.className = "time-row";
-
-                var timeStepLabel = menuBuilder.span("T");
-                timeStepLabel.className = "label"
-                var timeStep = menuBuilder.input("time-step", rowNumber, function changedTimeStep(input, newTimeStep) {
-                    if(isNaN(parseInt(newTimeStep))) {
-                        addToContainer(key, timeTable, callback);
-                        return;
-                    }
-                    var tempStorage = timeTable[rowNumber];
-                    console.log(value, tempStorage, timeTable);
-                    timeTable[newTimeStep] = parseInt(tempStorage);
-                    delete timeTable[rowNumber];
-
-                    /*rowNumber = newTimeStep;
-                    timeTable = timeTable.sortBy(function(value, key) {
-                        return parseInt(key);
-                    });*/
-
-                    callback(key, timeTable);
-                    addToContainer(key, timeTable, callback);
-                });
-
-                timeStep.className = "time-step";
-
-                var timeStepValueLabel = menuBuilder.span("V");
-                timeStepValueLabel.className = "label"
-                var timeStepValue = menuBuilder.input("time-value", value, function changedTimeStepValue(input, newTimeValue) {
-                    if(isNaN(parseInt(newTimeValue))) {
-                        addToContainer(key, timeTable, callback);
-                        return;
-                    }
-                    timeTable[rowNumber] = parseInt(newTimeValue);
-                    callback(key, timeTable);
-                    timeStepValue.value = newTimeValue;
-                });
-
-                timeStepValue.className = "time-value";
-
-                rowDiv.appendChild(timeStepLabel);
-                rowDiv.appendChild(timeStep);
-                rowDiv.appendChild(timeStepValueLabel);
-                rowDiv.appendChild(timeStepValue);
-
-                rowContainer.appendChild(rowDiv);
-            });
-        }
-
-        containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
-            if (timeTable === undefined || timeTable === null) {
-                timeTable = {0: 0};
-            } else {
-                var highestIndex = 0;
-                timeTable.forEach(function(value, index) {
-                    var x;
-                    if(!isNaN(x = parseInt(index)) && x > highestIndex) {
-                        highestIndex = x;
-                    }
-                });
-
-                timeTable[highestIndex + 1] = 0;
-            }
-
-            callback(key, timeTable);
-            containerDiv.innerHTML = '';
-            addToContainer(key, timeTable, callback);
-        }));
-
-        containerDiv.appendChild(menuBuilder.button('Remove row', function removeTimeTableRow() {
-            if (timeTable === undefined || timeTable === null) {
-            } else {
-                timeTable = timeTable.slice(0, -1);
-            }
-
-            callback(key, timeTable);
-            containerDiv.innerHTML = '';
-            addToContainer(key, timeTable, callback);
-        }));
-    }(key, timeTable, callback));
-
-    return containerDiv;
+    
 }
 
 function generateInput(key, value, callback) {
@@ -203,57 +85,11 @@ function generateInput(key, value, callback) {
 }
 
 function generateDropdown(key, options, defaultValue, callback) {
-    var containerSelect = menuBuilder.select(key, function(evt) {
-        callback(this.name, this.value);
-    });
-
-    options.forEach(function(option) {
-        var optionElement = menuBuilder.option(option, option);
-        if(option === defaultValue) {
-            optionElement.selected = 'selected';
-        }
-        
-        containerSelect.appendChild(optionElement);
-    });
-
-    return containerSelect;
+    
 }
 
 function createMenu(map, onChangeCallback, includedAttributes) {
-    var menu = {
-        element: menuBuilder.div()
-    };
-
-    var element = menu.element;
-
-    element.className = 'menu';
-    element.appendChild(createButtons(buttons, map, onChangeCallback));
-
-    var appendToEnd = [];
-
-    map.forEach(function(value, key) {
-        if (includedAttributes !== null && includedAttributes !== undefined && includedAttributes.indexOf(key) === -1) {
-            return;
-        }
-
-        /*if(key === 'avatar' || key === 'icon') {
-            appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
-        } else*/
-
-        if (key === 'timeTable') {
-            appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
-        } else if(map.coefficient !== undefined && key === 'type') {
-            appendToEnd.push(generateDropdown(key, ['fullchannel', 'halfchannel'], value, onChangeCallback));
-        } else {
-            appendToEnd.push(generateInput(key, value, onChangeCallback));
-        }
-    });
-
-    appendToEnd.forEach(function(c) {
-        element.appendChild(c);
-    });
-
-    return menu;
+    
 }
 
 function updateMenu(menu, map) {
@@ -273,7 +109,269 @@ function updateMenu(menu, map) {
     return menu;
 }
 
+function Data(filter, data) {
+    this.data = data;
+    this.container = menuBuilder.div();
+    this.filter = filter;
+}
+
+Data.prototype = {
+    generateTimeTable: function(key, value) {
+        var containerDiv = menuBuilder.div();
+            containerDiv.className = "time-table";
+
+        return containerDiv;
+
+        (function addToContainer(key, timeTable, callback) {
+            while(containerDiv.firstChild) {
+                containerDiv.removeChild(containerDiv.firstChild);
+            }
+            containerDiv.appendChild(menuBuilder.label(key));
+
+            if (timeTable !== undefined && timeTable.forEach !== undefined) {
+                /*timeTable = timeTable.sortBy(function(value, key) {
+                    return parseInt(key);
+                });*/
+
+                var rowContainer = menuBuilder.div();
+                rowContainer.className = "row-container";
+                containerDiv.appendChild(rowContainer);
+                timeTable.forEach(function(value, rowNumber) {
+                    //containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
+
+                    var rowDiv = menuBuilder.div();
+                    rowDiv.className = "time-row";
+
+                    var timeStepLabel = menuBuilder.span("T");
+                    timeStepLabel.className = "label"
+                    var timeStep = menuBuilder.input("time-step", rowNumber, function changedTimeStep(input, newTimeStep) {
+                        if(isNaN(parseInt(newTimeStep))) {
+                            addToContainer(key, timeTable, callback);
+                            return;
+                        }
+                        var tempStorage = timeTable[rowNumber];
+                        console.log(value, tempStorage, timeTable);
+                        timeTable[newTimeStep] = parseInt(tempStorage);
+                        delete timeTable[rowNumber];
+
+                        /*rowNumber = newTimeStep;
+                        timeTable = timeTable.sortBy(function(value, key) {
+                            return parseInt(key);
+                        });*/
+
+                        callback(key, timeTable);
+                        addToContainer(key, timeTable, callback);
+                    });
+
+                    timeStep.className = "time-step";
+
+                    var timeStepValueLabel = menuBuilder.span("V");
+                    timeStepValueLabel.className = "label"
+                    var timeStepValue = menuBuilder.input("time-value", value, function changedTimeStepValue(input, newTimeValue) {
+                        if(isNaN(parseInt(newTimeValue))) {
+                            addToContainer(key, timeTable, callback);
+                            return;
+                        }
+                        timeTable[rowNumber] = parseInt(newTimeValue);
+                        callback(key, timeTable);
+                        timeStepValue.value = newTimeValue;
+                    });
+
+                    timeStepValue.className = "time-value";
+
+                    rowDiv.appendChild(timeStepLabel);
+                    rowDiv.appendChild(timeStep);
+                    rowDiv.appendChild(timeStepValueLabel);
+                    rowDiv.appendChild(timeStepValue);
+
+                    rowContainer.appendChild(rowDiv);
+                });
+            }
+
+            containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
+                if (timeTable === undefined || timeTable === null) {
+                    timeTable = {0: 0};
+                } else {
+                    var highestIndex = 0;
+                    timeTable.forEach(function(value, index) {
+                        var x;
+                        if(!isNaN(x = parseInt(index)) && x > highestIndex) {
+                            highestIndex = x;
+                        }
+                    });
+
+                    timeTable[highestIndex + 1] = 0;
+                }
+
+                callback(key, timeTable);
+                containerDiv.innerHTML = '';
+                addToContainer(key, timeTable, callback);
+            }));
+
+            containerDiv.appendChild(menuBuilder.button('Remove row', function removeTimeTableRow() {
+                if (timeTable === undefined || timeTable === null) {
+                } else {
+                    timeTable = timeTable.slice(0, -1);
+                }
+
+                callback(key, timeTable);
+                containerDiv.innerHTML = '';
+                addToContainer(key, timeTable, callback);
+            }));
+        }(key, timeTable, callback));
+
+        return containerDiv;
+    },
+
+    generateDropdown: function(key, options, value) {
+        var that = this;
+        var containerSelect = menuBuilder.select(key, function(evt) {
+            that.data[key] = this.value;
+            console.log(key, this.value);
+            //callback(this.name, this.value);
+        });
+
+        options.forEach(function(option) {
+            var optionElement = menuBuilder.option(option, option);
+            if(option === value) {
+                optionElement.selected = 'selected';
+            }
+            
+            containerSelect.appendChild(optionElement);
+        });
+
+        return containerSelect;
+    },
+
+    generateInput: function(key, value) {
+        var container = menuBuilder.div();
+
+        var that = this;
+        container.appendChild(menuBuilder.label(key));
+        container.appendChild(menuBuilder.input(
+            key,
+            value,
+            function(thatKey, newValue) {
+                that.data[thatKey] = newValue;
+            }
+        ));
+
+        return container;
+    },
+
+    createMenu: function() {
+        var element = this.container;
+
+        element.className = 'menu';
+        
+        this.data.forEach(function(value, key) {
+            if(this.filter.indexOf(key) === -1) {
+                return;
+            }
+
+            if (key === 'timeTable') {
+                element.appendChild(this.generateTimeTable(key, value));
+            } else if(this.data.coefficient !== undefined && key === 'type') {
+                element.appendChild(this.generateDropdown(key, ['fullchannel', 'halfchannel'], value));
+            } else {
+                element.appendChild(this.generateInput(key, value));
+            }
+        }, this);
+        /*if (includedAttributes !== null && includedAttributes !== undefined && includedAttributes.indexOf(key) === -1) {
+            return;
+        }*/
+
+        /*if(key === 'avatar' || key === 'icon') {
+            appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
+        } else*/
+
+
+        return element;
+    }
+};
+
+function SelectedMenu() {
+    this.dataObjects = [];
+    this.data        = [];
+    this.container   = menuBuilder.div();
+    this.inputs      = {};
+
+    this.buttons = this.generateButtons(buttons);
+
+    this.container.appendChild(this.buttons);
+}
+
+SelectedMenu.prototype = {
+    show: function() {
+        this.container.style.display = "block";
+    },
+
+    hide: function() {
+        this.container.style.display = "none";
+    },
+
+    addData: function(filter, data) {
+        if(this.dataObjects.indexOf(data) !== -1) {
+            console.log("Exists");
+            console.log(this.dataObjects, data);
+            return;
+        }
+
+        this.dataObjects.push(data);
+        this.data.push(new Data(filter, data));
+
+        this.container.appendChild(this.data[this.data.length - 1].createMenu());
+    },
+
+    removeData: function(data) {
+        var i = 0;
+        this.dataObjects = this.dataObjects.filter(function(keptData, index) {
+            if(keptData === data) {
+                i = index;
+                return false;
+            }
+
+            return true;
+        });
+
+        var element = this.data[i].container;
+        this.container.removeChild(element);
+
+        this.data = this.data.slice(0, i).concat(this.data.slice(i+1));
+
+        if(this.data.length === 0 && this.dataObjects.length === 0) {
+            this.container.parentElement.removeChild(this.container);
+        }
+    },
+
+    setDataFilter: function(dataFilter) {
+        this.dataFilter = dataFilter;
+    },
+
+    generateButtons: function(list) {
+        var containerDiv = menuBuilder.div();
+        containerDiv.className = 'menu';
+
+        list.forEach(function(button) {
+            if(map.maxIterations !== undefined && button.ignoreModelSettings === true) {
+                return;
+            }
+
+            if(button.replacingObj) {
+                containerDiv.appendChild(menuBuilder.button(button.header, function() {
+                    updateModelCallback(null, null, button.callback(map));
+                }));
+            } else {
+                /* No buttons are not replacing obj right now. There is one button. */
+            }
+        });
+
+        return containerDiv;
+    }
+};
+
 var namespace = {
+    SelectedMenu:         SelectedMenu,
     createAvatarSelector: createAvatarSelector,
     createAvatarButtons:  createAvatarButtons,
     drawSelectedMenu: function(container, loadedModel, menu, map, changeCallback, includedAttributes) {

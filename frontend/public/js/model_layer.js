@@ -8,6 +8,8 @@ var backendApi      = require('./api/backend_api.js'),
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
     menuBuilder     = require('./menu_builder');
+    
+var settings = require('./settings');
 
 /*
 ** Used to generate a local and incremential ID to avoid collisions for models.
@@ -72,20 +74,25 @@ function definePropagations(obj, keys) {
     });
 }
 
-function Model(id) {
+function Model(id, data) {
     this.changed    = {};
     this.timestamps = {};
 
-    this.id       = id;
-    this.saved    = false;
-    this.synced   = false;
-    this.syncId   = null;
+    this.id          = id;
+    this.saved       = false;
+    this.synced      = false;
+    this.syncId      = null;
 
-    this.nextId   = 0;
-    this.selected = {};
-    this.nodeData = {};
-    this.nodeGui  = {};
-    this.links    = {};
+    this.nextId      = 0;
+    this.nodeData    = {};
+    this.nodeGui     = {};
+    this.links       = {};
+
+    this.environment     = "modelling";
+    this.sidebar         = settings.sidebar;
+    this.floatingWindows = undefined;
+    this.refresh         = false;
+    this.resetUI         = false;
 
     this.settings = {
         name:          "New Model",
@@ -108,6 +115,12 @@ function Model(id) {
 
     this.loadedScenario = 0;
     this.scenarios      = [];
+
+    if(data) {
+        Object.keys(data).forEach(function(key) {
+            this[key] = data[key];
+        }, this);
+    }
 }
 
 Model.prototype = {
@@ -168,6 +181,11 @@ Model.prototype = {
 
 definePropagations(Model.prototype, [
     "id",
+    "environment",
+    "sidebar",
+    "refresh",
+    "floatingWindows",
+    "resetUI",
     "saved",
     "synced",
     "syncId",
@@ -183,22 +201,20 @@ definePropagations(Model.prototype, [
 ]);
 
 module.exports = {
-    newModel: function(id) {
+    newModel: function(data) {
         generateId++;
-        return new Model(generateId);
+        return new Model(generateId, data);
     },
 
-    saveModel: function(_loadedModel, refresh) {
-        var loadedModel = _loadedModel();
+    saveModel: function(loadedModel, refresh) {
         var data = {
-            modelId:  loadedModel.get('syncId'),
-            settings: loadedModel.get('settings').toJSON(),
+            modelId:  loadedModel.syncId,
+            settings: loadedModel.settings,
             nodes:    breakout.nodes(loadedModel),
             links:    breakout.links(loadedModel)
         };
 
         console.log(data);
-
         backendApi('/models/save', data, function(response, err) {
             if (err) {
                 console.log(response);
@@ -206,17 +222,18 @@ module.exports = {
                 return;
             }
 
-            loadedModel = loadedModel.set('syncId',   response.response.id);
-            loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('saved', true));
-            _loadedModel(loadedModel);
+            loadedModel.syncId         = response.response.id;
+            loadedModel.settings.saved = true;
+
+            /*loadedModel = loadedModel.set('syncId',   response.response.id);
+            loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
+            _loadedModel(loadedModel);*/
 
             if(response.response.message) {
                 notificationBar.notify(response.response.message);
             } else {
-                notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+                notificationBar.notify('Model['+loadedModel.settings.name+'] saved.');
             }
-
-            refresh();
         });
     },
 
@@ -225,16 +242,16 @@ module.exports = {
             loadedModel = _loadedModel(),
             that        = this;
 
-        if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
-            backendApi('/models/bundle/' + loadedModel.get('syncId'), {}, function(response, err) {
+        if(loadedModel.synced === true && (loadedModel.syncId !== null && loadedModel.syncId !== undefined)) {
+            backendApi('/models/bundle/' + loadedModel.syncId, {}, function(response, err) {
                 if(err) {
                     console.log(response);
                     console.log(err);
                     return;
                 }
 
-                savedModels = savedModels.set('synced', savedModels.get('synced').delete(loadedModel.get('syncId')));
-                loadedModel = savedModels.get('local').first();
+                savedModels = savedModels.set('synced', savedModels.synced.delete(loadedModel.syncId));
+                loadedModel = savedModels.local.first();
 
                 if(loadedModel === undefined) {
                     loadedModel = that.newModel();
@@ -246,7 +263,7 @@ module.exports = {
                 refresh();
             }, "DELETE");
         } else {
-            savedModels = savedModels.set('local', savedModels.get('local').delete(loadedModel.get('id')));
+            savedModels = savedModels.set('local', savedModels.local.delete(loadedModel.id));
             loadedModel = this.newModel();
 
             _savedModels(savedModels);
@@ -283,50 +300,47 @@ module.exports = {
             });
 
             var newState = that.newModel();
-            newState = newState.merge(Immutable.Map({
-                syncId: response.response.id,
-                nextId: highestId + 1,
-                synced: true
-            }));
-            console.log();
-            var s = newState.get('settings');
-            s = s.merge(Immutable.Map(settings));
-            newState = newState.set('settings', s);
+            newState.syncId = response.response.id;
+            newState.nextId = highestId + 1;
+            newState.synced = true;
+
+            settings.forEach(function(value, key) {
+                newState.settings[key] = value;
+            });
 
             nodes.forEach(function(node) {
-                var newNode = Immutable.Map({
+                var newNode = {
                     id:             node.id,
                     value:          node.starting_value,
                     relativeChange: node.change_value   || 0,
-                    simulateChange: Immutable.List(),
+                    simulateChange: [],
                     threshold:      node.threshold      || 0,
                     type:           node.type,
                     name:           node.name           || undefined,
                     description:    node.description    || undefined
-                });
+                };
 
                 if(node.timeTable) {
-                    newNode = newNode.set('timeTable', Immutable.Map(node.timeTable));
+                    newNode.timeTable = node.timeTable;
                 }
 
-                var nd = newState.get('nodeData').set(node.id, newNode);
+                newState.nodeData[node.id] = newNode;
 
-                newState = newState.set('nodeData', nd);
-
-                var ng = newState.get('nodeGui').set(node.id, Immutable.Map({
+                var ng = {
                     id:     node.id,
                     x:      parseInt(node.x),
                     y:      parseInt(node.y),
                     radius: parseFloat(node.radius),
-                    links:  Immutable.List(),
+                    links:  [],
                     avatar: node.avatar,
                     icon:   node.icon
-                }));
-                newState = newState.set('nodeGui', ng);
+                };
+
+                newState.nodeGui[node.id] = ng;
             });
 
             links.forEach(function(link) {
-                var l = newState.get('links').set(link.id, Immutable.Map({
+                var l = {
                     id:          link.id,
                     node1:       link.upstream,
                     node2:       link.downstream,
@@ -334,21 +348,12 @@ module.exports = {
                     type:        link.type,
                     timelag:     link.timelag,
                     width:       8
-                }));
+                };
 
-                newState = newState.set('links', l);
+                newState.links[link.id] = l;
 
-                var ng1 = newState.get('nodeGui').get(link.upstream);
-                ng1 = ng1.set('links', ng1.get('links').push(link.id));
-
-                var ng2 = newState.get('nodeGui').get(link.downstream);
-                ng2 = ng2.set('links', ng2.get('links').push(link.id));
-
-                var ng = newState.get('nodeGui');
-                ng = ng.set(link.upstream, ng1);
-                ng = ng.set(link.downstream, ng2);
-
-                newState = newState.set('nodeGui', ng);
+                newState.nodeGui[link.upstream].links.push(link.id);
+                newState.nodeGui[link.downstream].links.push(link.id);
             });
 
             callback(newState);

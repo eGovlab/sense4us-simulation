@@ -19,7 +19,7 @@ var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, docume
 
 var updateSelected = require('./selected_menu').updateSelected;
 
-function clearCanvasAndTransform(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function clearCanvasAndTransform(ctx, canvas, loadedModel, selectedMenu, next) {
     ctx.clearRect(
         (-loadedModel.settings.offsetX || 0) * (2 - loadedModel.settings.scaleX || 1),
         (-loadedModel.settings.offsetY || 0) * (2 - loadedModel.settings.scaleX || 1),
@@ -39,7 +39,7 @@ function clearCanvasAndTransform(ctx, canvas, loadedModel, selectedMenu, environ
     next();
 }
 
-function drawNodes(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function drawNodes(ctx, canvas, loadedModel, selectedMenu, next) {
     // draw all the nodes
 
     loadedModel.nodeData.forEach(
@@ -56,7 +56,7 @@ function drawNodes(ctx, canvas, loadedModel, selectedMenu, environment, next) {
     next();
 }
 
-function drawLinks(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function drawLinks(ctx, canvas, loadedModel, selectedMenu, next) {
     // draw the links and arrows
     loadedModel.links.forEach(function drawLinksAndArrows(link) {
         drawLink(ctx, aggregatedLink(link, loadedModel.nodeGui));
@@ -65,7 +65,7 @@ function drawLinks(ctx, canvas, loadedModel, selectedMenu, environment, next) {
     next();
 }
 
-function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, next) {
     // draw all the node descriptions
     loadedModel.nodeData.forEach(
         function drawEachNodeText(n) { 
@@ -84,7 +84,7 @@ function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, environmen
             **
             ** e.g. drawNodeInSimulation(nodeGui)
             */
-            if(environment === 'simulate' ) {
+            if(loadedModel.environment === 'simulate' ) {
                 if(nodeGui.timeTable) {
                     drawTimeTable(ctx, nodeGui);
                 } else {
@@ -97,7 +97,7 @@ function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, environmen
     next();
 }
 
-function _drawLinker(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function _drawLinker(ctx, canvas, loadedModel, selectedMenu, next) {
     // if there are nodes selected that aren't currently linking, we want to draw the linker
     loadedModel.nodeGui.filter(function drawLinkerOnSelectedNodes(node) {
         return node.selected === true && node.linking !== true;
@@ -106,7 +106,7 @@ function _drawLinker(ctx, canvas, loadedModel, selectedMenu, environment, next) 
     next();
 }
 
-function drawLinkingLine(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function drawLinkingLine(ctx, canvas, loadedModel, selectedMenu, next) {
     // if we are currently linking, we want to draw the link we're creating
     loadedModel.nodeGui.filter(function drawLinkingArrow(node) {return node.linking === true; }).forEach(function(node) {
         var linkerForNode = linker(node);
@@ -128,7 +128,7 @@ function drawLinkingLine(ctx, canvas, loadedModel, selectedMenu, environment, ne
     next();
 }
 
-function getSelectedObjects(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function getSelectedObjects(ctx, canvas, loadedModel, selectedMenu, next) {
     /*var selected = loadedModel.nodeData
     .filter(function filterNodesForSelection(node) {
         return loadedModel.nodeGui[node.id].selected === true;
@@ -164,7 +164,7 @@ function getSelectedObjects(ctx, canvas, loadedModel, selectedMenu, environment,
     next();
 }
 
-function updateSelectedMenu(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+/*function updateSelectedMenu(ctx, canvas, loadedModel, selectedMenu, next) {
     //update the menu
     var selected = loadedModel.selected;
     var sidebar = document.getElementById('sidebar');
@@ -195,7 +195,7 @@ function updateSelectedMenu(ctx, canvas, loadedModel, selectedMenu, environment,
     }
 
     next();
-}
+}*/
 
 module.exports = {
     clearCanvasAndTransform: clearCanvasAndTransform,
@@ -204,6 +204,6 @@ module.exports = {
     drawLinks:               drawLinks,
     drawNodeDescriptions:    drawNodeDescriptions,
     _drawLinker:             _drawLinker,
-    drawLinkingLine:         drawLinkingLine,
-    updateSelectedMenu:      updateSelectedMenu
+    drawLinkingLine:         drawLinkingLine
+    //updateSelectedMenu:      updateSelectedMenu
 };

@@ -38,18 +38,18 @@ var selectedMenu = {},
     savedModels   = {
         local:  {},
         synced: {}
-    },
-    environment   = 'modelling';
+    };
+
 
 savedModels.local[loadedModel.id] = loadedModel;
 
 var settings = require('./settings');
-var UIData = {
+/*var UIData = {
     sidebar:         new UI.Sidebar(settings.sidebar),
     menu:            settings.menu,
     selectedMenu:    [],
     floatingWindows: []
-};
+};*/
 
 window.Immutable  = Immutable;
 window.collisions = require('./collisions.js');
@@ -61,7 +61,7 @@ var dragHandler = require('./mechanics/drag_handler.js'),
     mouseMove   = require('./input/mouse_move.js'),
     mouseUp     = require('./input/mouse_up.js');
 
-dragHandler(mainCanvas, loadedModel, environment, mouseDown, mouseMove, mouseUp);
+dragHandler(mainCanvas, loadedModel, mouseDown, mouseMove, mouseUp);
 
 //mainCanvas.addEventListener('mousewheel',MouseWheelHandler, false);
 //mainCanvas.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
@@ -97,22 +97,13 @@ function MouseWheelHandler(e) {
     //refresh();
 }
 
-/* This method is retarded. */
-//UIRefresh();
-
-//var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
 var aggregatedLink = require('./aggregated_link.js');
 var refreshNamespace = require('./refresh');
 
 var asyncMiddleware = require("./async_middleware");
-var uiParams        = asyncMiddleware(refresh, loadedModel, savedModels, UIData);
-var UIMiddleware = uiParams(
-    UI.sidebarRefresh,
-    refreshNamespace.updateSelectedMenu
-);
 
 var lastShow = false;
-function showLineGraph(ctx, canvas, loadedModel, selectedMenu, environment, next) {
+function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
     var show = loadedModel.settings.linegraph;
     var parent = linegraphCanvas.parentElement;
     if(show === lastShow) {
@@ -135,7 +126,7 @@ function showLineGraph(ctx, canvas, loadedModel, selectedMenu, environment, next
 }
 
 var ctx = mainCanvas.getContext('2d');
-var refreshParams = asyncMiddleware(ctx, mainCanvas, loadedModel, selectedMenu, environment);
+var refreshParams = asyncMiddleware(ctx, mainCanvas, loadedModel, selectedMenu);
 var _refresh = refreshParams(
     showLineGraph,
     refreshNamespace.clearCanvasAndTransform,
@@ -150,20 +141,50 @@ var _refresh = refreshParams(
 loadedModel.addListener("nodeGui",  refresh);
 loadedModel.addListener("nodeData", refresh);
 loadedModel.addListener("settings", refresh);
+loadedModel.addListener("refresh",  refresh);
 
-loadedModel.addListener("nodeGui",  UIMiddleware);
-loadedModel.addListener("nodeData", UIMiddleware);
-loadedModel.addListener("settings", UIMiddleware);
-
-UI.menuRefresh(refresh, loadedModel, savedModels, UIData);
-UIMiddleware();
 refresh();
 
 var sidebarManager = new UI.SidebarManager(CONFIG.get("SIDEBAR_CONTAINER"));
 
-sidebarManager.addSidebar(UIData.sidebar, loadedModel);
+loadedModel.addListener("sidebar", function() {
+    sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
+});
+
+loadedModel.propagate();
+
+sidebarManager.setEnvironment(loadedModel.environment);
+sidebarManager.setSelectedMenu(loadedModel.settings);
+
 loadedModel.addListener("selected", function() {
-    sidebarManager.setSelectedMenu(this.selected);
+    sidebarManager.setEnvironment(loadedModel.environment);
+    if(this.selected.x !== undefined && this.selected.y !== undefined) {
+        var nodeData = loadedModel.nodeData[this.selected.id];
+        var nodeGui  = loadedModel.nodeGui[this.selected.id];
+        sidebarManager.setSelectedMenu(nodeData, nodeGui);
+    } else if(this.selected.coefficient !== undefined) {
+        sidebarManager.setSelectedMenu(this.selected);
+    } else {
+        sidebarManager.setSelectedMenu(loadedModel.settings);
+    }
+});
+
+var menu = new UI.Menu(CONFIG.get("MENU_CONTAINER"), settings.menu);
+menu.createMenu(loadedModel, savedModels);
+
+loadedModel.addListener("resetUI", function() {
+    sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
+    menu.resetMenu(loadedModel, savedModels);
+
+    if(this.selected && this.selected.x !== undefined && this.selected.y !== undefined) {
+        var nodeData = loadedModel.nodeData[this.selected.id];
+        var nodeGui  = loadedModel.nodeGui[this.selected.id];
+        sidebarManager.setSelectedMenu(nodeData, nodeGui);
+    } else if(this.selected && this.selected.coefficient !== undefined) {
+        sidebarManager.setSelectedMenu(this.selected);
+    } else {
+        sidebarManager.setSelectedMenu(loadedModel.settings);
+    }
 });
 
 var drawLineGraph = require('./graphics/draw_line_graph.js');

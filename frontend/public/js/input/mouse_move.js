@@ -2,7 +2,7 @@
 
 var mouseMoveWare = require("./../mouse_handling/handle_drag.js");
 
-function mouseMove(canvas, loadedModel, environment, pos, deltaPos) {
+function mouseMove(canvas, loadedModel, pos, deltaPos) {
     var _data = {
         pos:      pos,
         deltaPos: deltaPos,

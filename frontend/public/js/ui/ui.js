@@ -172,6 +172,99 @@ var sidebarRefresh = function(refresh, loadedModel, savedModels, UIData, next) {
     });
 };
 
+function MenuItem(data, loadedModel, savedModels) {
+    this.data = data;
+
+    this.header = data.header;
+    this.type   = data.type;
+    this.callback = data.callback;
+
+    if(data.update) {
+        this.update = data.update;
+    }
+
+    this.container = menuBuilder.div();
+    this.refresh(loadedModel, savedModels);
+}
+
+MenuItem.prototype = {
+    refresh: function(loadedModel, savedModels) {
+        while(this.container.firstChild) {
+            this.container.removeChild(this.container.firstChild);
+        }
+
+        this.generateItem(loadedModel, savedModels);
+    },
+
+    generateItem: function(loadedModel, savedModels) {
+        var button;
+
+        var that = this;
+        if(this.callback !== undefined && this.update !== undefined) {
+            var dd = menuBuilder.dropdown(
+                this.header,
+                function onClick() {
+                    that.callback.call(
+                        this,
+                        loadedModel,
+                        savedModels
+                    );
+                },
+                
+                function update() {
+                    that.update.call(
+                        this,
+                        loadedModel,
+                        savedModels
+                    );
+                }
+            );
+
+            button = dd;
+        } else if (this.callback !== undefined) {
+            button = menuBuilder.button(this.header, function(evt) {
+                console.log(evt);
+                that.callback();
+                //updateModelCallback(menu.callback(UIData));
+            });
+        }
+
+        if(button === null) {
+            throw new Error("Invalid button type.");
+            return;
+        }
+
+        this.container.appendChild(button);
+    }
+};
+
+function Menu(container, data) {
+    this.container = menuBuilder.div("menu");
+    container.appendChild(this.container);
+    this.data      = data;
+
+    this.menuItems = [];
+}
+
+Menu.prototype = {
+    resetMenu: function(loadedModel, savedModels) {
+        while(this.container.firstChild) {
+            this.container.removeChild(this.container.firstChild);
+        }
+
+        this.createMenu(loadedModel, savedModels);
+    },
+
+    createMenu: function(loadedModel, savedModels) {
+        this.data.forEach(function(menuItem) {
+            var item = new MenuItem(menuItem, loadedModel, savedModels);
+            this.menuItems.push(item);
+
+            this.container.appendChild(item.container);
+        }, this);
+    }
+};
+
 //var menuRefresh = function(UIData, container, refresh, UIRefresh, changeCallbacks, updateModelCallback) {
 var menuRefresh = function(refresh, loadedModel, savedModels, UIData, next) {
     var container = CONFIG.get('MENU_CONTAINER');
@@ -185,7 +278,6 @@ var menuRefresh = function(refresh, loadedModel, savedModels, UIData, next) {
 
     UIData.menu.forEach(function(menu) {
         var button = null;
-
         if(menu.callback !== undefined && menu.update !== undefined) {
             var dd = menuBuilder.dropdown(
                 menu.header,
@@ -274,6 +366,7 @@ var UIRefresh = function(refresh, changeCallbacks) {
 module.exports = {
     Sidebar:        require("./sidebar"),
     SidebarManager: require("./sidebar_manager"),
+    Menu:           Menu,
     UIRefresh:      UIRefresh,
     menuRefresh:    menuRefresh,
     sidebarRefresh: sidebarRefresh

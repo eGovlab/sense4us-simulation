@@ -22,8 +22,6 @@ Sidebar.prototype = {
             }
             var label = menuBuilder.label(data.header);
             if(data.type.toUpperCase() === "LIST" && data.images) {
-                console.log(data);
-
                 var list = selectedMenu.createAvatarButtons("avatar", null, function(key, value) {
                     data.callback(loadedModel, {name: key}, {avatar: value});
                 }, data.images);
