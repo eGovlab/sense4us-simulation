@@ -52,7 +52,6 @@ var projectUpdate = function(loadedModel, savedModels) {
 
     backendApi('/models/all', function(response, error) {
         savedModels.local.forEach(function(model) {
-            console.log("Local", model);
             if(model.synced === true) {
                 return;
             }
@@ -66,7 +65,6 @@ var projectUpdate = function(loadedModel, savedModels) {
         });
 
         savedModels.synced.forEach(function(model) {
-            console.log("Synced", model);
             var savedString = "";
             if(model.saved === false) {
                 savedString = " * ";
@@ -147,6 +145,13 @@ var projectCallback = function(loadedModel, savedModels) {
                         loadedModel.refresh = true;
                         loadedModel.propagate();
                     });
+                } else {
+                    var savedModel = savedModels.synced[option];
+                    savedModel.forEach(function(value, key) {
+                        loadedModel[key] = value;
+                    });
+
+                    loadedModel.refresh = true;
                 }
             } else {
                 var savedModel = savedModels.local[option];
