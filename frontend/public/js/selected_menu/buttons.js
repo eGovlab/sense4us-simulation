@@ -9,7 +9,6 @@ module.exports = [
         replacingObj:        true,
         callback: function(loadedModel, selectedData) {
             selectedData.forEach(function(data) {
-                console.log(data);
                 if(data.data.relativeChange !== undefined) {
                     delete loadedModel.nodeData[data.data.id];
                     var links = loadedModel.nodeGui[data.data.id];
