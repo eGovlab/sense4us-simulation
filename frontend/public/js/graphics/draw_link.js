@@ -52,7 +52,7 @@ module.exports = function drawLink(ctx, line) {
         coefficientX   = arrowMiddleX + Math.cos(leftAngle) * 20,
         coefficientY   = arrowMiddleY + Math.sin(leftAngle) * 20;
 
-    if(distance < fromRadius) {
+    if(distance < fromRadius + targetRadius) {
         return;
     }
 
@@ -73,7 +73,13 @@ module.exports = function drawLink(ctx, line) {
     } else if(line.loop === true) {
         ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
     }  else {
-        ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
+        if(line.coefficient > 0) {
+            ctx.strokeStyle = valueColors.positive;
+        } else if(line.coefficient < 0) {
+            ctx.strokeStyle = valueColors.negative;
+        } else {
+            ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
+        }
     }
 
     ctx.lineWidth = line.width * 1.2;

@@ -15,7 +15,8 @@ var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, docume
     drawLinker       = require('./graphics/draw_linker.js'),
     drawLink         = require('./graphics/draw_link.js'),   
     drawChange       = require('./graphics/draw_change.js'), 
-    drawText         = require('./graphics/draw_text.js');
+    drawText         = require('./graphics/draw_text.js'),
+    drawActor        = require('./graphics/draw_actor.js');
 
 var updateSelected = require('./selected_menu').updateSelected;
 
@@ -58,8 +59,20 @@ function drawNodes(ctx, canvas, loadedModel, selectedMenu, next) {
 
 function drawLinks(ctx, canvas, loadedModel, selectedMenu, next) {
     // draw the links and arrows
+    var actors = {};
     loadedModel.links.forEach(function drawLinksAndArrows(link) {
-        drawLink(ctx, aggregatedLink(link, loadedModel.nodeGui));
+        var nodeData = loadedModel.nodeData[link.node1];
+        if(nodeData.type.toUpperCase() === "ACTOR") {
+            if(!actors[link.node2]) {
+                actors[link.node2] = 0;
+            }
+
+            actors[link.node2] += 1;
+            var layer = actors[link.node2];
+            drawActor(ctx, layer, link, loadedModel);
+        } else {
+            drawLink(ctx, aggregatedLink(link, loadedModel.nodeGui));
+        }
     });
 
     next();
@@ -87,7 +100,7 @@ function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, next) {
             if(loadedModel.environment === 'simulate' ) {
                 if(nodeGui.timeTable) {
                     drawTimeTable(ctx, nodeGui);
-                } else {
+                } else if(nodeGui.type.toUpperCase() !== "ACTOR") {
                     drawChange(ctx, nodeGui.x, nodeGui.y + nodeGui.radius / 6, Math.round(n.simulateChange[loadedModel.settings.timeStepN] * 100) / 100);
                 }
             }

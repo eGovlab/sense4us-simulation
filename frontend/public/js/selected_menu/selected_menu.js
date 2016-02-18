@@ -5,6 +5,14 @@ var Immutable   = null,
     settings    = require('./../settings'),
     buttons     = require('./buttons.js');
 
+function generateHexColor() {
+    return Math.round(Math.random() * 255).toString(16);
+}
+
+function generateColor() {
+    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+}
+
 function generateAvatarDiv(avatar, selected, name) {
     var avatarDiv = menuBuilder.div();
     var img = menuBuilder.img();
@@ -318,6 +326,40 @@ Data.prototype = {
         var element = this.container;
         while(element.firstChild) {
             element.removeChild(element.firstChild);
+        }
+
+        var that = this;
+        if(this.data.type && this.data.type.toUpperCase() === "ACTOR") {
+            var randomColor = menuBuilder.button("Randomize color", function() {
+                that.loadedModel.nodeGui[that.data.id].color = generateColor();
+                that.loadedModel.refresh = true;
+                that.loadedModel.propagate();
+            });
+
+            element.appendChild(randomColor);
+            var links = this.loadedModel.nodeGui[this.data.id].links;
+            if(!links) {
+                links = [];
+            }
+
+            links.forEach(function(link) {
+                link = this.loadedModel.links[link];
+                if(!link) {
+                    return;
+                }
+
+                var targetedNode = this.loadedModel.nodeData[link.node2];
+                var button = menuBuilder.button("Delete acting upon " + targetedNode.name, function() {
+                    delete that.loadedModel.links[link.id];
+                    that.loadedModel.nodeGui[that.data.id].links = [];
+
+                    that.loadedModel.refresh = true;
+                    that.loadedModel.resetUI = true;
+                    that.loadedModel.propagate();
+                });
+
+                element.appendChild(button);
+            }, this);
         }
 
         this.data.forEach(function(value, key) {

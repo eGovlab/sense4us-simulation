@@ -25,6 +25,14 @@ var mouseDownWare = middleware([
     return data;
 }*/
 
+function generateHexColor() {
+    return Math.round(Math.random() * 255).toString(16);
+}
+
+function generateColor() {
+    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+}
+
 function link(data) {
     data.nodeGui
         .filter(function(node) { return node.linking === true; })
@@ -54,6 +62,16 @@ function link(data) {
 
                 var nodeId     = node.id,
                     collidedId = collided.id;
+
+                var nodeData = data.nodeData[node.id];
+                if(nodeData.type.toUpperCase() === "ACTOR") {
+                    var hitData = data.nodeData[collidedId];
+                    if(hitData.type.toUpperCase() !== "ORIGIN") {
+                        return;
+                    }
+
+                    data.resetUI = true;
+                }
 
                 data.nodeGui[nodeId].links.push(id);
                 data.nodeGui[collidedId].links.push(id);
@@ -137,6 +155,8 @@ function select(data, error, done) {
             delete node.msSinceClicked;
             return node;
         } else {
+            node.linegraph  = data.linegraph ? !node.linegraph : false,
+            node.graphColor = generateColor();
             node.msSinceClicked = Date.now();
             return node;
         }

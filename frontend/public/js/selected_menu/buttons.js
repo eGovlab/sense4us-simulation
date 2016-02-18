@@ -17,9 +17,11 @@ module.exports = [
                     });
                     delete loadedModel.nodeGui[data.data.id];
                 } else if(data.data.offsetX !== undefined || data.data.offsetY !== undefined) {
-                    data.data.links.forEach(function(link, key) {
-                        delete loadedModel.links[link];
-                    });
+                    if(data.data.links) {
+                        data.data.links.forEach(function(link, key) {
+                            delete loadedModel.links[link];
+                        });
+                    }
 
                     delete loadedModel.nodeGui[data.data.id];
                 } else if(data.data.coefficient !== undefined) {

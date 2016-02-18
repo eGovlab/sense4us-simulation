@@ -250,6 +250,7 @@ module.exports = {
                     return;
                 }
 
+                delete savedModels.local[loadedModel.id];
                 delete savedModels.synced[loadedModel.syncId];
                 var firstLocal = savedModels.local.first();
 
@@ -337,7 +338,8 @@ module.exports = {
                     radius: parseFloat(node.radius),
                     links:  [],
                     avatar: node.avatar,
-                    icon:   node.icon
+                    icon:   node.icon,
+                    color:  node.color || undefined
                 };
 
                 newState.nodeGui[node.id] = ng;

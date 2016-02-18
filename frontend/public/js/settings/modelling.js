@@ -22,6 +22,17 @@ var model = [
     }),
 */
     {
+        header:   'Actors',
+        callback: createActorNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/executive_actor.png',   header: 'Executive actor'},
+            {src: 'img/avatars/legislative_actor.png', header: 'Legislative actor'},
+            {src: 'img/avatars/unofficial_actor.png',  header: 'Unofficial actor'}
+        ]
+    },
+
+    {
         header:   'Policy Instruments',
         callback: createOriginNode,
         type:     'LIST',

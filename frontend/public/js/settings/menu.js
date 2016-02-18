@@ -20,10 +20,6 @@ var modeUpdate = function(loadedModel, savedModels) {
 var modeCallback = function(loadedModel, savedModels) {
     var option = this.value;
 
-    /*var UIData      = changeCallbacks.UIData,
-        environment = changeCallbacks.environment,
-        ui          = UIData();*/
-
     this.parent.toggle();
     switch(option) {
         case 'modelling':
@@ -56,6 +52,7 @@ var projectUpdate = function(loadedModel, savedModels) {
 
     backendApi('/models/all', function(response, error) {
         savedModels.local.forEach(function(model) {
+            console.log("Local", model);
             if(model.synced === true) {
                 return;
             }
@@ -65,10 +62,11 @@ var projectUpdate = function(loadedModel, savedModels) {
                 savedString = " * ";
             }
 
-            element.addOption(model.id, '[' + model.id + ']' +savedString + model.settings.name);
+            element.addOption(model.id, 'LOCAL' + savedString + model.settings.name);
         });
 
         savedModels.synced.forEach(function(model) {
+            console.log("Synced", model);
             var savedString = "";
             if(model.saved === false) {
                 savedString = " * ";
@@ -97,26 +95,16 @@ var projectUpdate = function(loadedModel, savedModels) {
 
 var projectCallback = function(loadedModel, savedModels) {
     var option      = this.value,
-        /*savedModels = changeCallbacks.savedModels,
-        loadedModel = changeCallbacks.loadedModel,
-        s           = savedModels(),
-        loaded      = loadedModel(),*/
         that        = this,
-        text        = this.text.match(/^(\[\w+\])?(\s\*\s)?(.*)$/)[3];
+        text        = this.text.match(/^(LOCAL)?(\s\*\s)?(.*)$/)[3];
 
     modelLayer = require("./../model_layer.js");
-
     if(loadedModel.synced === true) {
         var m = modelLayer.newModel(loadedModel.copy());
         savedModels.synced[loadedModel.syncId] = m;
-        //savedModels.synced[loadedModel.syncId] = loadedModel;
-        /*s = s.set('synced', s.synced.set(loaded.syncId, loaded));
-        savedModels(s)*/
     } else {
         var m = modelLayer.newModel(loadedModel.copy());
         savedModels.local[loadedModel.id] = m;
-        /*s = s.set('local', s.local.set(loaded.id, loaded));
-        savedModels(s)*/
     }
 
     this.parent.toggle();
@@ -124,17 +112,9 @@ var projectCallback = function(loadedModel, savedModels) {
         case 'new':
             var m = modelLayer.newModel();
 
-            /*savedModels.local[m.id] = m;
-            s = s.set('local', s.local.set(m.id, m));*/
-
             m.forEach(function(value, key) {
                 loadedModel[key] = value;
             });
-
-            //loadedModel = loadedModel.merge(m);
-
-            /*savedModels(s);
-            loadedModel(m);*/
 
             that.parent.toggle();
             projectUpdate.call(this.parent, loadedModel, savedModels);
@@ -176,23 +156,6 @@ var projectCallback = function(loadedModel, savedModels) {
 
                 loadedModel.refresh = true;
             }
-
-            /*if(s.local.get(option) === undefined || s.local.get(option).settings.name !== text) {
-                if(s.synced.get(option) === undefined) {
-                    modelLayer.loadSyncModel(option, function(newState) {
-                        s = s.set('synced', s.synced.set(option, newState));
-                        savedModels(s);
-                        loadedModel(newState);
-                        refresh();
-                    });
-                } else {
-                    loadedModel(s.synced.get(option));
-                    refresh();
-                }
-            } else {
-                loadedModel(s.local.get(option));
-                refresh();
-            }*/
     }
 
     loadedModel.resetUI = true;
