@@ -10,8 +10,6 @@ var curry       = require('./curry.js'),
 
 require("./object.js");
 
-console.log(Object.prototype);
-
 var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
 var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);
 
@@ -130,7 +128,6 @@ var refreshParams = asyncMiddleware(ctx, mainCanvas, loadedModel, selectedMenu);
 var _refresh = refreshParams(
     showLineGraph,
     refreshNamespace.clearCanvasAndTransform,
-    refreshNamespace.getSelectedObjects,
     refreshNamespace.drawNodes,
     refreshNamespace.drawLinks,
     refreshNamespace.drawNodeDescriptions,
@@ -154,10 +151,12 @@ loadedModel.addListener("sidebar", function() {
 loadedModel.propagate();
 
 sidebarManager.setEnvironment(loadedModel.environment);
+sidebarManager.setLoadedModel(loadedModel);
 sidebarManager.setSelectedMenu(loadedModel.settings);
 
 loadedModel.addListener("selected", function() {
     sidebarManager.setEnvironment(loadedModel.environment);
+    sidebarManager.setLoadedModel(loadedModel);
     if(this.selected.x !== undefined && this.selected.y !== undefined) {
         var nodeData = loadedModel.nodeData[this.selected.id];
         var nodeGui  = loadedModel.nodeGui[this.selected.id];
@@ -173,6 +172,7 @@ var menu = new UI.Menu(CONFIG.get("MENU_CONTAINER"), settings.menu);
 menu.createMenu(loadedModel, savedModels);
 
 loadedModel.addListener("resetUI", function() {
+    sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
     menu.resetMenu(loadedModel, savedModels);
 

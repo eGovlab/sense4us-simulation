@@ -237,11 +237,8 @@ module.exports = {
         });
     },
 
-    deleteModel: function(_loadedModel, _savedModels, refresh) {
-        var savedModels = _savedModels(),
-            loadedModel = _loadedModel(),
-            that        = this;
-
+    deleteModel: function(loadedModel, savedModels, callback) {
+        var that = this;
         if(loadedModel.synced === true && (loadedModel.syncId !== null && loadedModel.syncId !== undefined)) {
             backendApi('/models/bundle/' + loadedModel.syncId, {}, function(response, err) {
                 if(err) {
@@ -250,25 +247,28 @@ module.exports = {
                     return;
                 }
 
-                savedModels = savedModels.set('synced', savedModels.synced.delete(loadedModel.syncId));
-                loadedModel = savedModels.local.first();
+                delete savedModels.synced[loadedModel.syncId];
+                var firstLocal = savedModels.local.first();
 
-                if(loadedModel === undefined) {
-                    loadedModel = that.newModel();
+                if(firstLocal === undefined) {
+                    firstLocal = that.newModel();
                 }
 
+                firstLocal.forEach(function(value, key) {
+                    loadedModel[key] = value;
+                });
+
                 notificationBar.notify(response.response);
-                _savedModels(savedModels);
-                _loadedModel(loadedModel);
-                refresh();
+                callback();
             }, "DELETE");
         } else {
-            savedModels = savedModels.set('local', savedModels.local.delete(loadedModel.id));
-            loadedModel = this.newModel();
+            delete savedModels.local[loadedModel.id];
+            var newModel = this.newModel();
+            newModel.forEach(function(value, key) {
+                loadedModel[key] = value;
+            });
 
-            _savedModels(savedModels);
-            _loadedModel(loadedModel);
-            refresh();
+            callback();
         }
     },
     

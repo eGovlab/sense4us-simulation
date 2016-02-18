@@ -91,7 +91,6 @@ function clickAndMove(data, error, done, env) {
     data.links = data.links.merge(collidedLinks);
 
     if (Object.keys(collidedLinks).length > 0) {
-        console.log("RETURNING");
         return done(data);
     }
 

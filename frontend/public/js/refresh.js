@@ -128,82 +128,11 @@ function drawLinkingLine(ctx, canvas, loadedModel, selectedMenu, next) {
     next();
 }
 
-function getSelectedObjects(ctx, canvas, loadedModel, selectedMenu, next) {
-    /*var selected = loadedModel.nodeData
-    .filter(function filterNodesForSelection(node) {
-        return loadedModel.nodeGui[node.id].selected === true;
-    })
-    .map(function removeUnnecessaryDataFromSelectedNodes(node) {
-        return node.merge(
-            {
-                radius: loadedModel.nodeGui[node.id].radius,
-                avatar: loadedModel.nodeGui[node.id].avatar,
-                icon:   loadedModel.nodeGui[node.id].icon
-            }
-        );
-    })
-    .merge(
-        loadedModel.links.filter(function filterLinksForSelection(link) {return link.selected === true;})
-        .map(function removeUnnecessaryDataFromSelectedLinks(link) {
-            return {
-                id:          link.id,
-                timelag:     link.timelag,
-                coefficient: link.coefficient,
-                threshold:   link.threshold,
-                type:        link.type,
-                node1:       link.node1,
-                node2:       link.node2
-            };
-        })
-    );
-
-    if(selected.size() > 0) {
-        loadedModel.selected = selected;
-    }*/
-
-    next();
-}
-
-/*function updateSelectedMenu(ctx, canvas, loadedModel, selectedMenu, next) {
-    //update the menu
-    var selected = loadedModel.selected;
-    var sidebar = document.getElementById('sidebar');
-    if(sidebar.firstElementChild) {
-        if(selected.last()) {
-            sidebar.firstElementChild.style.display = 'none';
-        } else {
-            sidebar.firstElementChild.style.display = 'block';
-        }
-    }
-
-    switch(environment) {
-        case 'modelling':
-            if(selected.last()) {
-                selectedMenu.menu = drawSelectedMenu(loadedModel, selectedMenu.menu, selected.last(), updateSelected, ['timeTable', 'name', 'description', 'type', 'threshold', 'coefficient', 'timelag']);
-            } else {
-                selectedMenu.menu = drawSelectedMenu(loadedModel, selectedMenu.menu, loadedModel.settings, updateSelected, ['name']);
-            }
-            break;
-        case 'simulate':
-            if(selected.last()) {
-                selectedMenu.menu = drawSelectedMenu(loadedModel, selectedMenu.menu, selected.last(), updateSelected, ['timeTable', 'coefficient', 'timelag', 'type', 'threshold']);
-            } else {
-                selectedMenu.menu = drawSelectedMenu(loadedModel, selectedMenu.menu, loadedModel.settings, updateSelected, ['maxIterations']);
-                //selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
-            }
-            break;
-    }
-
-    next();
-}*/
-
 module.exports = {
     clearCanvasAndTransform: clearCanvasAndTransform,
-    getSelectedObjects:      getSelectedObjects,
     drawNodes:               drawNodes,
     drawLinks:               drawLinks,
     drawNodeDescriptions:    drawNodeDescriptions,
     _drawLinker:             _drawLinker,
     drawLinkingLine:         drawLinkingLine
-    //updateSelectedMenu:      updateSelectedMenu
 };

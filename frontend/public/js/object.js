@@ -100,12 +100,32 @@ Object.prototype.slice = function(from, to) {
     return newObj;
 };
 
+Object.prototype.first = function() {
+    var arr = Object.keys(this);
+    var length = arr.length;
+    if(length === 0) {
+        return undefined;
+    }
+
+    return arr[0];
+};
+
 Object.prototype.last = function() {
     var arr = Object.keys(this);
     var length = arr.length;
     if(length === 0) {
-        return false;
+        return undefined;
     }
 
     return this[arr[arr.length-1]];
+};
+
+Object.prototype.lastKey = function() {
+    var arr = Object.keys(this);
+    var length = arr.length;
+    if(length === 0) {
+        return undefined;
+    }
+
+    return arr[arr.length-1];
 };

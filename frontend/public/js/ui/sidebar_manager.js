@@ -38,7 +38,7 @@ SidebarManager.prototype = {
         }
 
         this.sidebars.push(sidebar);
-        this.sidebarElements.push(new Sidebar(sidebar));
+        this.sidebarElements.push(new Sidebar(sidebar, loadedModel));
 
         this.setSidebar(sidebar, loadedModel);
     },
@@ -68,12 +68,26 @@ SidebarManager.prototype = {
         this.environment = environment;
     },
 
+    setLoadedModel: function(loadedModel) {
+        console.log("SETTING LOADED MODEL", loadedModel);
+        this.loadedModel = loadedModel;
+    },
+
+    linkModellingFilter: ['type', 'threshold', 'coefficient', 'timelag'],
+    linkSimulateFilter:  ['type', 'threshold', 'coefficient', 'timelag'],
+
+    dataModellingFilter: ['timeTable', 'name', 'description'],
+    dataSimulateFilter:  ['timeTable'],
+
+    modelModellingFilter: ['name'],
+    modelSimulateFilter:  ['maxIterations'],
+
     getLinkFilter: function() {
         switch(this.environment) {
             case "modelling":
-                return ['type', 'threshold', 'coefficient', 'timelag'];
+                return SidebarManager.prototype.linkModellingFilter;
             case "simulate":
-                return ['type', 'threshold', 'coefficient', 'timelag'];
+                return SidebarManager.prototype.linkSimulateFilter;
         }
         
     },
@@ -81,18 +95,18 @@ SidebarManager.prototype = {
     getModelFilter: function() {
         switch(this.environment) {
             case "modelling":
-                return ['name'];
+                return SidebarManager.prototype.modelModellingFilter;
             case "simulate":
-                return ['maxIterations'];
+                return SidebarManager.prototype.modelSimulateFilter;
         }
     },
 
     getDataFilter: function() {
         switch(this.environment) {
             case "modelling":
-                return ['timeTable', 'name', 'description'];
+                return SidebarManager.prototype.dataModellingFilter;
             case "simulate":
-                return ['timeTable'];
+                return SidebarManager.prototype.dataSimulateFilter;
         }
     },
 
@@ -109,9 +123,10 @@ SidebarManager.prototype = {
     },
 
     setSelectedMenu: function() {
-        var selectedData       = [];
-        var previouslySelected = [];
-        var notSelected        = [];
+        var selectedData       = [],
+            previouslySelected = [],
+            notSelected        = [],
+            stillSelected      = [];
 
         for(var i = 0; i < arguments.length; i++) {
             var data = arguments[i];
@@ -128,6 +143,7 @@ SidebarManager.prototype = {
 
         notSelected = selectedData.filter(function(data) {
             if(this.selectedData.indexOf(data) !== -1) {
+                stillSelected.push(data);
                 return false;
             }
 
@@ -149,12 +165,27 @@ SidebarManager.prototype = {
         notSelected.forEach(function(data) {
             var selectedMenu = this.selected[data.id];
             if(!selectedMenu) {
-                this.selected[data.id] = new SelectedMenu();
+                this.selected[data.id] = new SelectedMenu(this.loadedModel);
                 selectedMenu = this.selected[data.id];
                 this.selectedMenuContainer.appendChild(selectedMenu.container);
             }
             
             selectedMenu.addData(this.getFilter(data), data);
+        }, this);
+
+        var updated = [];
+        stillSelected.forEach(function(data) {
+            if(updated.indexOf(data.id) !== -1) {
+                return;
+            }
+
+            var selectedMenu = this.selected[data.id];
+
+            selectedMenu.loopData(function(dataObj) {
+                dataObj.updateFilter(this.getFilter(dataObj.data));
+            }, this);
+
+            updated.push(data.id);
         }, this);
 
         this.selectedData = selectedData;

@@ -10,7 +10,7 @@ var simulate = [
         header: 'Simulate',
         type:   'BUTTON',
         ajax:   true,
-        callback: function(refresh, changeCallbacks) {
+        callback: function(loadedModel) {
             var loadedModel = changeCallbacks.loadedModel,
                 newState    = loadedModel();
 
@@ -62,7 +62,7 @@ var simulate = [
         header: 'Linegraph',
         type:   'BUTTON',
         ajax:   true,
-        callback: function(refresh, changeCallbacks) {
+        callback: function(loadedModel) {
             var loadedModel = changeCallbacks.loadedModel,
                 newState    = loadedModel();
 
@@ -88,9 +88,10 @@ var simulate = [
             'Month',
             'Year'
         ],
-        /* This is a stupid name for a method. It sets the default selected value. */
-        select: function(model, values) {
+
+        setDefault: function(model, values) {
             var selected = model.settings.timeStepT;
+            console.log(selected, values);
             for(var i = 0; i < values.length; i++) {
                 if(values[i] === selected) {
                     return i;
@@ -99,9 +100,10 @@ var simulate = [
 
             return 0;
         },
-        callback: function(model, attrs, value) {
+
+        callback: function(model, value) {
+            console.log(model, value);
             model.settings.timeStepT = value;
-            return model;
         }
     },
 
@@ -117,14 +119,12 @@ var simulate = [
             return [0, model.settings.maxIterations];
         },
 
-        onSlide: function(value, model) {
-            model = model.set('settings', model.settings.set('timeStepN', value));
-            return model;
+        onSlide: function(model, value) {
+            model.settings.timeStepN = value;
         },
 
-        callback: function(value, model) {
-            model = model.set('settings', model.settings.set('timeStepN', value));
-            return model;
+        callback: function(model, value) {
+            model.settings.timeStepN = value;
         }
     }
 ];

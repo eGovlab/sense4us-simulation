@@ -37,6 +37,12 @@ var modeCallback = function(loadedModel, savedModels) {
     }
 
     loadedModel.refresh = true;
+    loadedModel.resetUI = true;
+
+    if(!loadedModel.selected) {
+        loadedModel.selected = loadedModel.settings;
+    }
+
     loadedModel.propagate();
 };
 
@@ -139,6 +145,7 @@ var projectCallback = function(loadedModel, savedModels) {
         case 'delete':
             modelLayer.deleteModel(loadedModel, savedModels, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
+                loadedModel.propagate();
             });
             break;
         case undefined:
@@ -154,6 +161,9 @@ var projectCallback = function(loadedModel, savedModels) {
                         newState.forEach(function(value, key) {
                             loadedModel[key] = value;
                         });
+
+                        loadedModel.refresh = true;
+                        loadedModel.propagate();
                     });
                 }
             } else {
@@ -161,6 +171,8 @@ var projectCallback = function(loadedModel, savedModels) {
                 savedModel.forEach(function(value, key) {
                     loadedModel[key] = value;
                 });
+
+                loadedModel.refresh = true;
             }
 
             /*if(s.local.get(option) === undefined || s.local.get(option).settings.name !== text) {
@@ -182,6 +194,7 @@ var projectCallback = function(loadedModel, savedModels) {
     }
 
     loadedModel.resetUI = true;
+    console.log("PRAPRAPGA");
     loadedModel.propagate();
 
     return loadedModel;
