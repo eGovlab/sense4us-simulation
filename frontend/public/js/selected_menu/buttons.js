@@ -9,6 +9,7 @@ module.exports = [
         replacingObj:        true,
         callback: function(loadedModel, selectedData) {
             selectedData.forEach(function(data) {
+                console.log(data);
                 if(data.data.relativeChange !== undefined) {
                     delete loadedModel.nodeData[data.data.id];
                     var links = loadedModel.nodeGui[data.data.id];
@@ -16,7 +17,7 @@ module.exports = [
                         delete loadedModel.links[link];
                     });
                     delete loadedModel.nodeGui[data.data.id];
-                } else if(data.data.offsetX !== undefined || data.data.offsetY !== undefined) {
+                } else if(data.data.x !== undefined || data.data.y !== undefined) {
                     if(data.data.links) {
                         data.data.links.forEach(function(link, key) {
                             delete loadedModel.links[link];
