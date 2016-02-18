@@ -80,7 +80,8 @@ function createTimeTable(nodes, scenario, onUpdate) {
     return tables;
 }
 
-function createScenarioEditor(_loadedModel, refresh, UIRefresh, changeCallbacks) {
+function createScenarioEditor(loadedModel, savedModels) {
+    return menuBuilder.div();
     var container = document.createElement('div'),
         options   = document.createElement('div');
 
@@ -142,7 +143,7 @@ function createScenarioEditor(_loadedModel, refresh, UIRefresh, changeCallbacks)
     return container;
 }
 
-function update(refresh, UIRefresh, changeCallbacks) {
+function update(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
@@ -151,26 +152,18 @@ function update(refresh, UIRefresh, changeCallbacks) {
     element.refreshList();
 }
 
-function callback(refresh, UIRefresh, changeCallbacks) {
+function callback(loadedModel, savedModels) {
     var option = this.value;
-
-    var _loadedModel = changeCallbacks.get('loadedModel');
-    var loadedModel  = _loadedModel();
-
-    var _UIData = changeCallbacks.get('UIData');
-    var UIData  = _UIData();
 
     this.parent.toggle();
 
-    switch(option) {
-        case 'scenario':
+    switch(option.toUpperCase()) {
+        case 'SCENARIO':
             console.log('Scenario');
             var scenarioEditor = floatingWindow.createWindow(20, 20, 440, 400);
-            var scenarioContainer = createScenarioEditor(_loadedModel, refresh, UIRefresh, changeCallbacks);
+            var scenarioContainer = createScenarioEditor(loadedModel, savedModels);
             scenarioEditor.appendChild(scenarioContainer);
             document.body.appendChild(scenarioEditor);
-            UIData = UIData.set('floatingWindows', UIData.get('floatingWindows').push(scenarioEditor));
-            _UIData(UIData);
             break;
     }
 }
