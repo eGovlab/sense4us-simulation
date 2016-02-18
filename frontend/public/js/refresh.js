@@ -22,11 +22,17 @@ var updateSelected = require('./selected_menu').updateSelected;
 
 function clearCanvasAndTransform(ctx, canvas, loadedModel, selectedMenu, next) {
     ctx.clearRect(
+        -loadedModel.settings.offsetX,
+        -loadedModel.settings.offsetY,
+        canvas.width,
+        canvas.height
+    );
+    /*ctx.clearRect(
         (-loadedModel.settings.offsetX || 0) * (2 - loadedModel.settings.scaleX || 1),
         (-loadedModel.settings.offsetY || 0) * (2 - loadedModel.settings.scaleX || 1),
         canvas.width  * (2 - (loadedModel.settings.scaleX || 1)),
         canvas.height * (2 - (loadedModel.settings.scaleY || 1))
-    );
+    );*/
     
     ctx.setTransform(
         loadedModel.settings.scaleX  || 1,

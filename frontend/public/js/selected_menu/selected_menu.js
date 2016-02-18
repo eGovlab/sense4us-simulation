@@ -230,6 +230,14 @@ Data.prototype = {
             this.rowContainer = null;
         }
 
+        var rowContainer = this.rowContainer;
+        if(!rowContainer) {
+            rowContainer      = menuBuilder.div("row-container");
+            this.rowContainer = rowContainer;
+
+            containerDiv.appendChild(rowContainer);
+        }
+
         this.timetable = value;
         this.timetable.forEach(function(timeValue, timeStep) {
             this.addTimeRow(timeStep, timeValue);

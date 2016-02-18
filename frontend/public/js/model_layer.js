@@ -321,8 +321,9 @@ module.exports = {
                     simulateChange: [],
                     threshold:      node.threshold      || 0,
                     type:           node.type,
-                    name:           node.name           || undefined,
-                    description:    node.description    || undefined
+                    name:           node.name           || "",
+                    description:    node.description    || "",
+                    timeTable:      {}
                 };
 
                 if(node.timeTable) {
