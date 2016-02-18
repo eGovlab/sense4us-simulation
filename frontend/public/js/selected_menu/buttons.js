@@ -1,14 +1,39 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable = null;
 
-module.exports = Immutable.List([
-    Immutable.Map({
+module.exports = [
+    {
         header: 'Delete selected',
         ignoreModelSettings: true,
         replacingObj:        true,
-        callback: function(object) {
-            return object.set('delete', true);
+        callback: function(loadedModel, selectedData) {
+            selectedData.forEach(function(data) {
+                if(data.data.relativeChange !== undefined) {
+                    delete loadedModel.nodeData[data.data.id];
+                    var links = loadedModel.nodeGui[data.data.id];
+                    links.forEach(function(link, key) {
+                        delete loadedModel.links[link];
+                    });
+                    delete loadedModel.nodeGui[data.data.id];
+                } else if(data.data.x !== undefined || data.data.y !== undefined) {
+                    if(data.data.links) {
+                        data.data.links.forEach(function(link, key) {
+                            delete loadedModel.links[link];
+                        });
+                    }
+
+                    delete loadedModel.nodeGui[data.data.id];
+                } else if(data.data.coefficient !== undefined) {
+                    delete loadedModel.links[data.data.id];
+                }
+
+                loadedModel.selected = false;
+
+                loadedModel.refresh = true;
+                loadedModel.resetUI = true;
+                loadedModel.propagate();
+            });
         }
-    })
-]);
+    }
+];

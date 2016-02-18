@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable = require('Immutable'),
+var Immutable = null,
     Dropdown  = require('./dropdown.js');
 
 function MenuBuilder() {
@@ -21,6 +21,13 @@ MenuBuilder.prototype = {
     },
 
     slider: function(defaultValue, min, max, callback, onSlideCallback) {
+        var container = this.div("sidebar-slider");
+
+        var minSpan = this.div("value");
+        minSpan.innerHTML = defaultValue;
+        var maxSpan = this.div("max-value");
+        maxSpan.innerHTML = max;
+
         var input = document.createElement('input');
         
         input.type = 'range';
@@ -28,23 +35,33 @@ MenuBuilder.prototype = {
         input.max = max;
         input.value = defaultValue;
 
-        input.addEventListener('change', callback);
-        if(onSlideCallback) {
-            input.addEventListener('input',  onSlideCallback);
-        }
+        input.addEventListener('change', function(){callback(parseInt(input.value))});
+        var onSlide = function(val) {
+            minSpan.innerHTML = input.value;
+            if(onSlideCallback) {
+                onSlideCallback(parseInt(input.value));
+            }
+        };
+
+        input.addEventListener('input', onSlide);
 
         input.deleteCallbacks = function() {
             input.removeEventListener('change', callback);
-            if(onSlideCallback) {
-                input.removeEventListener('input',  onSlideCallback);
-            }
+            input.removeEventListener('input',  onSlide);
         }
 
-        return input;
+        container.appendChild(minSpan);
+        container.appendChild(input);
+        container.appendChild(maxSpan);
+
+        return container;
     },
 
-    div: function() {
+    div: function(className) {
         var div = document.createElement('div');
+        if(className) {
+            div.className = className;
+        }
 
         return div;
     },

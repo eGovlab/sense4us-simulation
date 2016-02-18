@@ -36,18 +36,22 @@ function sendData(domain, port, path, jsonData, callback, method) {
 
     httpRequest.onreadystatechange = function() {
         if (httpRequest.readyState === 4) {
-            var rt = JSON.parse(httpRequest.responseText);
-            console.log(rt);
-            
-            if (httpRequest.status === 200) {
-                if (callback) {
-                    callback(rt);
-                } else {
-                    console.log('No callback was sent with the query against ' + path);
-                }
+            try {
+                var rt = JSON.parse(httpRequest.responseText);
+                console.log(rt);
+                
+                if (httpRequest.status === 200) {
+                    if (callback) {
+                        callback(rt);
+                    } else {
+                        console.log('No callback was sent with the query against ' + path);
+                    }
 
-            } else {
-                callback(rt, {status: httpRequest.status});
+                } else {
+                    callback(rt, {status: httpRequest.status});
+                }
+            } catch(err) {
+                callback(undefined, err);
             }
         }
     };

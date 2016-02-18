@@ -1,28 +1,28 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable = null;
 
 function icon(map) {
-	var x = map.get('x');
-	var y = map.get('y');
+	var x = map.x;
+	var y = map.y;
 	
-	if (map.get('iconXOffset') !== undefined && map.get('iconYOffset') !== undefined) {
-		var angle = Math.atan2(map.get('iconYOffset'), map.get('iconXOffset'));
+	if (map.iconXOffset !== undefined && map.iconYOffset !== undefined) {
+		var angle = Math.atan2(map.iconYOffset, map.iconXOffset);
 		
-		x += Math.cos(angle) * map.get('radius');
-		y += Math.sin(angle) * map.get('radius');
+		x += Math.cos(angle) * map.radius;
+		y += Math.sin(angle) * map.radius;
 	} else {
-		x -= map.get('radius') * 0.707;
-		y -= map.get('radius') * 0.707;
+		x -= map.radius * 0.707;
+		y -= map.radius * 0.707;
 	}
 	
-	return Immutable.Map({
-		//x: map.get('x') + (map.get('iconXOffset') || 0) - map.get('radius') * 0.707,
-		//y: map.get('y') + (map.get('iconYOffset') || 0) - map.get('radius') * 0.707,
+	return {
+		//x: map.x + (map.iconXOffset || 0) - map.radius * 0.707,
+		//y: map.y + (map.iconYOffset || 0) - map.radius * 0.707,
 		x: x,
 		y: y,
 		radius: 30
-	});
+	};
 }
 
 module.exports = icon;

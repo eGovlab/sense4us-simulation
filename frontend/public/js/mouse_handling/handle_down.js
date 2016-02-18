@@ -13,25 +13,19 @@ var mouseDownWare = middleware([
     clickAndMove
 ]);
 
-function generateHexColor() {
-    return Math.round(Math.random() * 255).toString(16);
-}
-
-function generateColor() {
-    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
-}
-
 function clickAndMove(data, error, done, env) {
     var previouslyClickedNodes = data.nodeGui.filter(function(node) {
-        return node.get('clicked');
+        return node.clicked;
     }).map(function(node) {
-        return node.delete('clicked');
+        delete node.clicked;
+        return node;
     });
 
     var previouslyClickedLinks = data.links.filter(function(link) {
-        return link.get('clicked');
+        return link.clicked;
     }).map(function(link) {
-        return link.delete('clicked');
+        delete link.clicked;
+        return link;
     });
 
     data.nodeGui = data.nodeGui.merge(previouslyClickedNodes);
@@ -39,7 +33,7 @@ function clickAndMove(data, error, done, env) {
 
     /*// if we click on a icon we want to start moving it!
     var collidedNodes = data.nodeGui.
-        filter(function(node) { return node.get('icon') !== undefined && hitTest(data.pos, icon(node)); }).
+        filter(function(node) { return node.icon !== undefined && hitTest(data.pos, icon(node)); }).
         slice(-1).
         map(function(node) {
             return node.concat({
@@ -57,12 +51,10 @@ function clickAndMove(data, error, done, env) {
         filter(function(node) { return hitTest(node, data.pos); }).
         slice(-1).
         map(function(node) {
-            node = node.concat({
-                offsetX:   data.pos.get('x') - (node.get('x') || 0),
-                offsetY:   data.pos.get('y') - (node.get('y') || 0),
-                clicked:   true,
-                linegraph: data.linegraph ? !node.get('linegraph') : false,
-                graphColor: generateColor()
+            node = node.merge({
+                offsetX:   data.pos.x - (node.x || 0),
+                offsetY:   data.pos.y - (node.y || 0),
+                clicked:   true
                 //selected: true
             });
 
@@ -70,7 +62,7 @@ function clickAndMove(data, error, done, env) {
          });
     data.nodeGui = data.nodeGui.merge(collidedNodes);
 
-    if (collidedNodes.size > 0) {
+    if (Object.keys(collidedNodes).length > 0) {
         return done(data);
     }
 
@@ -79,16 +71,16 @@ function clickAndMove(data, error, done, env) {
         filter(function(link) { return hitTest(aggregatedLink(link, data.nodeGui), data.pos); }).
         slice(-1).
         map(function(link) {
-            return link.concat({
-                offsetX:  data.pos.get('x') - (link.get('x') || 0),
-                offsetY:  data.pos.get('y') - (link.get('y') || 0),
+            return link.merge({
+                offsetX:  data.pos.x - (link.x || 0),
+                offsetY:  data.pos.y - (link.y || 0),
                 clicked:  true
                 //selected: true
             });
          })
     data.links = data.links.merge(collidedLinks);
 
-    if (collidedLinks.size > 0) {
+    if (Object.keys(collidedLinks).length > 0) {
         return done(data);
     }
 
@@ -99,18 +91,18 @@ function clickAndMove(data, error, done, env) {
     // If we didn't hit any links, look for clicked origin tables.
     var collidedTables = data.nodeGui.
         filter(function(node) {
-            var w = node.get('tableWidth'),
-                h = node.get('tableHeight');
+            var w = node.tableWidth,
+                h = node.tableHeight;
 
-            var x = node.get('x') - node.get('radius') - w - 8,
-                y = node.get('y') - (h / 2);
+            var x = node.x - node.radius - w - 8,
+                y = node.y - (h / 2);
 
-            return pointRect(data.pos, Immutable.Map({x: x, y: y, width: w, height: h}));
+            return pointRect(data.pos, {x: x, y: y, width: w, height: h});
         }).
         map(function(node) {
             return node.concat({
-                offsetX: data.pos.get('x') - (node.get('x') || 0),
-                offsetY: data.pos.get('y') - (node.get('y') || 0),
+                offsetX: data.pos.x - (node.x || 0),
+                offsetY: data.pos.y - (node.y || 0),
                 clicked: true
             });
         });
@@ -127,9 +119,12 @@ function clickAndMove(data, error, done, env) {
 function startLinkingIfSelected(data, error, done) {
     // if a node is selected and we click the linker-symbol, then start linking!
 	var linkingNodes = data.nodeGui.
-			filter(function(node) { return node.get('selected') === true; }).
+			filter(function(node) { return node.selected === true; }).
 			filter(function(node) { return hitTest(data.pos, linker(node)); }).
-			map(function(node)    { return node.set('linking', true); });
+			map(function(node)    {
+                node.linking = true;
+                return node;
+            });
 
 	data.nodeGui = data.nodeGui.merge(linkingNodes);
 
@@ -146,7 +141,7 @@ function startLinkingIfSelected(data, error, done) {
 function startMovingIconIfSelected(data, error, done) {
     // if we have a node selected and we aren't linking and we click an icon, then start moving the icon!
 	var movingIconNodes = data.nodeGui.
-			filter(function(node) { return node.get('selected') === true && node.get('linking') !== true && node.get('icon') !== undefined; }).
+			filter(function(node) { return node.selected === true && node.linking !== true && node.icon !== undefined; }).
 			filter(function(node) { return hitTest(data.pos, icon(node)); }).
 			map(function(node) { return node.set('movingIcon', true); });
 

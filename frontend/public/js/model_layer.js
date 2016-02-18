@@ -3,17 +3,18 @@
 /*
 ** Dependencies
 */
-var Model           = require('./model.js'),
-    backendApi      = require('./api/backend_api.js'),
-    Immutable       = require('Immutable'),
+var backendApi      = require('./api/backend_api.js'),
+    Immutable       = null,
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
     menuBuilder     = require('./menu_builder');
+    
+var settings = require('./settings');
 
 /*
 ** Used to generate a local and incremential ID to avoid collisions for models.
 */
-var generateId = 0;
+var generateId = -1;
 
 /*
 ** Said namespace.
@@ -59,53 +60,163 @@ var generateId = 0;
 **     returns:     Will call onDoneCallback with the remote models data in a map similar to
 **                  newModel as the only argument.
 */
-module.exports = {
-    newModel: function(id) {
-        var map = Immutable.Map({
-            id:       id || generateId,
-            saved:    false,
-            synced:   false,
-            syncId:   null,
 
-            nextId:   0,
-            nodeData: Immutable.Map({}),
-            nodeGui:  Immutable.Map({}),
-            links:    Immutable.Map({}),
-            settings: Immutable.Map({
-                name:          "New Model",
-                maxIterations: 4,
-                offsetX:       0,
-                offsetY:       0,
-                zoom:          1,
+function definePropagations(obj, keys) {
+    keys.forEach(function(key) {
+        Object.defineProperty(obj, key, {get: function() {
+            return this["_"+key];
+        }, set: function(newValue) {
+            //console.log("Setting: ["+key+"]: " + newValue);
+            //console.log(new Error().stack);
+            this.changed[key]    = true;
+            this["_"+key] = newValue;
+        }});
+    });
+}
 
-                timeStepT:     "Week",
-                timeStepN:     0
-            }),
-            treeSettings: Immutable.Map({
-                x:      400,
-                y:      20,
-                width:  200,
-                height: 0,
-                scroll: 0
-            })
-        });
+function Model(id, data) {
+    this.changed    = {};
+    this.timestamps = {};
 
-        generateId += 1;
+    this.id          = id;
+    this.saved       = false;
+    this.synced      = false;
+    this.syncId      = null;
 
-        return map;
+    this.nextId      = 0;
+    this.nodeData    = {};
+    this.nodeGui     = {};
+    this.links       = {};
+
+    this.selected        = false;
+    this.environment     = "modelling";
+    this.sidebar         = settings.sidebar;
+    this.floatingWindows = undefined;
+    this.refresh         = false;
+    this.resetUI         = false;
+
+    this.settings = {
+        name:          "New Model",
+        maxIterations: 4,
+        offsetX:       0,
+        offsetY:       0,
+        zoom:          1,
+        linegraph:     false,
+
+        timeStepT:     "Week",
+        timeStepN:     0
+    };
+
+    this.treeSettings = {
+        x:      400,
+        y:      20,
+        width:  200,
+        height: 0,
+        scroll: 0
+    };
+
+    this.loadedScenario = 0;
+    this.scenarios      = [];
+
+    if(data) {
+        Object.keys(data).forEach(function(key) {
+            this[key] = data[key];
+        }, this);
+    }
+}
+
+Model.prototype = {
+    listeners:   {},
+    addListener: function(key, listener) {
+        if(!Model.prototype.listeners[key]) {
+            Model.prototype.listeners[key] = [];
+        }
+
+        if(Model.prototype.listeners[key].indexOf(listener) !== -1) {
+            return;
+        }
+
+        Model.prototype.listeners[key].push(listener);
     },
 
-    saveModel: function(_loadedModel, refresh) {
-        var loadedModel = _loadedModel();
+    removeListener: function(key, listener) {
+        if(!Model.prototype.listeners[key]) {
+            return;
+        }
+
+        Model.prototype.listeners[key] = Model.prototype.listeners[key].filter(function(value){return value !== listener;});
+    },
+
+    removeListeners: function(key) {
+        Model.prototype.listeners[key] = [];
+    },
+
+    propagate: function() {
+        var validListeners = [];
+        Object.keys(this.changed).forEach(function(key) {
+            var property = this[key];
+            if(!property) {
+                return;
+            }
+
+            var _l = Model.prototype.listeners[key];
+            if(!_l || _l.length === 0) {
+                return;
+            }
+
+            _l.forEach(function(listener) {
+                if(validListeners.indexOf(listener) !== -1) {
+                    return;
+                }
+
+                validListeners.push(listener);
+            });
+        }, this);
+
+        validListeners.forEach(function(listener) {
+            listener.call(this);
+        }, this);
+
+        this.changed = {};
+    }
+};
+
+definePropagations(Model.prototype, [
+    "id",
+    "environment",
+    "sidebar",
+    "refresh",
+    "floatingWindows",
+    "resetUI",
+    "saved",
+    "synced",
+    "syncId",
+    "nextId",
+    "selected",
+    "nodeData",
+    "nodeGui",
+    "links",
+    "settings",
+    "treeSettings",
+    "loadedScenario",
+    "scenarios"
+]);
+
+module.exports = {
+    newModel: function(data) {
+        generateId++;
+        return new Model(generateId, data);
+    },
+
+    saveModel: function(loadedModel, refresh) {
         var data = {
-            modelId:  loadedModel.get('syncId'),
-            settings: loadedModel.get('settings').toJSON(),
+            modelId:  loadedModel.syncId,
+            settings: loadedModel.settings,
             nodes:    breakout.nodes(loadedModel),
             links:    breakout.links(loadedModel)
         };
 
         console.log(data);
-
         backendApi('/models/save', data, function(response, err) {
             if (err) {
                 console.log(response);
@@ -113,52 +224,56 @@ module.exports = {
                 return;
             }
 
-            loadedModel = loadedModel.set('syncId',   response.response.id);
-            loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('saved', true));
-            _loadedModel(loadedModel);
+            loadedModel.synced         = true;
+            loadedModel.syncId         = response.response.id;
+            loadedModel.settings.saved = true;
+
+            /*loadedModel = loadedModel.set('syncId',   response.response.id);
+            loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
+            _loadedModel(loadedModel);*/
 
             if(response.response.message) {
                 notificationBar.notify(response.response.message);
             } else {
-                notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
+                notificationBar.notify('Model['+loadedModel.settings.name+'] saved.');
             }
-
-            refresh();
         });
     },
 
-    deleteModel: function(_loadedModel, _savedModels, refresh) {
-        var savedModels = _savedModels(),
-            loadedModel = _loadedModel(),
-            that        = this;
-
-        if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
-            backendApi('/models/bundle/' + loadedModel.get('syncId'), {}, function(response, err) {
+    deleteModel: function(loadedModel, savedModels, callback) {
+        var that = this;
+        if(loadedModel.synced === true && (loadedModel.syncId !== null && loadedModel.syncId !== undefined)) {
+            backendApi('/models/bundle/' + loadedModel.syncId, {}, function(response, err) {
                 if(err) {
                     console.log(response);
                     console.log(err);
                     return;
                 }
 
-                savedModels = savedModels.set('synced', savedModels.get('synced').delete(loadedModel.get('syncId')));
-                loadedModel = savedModels.get('local').first();
+                delete savedModels.local[loadedModel.id];
+                delete savedModels.synced[loadedModel.syncId];
+                var firstLocal = savedModels.local.first();
 
-                if(loadedModel === undefined) {
-                    loadedModel = that.newModel();
+                console.log(savedModels.local, firstLocal);
+                if(firstLocal === undefined) {
+                    firstLocal = that.newModel();
                 }
 
+                firstLocal.forEach(function(value, key) {
+                    loadedModel[key] = value;
+                });
+
                 notificationBar.notify(response.response);
-                _savedModels(savedModels);
-                _loadedModel(loadedModel);
-                refresh();
+                callback();
             }, "DELETE");
         } else {
-            savedModels = savedModels.set('local', savedModels.get('local').delete(loadedModel.get('id')));
-            loadedModel = this.newModel();
+            delete savedModels.local[loadedModel.id];
+            var newModel = this.newModel();
+            newModel.forEach(function(value, key) {
+                loadedModel[key] = value;
+            });
 
-            _savedModels(savedModels);
-            _loadedModel(loadedModel);
-            refresh();
+            callback();
         }
     },
     
@@ -190,72 +305,66 @@ module.exports = {
             });
 
             var newState = that.newModel();
-            newState = newState.merge(Immutable.Map({
-                syncId: response.response.id,
-                nextId: highestId + 1,
-                synced: true
-            }));
-            console.log();
-            var s = newState.get('settings');
-            s = s.merge(Immutable.Map(settings));
-            newState = newState.set('settings', s);
+            newState.syncId = response.response.id;
+            newState.nextId = highestId + 1;
+            newState.synced = true;
+
+            settings.forEach(function(value, key) {
+                newState.settings[key] = value;
+            });
 
             nodes.forEach(function(node) {
-                var newNode = Immutable.Map({
+                var newNode = {
                     id:             node.id,
                     value:          node.starting_value,
                     relativeChange: node.change_value   || 0,
-                    simulateChange: Immutable.List(),
+                    simulateChange: [],
                     threshold:      node.threshold      || 0,
                     type:           node.type,
-                    name:           node.name           || undefined,
-                    description:    node.description    || undefined
-                });
+                    name:           node.name           || "",
+                    description:    node.description    || ""
+                };
 
-                if(node.timeTable) {
-                    newNode = newNode.set('timeTable', Immutable.Map(node.timeTable));
+                if(node.type.toUpperCase() !== "INTERMEDIATE") {
+                    node.timeTable = {};
                 }
 
-                var nd = newState.get('nodeData').set(node.id, newNode);
+                if(node.timeTable) {
+                    newNode.timeTable = node.timeTable;
+                }
 
-                newState = newState.set('nodeData', nd);
+                newState.nodeData[node.id] = newNode;
 
-                var ng = newState.get('nodeGui').set(node.id, Immutable.Map({
+                var ng = {
                     id:     node.id,
                     x:      parseInt(node.x),
                     y:      parseInt(node.y),
                     radius: parseFloat(node.radius),
-                    links:  Immutable.List(),
+                    links:  [],
                     avatar: node.avatar,
-                    icon:   node.icon
-                }));
-                newState = newState.set('nodeGui', ng);
+                    icon:   node.icon,
+                    color:  node.color || undefined
+                };
+
+                newState.nodeGui[node.id] = ng;
             });
 
             links.forEach(function(link) {
-                var l = newState.get('links').set(link.id, Immutable.Map({
+                var l = {
                     id:          link.id,
                     node1:       link.upstream,
                     node2:       link.downstream,
-                    coefficient: link.threshold,
+                    coefficient: link.coefficient,
+                    threshold:   link.threshold,
                     type:        link.type,
                     timelag:     link.timelag,
                     width:       8
-                }));
+                };
 
-                newState = newState.set('links', l);
+                newState.links[link.id] = l;
 
-                var ng1 = newState.get('nodeGui').get(link.upstream);
-                ng1 = ng1.set('links', ng1.get('links').push(link.id));
-
-                var ng2 = newState.get('nodeGui').get(link.downstream);
-                ng2 = ng2.set('links', ng2.get('links').push(link.id));
-
-                var ng = newState.get('nodeGui');
-                ng = ng.set(link.upstream, ng1);
-                ng = ng.set(link.downstream, ng2);
-
-                newState = newState.set('nodeGui', ng);
+                newState.nodeGui[link.upstream].links.push(link.id);
+                newState.nodeGui[link.downstream].links.push(link.id);
             });
 
             callback(newState);

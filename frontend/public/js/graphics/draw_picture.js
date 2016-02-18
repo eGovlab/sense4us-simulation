@@ -42,14 +42,14 @@ function drawImage(ctx, image, map) {
 
     // Create a circle
     ctx.beginPath();
-    ctx.arc(map.get('x'), map.get('y'), map.get('radius') + 2, 0, 360);
+    ctx.arc(map.x, map.y, map.radius + 2, 0, 360);
 
     // Clip to the current circle
     ctx.clip();
     
-    ctx.drawImage(image, map.get('x') - map.get('radius'), map.get('y') - map.get('radius'), map.get('radius') * 2, map.get('radius') * 2);
+    ctx.drawImage(image, map.x - map.radius, map.y - map.radius, map.radius * 2, map.radius * 2);
 
-    //drawScaledImage(ctx, image, map.get('x') - map.get('radius'), map.get('y') - map.get('radius'), map.get('radius') * 2, map.get('radius') * 2);
+    //drawScaledImage(ctx, image, map.x - map.radius, map.y - map.radius, map.radius * 2, map.radius * 2);
     
     // Undo the clipping
     ctx.restore();
@@ -92,7 +92,6 @@ function drawPicture(ctx, imagePath, map, refresh) {
             img.isLoading = false;
             
             img.nodesWaiting.forEach(function(_map) {
-                console.log(_map);
                 drawImage(ctx, img, _map);
                 //refresh(ctx, imagePath, _map, refresh);
             });
