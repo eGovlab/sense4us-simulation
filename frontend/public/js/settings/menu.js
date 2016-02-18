@@ -107,7 +107,9 @@ var projectCallback = function(loadedModel, savedModels) {
     modelLayer = require("./../model_layer.js");
 
     if(loadedModel.synced === true) {
-        savedModels.synced[loadedModel.syncId] = loadedModel;
+        var m = modelLayer.newModel(loadedModel.copy());
+        savedModels.synced[loadedModel.syncId] = m;
+        //savedModels.synced[loadedModel.syncId] = loadedModel;
         /*s = s.set('synced', s.synced.set(loaded.syncId, loaded));
         savedModels(s)*/
     } else {
@@ -140,24 +142,24 @@ var projectCallback = function(loadedModel, savedModels) {
         case 'save':
             modelLayer.saveModel(loadedModel, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
+                loadedModel.refresh = true;
+                loadedModel.propagate();
             });
             break;
         case 'delete':
             modelLayer.deleteModel(loadedModel, savedModels, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
+                loadedModel.refresh = true;
                 loadedModel.propagate();
             });
             break;
         case undefined:
             break;
         default:
-            console.log("OPTION", option);
-            console.log("SAVED MODELS", savedModels);
-
             if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
                 if(savedModels.synced[option] === undefined) {
                     modelLayer.loadSyncModel(option, function(newState) {
-                        savedModels.synced[option] = newState;
+                        savedModels.synced[option] = modelLayer.newModel(newState.copy());
                         newState.forEach(function(value, key) {
                             loadedModel[key] = value;
                         });
@@ -194,7 +196,6 @@ var projectCallback = function(loadedModel, savedModels) {
     }
 
     loadedModel.resetUI = true;
-    console.log("PRAPRAPGA");
     loadedModel.propagate();
 
     return loadedModel;

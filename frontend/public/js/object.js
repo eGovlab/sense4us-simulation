@@ -107,7 +107,7 @@ Object.prototype.first = function() {
         return undefined;
     }
 
-    return arr[0];
+    return this[arr[0]];
 };
 
 Object.prototype.last = function() {

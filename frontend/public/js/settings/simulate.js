@@ -11,21 +11,17 @@ var simulate = [
         type:   'BUTTON',
         ajax:   true,
         callback: function(loadedModel) {
-            var loadedModel = changeCallbacks.loadedModel,
-                newState    = loadedModel();
-
             var data = {
-                timestep: newState.settings.maxIterations,
-                nodes:    breakout.nodes(newState),
-                links:    breakout.links(newState)
+                timestep: loadedModel.settings.maxIterations,
+                nodes:    breakout.nodes(loadedModel),
+                links:    breakout.links(loadedModel)
             };
 
-            var resetNodes = newState.nodeData.map(function(node) {
+            loadedModel.nodeData.forEach(function(node) {
                 node.simulateChange = [];
-                return node;
             });
 
-            newState.nodeData = resetNodes;
+            console.log(data);
 
             backendApi('/models/simulate', data, function(response, err) {
                 if(err) {
@@ -36,24 +32,18 @@ var simulate = [
                 }
 
                 var timeSteps = response.response;
+                var nodeData  = loadedModel.nodeData;
+                console.log(timeSteps);
                 timeSteps.forEach(function(timeStep) {
                     timeStep.forEach(function(node) {
-                        var nodeData = newState.nodeData;
                         var currentNode = nodeData[node.id];
-                        currentNode.simulateChange = currentNode.simulateChange.push(node.relativeChange);
-                        //nodeData = nodeData.set(node.id, currentNode);
-                        newState.nodeData = nodeData;
+                        currentNode.simulateChange.push(node.relativeChange);
                     });
                 });
 
-                /*nodes.forEach(function(node) {
-                    var nodeData = newState.nodeData;
-                    nodeData = nodeData.set(node.id, nodeData.get(node.id).set('simulateChange', node.relativeChange));
-                    newState = newState.set('nodeData', nodeData);
-                });*/
-
-                loadedModel(newState);
-                refresh();
+                loadedModel.refresh  = true;
+                loadedModel.settings = loadedModel.settings;
+                loadedModel.propagate();
             });
         }
     },
@@ -63,20 +53,11 @@ var simulate = [
         type:   'BUTTON',
         ajax:   true,
         callback: function(loadedModel) {
-            var loadedModel = changeCallbacks.loadedModel,
-                newState    = loadedModel();
+            var settings = loadedModel.settings;
+            settings.linegraph = !settings.linegraph
 
-            var settings = newState.settings;
-            if(!settings.linegraph) {
-                settings = settings.set('linegraph', true);
-            } else {
-                settings = settings.set('linegraph', false);
-            }
-
-            newState = newState.set('settings', settings);
-            loadedModel(newState);
-
-            refresh();
+            loadedModel.refresh = true;
+            loadedModel.propagate();
         }
     },
 
@@ -91,7 +72,6 @@ var simulate = [
 
         setDefault: function(model, values) {
             var selected = model.settings.timeStepT;
-            console.log(selected, values);
             for(var i = 0; i < values.length; i++) {
                 if(values[i] === selected) {
                     return i;
@@ -102,7 +82,6 @@ var simulate = [
         },
 
         callback: function(model, value) {
-            console.log(model, value);
             model.settings.timeStepT = value;
         }
     },
@@ -121,6 +100,9 @@ var simulate = [
 
         onSlide: function(model, value) {
             model.settings.timeStepN = value;
+
+            model.refresh = true;
+            model.propagate();
         },
 
         callback: function(model, value) {

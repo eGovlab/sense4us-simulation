@@ -88,6 +88,7 @@ function Model(id, data) {
     this.nodeGui     = {};
     this.links       = {};
 
+    this.selected        = false;
     this.environment     = "modelling";
     this.sidebar         = settings.sidebar;
     this.floatingWindows = undefined;
@@ -100,6 +101,7 @@ function Model(id, data) {
         offsetX:       0,
         offsetY:       0,
         zoom:          1,
+        linegraph:     false,
 
         timeStepT:     "Week",
         timeStepN:     0
@@ -222,6 +224,7 @@ module.exports = {
                 return;
             }
 
+            loadedModel.synced         = true;
             loadedModel.syncId         = response.response.id;
             loadedModel.settings.saved = true;
 
@@ -250,6 +253,7 @@ module.exports = {
                 delete savedModels.synced[loadedModel.syncId];
                 var firstLocal = savedModels.local.first();
 
+                console.log(savedModels.local, firstLocal);
                 if(firstLocal === undefined) {
                     firstLocal = that.newModel();
                 }
@@ -344,7 +348,8 @@ module.exports = {
                     id:          link.id,
                     node1:       link.upstream,
                     node2:       link.downstream,
-                    coefficient: link.threshold,
+                    coefficient: link.coefficient,
+                    threshold:   link.threshold,
                     type:        link.type,
                     timelag:     link.timelag,
                     width:       8

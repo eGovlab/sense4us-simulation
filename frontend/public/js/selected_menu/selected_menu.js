@@ -72,7 +72,6 @@ function Data(loadedModel, filter, data) {
     this.container = menuBuilder.div('menu');
     this.filter = filter;
 
-    console.log("Setting loadedmodel:", loadedModel);
     this.loadedModel = loadedModel;
 
     this.timetable;
@@ -211,6 +210,8 @@ Data.prototype = {
                 this.timetableDiv.removeChild(this.timetableDiv.firstChild);
             }
 
+            this.timetableDiv.appendChild(menuBuilder.label(key));
+
             this.rows.forEach(function(row, key) {
                 row.stepInput.deleteEvent();
                 row.valueInput.deleteEvent();
@@ -345,9 +346,7 @@ function SelectedMenu(loadedModel) {
 
     this.loadedModel = loadedModel;
 
-    this.buttons = this.generateButtons(buttons);
-
-    this.container.appendChild(this.buttons);
+    this.buttons;
 }
 
 SelectedMenu.prototype = {
@@ -387,6 +386,11 @@ SelectedMenu.prototype = {
         this.dataObjects.push(data);
         this.data.push(new Data(this.loadedModel, filter, data));
 
+        if(!this.buttons) {
+            this.buttons = this.generateButtons(buttons);
+            this.container.appendChild(this.buttons);
+        }
+
         this.container.appendChild(this.data[this.data.length - 1].createMenu());
     },
 
@@ -419,19 +423,27 @@ SelectedMenu.prototype = {
         var containerDiv = menuBuilder.div();
         containerDiv.className = 'menu';
 
+        var isModel = false;
+        this.data.forEach(function(obj) {
+            if(obj.data.maxIterations) {
+                isModel = true;
+            }
+        });
+
+        var that = this;
         list.forEach(function(button) {
-            if(map.maxIterations !== undefined && button.ignoreModelSettings === true) {
+            if(isModel && button.ignoreModelSettings === true) {
                 return;
             }
 
             if(button.replacingObj) {
                 containerDiv.appendChild(menuBuilder.button(button.header, function() {
-                    updateModelCallback(null, null, button.callback(map));
+                    button.callback(that.loadedModel, that.data);
                 }));
             } else {
                 /* No buttons are not replacing obj right now. There is one button. */
             }
-        });
+        }, this);
 
         return containerDiv;
     }

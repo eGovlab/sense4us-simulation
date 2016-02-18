@@ -69,7 +69,6 @@ SidebarManager.prototype = {
     },
 
     setLoadedModel: function(loadedModel) {
-        console.log("SETTING LOADED MODEL", loadedModel);
         this.loadedModel = loadedModel;
     },
 
@@ -163,6 +162,14 @@ SidebarManager.prototype = {
         }, this);
 
         notSelected.forEach(function(data) {
+            if(data === undefined) {
+                console.log(selectedData);
+                console.log(previouslySelected);
+                console.log(notSelected);
+                console.log(this.selectedData);
+                console.log("NOT SELECTED?", data);
+            }
+            
             var selectedMenu = this.selected[data.id];
             if(!selectedMenu) {
                 this.selected[data.id] = new SelectedMenu(this.loadedModel);

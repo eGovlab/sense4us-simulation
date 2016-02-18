@@ -100,7 +100,7 @@ var refreshNamespace = require('./refresh');
 
 var asyncMiddleware = require("./async_middleware");
 
-var lastShow = false;
+var lastShow;
 function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
     var show = loadedModel.settings.linegraph;
     var parent = linegraphCanvas.parentElement;
@@ -157,6 +157,7 @@ sidebarManager.setSelectedMenu(loadedModel.settings);
 loadedModel.addListener("selected", function() {
     sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
+    
     if(this.selected.x !== undefined && this.selected.y !== undefined) {
         var nodeData = loadedModel.nodeData[this.selected.id];
         var nodeGui  = loadedModel.nodeGui[this.selected.id];
@@ -187,6 +188,12 @@ loadedModel.addListener("resetUI", function() {
     }
 });
 
+loadedModel.addListener("settings", function() {
+    if(loadedModel.settings.linegraph) {
+        linegraphRefresh();
+    }
+});
+
 var drawLineGraph = require('./graphics/draw_line_graph.js');
 function _linegraphRefresh() {
     var lctx = linegraphCanvas.getContext('2d');
@@ -203,7 +210,7 @@ function _linegraphRefresh() {
 
     var nodeData = loadedModel.nodeData;
     var lineValues = selectedNodes.map(function(nodegui) {
-        var node = nodeData.get(nodegui.id);
+        var node = nodeData[nodegui.id];
         return {
             name:   node.name,
             values: node.simulateChange,

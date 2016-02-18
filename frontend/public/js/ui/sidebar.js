@@ -17,10 +17,11 @@ function Sidebar(sidebarData, loadedModel) {
 
 Sidebar.prototype = {
     createList: function(data) {
+        var that = this;
         var label = menuBuilder.label(data.header);
         if(data.images) {
             var list = selectedMenu.createAvatarButtons("avatar", null, function(key, value) {
-                data.callback(loadedModel, {name: key}, {avatar: value});
+                data.callback(that.loadedModel, {name: key}, {avatar: value});
             }, data.images);
 
             this.container.appendChild(label);
@@ -29,8 +30,9 @@ Sidebar.prototype = {
     },
 
     createButton: function(data) {
+        var that = this;
         var button = menuBuilder.button(data.header, function() {
-            data.callback(loadedModel);
+            data.callback(that.loadedModel);
         });
 
         this.container.appendChild(button);
