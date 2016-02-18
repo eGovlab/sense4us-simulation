@@ -314,7 +314,6 @@ module.exports = {
             });
 
             nodes.forEach(function(node) {
-                console.log("NODE", node);
                 var newNode = {
                     id:             node.id,
                     value:          node.starting_value,
