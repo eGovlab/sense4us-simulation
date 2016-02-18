@@ -322,9 +322,12 @@ module.exports = {
                     threshold:      node.threshold      || 0,
                     type:           node.type,
                     name:           node.name           || "",
-                    description:    node.description    || "",
-                    timeTable:      {}
+                    description:    node.description    || ""
                 };
+
+                if(node.type.toUpperCase() !== "INTERMEDIATE") {
+                    node.timeTable = {};
+                }
 
                 if(node.timeTable) {
                     newNode.timeTable = node.timeTable;
