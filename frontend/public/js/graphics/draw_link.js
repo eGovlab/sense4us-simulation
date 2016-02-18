@@ -69,7 +69,7 @@ module.exports = function drawLink(ctx, line) {
     ctx.lineCap  = 'square';
 
     if (line.selected === true) {
-        ctx.strokeStyle = 'rgba(30, 220, 140, 0.8)';
+        ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
     } else if(line.loop === true) {
         ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
     }  else {
