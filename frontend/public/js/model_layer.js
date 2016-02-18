@@ -314,6 +314,7 @@ module.exports = {
             });
 
             nodes.forEach(function(node) {
+                console.log("NODE", node);
                 var newNode = {
                     id:             node.id,
                     value:          node.starting_value,
@@ -325,8 +326,8 @@ module.exports = {
                     description:    node.description    || ""
                 };
 
-                if(node.type.toUpperCase() !== "INTERMEDIATE") {
-                    node.timeTable = {};
+                if(newNode.type.toUpperCase() !== "INTERMEDIATE") {
+                    newNode.timeTable = {};
                 }
 
                 if(node.timeTable) {
