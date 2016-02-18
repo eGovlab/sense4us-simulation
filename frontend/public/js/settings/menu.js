@@ -137,6 +137,10 @@ var projectCallback = function(loadedModel, savedModels) {
             if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
                 if(savedModels.synced[option] === undefined) {
                     modelLayer.loadSyncModel(option, function(newState) {
+                        loadedModel.nodeGui  = {};
+                        loadedModel.nodeData = {};
+                        loadedModel.propagate();
+
                         savedModels.synced[option] = modelLayer.newModel(newState.copy());
                         newState.forEach(function(value, key) {
                             loadedModel[key] = value;
@@ -146,6 +150,9 @@ var projectCallback = function(loadedModel, savedModels) {
                         loadedModel.propagate();
                     });
                 } else {
+                    loadedModel.nodeGui  = {};
+                    loadedModel.nodeData = {};
+                    loadedModel.propagate();
                     var savedModel = savedModels.synced[option];
                     savedModel.forEach(function(value, key) {
                         loadedModel[key] = value;
@@ -154,6 +161,10 @@ var projectCallback = function(loadedModel, savedModels) {
                     loadedModel.refresh = true;
                 }
             } else {
+                loadedModel.nodeGui  = {};
+                loadedModel.nodeData = {};
+                loadedModel.propagate();
+                
                 var savedModel = savedModels.local[option];
                 savedModel.forEach(function(value, key) {
                     loadedModel[key] = value;
