@@ -7,6 +7,7 @@ var backendApi      = require('./api/backend_api.js'),
     Immutable       = null,
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
+    Scenario        = require('./scenario').Scenario,
     menuBuilder     = require('./menu_builder');
     
 var settings = require('./settings');
@@ -68,8 +69,8 @@ function definePropagations(obj, keys) {
         }, set: function(newValue) {
             //console.log("Setting: ["+key+"]: " + newValue);
             //console.log(new Error().stack);
-            this.changed[key]    = true;
-            this["_"+key] = newValue;
+            this.changed[key] = true;
+            this["_"+key]     = newValue;
         }});
     });
 }
@@ -91,7 +92,7 @@ function Model(id, data) {
     this.selected        = false;
     this.environment     = "modelling";
     this.sidebar         = settings.sidebar;
-    this.floatingWindows = undefined;
+    this.floatingWindows = [];
     this.refresh         = false;
     this.resetUI         = false;
 
@@ -115,8 +116,10 @@ function Model(id, data) {
         scroll: 0
     };
 
-    this.loadedScenario = 0;
-    this.scenarios      = [];
+    this.loadedScenario = "";
+    this.scenarios      = [
+        new Scenario(this)
+    ];
 
     if(data) {
         Object.keys(data).forEach(function(key) {
@@ -173,11 +176,10 @@ Model.prototype = {
             });
         }, this);
 
+        this.changed = {};
         validListeners.forEach(function(listener) {
             listener.call(this);
         }, this);
-
-        this.changed = {};
     }
 };
 
@@ -206,6 +208,45 @@ module.exports = {
     newModel: function(data) {
         generateId++;
         return new Model(generateId, data);
+    },
+
+    moveModel: function(model) {
+        var newModel = this.newModel();
+
+        newModel.id              = model.id;
+        newModel.environment     = model.environment;
+        newModel.sidebar         = model.sidebar;
+        newModel.refresh         = false;
+        newModel.resetUI         = false;
+        newModel.floatingWindows = model.floatingWindows;
+        newModel.saved           = model.saved;
+        newModel.synced          = model.synced;
+        newModel.syncId          = model.syncId;
+        newModel.nextId          = model.nextId;
+        newModel.selected        = null;
+        newModel.nodeData        = model.nodeData;
+        newModel.nodeGui         = model.nodeGui;
+        newModel.links           = model.links;
+        newModel.settings        = model.settings;
+        newModel.treeSettings    = model.treeSettings;
+        newModel.loadedScenario  = model.loadedScenario;
+        newModel.scenarios       = model.scenarios;
+
+        model.floatingWindows.forEach(function(floatingWindow) {
+            floatingWindow.destroyWindow();
+        });
+
+        model.floatingWindows = [];
+        model.nodeData        = {};
+        model.nodeGui         = {};
+        model.links           = {};
+        model.treeSettings    = {};
+        model.scenarios       = [
+            new Scenario(model)
+        ];
+        model.settings        = {};
+
+        return newModel;
     },
 
     saveModel: function(loadedModel, refresh) {

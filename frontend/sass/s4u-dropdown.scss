@@ -15,42 +15,14 @@
 
 .s4u-dropdown > .s4u-dropdown-header {
     width: inherit;
-    padding: 3px 0px;
-    
+    padding-top: 3px;
+
     color: #505050;
     text-align: center;
     margin: 0;
 }
 
-@-webkit-keyframes DROPDOWN_FADEIN {
-    0%   {
-        background-color: rgba(239, 239, 239, 0);
-    }
-
-    100% {
-        background-color: rgba(255, 255, 255, 1);
-    }
-}
-
-@-moz-keyframes DROPDOWN_FADEIN {
-    0%   {
-        background-color: rgba(239, 239, 239, 0);
-    }
-
-    100% {
-        background-color: rgba(255, 255, 255, 1);
-    }
-}
-
-@keyframes DROPDOWN_FADEIN {
-    0%   {
-        background-color: rgba(239, 239, 239, 0);
-    }
-
-    100% {
-        background-color: rgba(255, 255, 255, 1);
-    }
-}
+@import "s4u-dropdown-animations";
 
 .s4u-dropdown > .s4u-dropdown-header:hover {
     background-color: rgba(255, 255, 255, 1);
@@ -72,20 +44,7 @@
     /* box-shadow: 0px 10px 15px 0px rgba(20, 45, 45, 0.7); */
 }
 
-@-webkit-keyframes CONTAINER_FADEIN {
-    0%   {opacity: 0;}
-    100% {opacity: 1;}
-}
 
-@-moz-keyframes CONTAINER_FADEIN {
-    0%   {opacity: 0;}
-    100% {opacity: 1;}
-}
-
-@keyframes CONTAINER_FADEIN {
-    0%   {opacity: 0;}
-    100% {opacity: 1;}
-}
 
 .s4u-dropdown .s4u-dropdown-container-animation {
     -webkit-animation: CONTAINER_FADEIN 0.5s 1;

@@ -159,7 +159,7 @@ Data.prototype = {
 
         timeStepInput.className = "time-step";
 
-        var timeValueLabel = menuBuilder.span("T");
+        var timeValueLabel = menuBuilder.span("V");
         timeValueLabel.className = "label";
 
         var timeValueInput = menuBuilder.input("time-value", timeValue, function(input, newValue) {
@@ -204,13 +204,13 @@ Data.prototype = {
         }, this);
     },
 
-    generateTimeTable: function(key, value) {
+    generateTimeTable: function(key, value, header) {
         var containerDiv = this.timetableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
                 containerDiv.className = "time-table";
 
-            containerDiv.appendChild(menuBuilder.label(key));
+            containerDiv.appendChild(menuBuilder.label(header || key));
 
             this.timetableDiv = containerDiv;
         } else {
@@ -218,7 +218,7 @@ Data.prototype = {
                 this.timetableDiv.removeChild(this.timetableDiv.firstChild);
             }
 
-            this.timetableDiv.appendChild(menuBuilder.label(key));
+            this.timetableDiv.appendChild(menuBuilder.label(header || key));
 
             this.rows.forEach(function(row, key) {
                 row.stepInput.deleteEvent();
@@ -500,6 +500,7 @@ SelectedMenu.prototype = {
 };
 
 var namespace = {
+    Data:                 Data,
     SelectedMenu:         SelectedMenu,
     createAvatarSelector: createAvatarSelector,
     createAvatarButtons:  createAvatarButtons

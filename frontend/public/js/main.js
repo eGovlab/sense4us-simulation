@@ -177,6 +177,10 @@ loadedModel.addListener("resetUI", function() {
     sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
     menu.resetMenu(loadedModel, savedModels);
 
+    loadedModel.floatingWindows.forEach(function(floatingWindow) {
+        floatingWindow.refresh();
+    });
+
     if(this.selected && this.selected.x !== undefined && this.selected.y !== undefined) {
         var nodeData = loadedModel.nodeData[this.selected.id];
         var nodeGui  = loadedModel.nodeGui[this.selected.id];

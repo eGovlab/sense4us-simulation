@@ -98,11 +98,15 @@ var projectCallback = function(loadedModel, savedModels) {
 
     modelLayer = require("./../model_layer.js");
     if(loadedModel.synced === true) {
-        var m = modelLayer.newModel(loadedModel.copy());
+        var m = modelLayer.moveModel(loadedModel);
         savedModels.synced[loadedModel.syncId] = m;
+
+        console.log("Saved synced:", m, loadedModel.syncId);
     } else {
-        var m = modelLayer.newModel(loadedModel.copy());
+        var m = modelLayer.moveModel(loadedModel);
         savedModels.local[loadedModel.id] = m;
+
+        console.log("Saved local:", m, loadedModel.id);
     }
 
     this.parent.toggle();
@@ -136,12 +140,13 @@ var projectCallback = function(loadedModel, savedModels) {
         default:
             if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
                 if(savedModels.synced[option] === undefined) {
+                    console.log("Loading remotely.");
                     modelLayer.loadSyncModel(option, function(newState) {
                         loadedModel.nodeGui  = {};
                         loadedModel.nodeData = {};
                         loadedModel.propagate();
 
-                        savedModels.synced[option] = modelLayer.newModel(newState.copy());
+                        //savedModels.synced[option] = modelLayer.moveModel(newState);
                         newState.forEach(function(value, key) {
                             loadedModel[key] = value;
                         });
@@ -150,10 +155,13 @@ var projectCallback = function(loadedModel, savedModels) {
                         loadedModel.propagate();
                     });
                 } else {
+                    console.log("Found in sync:", option);
                     loadedModel.nodeGui  = {};
                     loadedModel.nodeData = {};
                     loadedModel.propagate();
+
                     var savedModel = savedModels.synced[option];
+                    console.log(savedModel);
                     savedModel.forEach(function(value, key) {
                         loadedModel[key] = value;
                     });
@@ -161,6 +169,8 @@ var projectCallback = function(loadedModel, savedModels) {
                     loadedModel.refresh = true;
                 }
             } else {
+                console.log("Found locally.");
+
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
                 loadedModel.propagate();

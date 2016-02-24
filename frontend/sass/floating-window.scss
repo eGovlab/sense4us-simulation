@@ -1,0 +1,29 @@
+@import "colors";
+
+.floating-window {
+    position: absolute;
+    background-color: $floatingWindowBackground;
+    padding: 4px;
+}
+
+.floating-window .title {
+    width: 100%;
+    background-color: $floatingWindowTitleBackground;
+    cursor: pointer;
+}
+
+.floating-window .clear {
+    clear: both;
+}
+
+.floating-window .kill-button {
+    background-color: $floatingWindowKillBackground;
+    color:            $floatingWindowKillFontColor;
+    width: 20px;
+    height: 20px;
+    float: right;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+}

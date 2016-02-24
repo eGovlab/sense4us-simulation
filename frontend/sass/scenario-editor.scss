@@ -1,0 +1,34 @@
+@import "colors";
+
+.scenario-editor {
+}
+
+.scenario-editor .options {
+    
+}
+
+.scenario-editor .options select,
+.scenario-editor .options button {
+    border: none;
+
+    padding: 6px;
+    margin:  4px;
+
+    cursor: pointer;
+}
+
+.scenario-editor .options .scenario-select {
+
+}
+
+.scenario-editor .options .scenario-delete {
+
+}
+
+.scenario-editor .options .scenario-new {
+
+}
+
+.scenario-editor .table-container {
+    overflow: auto;
+}

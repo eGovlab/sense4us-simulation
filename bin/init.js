@@ -21,6 +21,7 @@
         bodyParser       = require("body-parser"),
         ejs              = require("ejs-locals"),
         fs               = require("fs"),
+        sass             = require("node-sass-middleware"),
         logger           = require("rh_logger"),
         controllerLayer  = require("rh_controller-layer"),
         CookieCutter     = require("rh_cookie-cutter");
@@ -84,6 +85,14 @@
         expressDaemon.use(bodyParser.json()
                         , bodyParser.urlencoded({extended: true})
                         , cookieParser()
+                        , sass({
+                            src:   CONFIG.get("ROOT") + CONFIG.get("SASS", "src"),
+                            dest:  CONFIG.get("ROOT") + CONFIG.get("SASS", "dst"),
+                            
+                            outputStyle: "compressed",
+                            prefix:      "/css",
+                            debug:       true
+                          })
                         , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
                         , logger.httpLogger(CONFIG.get("LOGGER"))
                         , cookieCutter.middleware

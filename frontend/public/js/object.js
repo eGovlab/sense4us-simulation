@@ -50,7 +50,7 @@ function copyArray(arr) {
 }
 
 Object.prototype.copy = function() {
-    var newObj = {};
+    var newObj   = {};
 
     Object.keys(this).forEach(function(key) {
         var value = this[key];

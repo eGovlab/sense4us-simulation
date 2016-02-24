@@ -13,6 +13,7 @@
     "ejs-locals": "latest",
     "express": "~4.9.0",
     "iconv-lite": "^0.4.5",
+    "node-sass-middleware": "latest",
     "browserify": "latest",
     "immutable": "latest",
     "uglify-js": "latest",
