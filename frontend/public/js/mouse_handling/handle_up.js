@@ -64,13 +64,22 @@ function link(data) {
                     collidedId = collided.id;
 
                 var nodeData = data.nodeData[node.id];
+                var hitData = data.nodeData[collidedId];
                 if(nodeData.type.toUpperCase() === "ACTOR") {
-                    var hitData = data.nodeData[collidedId];
                     if(hitData.type.toUpperCase() !== "ORIGIN") {
                         return;
                     }
 
                     data.resetUI = true;
+                }
+
+                var nodeGui = data.nodeGui[nodeId];
+                for(var i = 0; i < nodeGui.links.length; i++) {
+                    var link = data.links[nodeGui.links[i]];
+                    if((link.node1 === nodeId && link.node2 === collidedId)
+                        || (link.node1 === collidedId && link.node2 === nodeId)) {
+                        return;
+                    }
                 }
 
                 data.nodeGui[nodeId].links.push(id);
@@ -91,6 +100,8 @@ function stopLinking(data) {
             delete node.linkerX;
             delete node.linkerY;
             delete node.linking;
+            
+            node.clicked = true;
             return node;
         })
     );

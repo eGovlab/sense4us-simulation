@@ -8,6 +8,7 @@ var backendApi      = require('./api/backend_api.js'),
     breakout        = require('./breakout.js'),
     notificationBar = require('./notification_bar'),
     Scenario        = require('./scenario').Scenario,
+    TimeTable       = require('./scenario').TimeTable,
     menuBuilder     = require('./menu_builder');
     
 var settings = require('./settings');
@@ -67,9 +68,12 @@ function definePropagations(obj, keys) {
         Object.defineProperty(obj, key, {get: function() {
             return this["_"+key];
         }, set: function(newValue) {
-            //console.log("Setting: ["+key+"]: " + newValue);
-            //console.log(new Error().stack);
             this.changed[key] = true;
+            /*if(key === "scenarios") {
+                console.log("Setting: ["+key+"]: " + newValue);
+                console.log(new Error().stack);
+            }*/
+            
             this["_"+key]     = newValue;
         }});
     });
@@ -84,7 +88,7 @@ function Model(id, data) {
     this.synced      = false;
     this.syncId      = null;
 
-    this.nextId      = 0;
+    this.nextId      = -1;
     this.nodeData    = {};
     this.nodeGui     = {};
     this.links       = {};
@@ -98,14 +102,14 @@ function Model(id, data) {
 
     this.settings = {
         name:          "New Model",
-        maxIterations: 4,
+        //maxIterations: 4,
         offsetX:       0,
         offsetY:       0,
         zoom:          1,
-        linegraph:     false,
+        linegraph:     false
 
-        timeStepT:     "Week",
-        timeStepN:     0
+        //timeStepT:     "Week",
+        //timeStepN:     0
     };
 
     this.treeSettings = {
@@ -116,10 +120,12 @@ function Model(id, data) {
         scroll: 0
     };
 
-    this.loadedScenario = "";
-    this.scenarios      = [
-        new Scenario(this)
-    ];
+    this.scenarios      = {};
+    var __ = new Scenario(this);
+    this.scenarios[__.id] = __;
+    this.loadedScenario = __;
+
+    console.log(this.scenarios);
 
     if(data) {
         Object.keys(data).forEach(function(key) {
@@ -130,6 +136,12 @@ function Model(id, data) {
 
 Model.prototype = {
     listeners:   {},
+    generateId: function() {
+        this.nextId++;
+
+        return this.nextId;
+    },
+
     addListener: function(key, listener) {
         if(!Model.prototype.listeners[key]) {
             Model.prototype.listeners[key] = [];
@@ -180,6 +192,16 @@ Model.prototype = {
         validListeners.forEach(function(listener) {
             listener.call(this);
         }, this);
+    },
+
+    scenariosToJson: function() {
+        var scenarios = [];
+        Object.keys(this.scenarios).forEach(function(key) {
+            var scenario = this.scenarios[key];
+            scenarios.push(scenario.toJson(this));
+        }, this);
+
+        return scenarios;
     }
 };
 
@@ -234,6 +256,10 @@ module.exports = {
 
         model.floatingWindows.forEach(function(floatingWindow) {
             floatingWindow.destroyWindow();
+
+            if(floatingWindow.hide) {
+                floatingWindow.hide();
+            }
         });
 
         model.floatingWindows = [];
@@ -241,33 +267,78 @@ module.exports = {
         model.nodeGui         = {};
         model.links           = {};
         model.treeSettings    = {};
-        model.scenarios       = [
-            new Scenario(model)
-        ];
+        var _                 = new Scenario(model);
+        model.scenarios       = {};
+        model.scenarios[_.id] = _;
+        model.loadedScenario  = _;
         model.settings        = {};
 
         return newModel;
     },
 
-    saveModel: function(loadedModel, refresh) {
+    saveModel: function(loadedModel, onDone) {
         var data = {
-            modelId:  loadedModel.syncId,
-            settings: loadedModel.settings,
-            nodes:    breakout.nodes(loadedModel),
-            links:    breakout.links(loadedModel)
+            modelId:   loadedModel.syncId,
+            settings:  loadedModel.settings,
+            nodes:     breakout.nodes(loadedModel),
+            links:     breakout.links(loadedModel),
+            scenarios: loadedModel.scenariosToJson()
         };
 
-        console.log(data);
         backendApi('/models/save', data, function(response, err) {
             if (err) {
                 console.log(response);
-                notificationBar.notify("Couldn't save model: " + response.errors);
+                console.log(err);
+                //notificationBar.notify("Couldn't save model: " + (response.errors || "null"));
                 return;
             }
 
+            try {
+
             loadedModel.synced         = true;
-            loadedModel.syncId         = response.response.id;
+            loadedModel.syncId         = response.response.model.id;
             loadedModel.settings.saved = true;
+
+            var nodes      = response.response.nodes;
+            var links      = response.response.links;
+            var scenarios  = response.response.scenarios;
+            var timetables = response.response.timetables;
+            var timesteps  = response.response.timesteps;
+
+            console.log(response);
+            console.log(loadedModel);
+
+            var nodeLookup = {};
+            nodes.forEach(function(node) {
+                loadedModel.nodeData[node.id].syncId = node.syncId;
+                loadedModel.nodeGui[node.id].syncId  = node.syncId;
+
+                nodeLookup[node.syncId] = loadedModel.nodeData[node.id];
+            });
+
+            links.forEach(function(link) {
+                console.log(loadedModel.links[link.id].id, link.id, link.syncId);
+                loadedModel.links[link.id].syncId = link.syncId;
+                console.log(loadedModel.links[link.id].id, link.id, link.syncId);
+            });
+
+            var scenarioLookup = {};
+            scenarios.forEach(function(scenario) {
+                loadedModel.scenarios[scenario.id].syncId = scenario.syncId;
+                scenarioLookup[scenario.syncId] = loadedModel.scenarios[scenario.id];
+            });
+
+            var timetableLookup = {};
+            timetables.forEach(function(timetable) {
+                scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node].id].syncId = timetable.syncId;
+                timetableLookup[timetable.syncId] = scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node]];
+            });
+
+            /*timesteps.forEach(function(timestep) {
+                timetableLookup[timestep.timetable]
+            });*/
+
+
 
             /*loadedModel = loadedModel.set('syncId',   response.response.id);
             loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
@@ -278,6 +349,13 @@ module.exports = {
             } else {
                 notificationBar.notify('Model['+loadedModel.settings.name+'] saved.');
             }
+
+            } catch(e) {
+                console.log(e);
+                throw e;
+            }
+
+            onDone();
         });
     },
 
@@ -327,86 +405,123 @@ module.exports = {
                 return;
             }
 
-            var nodes    = response.response.nodes,
-                links    = response.response.links,
-                settings = response.response.settings
-
-            var highestId = 0;
-            //var nextId = 0;
-            nodes.forEach(function(n) {
-                if(n.id > highestId) {
-                    highestId = n.id;
-                }
-            });
-
-            links.forEach(function(l) {
-                if(l.id > highestId) {
-                    highestId = l.id;
-                }
-            });
+            var settings   = response.response.model,
+                nodes      = response.response.nodes,
+                links      = response.response.links,
+                scenarios  = response.response.scenarios,
+                timetables = response.response.timetables,
+                timesteps  = response.response.timesteps;
 
             var newState = that.newModel();
-            newState.syncId = response.response.id;
-            newState.nextId = highestId + 1;
-            newState.synced = true;
+            delete newState.scenarios;
+            newState.scenarios = {};
+                    /*name:          "New Model",
+                    maxIterations: 4,
+                    offsetX:       0,
+                    offsetY:       0,
+                    zoom:          1,
+                    linegraph:     false,
 
-            settings.forEach(function(value, key) {
-                newState.settings[key] = value;
-            });
+                    timeStepT:     "Week",
+                    timeStepN:     0*/
+            newState.settings = {
+                name:          settings.name,
+                offsetX:       settings.pan_offset_x,
+                offsetY:       settings.pan_offset_y,
+                zoom:          settings.zoom
+            };
 
             nodes.forEach(function(node) {
-                var newNode = {
+                newState.nodeData[node.id] = {
                     id:             node.id,
-                    value:          node.starting_value,
-                    relativeChange: node.change_value   || 0,
-                    simulateChange: [],
-                    threshold:      node.threshold      || 0,
+                    syncId:         node.id,
+                    name:           node.name,
+                    description:    node.description,
                     type:           node.type,
-                    name:           node.name           || "",
-                    description:    node.description    || ""
+                    simulateChange: 0,
+                    links:          []
                 };
 
-                if(newNode.type.toUpperCase() !== "INTERMEDIATE") {
-                    newNode.timeTable = {};
-                }
-
-                if(node.timeTable) {
-                    newNode.timeTable = node.timeTable;
-                }
-
-                newState.nodeData[node.id] = newNode;
-
-                var ng = {
-                    id:     node.id,
-                    x:      parseInt(node.x),
-                    y:      parseInt(node.y),
-                    radius: parseFloat(node.radius),
-                    links:  [],
-                    avatar: node.avatar,
-                    icon:   node.icon,
-                    color:  node.color || undefined
+                newState.nodeGui[node.id]  = {
+                    id:         node.id,
+                    syncId:     node.id,
+                    radius:     node.radius,
+                    x:          node.x,
+                    y:          node.y,
+                    avatar:     node.avatar,
+                    graphColor: node.color
                 };
-
-                newState.nodeGui[node.id] = ng;
             });
 
             links.forEach(function(link) {
-                var l = {
+                newState.links[link.id] = {
                     id:          link.id,
+                    syncId:      link.id,
+                    coefficient: link.coefficient,
                     node1:       link.upstream,
                     node2:       link.downstream,
-                    coefficient: link.coefficient,
                     threshold:   link.threshold,
-                    type:        link.type,
                     timelag:     link.timelag,
+                    type:        link.type || "fullchannel",
                     width:       8
                 };
 
-                newState.links[link.id] = l;
-
-                newState.nodeGui[link.upstream].links.push(link.id);
-                newState.nodeGui[link.downstream].links.push(link.id);
+                newState.nodeData[link.downstream].links.push(link.id);
+                newState.nodeData[link.upstream].links.push(link.id);
             });
+
+            scenarios.forEach(function(scenario, index) {
+                var newScenario = new Scenario(newState);
+
+                newScenario.id                = scenario.id,
+                newScenario.syncId            = scenario.id,
+                newScenario.name              = scenario.name,
+                newScenario.maxIterations     = scenario.max_iterations,
+                newScenario.timeStepN         = scenario.timestep_n,
+                newScenario.measurement       = scenario.measurement,
+                newScenario.measurementAmount = scenario.measurement_amount,
+
+                newState.scenarios[newScenario.id] = newScenario;
+
+                if(index === 0) {
+                    newState.loadedScenario = newState.scenarios[scenario.id];
+                }
+            });
+
+            var timetableLookup = {};
+            timetables.forEach(function(timetable) {
+                var node = newState.nodeData[timetable.node];
+                console.log(node);
+                var newTimetable = new TimeTable(node, function() {
+                    newState.refresh = true;
+                    newState.resetUI = true;
+                    newState.propagate();
+                });
+
+                timetableLookup[timetable.id] = newTimetable;
+
+                newState.scenarios[timetable.scenario].data[node.id] = newTimetable;
+            });
+
+            timesteps.forEach(function(timestep) {
+                var timetable = timetableLookup[timestep.timetable];
+                if(!timetable.timetable) {
+                    timetable.timetable = {};
+                }
+
+                if(!timetable.node.timeTable) {
+                    timetable.node.timeTable = {};
+                }
+                
+                timetable.timetable[timestep.step]      = timestep.value;
+                timetable.node.timeTable[timestep.step] = timestep.value;
+            });
+
+            /*timetableLookup.forEach(function(tt) {
+                tt.refreshTimeTable();
+            });*/
+
+            console.log(newState.scenarios);
 
             callback(newState);
         });

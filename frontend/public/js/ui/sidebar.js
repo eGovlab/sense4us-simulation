@@ -13,6 +13,7 @@ function Sidebar(sidebarData, loadedModel) {
     this.buttons   = [];
     this.dropdowns = [];
     this.sliders   = [];
+    this.inputs    = [];
 }
 
 Sidebar.prototype = {
@@ -81,6 +82,21 @@ Sidebar.prototype = {
         this.container.appendChild(slider);
     },
 
+    createInput: function(data) {
+        var that = this;
+
+        var defaultValue = data.defaultValue(this.loadedModel);
+        var onChange     = data.onChange;
+
+        var label = menuBuilder.label(data.header);
+        var input = menuBuilder.input("not-used", defaultValue, function(input, iteration) {
+            onChange(that.loadedModel, iteration);
+        });
+
+        this.container.appendChild(label);
+        this.container.appendChild(input);
+    },
+
     createMenu: function(loadedModel) {
         while(this.container.firstChild) {
             this.container.removeChild(this.container.firstChild);
@@ -107,6 +123,9 @@ Sidebar.prototype = {
                     this.sliders.push(data);
                     this.createSlider(data);
                     break;
+                case "INPUT":
+                    this.inputs.push(data);
+                    this.createInput(data);
             }
             
         }, this);

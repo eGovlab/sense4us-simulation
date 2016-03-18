@@ -61,6 +61,12 @@ var dragHandler = require('./mechanics/drag_handler.js'),
 
 dragHandler(mainCanvas, loadedModel, mouseDown, mouseMove, mouseUp);
 
+var keyboardHandler = require('./mechanics/keyboard_handler.js'),
+    hotkeyE         = require('./input/hotkey_e.js'),
+    hotkeyESC       = require('./input/hotkey_esc.js');
+
+keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyESC]);
+
 //mainCanvas.addEventListener('mousewheel',MouseWheelHandler, false);
 //mainCanvas.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
 
@@ -157,10 +163,15 @@ sidebarManager.setSelectedMenu(loadedModel.settings);
 loadedModel.addListener("selected", function() {
     sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
+
+    console.log(loadedModel);
     
     if(this.selected.x !== undefined && this.selected.y !== undefined) {
         var nodeData = loadedModel.nodeData[this.selected.id];
         var nodeGui  = loadedModel.nodeGui[this.selected.id];
+
+        console.log("NODEDATA", nodeData);
+
         sidebarManager.setSelectedMenu(nodeData, nodeGui);
     } else if(this.selected.coefficient !== undefined) {
         sidebarManager.setSelectedMenu(this.selected);
@@ -184,6 +195,7 @@ loadedModel.addListener("resetUI", function() {
     if(this.selected && this.selected.x !== undefined && this.selected.y !== undefined) {
         var nodeData = loadedModel.nodeData[this.selected.id];
         var nodeGui  = loadedModel.nodeGui[this.selected.id];
+
         sidebarManager.setSelectedMenu(nodeData, nodeGui);
     } else if(this.selected && this.selected.coefficient !== undefined) {
         sidebarManager.setSelectedMenu(this.selected);

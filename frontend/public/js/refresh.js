@@ -107,7 +107,7 @@ function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, next) {
                 if(nodeGui.timeTable) {
                     drawTimeTable(ctx, nodeGui);
                 } else if(nodeGui.type.toUpperCase() !== "ACTOR") {
-                    drawChange(ctx, nodeGui.x, nodeGui.y + nodeGui.radius / 6, Math.round(n.simulateChange[loadedModel.settings.timeStepN] * 100) / 100);
+                    drawChange(ctx, nodeGui.x, nodeGui.y + nodeGui.radius / 6, Math.round(n.simulateChange[loadedModel.loadedScenario.timeStepN] * 100) / 100);
                 }
             }
         }

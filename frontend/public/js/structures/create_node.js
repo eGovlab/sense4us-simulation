@@ -1,11 +1,11 @@
 'use strict';
 
 module.exports = function createNode(model, data, gui, type) {
-    var id = model.nextId;
-    model.nextId = id + 1;
+    var id = model.generateId();
 
     var nodeData = {
         id:              id,
+        syncId:          false,
         value:           0,
         relativeChange:  0,
         simulateChange:  [],
@@ -32,6 +32,12 @@ module.exports = function createNode(model, data, gui, type) {
 
     model.nodeData[id] = nodeData;
     model.nodeGui[id]  = nodeGui;
+
+    if(nodeData.timeTable) {
+        model.scenarios.forEach(function(scenario) {
+            scenario.refresh(model);
+        });
+    }
 
     model.resetUI = true;
     model.refresh = true;

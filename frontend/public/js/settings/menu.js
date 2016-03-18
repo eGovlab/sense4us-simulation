@@ -61,7 +61,7 @@ var projectUpdate = function(loadedModel, savedModels) {
                 savedString = " * ";
             }
 
-            element.addOption(model.id, 'LOCAL' + savedString + model.settings.name);
+            element.addOption(model.id, savedString + model.settings.name);
         });
 
         savedModels.synced.forEach(function(model) {
@@ -94,20 +94,19 @@ var projectUpdate = function(loadedModel, savedModels) {
 var projectCallback = function(loadedModel, savedModels) {
     var option      = this.value,
         that        = this,
-        text        = this.text.match(/^(LOCAL)?(\s\*\s)?(.*)$/)[3];
+        text        = this.text.match(/^(\s\*\s)?(.*)$/)[2];
 
     modelLayer = require("./../model_layer.js");
+    var m;
     if(loadedModel.synced === true) {
-        var m = modelLayer.moveModel(loadedModel);
+        m = modelLayer.moveModel(loadedModel);
         savedModels.synced[loadedModel.syncId] = m;
-
-        console.log("Saved synced:", m, loadedModel.syncId);
     } else {
-        var m = modelLayer.moveModel(loadedModel);
+        m = modelLayer.moveModel(loadedModel);
         savedModels.local[loadedModel.id] = m;
-
-        console.log("Saved local:", m, loadedModel.id);
     }
+
+    console.log(m);
 
     this.parent.toggle();
     switch(option) {
@@ -118,13 +117,21 @@ var projectCallback = function(loadedModel, savedModels) {
                 loadedModel[key] = value;
             });
 
+            savedModels.local[loadedModel.id] = m;
+
             that.parent.toggle();
             projectUpdate.call(this.parent, loadedModel, savedModels);
             break;
         case 'save':
+            m.forEach(function(value, key) {
+                loadedModel[key] = value;
+            });
+
             modelLayer.saveModel(loadedModel, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
+
                 loadedModel.refresh = true;
+                loadedModel.resetUI = true;
                 loadedModel.propagate();
             });
             break;
@@ -147,6 +154,7 @@ var projectCallback = function(loadedModel, savedModels) {
                         loadedModel.propagate();
 
                         //savedModels.synced[option] = modelLayer.moveModel(newState);
+                        console.log(loadedModel, newState);
                         newState.forEach(function(value, key) {
                             loadedModel[key] = value;
                         });

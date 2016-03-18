@@ -7,6 +7,12 @@ function FloatingWindow(x, y, w, h, className) {
     this.body;
     this.title;
 
+    this.x = x;
+    this.y = y;
+
+    this.w = w;
+    this.h = h;
+
     this.className = className;
     this.createWindow(x, y, w, h, className);
 }
@@ -15,6 +21,18 @@ FloatingWindow.prototype = {
      createWindow: function(x, y, w, h) {
         if(this.container) {
             return;
+        }
+
+        if(
+            !x && this.x &&
+            !y && this.y &&
+            !w && this.w &&
+            !h && this.h
+        ) {
+            x = this.x;
+            y = this.y;
+            w = this.w;
+            h = this.h;
         }
 
         this.container = menuBuilder.div('floating-window');;
@@ -46,13 +64,12 @@ FloatingWindow.prototype = {
 
         this.killCallback = function() {
             that.destroyWindow();
-            
         };
 
         this.killButton.addEventListener('click', this.killCallback);
 
-        var startX = 0,
-            startY = 0;
+        var startX = this.x,
+            startY = this.y;
 
         this.initializeMove = function(pos) {
             startX = pos.clientX;
@@ -76,8 +93,11 @@ FloatingWindow.prototype = {
             startX = pos.clientX;
             startY = pos.clientY;
 
-            container.style.left = (rect.left + newX) + 'px';
-            container.style.top  = (rect.top + newY)  + 'px';
+            that.x = rect.left + newX;
+            that.y = rect.top  + newY;
+
+            container.style.left = that.x + 'px';
+            container.style.top  = that.y + 'px';
         };
 
         this.title.addEventListener('mousedown', this.initializeMove);
@@ -94,6 +114,7 @@ FloatingWindow.prototype = {
         document.body.removeChild(this.container);
 
         this.container  = null;
+        this.body       = null;
         this.title      = null;
         this.clear      = null;
         this.killButton = null;

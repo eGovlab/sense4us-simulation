@@ -135,25 +135,27 @@ Data.prototype = {
         timeStepLabel.className = "label";
 
         var timeStepInput = menuBuilder.input("time-step", timeStep, function(input, newStep) {
+            if(newStep.match(/^\d+$/) === null) {
+                timeStepInput.value = timeStep;
+                return;
+            }
+
             var storingValue = that.timetable[timeStep];
             if(that.timetable[newStep]) {
                 return timeStepInput.value = timeStep;
             }
-
-            console.log(that.rows);
 
             that.timetable[newStep] = that.timetable[timeStep];
             delete that.timetable[timeStep];
             that.rows[newStep] = that.rows[timeStep];
             delete that.rows[timeStep];
 
-            console.log(that.rows);
-
             timeStepInput.value = newStep;
 
             that.refreshTimeTable();
 
             that.loadedModel.refresh = true;
+            that.loadedModel.resetUI = true;
             that.loadedModel.propagate();
         });
 
@@ -163,10 +165,16 @@ Data.prototype = {
         timeValueLabel.className = "label";
 
         var timeValueInput = menuBuilder.input("time-value", timeValue, function(input, newValue) {
-            that.timetable[timeStep] = newValue;
+            if(newValue.match(/^\d+\.?\d*$/) === null) {
+                timeValueInput.value = that.timetable[timeStep];
+                return;
+            }
+
+            that.timetable[timeStep] = Number(newValue);
             timeValueInput.value     = newValue;
 
             that.loadedModel.refresh = true;
+            that.loadedModel.resetUI = true;
             that.loadedModel.propagate();
         });
 
@@ -262,6 +270,7 @@ Data.prototype = {
                 that.addTimeRow(index, value);
 
                 that.loadedModel.refresh = true;
+                that.loadedModel.resetUI = true;
                 that.loadedModel.propagate();
             }
         }));
@@ -280,6 +289,7 @@ Data.prototype = {
             delete that.rows[that.rows.lastKey()];
 
             that.loadedModel.refresh = true;
+            that.loadedModel.resetUI = true;
             that.loadedModel.propagate();
         }));
 

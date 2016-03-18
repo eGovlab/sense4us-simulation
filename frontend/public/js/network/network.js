@@ -75,6 +75,7 @@ function sendData(domain, port, path, jsonData, callback, method) {
     httpRequest.open(method, domain + ':' + port + path);
     httpRequest.setRequestHeader('Content-Type', 'application/json');
     if (jsonData && typeof jsonData !== 'function') {
+        console.log("Posting:", jsonData);
         httpRequest.send(JSON.stringify(jsonData, null, 4));
     } else {
         httpRequest.send();

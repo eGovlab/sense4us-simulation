@@ -69,6 +69,9 @@ MenuBuilder.prototype = {
     button: function(text, callback) {
         var button = document.createElement('button');
         button.addEventListener('click', callback);
+        button.deleteEvent = function() {
+            button.removeEventListener('click', callback);
+        };
         button.appendChild(document.createTextNode(text));
         
         return button;        
@@ -86,6 +89,9 @@ MenuBuilder.prototype = {
         select.name = name;
 
         select.addEventListener('change', callback);
+        select.deleteEvent = function() {
+            select.removeEventListener('click', callback);
+        };
 
         return select;
     },
@@ -156,6 +162,9 @@ MenuBuilder.prototype = {
         button.setAttribute('type', 'button');
         button.setAttribute('value', text);
         button.addEventListener('click', callback);
+        button.deleteEvent = function() {
+            button.removeEventListener('click', callback);
+        };
         button.className = 'button';
         
         return button;

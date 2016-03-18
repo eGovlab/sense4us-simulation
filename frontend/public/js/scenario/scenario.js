@@ -1,18 +1,27 @@
 var FloatingWindow = require('./../floating_window/floating_window.js'),
     menuBuilder    = require('./../menu_builder');
 
-function TimeTable(loadedModel, node) {
-    this.node = node;
-    this.data = node.copy();
+var timetableId = -1;
+function TimeTable(node, onChange) {
+    timetableId++;
+    this.id     = timetableId;
+    this.syncId = false;
+
+    this.node   = node;
+    this.data   = node.copy();
+
+    this.data.id = timetableId;
+
+    this.node.timeTable = this.data.timeTable;
 
     this.header = node.name;
+    this.onChange = onChange;
 
     this.container = menuBuilder.div('menu');
     this.filter = filter;
 
-    this.loadedModel = loadedModel;
-
     this.timetable   = this.data.timeTable;
+
     this.timetableDiv;
     this.rowContainer;
     this.rows = {};
@@ -41,18 +50,17 @@ TimeTable.prototype = {
 
         this.refreshTimeTable();
 
-        this.loadedModel.refresh = true;
-        this.loadedModel.propagate();
+        this.onChange();
     },
     
     setTimeValue: function(timeValueInput, timeStep, newValue) {
+        newValue = Number(newValue);
         this.timetable[timeStep] = newValue;
         timeValueInput.value     = newValue;
 
         this.node.timeTable[timeStep] = newValue;
 
-        this.loadedModel.refresh = true;
-        this.loadedModel.propagate();
+        this.onChange();
     },
 
     addTimeRow: function(timeStep, timeValue) {
@@ -128,8 +136,7 @@ TimeTable.prototype = {
 
         this.node.timeTable = this.node.timeTable.slice(0, -1);
 
-        this.loadedModel.refresh = true;
-        this.loadedModel.propagate();
+        this.onChange();
     },
 
     refreshTimeTable: function() {
@@ -152,9 +159,6 @@ TimeTable.prototype = {
             this.addTimeRow(timeStep, timeValue);
             this.node.timeTable[timeStep] = timeValue;
         }, this);
-
-        this.loadedModel.refresh = true;
-        this.loadedModel.propagate();
     },
 
     destroyTimeTable: function() {
@@ -180,7 +184,7 @@ TimeTable.prototype = {
             var containerDiv = menuBuilder.div();
                 containerDiv.className = "time-table";
 
-            containerDiv.appendChild(menuBuilder.label(this.header || 'TimeTable'));
+            containerDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
 
             this.timetableDiv = containerDiv;
         } else {
@@ -188,7 +192,7 @@ TimeTable.prototype = {
                 this.timetableDiv.removeChild(this.timetableDiv.firstChild);
             }
 
-            this.timetableDiv.appendChild(menuBuilder.label(this.header || 'TimeTable'));
+            this.timetableDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
 
             this.rows.forEach(function(row, key) {
                 row.stepInput.deleteEvent();
@@ -207,7 +211,7 @@ TimeTable.prototype = {
             containerDiv.appendChild(rowContainer);
         }
 
-        this.node.timeTable = {};
+        this.node.timeTable = this.timetable;
         this.timetable.forEach(function(timeValue, timeStep) {
             this.addTimeRow(timeStep, timeValue);
         }, this);
@@ -230,8 +234,7 @@ TimeTable.prototype = {
                 that.timetable[index] = value;
                 that.addTimeRow(index, value);
 
-                that.loadedModel.refresh = true;
-                that.loadedModel.propagate();
+                that.onChange();
             }
         }));
 
@@ -243,59 +246,101 @@ TimeTable.prototype = {
     }
 };
 
-function Scenario(loadedModel, node) {
+function Scenario(loadedModel, syncId) {
+    this.id     = loadedModel.generateId();
+    this.syncId = syncId;
+
     this.container    = menuBuilder.div("scenario");
     this.name         = "New scenario";
     this.data         = {};
 
-    this.changedTables = {};
+    this.measurement         = "Week";
+    this.measurementAmount   = 1;
+    this.maxIterations       = 4;
+    this.timeStepN           = 0;
 
-    this.loadedModel = loadedModel;
-    //this.generateScenarioContainer();
+    this.changedTables = {};
 }
 
 Scenario.prototype = {
     setName: function(name) {
         this.name = name;
+
+        return this;
     },
 
-    refresh: function() {
-        this.generateScenarioContainer();
+    refresh: function(loadedModel) {
+        this.generateScenarioContainer(loadedModel);
+
+        return this;
     },
 
     setNodes: function() {
         this.loadedModel.nodeData.forEach(function(data) {
             console.log(data);
         });
+
+        return this;
     },
 
-    generateScenarioContainer: function() {
+    toJson: function(loadedModel) {
+        return {
+            id:                this.id,
+            syncId:            this.syncId,
+            name:              this.name,
+            maxIterations:     this.maxIterations,
+            measurement:       this.measurement,
+            measurementAmount: this.measurementAmount,
+            timeStepN:         this.timeStepN,
+            tables: this.data.map(function(timeTable) {
+                return {
+                    id:                timeTable.id,
+                    syncId:            timeTable.syncId,
+                    timetable:         timeTable.data.timeTable
+                };
+            })
+        };
+    },
+
+    generateScenarioContainer: function(loadedModel) {
         while(this.container.firstChild) {
             this.container.removeChild(this.container.firstChild);
         }
 
-        this.loadedModel.nodeData.forEach(function(node) {
+        loadedModel.nodeData.forEach(function(node) {
             if(!node.timeTable) {
                 return;
             }
 
             var data = this.data[node.id];
             if(!data) {
-                data = new TimeTable(this.loadedModel, node);
+                data = new TimeTable(node, function() {
+                    loadedModel.refresh = true;
+                    loadedModel.resetUI = true;
+                    loadedModel.propagate();
+                });
                 this.data[node.id] = data;
             }
             
             this.container.appendChild(data.generateTimeTable());
         }, this);
 
-        this.loadedModel.refresh = true;
-        this.loadedModel.propagate();
+        loadedModel.refresh = true;
+        loadedModel.propagate();
+
+        return this;
     }
 };
 
 function ScenarioEditor(loadedModel) {
     this.loadedModel     = loadedModel;
     this.floatingWindow  = new FloatingWindow(20, 20, 440, 400, "scenario-editor");
+    this.floatingWindow.killButton.removeEventListener('click', this.floatingWindow.killCallback);
+    var that = this;
+    this.floatingWindow.killButton.killCallback = function() {
+        that.destroyWindow();
+    };
+    this.floatingWindow.killButton.addEventListener('click', this.floatingWindow.killCallback);
     this.container       = this.floatingWindow.container;
     this.body            = this.floatingWindow.body;
     this.scenarios       = loadedModel.scenarios;
@@ -303,6 +348,8 @@ function ScenarioEditor(loadedModel) {
 
     this.options              = menuBuilder.div("options");
     this.options.style.height = "40px";
+
+    this.selectedIndex = 0;
 
     this.scenarioContainer = menuBuilder.div('table-container');
     this.scenarioContainer.style.height = "360px";
@@ -321,45 +368,78 @@ ScenarioEditor.prototype = {
         this.floatingWindow.destroyWindow();
         this.container = null;
         this.body      = null;
+
+        this.deleteScenario.deleteEvent();
+        this.newScenario.deleteEvent();
+        this.scenarioDropdown.deleteEvent();
+
+        this.deleteScenario   = null;
+        this.newScenario      = null;
+        this.scenarioDropdown = null;
+
+        var index = this.loadedModel.floatingWindows.indexOf(this);
+        if(index === -1) {
+            return;
+        }
+
+        this.loadedModel.floatingWindows.splice(index, 1);
     },
 
     createWindow: function() {
         this.floatingWindow.createWindow();
         this.container = this.floatingWindow.container;
         this.body      = this.floatingWindow.body;
+
+        this.options              = menuBuilder.div("options");
+        this.options.style.height = "40px";
+
+        this.scenarioContainer = menuBuilder.div('table-container');
+        this.scenarioContainer.style.height = "360px";
+
+        this.body.appendChild(this.options);
+        this.body.appendChild(this.scenarioContainer);
+        this.generateOptions();
+
+        document.body.appendChild(this.container);
     },
 
     generateOptions: function() {
         var that = this;
         this.scenarioDropdown = menuBuilder.select("text", function() {
             var value = parseInt(this.value);
-            console.log(value, that.scenarios);
             if(!that.scenarios[value]) {
                 return;
             }
 
-            console.log(value, that.scenarios[value]);
-
             that.setScenario(that.scenarios[value]);
-            that.scenarios[value].refresh();
+            //that.scenarios[value].refresh(that.loadedModel);
+            that.selectedIndex = value;
+
+            that.loadedModel.resetUI = true;
+            that.loadedModel.propagate();
         });
 
         this.deleteScenario   = menuBuilder.button("Delete scenario", function() {
 
         });
 
-        this.newScenario = menuBuilder.button("New scenario",    function() {
-                var scenario = new Scenario(that.loadedModel);
-                scenario.setName(that.scenarios.size() + ": New scenario");
-                that.setScenario(scenario);
-                that.scenarios.push(scenario);
-                scenario.refresh();
+        this.newScenario = menuBuilder.button("New scenario", function() {
+            var scenario = new Scenario(that.loadedModel);
+            scenario.setName(that.scenarios.size() + ": New scenario");
+            that.setScenario(scenario);
+            that.scenarios[scenario.id] = scenario;
+            //scenario.refresh(that.loadedModel);
 
-                var option = menuBuilder.option(that.loadedModel.scenarios.length - 1, scenario.name);
-                that.scenarioDropdown.appendChild(option);
+            var option = menuBuilder.option(scenario.id, scenario.name);
+            that.scenarioDropdown.appendChild(option);
 
-                that.scenarioDropdown.options[that.scenarioDropdown.options.length - 1].selected = true;
-            });
+            var index = that.scenarioDropdown.options.length - 1;
+            that.scenarioDropdown.options[index].selected = true;
+            that.selectedIndex = index;
+
+            that.loadedModel.resetUI = true;
+            that.loadedModel.propagate();
+        });
 
         this.scenarioDropdown.className = "scenario-select";
         this.deleteScenario.className   = "scenario-delete";
@@ -369,8 +449,12 @@ ScenarioEditor.prototype = {
         this.options.appendChild(this.deleteScenario);
         this.options.appendChild(this.newScenario);
 
-        this.loadedModel.scenarios.forEach(function(scenario, index) {
-            var option = menuBuilder.option(index, scenario.name);
+        this.loadedModel.scenarios.forEach(function(scenario) {
+            var option = menuBuilder.option(scenario.id, scenario.name);
+            if(scenario.id === this.currentScenario) {
+                option.selected = true;
+            }
+
             this.scenarioDropdown.appendChild(option);
         }, this);
 
@@ -383,31 +467,42 @@ ScenarioEditor.prototype = {
 
             var option = menuBuilder.option(that.loadedModel.scenarios.length - 1, scenario.name);
             this.scenarioDropdown.appendChild(option);
+            this.selectedIndex = 0;
         } else {
-            this.setScenario(this.loadedModel.scenarios[0]);
-            this.loadedModel.scenarios[0].refresh();
+            this.setScenario(this.loadedModel.loadedScenario);
+            this.loadedModel.loadedScenario.refresh(this.loadedModel);
+            /*this.setScenario(this.loadedModel.scenarios[this.selectedIndex]);
+            this.loadedModel.scenarios[this.selectedIndex].refresh(this.loadedModel);*/
         }
     },
 
     setScenario: function(scenario) {
-        this.currentScenario = scenario;
+        this.currentScenario            = scenario;
+        this.loadedModel.loadedScenario = scenario;
         //scenario.generateScenarioContainer();
         while(this.scenarioContainer.firstChild) {
             this.scenarioContainer.removeChild(this.scenarioContainer.firstChild);
         }
 
+        console.log(scenario);
         this.scenarioContainer.appendChild(this.currentScenario.container);
     },
 
     refresh: function() {
-        /*this.scenarios.forEach(function(scenario) {
-            scenario.refresh();
-        });*/
-        this.currentScenario.refresh();
+        if(this.hidden) {
+            return;
+        }
+
+        if(this.container === null && this.body === null) {
+            this.createWindow();
+        }
+
+        this.currentScenario.refresh(this.loadedModel);
     }
 };
 
 module.exports = {
     ScenarioEditor: ScenarioEditor,
-    Scenario:       Scenario
+    Scenario:       Scenario,
+    TimeTable:      TimeTable
 };

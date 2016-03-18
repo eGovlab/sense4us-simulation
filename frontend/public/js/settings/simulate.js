@@ -71,7 +71,7 @@ var simulate = [
         ],
 
         setDefault: function(model, values) {
-            var selected = model.settings.timeStepT;
+            var selected = model.loadedScenario.measurement;
             for(var i = 0; i < values.length; i++) {
                 if(values[i] === selected) {
                     return i;
@@ -82,7 +82,7 @@ var simulate = [
         },
 
         callback: function(model, value) {
-            model.settings.timeStepT = value;
+            model.loadedScenario.measurement = value;
         }
     },
 
@@ -91,22 +91,38 @@ var simulate = [
         type:   'SLIDER',
 
         defaultValue: function(model) {
-            return model.settings.timeStepN;
+            console.log(model.loadedScenario.timeStepN);
+            return model.loadedScenario.timeStepN;
         },
 
         range: function(model) {
-            return [0, model.settings.maxIterations];
+            console.log(model.loadedScenario.maxIterations);
+            return [0, model.loadedScenario.maxIterations];
         },
 
         onSlide: function(model, value) {
-            model.settings.timeStepN = value;
+            model.loadedScenario.timeStepN = value;
 
             model.refresh = true;
             model.propagate();
         },
 
         callback: function(model, value) {
-            model.settings.timeStepN = value;
+            console.log(model.loadedModel);
+            model.loadedScenario.timeStepN = value;
+        }
+    },
+
+    {
+        header: 'Max iterations',
+        type:   'INPUT',
+
+        defaultValue: function(model) {
+            return model.loadedScenario.maxIterations;
+        },
+
+        onChange: function(model, value) {
+            model.loadedScenario.maxIterations = parseInt(value);
         }
     }
 ];

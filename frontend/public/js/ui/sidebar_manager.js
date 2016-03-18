@@ -114,7 +114,7 @@ SidebarManager.prototype = {
             return this.getLinkFilter();
         }
 
-        if(data.x !== undefined && data.y !== undefined || data.relativeChange !== undefined) {
+        if(data.x !== undefined && data.y !== undefined || data.simulateChange !== undefined) {
             return this.getDataFilter();
         }
 
@@ -176,6 +176,9 @@ SidebarManager.prototype = {
                 selectedMenu = this.selected[data.id];
                 this.selectedMenuContainer.appendChild(selectedMenu.container);
             }
+
+            console.log(data);
+            console.log(this.getFilter(data));
             
             selectedMenu.addData(this.getFilter(data), data);
         }, this);
