@@ -177,9 +177,6 @@ SidebarManager.prototype = {
                 this.selectedMenuContainer.appendChild(selectedMenu.container);
             }
 
-            console.log(data);
-            console.log(this.getFilter(data));
-            
             selectedMenu.addData(this.getFilter(data), data);
         }, this);
 

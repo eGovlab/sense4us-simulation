@@ -106,8 +106,6 @@ var projectCallback = function(loadedModel, savedModels) {
         savedModels.local[loadedModel.id] = m;
     }
 
-    console.log(m);
-
     this.parent.toggle();
     switch(option) {
         case 'new':
@@ -147,14 +145,12 @@ var projectCallback = function(loadedModel, savedModels) {
         default:
             if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
                 if(savedModels.synced[option] === undefined) {
-                    console.log("Loading remotely.");
                     modelLayer.loadSyncModel(option, function(newState) {
                         loadedModel.nodeGui  = {};
                         loadedModel.nodeData = {};
                         loadedModel.propagate();
 
                         //savedModels.synced[option] = modelLayer.moveModel(newState);
-                        console.log(loadedModel, newState);
                         newState.forEach(function(value, key) {
                             loadedModel[key] = value;
                         });

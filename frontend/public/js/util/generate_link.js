@@ -1,0 +1,62 @@
+"use strict";
+
+var hitTest    = require('./../collisions.js').hitTest,
+    createLink = require('../structures/create_link'),
+    linker     = require('./../linker.js');
+
+module.exports = function(loadedModel) {
+    var nodeData = loadedModel.nodeData,
+        nodeGui  = loadedModel.nodeGui,
+        links    = loadedModel.links;
+
+    var linkingNodes = nodeGui.filter(function(node) {
+        return node.linking === true;
+    });
+
+    linkingNodes.forEach(function(node) {
+        var hit = nodeGui.filter(function(maybeCollidingNode) {
+            return maybeCollidingNode.linking !== true && hitTest(maybeCollidingNode, linker(node));
+        });
+
+        hit.forEach(function(collided) {
+            var nodeLinks = node.links;
+            if(nodeLinks === undefined) {
+                node.links = [];
+            }
+
+            var collidedLinks = collided.links;
+            if(collidedLinks === undefined) {
+                collided.links = [];
+            }
+
+            var nodeId     = node.id,
+                collidedId = collided.id;
+
+            var sourceData = nodeData[node.id];
+            var destData   = nodeData[collidedId];
+            if(sourceData.type.toUpperCase() === "ACTOR") {
+                if(destData.type.toUpperCase() !== "ORIGIN") {
+                    return;
+                }
+
+                loadedModel.resetUI = true;
+            }
+
+            var sourceGui = nodeGui[nodeId];
+            for(var i = 0; i < sourceGui.links.length; i++) {
+                var link = links[sourceGui.links[i]];
+                if((link.node1 === nodeId && link.node2 === collidedId)
+                    || (link.node1 === collidedId && link.node2 === nodeId)) {
+                    return;
+                }
+            }
+
+            var newLink       = createLink(loadedModel, nodeId, collidedId);
+            links[newLink.id] = newLink;
+
+            nodeGui[nodeId].links.push(newLink.id);
+            nodeGui[collidedId].links.push(newLink.id);
+        });
+    });
+};
+

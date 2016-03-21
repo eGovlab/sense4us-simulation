@@ -54,12 +54,11 @@ window.collisions = require('./collisions.js');
 
 var context = mainCanvas.getContext('2d');
 
-var dragHandler = require('./mechanics/drag_handler.js'),
-    mouseDown   = require('./input/mouse_down.js'),
-    mouseMove   = require('./input/mouse_move.js'),
-    mouseUp     = require('./input/mouse_up.js');
+var mouseHandler = require('./mechanics/mouse_handler.js');
+var mleftDrag    = require('./input/mleft_drag.js'),
+    mrightDrag   = require('./input/mright_drag.js');
 
-dragHandler(mainCanvas, loadedModel, mouseDown, mouseMove, mouseUp);
+mouseHandler(mainCanvas, loadedModel, [mleftDrag, mrightDrag]);
 
 var keyboardHandler = require('./mechanics/keyboard_handler.js'),
     hotkeyE         = require('./input/hotkey_e.js'),
@@ -164,13 +163,9 @@ loadedModel.addListener("selected", function() {
     sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
 
-    console.log(loadedModel);
-    
     if(this.selected.x !== undefined && this.selected.y !== undefined) {
         var nodeData = loadedModel.nodeData[this.selected.id];
         var nodeGui  = loadedModel.nodeGui[this.selected.id];
-
-        console.log("NODEDATA", nodeData);
 
         sidebarManager.setSelectedMenu(nodeData, nodeGui);
     } else if(this.selected.coefficient !== undefined) {

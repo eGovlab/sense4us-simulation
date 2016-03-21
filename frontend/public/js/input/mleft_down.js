@@ -11,6 +11,8 @@ function mouseDown(canvas, loadedModel, pos) {
         linegraph: loadedModel.settings.linegraph
     };
 
+    document.activeElement.blur();
+
     var data = mouseDownWare(_data);
 
     data.nodeGui.forEach(function(node, id) {
@@ -25,21 +27,7 @@ function mouseDown(canvas, loadedModel, pos) {
         });
     });
 
-
     loadedModel.refresh = true;
-
-    //loadedModel.nodeGui = loadedModel.nodeGui.merge(data.nodeGui);
-    //loadedModel.links   = loadedModel.links.merge(data.links);
-
-    if(loadedModel.settings.linegraph) {
-        loadedModel.settings = loadedModel.settings;
-    }
-
-    //refresh();
-
-    /*if(loadedModel.settings.linegraph) {
-        linegraphRefresh();
-    }*/
 
     return true;
 }

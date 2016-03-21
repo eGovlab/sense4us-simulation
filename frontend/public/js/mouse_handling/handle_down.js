@@ -29,7 +29,7 @@ function clickAndMove(data, error, done, env) {
     });
 
     data.nodeGui = data.nodeGui.merge(previouslyClickedNodes);
-    data.links = data.links.merge(previouslyClickedLinks);
+    data.links   = data.links.merge(previouslyClickedLinks);
 
     /*// if we click on a icon we want to start moving it!
     var collidedNodes = data.nodeGui.

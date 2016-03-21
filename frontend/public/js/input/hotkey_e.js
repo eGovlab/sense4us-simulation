@@ -7,9 +7,13 @@ var arithmetics = require('../canvas/arithmetics.js'),
 
 module.exports = {
     keyCode: 69,
-    onDown:  function(canvas, model) {
-        if(document.body.removeHotkeyEListeners) {
-            document.body.removeHotkeyEListeners();
+    onDown:  function(canvas, model, evt) {
+        if(canvas.removeHotkeyEListeners) {
+            canvas.removeHotkeyEListeners();
+        }
+
+        if(document.body !== document.activeElement) {
+            return;
         }
         
         var selected = model.selected;
@@ -29,21 +33,21 @@ module.exports = {
         };
 
         var mouseUp = function() {
-            document.body.removeHotkeyEListeners();
+            canvas.removeHotkeyEListeners();
         };
 
-        document.body.removeHotkeyEListeners = function() {
-            document.body.removeEventListener("mousemove", mouseMove);
-            document.body.removeEventListener("mouseup",   mouseUp);
+        canvas.removeHotkeyEListeners = function() {
+            canvas.removeEventListener("mousemove", mouseMove);
+            canvas.removeEventListener("mouseup",   mouseUp);
 
-            delete document.body.removeHotkeyEListeners;
+            delete canvas.removeHotkeyEListeners;
         };
 
-        document.body.addEventListener("mousemove", mouseMove);
-        document.body.addEventListener("mouseup",   mouseUp);
+        canvas.addEventListener("mousemove", mouseMove);
+        canvas.addEventListener("mouseup",   mouseUp);
     },
 
-    onUp: function(canvas, model) {
+    onUp: function(canvas, model, evt) {
 
     }
 };

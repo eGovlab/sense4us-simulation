@@ -1,16 +1,16 @@
 var FloatingWindow = require('./../floating_window/floating_window.js'),
     menuBuilder    = require('./../menu_builder');
 
-var timetableId = -1;
+var timeTableId = -1;
 function TimeTable(node, onChange) {
-    timetableId++;
-    this.id     = timetableId;
+    timeTableId++;
+    this.id     = timeTableId;
     this.syncId = false;
 
     this.node   = node;
     this.data   = node.copy();
 
-    this.data.id = timetableId;
+    this.data.id = timeTableId;
 
     this.node.timeTable = this.data.timeTable;
 
@@ -20,9 +20,9 @@ function TimeTable(node, onChange) {
     this.container = menuBuilder.div('menu');
     this.filter = filter;
 
-    this.timetable   = this.data.timeTable;
+    this.timeTable   = this.data.timeTable;
 
-    this.timetableDiv;
+    this.timeTableDiv;
     this.rowContainer;
     this.rows = {};
 
@@ -32,13 +32,13 @@ function TimeTable(node, onChange) {
 
 TimeTable.prototype = {
     setTimeStep: function(timeStepInput, timeStep, newStep) {
-        var storingValue = this.timetable[timeStep];
-        if(this.timetable[newStep]) {
+        var storingValue = this.timeTable[timeStep];
+        if(this.timeTable[newStep]) {
             return timeStepInput.value = timeStep;
         }
 
-        this.timetable[newStep] = this.timetable[timeStep];
-        delete this.timetable[timeStep];
+        this.timeTable[newStep] = this.timeTable[timeStep];
+        delete this.timeTable[timeStep];
 
         this.node.timeTable[newStep] = this.node.timeTable[timeStep];
         delete this.node.timeTable[timeStep];
@@ -55,7 +55,7 @@ TimeTable.prototype = {
     
     setTimeValue: function(timeValueInput, timeStep, newValue) {
         newValue = Number(newValue);
-        this.timetable[timeStep] = newValue;
+        this.timeTable[timeStep] = newValue;
         timeValueInput.value     = newValue;
 
         this.node.timeTable[timeStep] = newValue;
@@ -64,18 +64,18 @@ TimeTable.prototype = {
     },
 
     addTimeRow: function(timeStep, timeValue) {
-        if(!this.timetable) {
-            this.timetable = {};
+        if(!this.timeTable) {
+            this.timeTable = {};
         }
 
-        var containerDiv = this.timetableDiv;
+        var containerDiv = this.timeTableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
                 containerDiv.className = "time-table";
 
             containerDiv.appendChild(menuBuilder.label(key));
 
-            this.timetableDiv = containerDiv;
+            this.timeTableDiv = containerDiv;
         }
 
         var rowContainer = this.rowContainer;
@@ -123,10 +123,10 @@ TimeTable.prototype = {
     },
 
     removeTimeRow: function() {
-        if (this.timetable === undefined || this.timetable === null || this.timetable.size() === 0) {
+        if (this.timeTable === undefined || this.timeTable === null || this.timeTable.size() === 0) {
             return;
         } else {
-            this.timetable = this.timetable.slice(0, -1);
+            this.timeTable = this.timeTable.slice(0, -1);
         }
 
         var element = this.rows.last();
@@ -149,13 +149,13 @@ TimeTable.prototype = {
         }
 
         this.rows.forEach(function(row, key) {
-            row.stepInput.deleteEvent();
-            row.valueInput.deleteEvent();
+            row.stepInput.deleteEvents();
+            row.valueInput.deleteEvents();
         });
 
         this.rows = {};
 
-        this.timetable.forEach(function(timeValue, timeStep) {
+        this.timeTable.forEach(function(timeValue, timeStep) {
             this.addTimeRow(timeStep, timeValue);
             this.node.timeTable[timeStep] = timeValue;
         }, this);
@@ -171,32 +171,32 @@ TimeTable.prototype = {
         }
 
         this.rows.forEach(function(row, key) {
-            row.stepInput.deleteEvent();
-            row.valueInput.deleteEvent();
+            row.stepInput.deleteEvents();
+            row.valueInput.deleteEvents();
         });
 
         this.rows = {};
     },
 
     generateTimeTable: function() {
-        var containerDiv = this.timetableDiv;
+        var containerDiv = this.timeTableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
                 containerDiv.className = "time-table";
 
             containerDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
 
-            this.timetableDiv = containerDiv;
+            this.timeTableDiv = containerDiv;
         } else {
-            while(this.timetableDiv.firstChild) {
-                this.timetableDiv.removeChild(this.timetableDiv.firstChild);
+            while(this.timeTableDiv.firstChild) {
+                this.timeTableDiv.removeChild(this.timeTableDiv.firstChild);
             }
 
-            this.timetableDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
+            this.timeTableDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
 
             this.rows.forEach(function(row, key) {
-                row.stepInput.deleteEvent();
-                row.valueInput.deleteEvent();
+                row.stepInput.deleteEvents();
+                row.valueInput.deleteEvents();
             });
 
             this.rows = {};
@@ -211,18 +211,22 @@ TimeTable.prototype = {
             containerDiv.appendChild(rowContainer);
         }
 
-        this.node.timeTable = this.timetable;
-        this.timetable.forEach(function(timeValue, timeStep) {
+        if(!this.timeTable) {
+            this.timeTable = {};
+        }
+
+        this.node.timeTable = this.timeTable;
+        this.timeTable.forEach(function(timeValue, timeStep) {
             this.addTimeRow(timeStep, timeValue);
         }, this);
 
         var that = this;
         containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
-            if (that.timetable === undefined || that.timetable === null) {
+            if (that.timeTable === undefined || that.timeTable === null) {
                 that.addTimeRow(0, 0);
             } else {
                 var highestIndex = 0;
-                that.timetable.forEach(function(value, key) {
+                that.timeTable.forEach(function(value, key) {
                     var x;
                     if(!isNaN(x = parseInt(key)) && x > highestIndex) {
                         highestIndex = x;
@@ -231,7 +235,7 @@ TimeTable.prototype = {
 
                 var index = highestIndex + 1;
                 var value = 0;
-                that.timetable[index] = value;
+                that.timeTable[index] = value;
                 that.addTimeRow(index, value);
 
                 that.onChange();
@@ -296,7 +300,7 @@ Scenario.prototype = {
                 return {
                     id:                timeTable.id,
                     syncId:            timeTable.syncId,
-                    timetable:         timeTable.data.timeTable
+                    timetable:         timeTable.timeTable
                 };
             })
         };
@@ -308,7 +312,7 @@ Scenario.prototype = {
         }
 
         loadedModel.nodeData.forEach(function(node) {
-            if(!node.timeTable) {
+            if(node.type !== "origin") {
                 return;
             }
 
@@ -369,9 +373,9 @@ ScenarioEditor.prototype = {
         this.container = null;
         this.body      = null;
 
-        this.deleteScenario.deleteEvent();
-        this.newScenario.deleteEvent();
-        this.scenarioDropdown.deleteEvent();
+        this.deleteScenario.deleteEvents();
+        this.newScenario.deleteEvents();
+        this.scenarioDropdown.deleteEvents();
 
         this.deleteScenario   = null;
         this.newScenario      = null;

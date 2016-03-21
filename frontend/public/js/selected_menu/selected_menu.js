@@ -33,7 +33,7 @@ function generateAvatarDiv(avatar, selected, name) {
 }
 
 function createAvatarButtons(header, value, callback, images) {
-    var avatarsDiv   = menuBuilder.div();
+    var avatarsDiv = menuBuilder.div();
     
     avatarsDiv.className = 'avatars';
     
@@ -44,6 +44,13 @@ function createAvatarButtons(header, value, callback, images) {
 
         avatarsDiv.appendChild(avatarDiv);
     });
+
+    avatarsDiv.deleteEvents = function() {
+        for(var i = 0; i < avatarsDiv.children.length; i++) {
+            var child = avatarsDiv.children[i];
+            child.deleteEvents();
+        }
+    };
 
     return avatarsDiv;
 }
@@ -101,6 +108,21 @@ Data.prototype = {
     updateFilter: function(filter) {
         this.filter = filter;
         this.createMenu();
+    },
+
+    deleteEvents: function() {
+        this.rows.forEach(function(row, key) {
+            row.stepInput.deleteEvents();
+            row.valueInput.deleteEvents();
+        });
+
+        this.dropdowns.forEach(function(dropdown) {
+            dropdown.deleteEvents();
+        });
+
+        this.inputs.forEach(function(input) {
+            input.deleteEvents();
+        });
     },
 
     addTimeRow: function(timeStep, timeValue) {
@@ -200,10 +222,7 @@ Data.prototype = {
             this.rowContainer.removeChild(this.rowContainer.firstChild);
         }
 
-        this.rows.forEach(function(row, key) {
-            row.stepInput.deleteEvent();
-            row.valueInput.deleteEvent();
-        });
+        this.deleteEvents();
 
         this.rows = {};
 
@@ -229,8 +248,8 @@ Data.prototype = {
             this.timetableDiv.appendChild(menuBuilder.label(header || key));
 
             this.rows.forEach(function(row, key) {
-                row.stepInput.deleteEvent();
-                row.valueInput.deleteEvent();
+                row.stepInput.deleteEvents();
+                row.valueInput.deleteEvents();
             });
 
             this.rows = {};
@@ -334,6 +353,31 @@ Data.prototype = {
                 that.loadedModel.propagate();
             }
         );
+
+        /*var focus = function(evt) {
+            console.log("Document:", document.activeElement);
+            console.log("Focused:", that.inputs[key]);
+            console.log(evt);
+        };
+
+        var focusOut = function(evt) {
+            console.log("Document:", document.activeElement);
+            console.log("Focus lost:", that.inputs[key]);
+            console.log(evt);
+        };
+
+        var deleteFocus = function() {
+            that.inputs[key].removeEventListener("focus", focus);
+            that.inputs[key].removeEventListener("focusout", focusout);
+        };
+
+        this.inputs[key].deleteEvent = function() {
+            deleteFocus();
+            this.inputs[key].deleteEvents();
+        }
+
+        this.inputs[key].addEventListener("focus",    focus);
+        this.inputs[key].addEventListener("focusout", focusOut);*/
 
         container.appendChild(this.inputs[key]);
 
@@ -465,6 +509,7 @@ SelectedMenu.prototype = {
             return true;
         });
 
+        this.data[i].deleteEvents();
         var element = this.data[i].container;
         this.container.removeChild(element);
 

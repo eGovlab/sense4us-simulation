@@ -69,7 +69,7 @@ MenuBuilder.prototype = {
     button: function(text, callback) {
         var button = document.createElement('button');
         button.addEventListener('click', callback);
-        button.deleteEvent = function() {
+        button.deleteEvents = function() {
             button.removeEventListener('click', callback);
         };
         button.appendChild(document.createTextNode(text));
@@ -80,7 +80,7 @@ MenuBuilder.prototype = {
     dropdown: function(text, callback, update) {
         var select = new Dropdown(text, callback, update);
         this.refreshable.push(select);
-        return select.element;
+        return select;
     },
 
     select: function(name, callback) {
@@ -89,7 +89,7 @@ MenuBuilder.prototype = {
         select.name = name;
 
         select.addEventListener('change', callback);
-        select.deleteEvent = function() {
+        select.deleteEvents = function() {
             select.removeEventListener('click', callback);
         };
 
@@ -111,7 +111,7 @@ MenuBuilder.prototype = {
         var cb = function(event) {callback(element.name, element.value); };
         
         element.addEventListener(event, cb);
-        element.deleteEvent = function() {
+        element.deleteEvents = function() {
             element.removeEventListener(event, cb);
         };
     },
@@ -162,7 +162,7 @@ MenuBuilder.prototype = {
         button.setAttribute('type', 'button');
         button.setAttribute('value', text);
         button.addEventListener('click', callback);
-        button.deleteEvent = function() {
+        button.deleteEvents = function() {
             button.removeEventListener('click', callback);
         };
         button.className = 'button';

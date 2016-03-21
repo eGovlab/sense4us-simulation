@@ -17,6 +17,12 @@ function Sidebar(sidebarData, loadedModel) {
 }
 
 Sidebar.prototype = {
+    deleteEvents: function() {
+        this.lists.forEach(function(list) {
+            list.deleteEvents();
+        });
+    },
+
     createList: function(data) {
         var that = this;
         var label = menuBuilder.label(data.header);
@@ -24,6 +30,8 @@ Sidebar.prototype = {
             var list = selectedMenu.createAvatarButtons("avatar", null, function(key, value) {
                 data.callback(that.loadedModel, {name: key}, {avatar: value});
             }, data.images);
+
+            this.lists.push(list);
 
             this.container.appendChild(label);
             this.container.appendChild(list);

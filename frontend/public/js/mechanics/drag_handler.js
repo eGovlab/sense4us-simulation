@@ -22,6 +22,8 @@ module.exports = function(canvas, loadedModel, startCallback, updateCallback, en
 	var mouseDown = function(event) {
 		active = true;
 
+		console.log(event);
+
 		startPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
 		lastPos = {x: startPos.x, y: startPos.y};
 

@@ -1,11 +1,12 @@
 'use strict';
 
-var middleware = require('./../middleware.js'),
-    hitTest    = require('./../collisions.js').hitTest,
-    linker     = require('./../linker.js'),
-    Immutable  = null,
-    modelLayer = require('./../model_layer.js'),
-    createLink = require('../structures/create_link');
+var middleware   = require('./../middleware.js'),
+    hitTest      = require('./../collisions.js').hitTest,
+    linker       = require('./../linker.js'),
+    Immutable    = null,
+    modelLayer   = require('./../model_layer.js'),
+    generateLink = require('./../util/generate_link.js'),
+    createLink   = require('../structures/create_link');
 
 var mouseDownWare = middleware([
     link,
@@ -34,7 +35,9 @@ function generateColor() {
 }
 
 function link(data) {
-    data.nodeGui
+    generateLink(data.loadedModel);
+
+    /*data.nodeGui
         .filter(function(node) { return node.linking === true; })
         .forEach(function(node) {
             var hit = data.nodeGui.filter(function(maybeCollidingNode) {
@@ -42,14 +45,6 @@ function link(data) {
             }).slice(-1);
 
             hit.forEach(function(collided) {
-                var id;
-                if(data.nextId !== undefined) {
-                    id = data.nextId
-                    data.nextId += 1;
-                } else {
-                    id = data.links.size;
-                }
-
                 var nodeLinks = node.links;
                 if(nodeLinks === undefined) {
                     node.links = [];
@@ -82,12 +77,14 @@ function link(data) {
                     }
                 }
 
-                data.nodeGui[nodeId].links.push(id);
-                data.nodeGui[collidedId].links.push(id);
+                var newLink = createLink(data.loadedModel, nodeId, collidedId);
 
-                data.links[id] = createLink(id, nodeId, collidedId);
+                data.links[id] = newLink;
+
+                data.nodeGui[nodeId].links.push(newLink.id);
+                data.nodeGui[collidedId].links.push(newLink.id);
             });
-        });
+        });*/
 
     return data;
 }

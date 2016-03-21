@@ -125,8 +125,6 @@ function Model(id, data) {
     this.scenarios[__.id] = __;
     this.loadedScenario = __;
 
-    console.log(this.scenarios);
-
     if(data) {
         Object.keys(data).forEach(function(key) {
             this[key] = data[key];
@@ -278,7 +276,7 @@ module.exports = {
 
     saveModel: function(loadedModel, onDone) {
         var data = {
-            modelId:   loadedModel.syncId,
+            modelId:   loadedModel.settings.syncId,
             settings:  loadedModel.settings,
             nodes:     breakout.nodes(loadedModel),
             links:     breakout.links(loadedModel),
@@ -305,9 +303,6 @@ module.exports = {
             var timetables = response.response.timetables;
             var timesteps  = response.response.timesteps;
 
-            console.log(response);
-            console.log(loadedModel);
-
             var nodeLookup = {};
             nodes.forEach(function(node) {
                 loadedModel.nodeData[node.id].syncId = node.syncId;
@@ -317,9 +312,7 @@ module.exports = {
             });
 
             links.forEach(function(link) {
-                console.log(loadedModel.links[link.id].id, link.id, link.syncId);
                 loadedModel.links[link.id].syncId = link.syncId;
-                console.log(loadedModel.links[link.id].id, link.id, link.syncId);
             });
 
             var scenarioLookup = {};
@@ -425,6 +418,7 @@ module.exports = {
                     timeStepT:     "Week",
                     timeStepN:     0*/
             newState.settings = {
+                syncId:        settings.id,
                 name:          settings.name,
                 offsetX:       settings.pan_offset_x,
                 offsetY:       settings.pan_offset_y,
@@ -491,7 +485,6 @@ module.exports = {
             var timetableLookup = {};
             timetables.forEach(function(timetable) {
                 var node = newState.nodeData[timetable.node];
-                console.log(node);
                 var newTimetable = new TimeTable(node, function() {
                     newState.refresh = true;
                     newState.resetUI = true;
@@ -505,23 +498,21 @@ module.exports = {
 
             timesteps.forEach(function(timestep) {
                 var timetable = timetableLookup[timestep.timetable];
-                if(!timetable.timetable) {
-                    timetable.timetable = {};
+                if(!timetable.timeTable) {
+                    timetable.timeTable = {};
                 }
 
                 if(!timetable.node.timeTable) {
                     timetable.node.timeTable = {};
                 }
                 
-                timetable.timetable[timestep.step]      = timestep.value;
+                timetable.timeTable[timestep.step]      = timestep.value;
                 timetable.node.timeTable[timestep.step] = timestep.value;
             });
 
             /*timetableLookup.forEach(function(tt) {
                 tt.refreshTimeTable();
             });*/
-
-            console.log(newState.scenarios);
 
             callback(newState);
         });

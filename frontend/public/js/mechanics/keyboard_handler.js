@@ -23,8 +23,8 @@ module.exports = function(container, canvas, loadedModel, hotkeys) {
             hotkey.onDown(canvas, loadedModel, evt);
         });
 
-        evt.preventDefault();
-        return false;
+        //evt.preventDefault();
+        //return false;
     });
 
     container.addEventListener("keyup", function(evt) {
@@ -40,7 +40,7 @@ module.exports = function(container, canvas, loadedModel, hotkeys) {
             hotkey.onUp(canvas, loadedModel, evt);
         });
 
-        evt.preventDefault();
-        return false;
+        //evt.preventDefault();
+        //return false;
     });
 };

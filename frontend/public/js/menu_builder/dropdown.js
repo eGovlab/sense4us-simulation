@@ -57,25 +57,36 @@ function Dropdown(header, onselect, update) {
 
     this.element.className = 's4u-dropdown';
     var that = this;
-    this.element.addEventListener('mouseenter', function(e) {
-        that.toggle();
-    });
 
-    this.element.addEventListener('click', function(e) {
+    var mouseEnter = function() {
+        that.toggle();
+    };
+
+    var click = function(e) {
         if (e.target.tagName.toLowerCase() !== 'h4') {
             var option = that.options[e.target.getAttribute('data-id')];
             option.update = function(){that.update.call(that)};
             that.onselect.call(option);
         }
-    });
+    };
 
-    this.element.addEventListener('mouseleave', function(e) {
+    var mouseLeave = function(e) {
         if(that.visible()) {
             that.toggle();
         }
-    });
+    };
 
-    this.header = header;
+    this.deleteEvents = function() {
+        that.element.removeEventListener("mouseenter", mouseEnter);
+        that.element.removeEventListener("click",      click);
+        that.element.removeEventListener("click",      mouseLeave);
+    };
+
+    this.element.addEventListener('mouseenter', mouseEnter);
+    this.element.addEventListener('click',      click);
+    this.element.addEventListener('mouseleave', mouseLeave);
+
+    this.header                  = header;
     this.headerElement.innerHTML = this.header;
 
     this.options  = [];

@@ -2,9 +2,9 @@
 
 var Immutable = null;
 
-module.exports = function createLink(id, source, destination, type) {
+module.exports = function createLink(model, source, destination, type) {
     return {
-        id:          id,
+        id:          model.generateId(),
         node1:       source,
         node2:       destination,
         coefficient: 1,
