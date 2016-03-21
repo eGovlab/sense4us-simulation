@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function createNode(model, data, gui, type) {
+    console.log(model);
     var id = model.generateId();
 
     var nodeData = {

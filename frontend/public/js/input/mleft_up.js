@@ -30,7 +30,7 @@ function mouseUp(canvas, loadedModel, pos) {
 
     //loadedModel.nodeGui = newState;
     //loadedModel.links   = loadedModel.links.merge(data.links);
-    loadedModel.nextId  = data.nextId;
+    //loadedModel.nextId  = data.nextId;
 
     if(loadedModel.selected !== data.selected) {
         loadedModel.selected = data.selected;

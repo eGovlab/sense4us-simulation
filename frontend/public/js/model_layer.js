@@ -130,6 +130,8 @@ function Model(id, data) {
             this[key] = data[key];
         }, this);
     }
+
+    console.log(this);
 }
 
 Model.prototype = {
