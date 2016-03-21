@@ -31,6 +31,28 @@
     var cookieCutter = new CookieCutter();
     cookieCutter.addCookieCutter("template", "template", function(data){return true;});
 
+    var addResponseAttributes = function(req, res, next) {
+        res.request = {
+            path:   req.path,
+            method: req.method
+            
+        };
+
+        if(Object.keys(req.body).length > 0) {
+            res.request.data = req.body;
+        }
+
+        res.set("Access-Control-Allow-Origin",  "*");
+        res.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type");
+        res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT, PATCH");
+
+        if(req.method === "OPTIONS") {
+            res.send({response: "Options sent."});
+        } else {
+            next();
+        }
+    };
+
     var notFound = function(req, res, next) {
         res.status(404);
 
@@ -94,6 +116,7 @@
                             debug:       true
                           })
                         , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
+                        , addResponseAttributes
                         , logger.httpLogger(CONFIG.get("LOGGER"))
                         , cookieCutter.middleware
                         , router
