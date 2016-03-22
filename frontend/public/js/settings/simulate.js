@@ -12,9 +12,10 @@ var simulate = [
         ajax:   true,
         callback: function(loadedModel) {
             var data = {
-                timestep: loadedModel.settings.maxIterations,
+                timestep: loadedModel.loadedScenario.maxIterations,
                 nodes:    breakout.nodes(loadedModel),
-                links:    breakout.links(loadedModel)
+                links:    breakout.links(loadedModel),
+                scenario: loadedModel.loadedScenario.toJson()
             };
 
             loadedModel.nodeData.forEach(function(node) {
@@ -30,6 +31,8 @@ var simulate = [
                     notificationBar.notify(response.response.message);
                     return;
                 }
+
+                console.log(response.response);
 
                 var timeSteps = response.response;
                 var nodeData  = loadedModel.nodeData;
