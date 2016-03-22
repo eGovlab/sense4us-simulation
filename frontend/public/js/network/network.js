@@ -46,7 +46,6 @@ function sendData(domain, port, path, jsonData, callback, method) {
                     } else {
                         console.log('No callback was sent with the query against ' + path);
                     }
-
                 } else {
                     callback(rt, {status: httpRequest.status});
                 }

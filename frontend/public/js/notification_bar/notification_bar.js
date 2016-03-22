@@ -16,7 +16,7 @@ NotificationBar.prototype = {
         this.notify("Initialized.");
     },
 
-    notify: function(text) {
+    notify: function(text, delay) {
         if (this.container === null) {
             return false;
         }
@@ -28,7 +28,7 @@ NotificationBar.prototype = {
             popup.fadeOut(function() {
                 that.container.removeChild(popup.element);
             });
-        }, 4000);
+        }, delay || 4000);
     }
 };
 

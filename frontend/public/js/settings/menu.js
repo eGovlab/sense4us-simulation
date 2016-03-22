@@ -51,41 +51,34 @@ var projectUpdate = function(loadedModel, savedModels) {
     element.addOption('delete', 'Delete Current');
 
     backendApi('/models/all', function(response, error) {
+        if(error) {
+            console.log(error);
+            throw new Error("projectUpdate: /models/all crashed");
+        }
+
         savedModels.local.forEach(function(model) {
-            if(model.synced === true) {
-                return;
-            }
-
-            var savedString = "";
-            if(model.saved === false) {
-                savedString = " * ";
-            }
-
-            element.addOption(model.id, savedString + model.settings.name);
+            element.addOption(model.id, model.settings.name);
         });
 
-        savedModels.synced.forEach(function(model) {
-            var savedString = "";
-            if(model.saved === false) {
-                savedString = " * ";
+        var models = response.response;
+        models.forEach(function(model) {
+            if(!savedModels.synced[model.id]) {
+                savedModels.synced[model.id] = model.name;
             }
+        });
 
-            element.addOption(model.syncId, savedString + model.settings.name);
+        savedModels.synced.forEach(function(model, key) {
+            if(typeof model === "string") {
+                element.addOption(key, model);
+            } else {
+                element.addOption(model.syncId, model.settings.name);
+            }
         });
 
         if(error) {
             element.refreshList();
             return;
         }
-
-        var models = response.response;
-
-        var local  = savedModels.local,
-            synced = savedModels.synced;
-
-        models.forEach(function(model) {
-            element.addOption(model.id, model.name);
-        });
 
         element.refreshList();
     });
@@ -132,25 +125,38 @@ var projectCallback = function(loadedModel, savedModels) {
                 loadedModel.resetUI = true;
                 loadedModel.propagate();
             });
+            return;
             break;
         case 'delete':
             modelLayer.deleteModel(loadedModel, savedModels, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
                 loadedModel.refresh = true;
+                loadedModel.resetUI = true;
                 loadedModel.propagate();
             });
+            return;
             break;
         case undefined:
             break;
         default:
             if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
-                if(savedModels.synced[option] === undefined) {
+                if(typeof savedModels.synced[option] === "string") {
                     modelLayer.loadSyncModel(option, function(newState) {
+                        if(typeof newState === "number") {
+                            loadedModel.syncId = newState;
+                            loadedModel.id     = newState;
+
+                            loadedModel.refresh = true;
+                            loadedModel.resetUI = true;
+                            loadedModel.propagate();
+                            return;
+                        }
+
                         loadedModel.nodeGui  = {};
                         loadedModel.nodeData = {};
                         loadedModel.propagate();
 
-                        //savedModels.synced[option] = modelLayer.moveModel(newState);
+                        savedModels.synced[option] = newState;
                         newState.forEach(function(value, key) {
                             loadedModel[key] = value;
                         });

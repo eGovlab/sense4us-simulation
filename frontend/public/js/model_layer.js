@@ -84,6 +84,7 @@ function Model(id, data) {
     this.timestamps = {};
 
     this.id          = id;
+    this.syncId      = false;
     this.saved       = false;
     this.synced      = false;
     this.syncId      = null;
@@ -356,8 +357,9 @@ module.exports = {
 
     deleteModel: function(loadedModel, savedModels, callback) {
         var that = this;
-        if(loadedModel.synced === true && (loadedModel.syncId !== null && loadedModel.syncId !== undefined)) {
-            backendApi('/models/bundle/' + loadedModel.syncId, {}, function(response, err) {
+        var modelId = loadedModel.syncId;
+        if(loadedModel.syncId !== null && loadedModel.syncId !== undefined) {
+            backendApi('/models/' + loadedModel.syncId, {}, function(response, err) {
                 if(err) {
                     console.log(response);
                     console.log(err);
@@ -377,7 +379,7 @@ module.exports = {
                     loadedModel[key] = value;
                 });
 
-                notificationBar.notify(response.response);
+                notificationBar.notify(response.response.message);
                 callback();
             }, "DELETE");
         } else {
@@ -408,6 +410,8 @@ module.exports = {
                 timesteps  = response.response.timesteps;
 
             var newState = that.newModel();
+            newState.synced = true;
+            newState.syncId = settings.id;
             delete newState.scenarios;
             newState.scenarios = {};
                     /*name:          "New Model",
@@ -420,7 +424,6 @@ module.exports = {
                     timeStepT:     "Week",
                     timeStepN:     0*/
             newState.settings = {
-                syncId:        settings.id,
                 name:          settings.name,
                 offsetX:       settings.pan_offset_x,
                 offsetY:       settings.pan_offset_y,
@@ -450,6 +453,11 @@ module.exports = {
             });
 
             links.forEach(function(link) {
+                if(!link.downstream || !link.upstream) {
+                    notificationBar.notify("Model with id " + modelId + " is corrupt. Its id is loaded and may be deleted from running 'Delete current'. Otherwise, contact sysadmin.", 10000);
+                    return callback(settings.id);
+                }
+
                 newState.links[link.id] = {
                     id:          link.id,
                     syncId:      link.id,
