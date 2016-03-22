@@ -76,26 +76,11 @@ function sendData(domain, port, path, jsonData, callback, method) {
     httpRequest.setRequestHeader('Content-Type', 'application/json');
     if (jsonData && typeof jsonData !== 'function') {
         console.log("Posting:", jsonData);
+        //console.log(JSON.stringify(jsonData, null, 4));
         httpRequest.send(JSON.stringify(jsonData, null, 4));
     } else {
         httpRequest.send();
     }
 }
-
-/*function getData(domain, port, path, callback) {
-    this.sendData(domain, port, path, false, callback, 'GET');
-}
-
-function postData(domain, port, path, jsonData, callback) {
-    this.sendData(domain, port, path, jsonData, callback, 'POST');  
-}
-
-function putData(domain, port, path, jsonData, callback) {
-    this.sendData(domain, port, path, jsonData, callback, 'PATCH');
-}
-
-function deleteData(domain, port, path, jsonData, callback) {
-    this.sendData(domain, port, path, jsonData, callback, 'DELETE');
-}*/
 
 module.exports = sendData;

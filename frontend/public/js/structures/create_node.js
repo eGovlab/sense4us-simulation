@@ -18,7 +18,7 @@ module.exports = function createNode(model, data, gui, type) {
 
     var nodeGui = {
         id:     id,
-        x:      200,
+        x:      400,
         y:      100,
         radius: 45
     };
