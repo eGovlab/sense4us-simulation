@@ -18,51 +18,6 @@ var settings = require('./settings');
 */
 var generateId = -1;
 
-/*
-** Said namespace.
-** Methods exposed:
-**     name:        newModel()
-**     params:      id
-**     description: The argument given may override the above local variable generateId.
-**                  Only for advance usage.
-**     returns:     An immutable map with data relevant to a model. See method for data.
-
-**     name:        saveModel()
-**     params:      loadedModelCallback, refreshCallback
-**     description: This method will run AJAX and should not be expected to
-**                  return anything at runtime.
-**                  The refreshCallback will be called at AJAX completion.
-**                  The loadedModelCallback should return a map with a model if called
-**                  without parameters. If called with one argument, it should replace
-**                  the model with the argument.
-**                  This method will try to save a model on a remote server using the backendApi
-**                  dependency above. If successful, will notify the user with notificationBar.
-
-**     name:        deleteModel()
-**     params:      loadedModelCallback, savedModelsCallback, refreshCallback
-**     description: This method will run AJAX and should not be expected to
-**                  return anything at runtime.
-**                  The refreshCallback will be called at AJAX completion.
-**                  The loadedModelCallback should return a map with a model if called
-**                  without parameters. If called with one argument, it should replace
-**                  the model with the argument.
-**                  The savedModelsCallback should return a map with saved models if called
-**                  without parameters. If called with one argument, it should replace
-**                  the map with the argument. See /js/main.js for structure.
-**                  This method will try to delete the model from a remote server if it exists,
-**                  if not, only delete it from the local savedModels map. It will also load the
-**                  first local model from savedModels, or if there is none, create a new one.
-
-**     name:        loadSyncModel()
-**     params:      id, onDoneCallback
-**     description: This method will run AJAX and should not be expected to
-**                  return anything at runtime.
-**                  The AJAX will try to fetch a model with given id argument from a remote server.
-**                  If successful, will setup a new model map.
-**     returns:     Will call onDoneCallback with the remote models data in a map similar to
-**                  newModel as the only argument.
-*/
-
 function definePropagations(obj, keys) {
     keys.forEach(function(key) {
         Object.defineProperty(obj, key, {get: function() {
@@ -80,8 +35,8 @@ function definePropagations(obj, keys) {
 }
 
 function Model(id, data) {
-    this.changed    = {};
-    this.timestamps = {};
+    this.changed     = {};
+    this.timestamps  = {};
 
     this.id          = id;
     this.syncId      = false;

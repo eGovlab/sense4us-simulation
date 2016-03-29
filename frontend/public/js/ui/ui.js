@@ -62,7 +62,7 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     var ranges = element.range(setupModel);
 
     var container = menuBuilder.div();
-    container.className = "sidebar-slider";
+    container.className = "mb-sidebar-slider";
 
     var valueSpan = menuBuilder.span();
     valueSpan.innerHTML = defaultValue;

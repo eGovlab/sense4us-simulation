@@ -1,0 +1,21 @@
+
+.mb-scenario-table {
+
+}
+
+.mb-scenario-table .node {
+    width: 196px;
+    display: inline-block;
+}
+
+.mb-scenario-table .node:nth-child(3n+1) {
+    float: left;
+}
+
+.mb-scenario-table .node:nth-child(3n+2) {
+    float: right;
+}
+
+.mb-scenario-table .node-header {
+    color: #fafafa;
+}

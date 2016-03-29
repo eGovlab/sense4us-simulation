@@ -31,7 +31,7 @@ Option.prototype = {
     },
 
     select: function() {
-        this.element.className = "s4u-dropdown-selected";
+        this.element.className = "mb-dropdown-selected";
     },
 
     deselect: function() {
@@ -48,14 +48,14 @@ function Dropdown(header, onselect, update) {
     this.headerElement   = document.createElement('h4');
     this.container       = document.createElement('div');
 
-    this.headerElement.className = 's4u-dropdown-header';
-    this.container.className     = 's4u-dropdown-container';
+    this.headerElement.className = 'mb-dropdown-header';
+    this.container.className     = 'mb-dropdown-container';
     this.container.style.display = 'none';
 
     this.element.appendChild(this.headerElement);
     this.element.appendChild(this.container);
 
-    this.element.className = 's4u-dropdown';
+    this.element.className = 'mb-dropdown';
     var that = this;
 
     var mouseEnter = function() {
@@ -157,10 +157,10 @@ Dropdown.prototype = {
     toggle: function() {
         if (this.container.style.display === 'none') {
             this.container.style.display = 'block';
-            this.container.className += " s4u-dropdown-container-animation";
+            this.container.className += " mb-dropdown-container-animation";
         } else {
             this.container.style.display = 'none';
-            this.container.className = "s4u-dropdown-container";
+            this.container.className = "mb-dropdown-container";
         }
     },
 

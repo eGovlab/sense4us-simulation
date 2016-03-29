@@ -21,7 +21,7 @@ MenuBuilder.prototype = {
     },
 
     slider: function(defaultValue, min, max, callback, onSlideCallback) {
-        var container = this.div("sidebar-slider");
+        var container = this.div("mb-sidebar-slider");
 
         var minSpan = this.div("value");
         minSpan.innerHTML = defaultValue;

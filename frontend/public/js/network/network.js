@@ -11,8 +11,8 @@ function validateDomain(domain) {
     return domain;
 }
 
-function sendData(domain, port, path, jsonData, callback, method) {
-    if(typeof domain !== 'string' || typeof port !== 'number') {
+function sendData(domain, path, jsonData, callback, method) {
+    if(typeof domain !== 'string') {
         throw new Error("sendData got invalid type for domain or port!");
     }
 
@@ -71,7 +71,7 @@ function sendData(domain, port, path, jsonData, callback, method) {
         path = '/' + path;
     }
 
-    httpRequest.open(method, domain + ':' + port + path);
+    httpRequest.open(method, domain + path);
     httpRequest.setRequestHeader('Content-Type', 'application/json');
     if (jsonData && typeof jsonData !== 'function') {
         console.log("Posting:", jsonData);

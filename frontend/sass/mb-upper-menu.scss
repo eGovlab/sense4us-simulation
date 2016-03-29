@@ -1,26 +1,25 @@
 .menu-header
 
-#upper-menu {
+.mb-upper-menu {
     display: inline-block;
     height: inherit;
 }
 
-#upper-menu > .menu {
+.mb-upper-menu > .menu {
     height: inherit;
 }
 
-#upper-menu .menu > button,
-#upper-menu .menu > h2,
-#upper-menu .menu > select,
-#upper-menu .menu > div {
+.mb-upper-menu .menu > button,
+.mb-upper-menu .menu > h2,
+.mb-upper-menu .menu > select,
+.mb-upper-menu .menu > div {
     float: left;
 }
 
-#upper-menu > .menu > div:first-child {
-    margin-left: 200px;
+.mb-upper-menu > .menu > div:first-child {
 }
 
-#upper-menu > .menu > button {
+.mb-upper-menu > .menu > button {
     padding: 3px 0px;
     color: #505050;
 
@@ -33,7 +32,7 @@
     font-size: 12px;
 }
 
-#upper-menu > .menu > button:hover {
+.mb-upper-menu > .menu > button:hover {
     background-color: rgba(255, 255, 255, 1);
 
     -webkit-animation: DROPDOWN_FADEIN 0.5s 1;
@@ -41,7 +40,7 @@
     animation: DROPDOWN_FADEIN 0.5s 1;
 }
 
-#upper-menu h2 {
+.mb-upper-menu h2 {
     background-color: inherit;
 
     padding: 7px 20px 7px;
@@ -52,7 +51,7 @@
     color: #FFFFFF;
 }
 
-#upper-menu select {
+.mb-upper-menu select {
     display: block;
 
     width: 200px;

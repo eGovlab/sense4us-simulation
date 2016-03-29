@@ -1,29 +1,32 @@
 <% layout("layout") %>
 
-<div class="header">
-    <h3 id="policy-issue">Replace with current policy issue?</h3>
-    <!-- <input type="button" value="Button" />
-    <input type="button" value="Button" />
-    <input type="button" value="Button" />
-    <input type="button" value="Button" />
-    <input type="button" value="Button" /> -->
-</div>
+<div
+    id            = "model-builder"
+    data-protocol = "http"
+    data-hostname = "localhost"
+    data-port     = "3000"
+    style         = "height: 700px; width: 1000px;"
+></div>
 
-<div class="menu-header">
-    <div id="upper-menu"></div>
-</div>
+<!--
+    style="100px; 100px;" or any dimensions you need.
+    The model builder won't fit well in tiny areas though.
+-->
 
-<div class="sidebar">
-    <div id="sidebar"></div>
-</div>
+<!-- 
+    or src="http://our-server/js/model-builder.min.js"
+    I don't have it available live yet.
 
-<div class="left main">
-    <div id="notification-bar"></div>
-    <canvas id="canvas"></canvas>
-    <canvas id="linegraph"></canvas>
-</div>
-<div class="right">
-    <div id="keyword-container"></div>
-</div>
-<div class="clear"></div>
-<script src="/js/bundle.js"></script>
+    Gotta set up some uglification.
+-->
+
+<!-- <script src="/js/bundle.js"></script> -->
+<script src="/static/js/model-builder.min.js"></script>
+<script>
+    docReady(function() {
+        var modelBuilder = document.getElementById("model-builder");
+        window.sense4us.inflateModel(modelBuilder);
+
+        console.log(window.sense4us.loadedModel);
+    });
+</script>

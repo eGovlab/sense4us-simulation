@@ -71,7 +71,7 @@ TimeTable.prototype = {
         var containerDiv = this.timeTableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "time-table";
+                containerDiv.className = "mb-time-table";
 
             containerDiv.appendChild(menuBuilder.label(key));
 
@@ -98,7 +98,7 @@ TimeTable.prototype = {
             that.setTimeStep(timeStepInput, timeStep, newStep);
         });
 
-        timeStepInput.className = "time-step";
+        timeStepInput.className = "mb-time-step";
 
         var timeValueLabel = menuBuilder.span("V");
         timeValueLabel.className = "label";
@@ -107,7 +107,7 @@ TimeTable.prototype = {
             that.setTimeValue(timeValueInput, timeStep, newValue);
         });
 
-        timeValueInput.className = "time-value";
+        timeValueInput.className = "mb-time-value";
 
         rowDiv.appendChild(timeStepLabel);
         rowDiv.appendChild(timeStepInput);
@@ -182,7 +182,7 @@ TimeTable.prototype = {
         var containerDiv = this.timeTableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "time-table";
+                containerDiv.className = "mb-time-table";
 
             containerDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
 
@@ -338,7 +338,7 @@ Scenario.prototype = {
 
 function ScenarioEditor(loadedModel) {
     this.loadedModel     = loadedModel;
-    this.floatingWindow  = new FloatingWindow(20, 20, 440, 400, "scenario-editor");
+    this.floatingWindow  = new FloatingWindow(20, 20, 440, 400, "mb-scenario-editor");
     this.floatingWindow.killButton.removeEventListener('click', this.floatingWindow.killCallback);
     var that = this;
     this.floatingWindow.killButton.killCallback = function() {

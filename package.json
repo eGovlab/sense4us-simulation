@@ -31,6 +31,7 @@
     "prestart": "npm install; echo '\n * Running browserify for production!\n'; npm run browserify",
     "start": "node bin/init.js",
     "browserify": "node_modules/browserify/bin/cmd.js frontend/public/js/main.js | node_modules/uglify-js/bin/uglifyjs > frontend/public/js/bundle.js",
-    "watch": "node_modules/watchify/bin/cmd.js frontend/public/js/main.js -o frontend/public/js/bundle.js --debug --verbose"
+    "watch": "node_modules/watchify/bin/cmd.js frontend/public/js/main.js -o frontend/public/js/bundle.js --debug --verbose",
+    "compile": "node_modules/watchify/bin/cmd.js frontend/public/js/main.js -o \"node_modules/uglify-js/bin/uglifyjs -cm > frontend/public/static/js/model-builder.min.js\" --verbose"
   }
 }

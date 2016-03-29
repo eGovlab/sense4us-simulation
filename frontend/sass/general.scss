@@ -1,5 +1,6 @@
 @import "colors";
 
+/*
 * {
     font-family: Helvetica;
 }
@@ -16,7 +17,7 @@ body {
     top: 0;
     bottom: 0;
     background-color: $bodyBackground;
-}
+}*/
 
 .hidden {
     display: none;
@@ -26,15 +27,15 @@ body {
     display: block;
 }
 
-#sidebar {
+.mb-sidebar {
     z-index: 1;
 }
 
-#notification-bar {
+.mb-notification-bar {
     z-index: 2;
 }
 
-.s4u-dropdown .s4u-dropdown-container {
+.mb-dropdown .mb-dropdown-container {
     z-index: 3;
 }
 

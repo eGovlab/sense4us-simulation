@@ -133,7 +133,7 @@ Data.prototype = {
         var containerDiv = this.timetableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "time-table";
+                containerDiv.className = "mb-time-table";
 
             containerDiv.appendChild(menuBuilder.label(key));
 
@@ -235,7 +235,7 @@ Data.prototype = {
         var containerDiv = this.timetableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "time-table";
+                containerDiv.className = "mb-time-table";
 
             containerDiv.appendChild(menuBuilder.label(header || key));
 
