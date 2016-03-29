@@ -68,14 +68,6 @@ function Model(id, data) {
         //timeStepN:     0
     };
 
-    this.treeSettings = {
-        x:      400,
-        y:      20,
-        width:  200,
-        height: 0,
-        scroll: 0
-    };
-
     this.scenarios      = {};
     var __ = new Scenario(this);
     this.scenarios[__.id] = __;
@@ -86,8 +78,6 @@ function Model(id, data) {
             this[key] = data[key];
         }, this);
     }
-
-    console.log(this);
 }
 
 Model.prototype = {
@@ -325,7 +315,6 @@ module.exports = {
                 delete savedModels.synced[loadedModel.syncId];
                 var firstLocal = savedModels.local.first();
 
-                console.log(savedModels.local, firstLocal);
                 if(firstLocal === undefined) {
                     firstLocal = that.newModel();
                 }

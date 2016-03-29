@@ -27,6 +27,14 @@
         var modelBuilder = document.getElementById("model-builder");
         window.sense4us.inflateModel(modelBuilder);
 
+        var loadedModel = window.sense4us.loadedModel;
+        loadedModel.addListener("selected", function() {
+            var nodeData = this.nodeData[this.selected.id];
+            if(nodeData) {
+                console.log("Name:", nodeData.name);
+            }
+        });
+
         console.log(window.sense4us.loadedModel);
     });
 </script>

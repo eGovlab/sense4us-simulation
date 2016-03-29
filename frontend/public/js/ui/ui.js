@@ -160,7 +160,6 @@ MenuItem.prototype = {
             button.deleteEvents = dd.deleteEvents;
         } else if (this.callback !== undefined) {
             button = menuBuilder.button(this.header, function(evt) {
-                console.log(evt);
                 that.callback();
                 //updateModelCallback(menu.callback(UIData));
             });

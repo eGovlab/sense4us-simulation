@@ -3,7 +3,6 @@
 var Immutable = null;
 
 module.exports = function createLink(model, source, destination, type) {
-    console.log(model);
     return {
         id:          model.generateId(),
         node1:       source,

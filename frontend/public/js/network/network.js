@@ -38,7 +38,6 @@ function sendData(domain, path, jsonData, callback, method) {
         if (httpRequest.readyState === 4) {
             try {
                 var rt = JSON.parse(httpRequest.responseText);
-                console.log(rt);
                 
                 if (httpRequest.status === 200) {
                     if (callback) {
@@ -74,7 +73,6 @@ function sendData(domain, path, jsonData, callback, method) {
     httpRequest.open(method, domain + path);
     httpRequest.setRequestHeader('Content-Type', 'application/json');
     if (jsonData && typeof jsonData !== 'function') {
-        console.log("Posting:", jsonData);
         //console.log(JSON.stringify(jsonData, null, 4));
         httpRequest.send(JSON.stringify(jsonData, null, 4));
     } else {

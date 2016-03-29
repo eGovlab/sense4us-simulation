@@ -165,13 +165,11 @@ var projectCallback = function(loadedModel, savedModels) {
                         loadedModel.propagate();
                     });
                 } else {
-                    console.log("Found in sync:", option);
                     loadedModel.nodeGui  = {};
                     loadedModel.nodeData = {};
                     loadedModel.propagate();
 
                     var savedModel = savedModels.synced[option];
-                    console.log(savedModel);
                     savedModel.forEach(function(value, key) {
                         loadedModel[key] = value;
                     });
@@ -179,8 +177,6 @@ var projectCallback = function(loadedModel, savedModels) {
                     loadedModel.refresh = true;
                 }
             } else {
-                console.log("Found locally.");
-
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
                 loadedModel.propagate();

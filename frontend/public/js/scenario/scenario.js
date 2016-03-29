@@ -280,9 +280,9 @@ Scenario.prototype = {
     },
 
     setNodes: function() {
-        this.loadedModel.nodeData.forEach(function(data) {
+        /*this.loadedModel.nodeData.forEach(function(data) {
             console.log(data);
-        });
+        });*/
 
         return this;
     },
@@ -488,7 +488,6 @@ ScenarioEditor.prototype = {
             this.scenarioContainer.removeChild(this.scenarioContainer.firstChild);
         }
 
-        console.log(scenario);
         this.scenarioContainer.appendChild(this.currentScenario.container);
     },
 

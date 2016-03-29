@@ -18,7 +18,6 @@ function callback(loadedModel, savedModels) {
 
     switch(option.toUpperCase()) {
         case 'SCENARIO':
-            console.log('Scenario');
             var scenarioEditor = new ScenarioEditor(loadedModel);
             /*var scenarioEditor = floatingWindow.createWindow(20, 20, 440, 400);
             var scenarioContainer = createScenarioEditor(loadedModel, savedModels);
