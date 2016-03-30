@@ -3,6 +3,13 @@
 var images = {};
 var PLACEHOLDER_PATH = 'img/file_not_found.png';
 
+var CONFIG = require("rh_config-parser");
+
+var url = CONFIG.get("url");
+if(url.charAt(url.length - 1) !== "/") {
+    url = url + "/";
+}
+
 function drawScaledImage(ctx, image, x, y, w, h) {
     if (w > image.width || h > image.h) {
         ctx.drawImage(image, x, y, w, h);
@@ -82,7 +89,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         img = new Image();   // Create new img element
         //window.derp = img;
         images[imagePath] = img;
-        img.src = imagePath; // Set source path
+        img.src = url + imagePath; // Set source path
         img.isLoading = true;
         img.nodesWaiting = [
             map

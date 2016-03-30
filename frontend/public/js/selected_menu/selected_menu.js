@@ -5,6 +5,13 @@ var Immutable   = null,
     settings    = require('./../settings'),
     buttons     = require('./buttons.js');
 
+var CONFIG      = require("rh_config-parser");
+
+var url = CONFIG.get("url");
+if(url.charAt(url.length - 1) !== "/") {
+    url = url + "/";
+}
+
 function generateHexColor() {
     return Math.round(Math.random() * 255).toString(16);
 }
@@ -23,9 +30,9 @@ function generateAvatarDiv(avatar, selected, name) {
         avatarDiv.className += ' selected';
     }
 
-    img.src = avatar.src;
-    avatarDiv.value = avatar.src;
-    avatarDiv.name = avatar.header || name;
+    img.src         = url + avatar.src;
+    avatarDiv.value = url + avatar.src;
+    avatarDiv.name  = avatar.header || name;
 
     avatarDiv.appendChild(img);
 
