@@ -88,6 +88,12 @@ function drawPicture(ctx, imagePath, map, refresh) {
     } else {
         img = new Image();   // Create new img element
         //window.derp = img;
+
+        var index = imagePath.indexOf(url);
+        if(index === -1) {
+            imagePath = url + imagePath;
+        }
+
         images[imagePath] = img;
         img.src = imagePath; // Set source path
         img.isLoading = true;
