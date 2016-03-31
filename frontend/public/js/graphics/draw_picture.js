@@ -1,14 +1,14 @@
 'use strict';
 
-var images = {};
-var PLACEHOLDER_PATH = 'img/file_not_found.png';
-
 var CONFIG = require("rh_config-parser");
 
 var url = CONFIG.get("url");
 if(url.charAt(url.length - 1) !== "/") {
     url = url + "/";
 }
+
+var images = {};
+var PLACEHOLDER_PATH = url + 'img/file_not_found.png';
 
 function drawScaledImage(ctx, image, x, y, w, h) {
     if (w > image.width || h > image.h) {
