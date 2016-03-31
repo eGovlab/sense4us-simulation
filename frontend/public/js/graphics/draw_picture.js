@@ -89,7 +89,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         img = new Image();   // Create new img element
         //window.derp = img;
         images[imagePath] = img;
-        img.src = url + imagePath; // Set source path
+        img.src = imagePath; // Set source path
         img.isLoading = true;
         img.nodesWaiting = [
             map
