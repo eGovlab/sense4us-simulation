@@ -70,6 +70,10 @@ function drawPicture(ctx, imagePath, map, refresh) {
     refresh = refresh || drawPicture;
     
     var img = null;
+    var index = imagePath.indexOf(url);
+    if(index === -1) {
+        imagePath = url + imagePath;
+    }
     
     if (images.hasOwnProperty(imagePath)) {
         img = images[imagePath];
@@ -88,11 +92,6 @@ function drawPicture(ctx, imagePath, map, refresh) {
     } else {
         img = new Image();   // Create new img element
         //window.derp = img;
-
-        var index = imagePath.indexOf(url);
-        if(index === -1) {
-            imagePath = url + imagePath;
-        }
 
         images[imagePath] = img;
         img.src = imagePath; // Set source path
