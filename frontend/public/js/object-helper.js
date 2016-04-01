@@ -136,7 +136,7 @@ module.exports = {
     first:   first,
     last:    last,
     size:    size,
-    lastKey, lastKey,
+    lastKey: lastKey,
     merge:   merge,
     map:     map,
     forEach: forEach,
