@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable = null;
+var objectHelper = require('./../object-helper');
 
 module.exports = [
     {
@@ -12,9 +12,12 @@ module.exports = [
                 if(data.data.relativeChange !== undefined) {
                     delete loadedModel.nodeData[data.data.id];
                     var links = loadedModel.nodeGui[data.data.id];
-                    links.forEach(function(link, key) {
-                        delete loadedModel.links[link];
-                    });
+                    objectHelper.forEach.call(
+                        links,
+                        function(link, key) {
+                            delete loadedModel.links[link];
+                        }
+                    );
                     delete loadedModel.nodeGui[data.data.id];
                 } else if(data.data.x !== undefined || data.data.y !== undefined) {
                     if(data.data.links) {

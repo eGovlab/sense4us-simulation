@@ -99,7 +99,7 @@ TimeTable.prototype = {
             that.setTimeStep(timeStepInput, timeStep, newStep);
         });
 
-        timeStepInput.className = "mb-time-step";
+        timeStepInput.className = "time-step";
 
         var timeValueLabel = menuBuilder.span("V");
         timeValueLabel.className = "label";
@@ -108,7 +108,7 @@ TimeTable.prototype = {
             that.setTimeValue(timeValueInput, timeStep, newValue);
         });
 
-        timeValueInput.className = "mb-time-value";
+        timeValueInput.className = "time-value";
 
         rowDiv.appendChild(timeStepLabel);
         rowDiv.appendChild(timeStepInput);
@@ -195,10 +195,13 @@ TimeTable.prototype = {
 
             this.timeTableDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
 
-            this.rows.forEach(function(row, key) {
-                row.stepInput.deleteEvents();
-                row.valueInput.deleteEvents();
-            });
+            objectHelper.forEach.call(
+                this.rows,
+                function(row, key) {
+                    row.stepInput.deleteEvents();
+                    row.valueInput.deleteEvents();
+                }
+            );
 
             this.rows = {};
             this.rowContainer = null;
@@ -262,7 +265,7 @@ function Scenario(loadedModel, syncId) {
     this.id     = loadedModel.generateId();
     this.syncId = syncId;
 
-    this.container    = menuBuilder.div("scenario");
+    this.container    = menuBuilder.div("mb-scenario");
     this.name         = "New scenario";
     this.data         = {};
 
@@ -304,13 +307,16 @@ Scenario.prototype = {
             measurement:       this.measurement,
             measurementAmount: this.measurementAmount,
             timeStepN:         this.timeStepN,
-            tables: this.data.map(function(timeTable) {
-                return {
-                    id:                timeTable.id,
-                    syncId:            timeTable.syncId,
-                    timetable:         timeTable.timeTable
-                };
-            })
+            tables: objectHelper.map.call(
+                this.data,
+                function(timeTable) {
+                    return {
+                        id:        timeTable.id,
+                        syncId:    timeTable.syncId,
+                        timetable: timeTable.timeTable
+                    };
+                }
+            )
         };
     },
 
@@ -441,7 +447,7 @@ ScenarioEditor.prototype = {
 
         this.newScenario = menuBuilder.button("New scenario", function() {
             var scenario = new Scenario(that.loadedModel);
-            scenario.setName(that.scenarios.size() + ": New scenario");
+            scenario.setName(objectHelper.size.call(that.scenarios) + ": New scenario");
             that.setScenario(scenario);
             that.scenarios[scenario.id] = scenario;
             //scenario.refresh(that.loadedModel);
@@ -465,16 +471,20 @@ ScenarioEditor.prototype = {
         this.options.appendChild(this.deleteScenario);
         this.options.appendChild(this.newScenario);
 
-        this.loadedModel.scenarios.forEach(function(scenario) {
-            var option = menuBuilder.option(scenario.id, scenario.name);
-            if(scenario.id === this.currentScenario) {
-                option.selected = true;
-            }
+        objectHelper.forEach.call(
+            this.loadedModel.scenarios,
+            function(scenario) {
+                var option = menuBuilder.option(scenario.id, scenario.name);
+                if(scenario.id === this.currentScenario) {
+                    option.selected = true;
+                }
 
-            this.scenarioDropdown.appendChild(option);
-        }, this);
+                this.scenarioDropdown.appendChild(option);
+            },
+            this
+        );
 
-        if(this.loadedModel.scenarios.length === 0) {
+        if(objectHelper.size.call(this.loadedModel.scenarios) === 0) {
             var scenario = new Scenario(this.loadedModel);
             scenario.setName(this.scenarios.size() + ": New scenario");
 

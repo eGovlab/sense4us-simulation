@@ -3,6 +3,7 @@
 var Immutable       = null,
     breakout        = require('./../breakout.js'),
     backendApi      = require('./../api/backend_api.js'),
+    objectHelper    = require('./../object-helper.js'),
     notificationBar = require('./../notification_bar');
 
 var simulate = [
@@ -18,11 +19,12 @@ var simulate = [
                 scenario: loadedModel.loadedScenario.toJson()
             };
 
-            loadedModel.nodeData.forEach(function(node) {
-                node.simulateChange = [];
-            });
-
-            console.log(data);
+            objectHelper.forEach.call(
+                loadedModel.nodeData,
+                function(node) {
+                    node.simulateChange = [];
+                }
+            );
 
             backendApi('/models/simulate', data, function(response, err) {
                 if(err) {
@@ -32,11 +34,8 @@ var simulate = [
                     return;
                 }
 
-                console.log(response.response);
-
                 var timeSteps = response.response;
                 var nodeData  = loadedModel.nodeData;
-                console.log(timeSteps);
                 timeSteps.forEach(function(timeStep) {
                     timeStep.forEach(function(node) {
                         var currentNode = nodeData[node.id];
@@ -56,7 +55,7 @@ var simulate = [
         type:   'BUTTON',
         ajax:   true,
         callback: function(loadedModel) {
-            var settings = loadedModel.settings;
+            var settings       = loadedModel.settings;
             settings.linegraph = !settings.linegraph
 
             loadedModel.refresh = true;

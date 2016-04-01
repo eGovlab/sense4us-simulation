@@ -4,6 +4,8 @@
     position: absolute;
     background-color: $floatingWindowBackground;
     padding: 4px;
+
+    z-index: 5;
 }
 
 .mb-floating-window .title {

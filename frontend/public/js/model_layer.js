@@ -10,6 +10,8 @@ var backendApi      = require('./api/backend_api.js'),
     Scenario        = require('./scenario').Scenario,
     TimeTable       = require('./scenario').TimeTable,
     menuBuilder     = require('./menu_builder');
+
+var objectHelper    = require('./object-helper');
     
 var settings = require('./settings');
 
@@ -313,15 +315,18 @@ module.exports = {
 
                 delete savedModels.local[loadedModel.id];
                 delete savedModels.synced[loadedModel.syncId];
-                var firstLocal = savedModels.local.first();
+                var firstLocal = objectHelper.first.call(savedModels.local);
 
                 if(firstLocal === undefined) {
                     firstLocal = that.newModel();
                 }
 
-                firstLocal.forEach(function(value, key) {
-                    loadedModel[key] = value;
-                });
+                objectHelper.forEach.call(
+                    firstLocal,
+                    function(value, key) {
+                        loadedModel[key] = value;
+                    }
+                );
 
                 notificationBar.notify(response.response.message);
                 callback();
@@ -329,9 +334,12 @@ module.exports = {
         } else {
             delete savedModels.local[loadedModel.id];
             var newModel = this.newModel();
-            newModel.forEach(function(value, key) {
-                loadedModel[key] = value;
-            });
+            objectHelper.forEach.call(
+                newModel,
+                function(value, key) {
+                    loadedModel[key] = value;
+                }
+            );
 
             callback();
         }

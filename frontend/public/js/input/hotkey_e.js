@@ -24,7 +24,7 @@ module.exports = {
         model.nodeGui[selected.id].linking = true;
 
         var mouseMove = function(evt) {
-            var pos = arithmetics.mouseToCanvas({x: evt.clientX, y: evt.clientY}, canvas);
+            var pos = arithmetics.mouseToCanvas({x: evt.pageX, y: evt.pageY}, canvas);
             model.nodeGui[selected.id].linkerX = pos.x;
             model.nodeGui[selected.id].linkerY = pos.y;
 

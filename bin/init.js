@@ -14,6 +14,7 @@
         process.abort();
     });
 
+    var _ROOT = CONFIG.get("ROOT");
     var _LIB = CONFIG.get("ROOT") + CONFIG.get("LIB") || __dirname + "/../lib/";
 
     var express          = require("express"),
@@ -27,6 +28,11 @@
         CookieCutter     = require("rh_cookie-cutter");
 
     var _PORT = CONFIG.get("PORT") || 3000;
+
+    var loggerConfig = CONFIG.get("LOGGER");
+    loggerConfig.errorDir = _ROOT + loggerConfig.errorDir;
+    loggerConfig.logDir   = _ROOT + loggerConfig.logDir;
+    var httpLogger = logger.httpLogger(loggerConfig);
 
     var cookieCutter = new CookieCutter();
     cookieCutter.addCookieCutter("template", "template", function(data){return true;});
@@ -117,7 +123,7 @@
                           })
                         , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
                         , addResponseAttributes
-                        , logger.httpLogger(CONFIG.get("LOGGER"))
+                        , httpLogger
                         , cookieCutter.middleware
                         , router
                         , notFound
@@ -128,9 +134,9 @@
 
     controllerLayer.bundleControllers(CONFIG.get("ROOT") + CONFIG.get("CONTROLLERS"), function(bundle) {
         var router = express.Router();
-        controllerLayer.addControllerToRouter(router, bundle);
+        controllerLayer.addControllerToRouter(router, bundle, CONFIG.get("ROUTER", "printExposed"));
         onDone(router);
-    });
+    }, CONFIG.get("ROUTER", "printRequired"));
 }(function(daemon, _PORT) {
     var http = require("http");
     http.createServer(daemon).listen(_PORT, function() {

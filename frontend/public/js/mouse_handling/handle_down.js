@@ -105,12 +105,15 @@ function clickAndMove(data, error, done, env) {
     collidedLinks = objectHelper.map.call(
         collidedLinks,
         function(link) {
-            return link.merge({
-                offsetX:  data.pos.x - (link.x || 0),
-                offsetY:  data.pos.y - (link.y || 0),
-                clicked:  true
-                //selected: true
-            });
+            return objectHelper.merge.call(
+                link,
+                {
+                    offsetX:  data.pos.x - (link.x || 0),
+                    offsetY:  data.pos.y - (link.y || 0),
+                    clicked:  true
+                    //selected: true
+                }
+            );
         }
     );
 

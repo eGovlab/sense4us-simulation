@@ -28,18 +28,17 @@ function moveClickedNodes(data, error, done) {
     movingNodes = objectHelper.map.call(
         movingNodes,
         function(node) {
-            return node.merge({
-                x: data.pos.x - node.offsetX,
-                y: data.pos.y - node.offsetY
-            });
+            return objectHelper.merge.call(
+                node,
+                {
+                    x: data.pos.x - node.offsetX,
+                    y: data.pos.y - node.offsetY
+                }
+            );
         }
     );
 
-    console.log(movingNodes);
-
     data.nodeGui = objectHelper.merge.call(data.nodeGui, movingNodes);
-
-    console.log(data.nodeGui);
     
     if (Object.keys(movingNodes).length > 0) {
         return done(data);
@@ -57,7 +56,7 @@ function moveLinker(data, error, done) {
     );
 
     movingLinker = objectHelper.map.call(
-        data.nodeGui,
+        movingLinker,
         function(node) {
             return objectHelper.merge.call(node, {
                 linkerX: data.pos.x,
@@ -65,7 +64,7 @@ function moveLinker(data, error, done) {
             });
         }
     );
-            
+
     data.nodeGui = objectHelper.merge.call(data.nodeGui, movingLinker);
     
     if (Object.keys(movingLinker).length > 0) {

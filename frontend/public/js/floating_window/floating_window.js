@@ -35,7 +35,7 @@ FloatingWindow.prototype = {
             h = this.h;
         }
 
-        this.container = menuBuilder.div('floating-window');;
+        this.container = menuBuilder.div('mb-floating-window');;
         var container = this.container;
 
         var that = this;

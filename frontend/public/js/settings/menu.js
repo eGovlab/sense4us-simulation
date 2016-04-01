@@ -112,9 +112,12 @@ var projectCallback = function(loadedModel, savedModels) {
         case 'new':
             var m = modelLayer.newModel();
 
-            m.forEach(function(value, key) {
-                loadedModel[key] = value;
-            });
+            objectHelper.forEach.call(
+                m,
+                function(value, key) {
+                    loadedModel[key] = value;
+                }
+            );
 
             savedModels.local[loadedModel.id] = m;
 
@@ -122,9 +125,12 @@ var projectCallback = function(loadedModel, savedModels) {
             projectUpdate.call(this.parent, loadedModel, savedModels);
             break;
         case 'save':
-            m.forEach(function(value, key) {
-                loadedModel[key] = value;
-            });
+            objectHelper.forEach.call(
+                m,
+                function(value, key) {
+                    loadedModel[key] = value;
+                }
+            );
 
             modelLayer.saveModel(loadedModel, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
@@ -165,9 +171,12 @@ var projectCallback = function(loadedModel, savedModels) {
                         loadedModel.propagate();
 
                         savedModels.synced[option] = newState;
-                        newState.forEach(function(value, key) {
-                            loadedModel[key] = value;
-                        });
+                        objectHelper.forEach.call(
+                            newState,
+                            function(value, key) {
+                                loadedModel[key] = value;
+                            }
+                        );
 
                         loadedModel.refresh = true;
                         loadedModel.propagate();
@@ -178,9 +187,12 @@ var projectCallback = function(loadedModel, savedModels) {
                     loadedModel.propagate();
 
                     var savedModel = savedModels.synced[option];
-                    savedModel.forEach(function(value, key) {
-                        loadedModel[key] = value;
-                    });
+                    objectHelper.forEach.call(
+                        savedModel,
+                        function(value, key) {
+                            loadedModel[key] = value;
+                        }
+                    );
 
                     loadedModel.refresh = true;
                 }
@@ -190,9 +202,12 @@ var projectCallback = function(loadedModel, savedModels) {
                 loadedModel.propagate();
                 
                 var savedModel = savedModels.local[option];
-                savedModel.forEach(function(value, key) {
-                    loadedModel[key] = value;
-                });
+                objectHelper.forEach.call(
+                    savedModel,
+                    function(value, key) {
+                        loadedModel[key] = value;
+                    }
+                );
 
                 loadedModel.refresh = true;
             }

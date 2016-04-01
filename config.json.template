@@ -5,14 +5,8 @@
     "HOSTNAME": "localhost",
 
     "ROUTER": {
-        "environments": [
-            ["dev", "development"],
-            ["prod", "production"]
-        ],
-
-        "environment": "development",
-        "printexposed": true,
-        "printonlynew": true
+        "printExposed": true,
+        "printRequired": true
     },
 
     "SASS": {
@@ -28,7 +22,9 @@
         "headers":      true,
         "status":       true,
         "cookies":      true,
-        "request":      true
+        "request":      true,
+        "errorDir":     "logs/errors",
+        "logDir":       "logs/http"
     },
 
     "CONTROLLERS":  "frontend/controllers/",

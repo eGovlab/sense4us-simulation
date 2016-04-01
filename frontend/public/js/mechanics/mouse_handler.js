@@ -26,8 +26,8 @@ module.exports = function(canvas, loadedModel, inputs) {
 
         active = true;
 
-        startPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
-        lastPos = {x: startPos.x, y: startPos.y};
+        startPos = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
+        lastPos  = {x: startPos.x, y: startPos.y};
 
         loadedModel.didDrag = false;
 
@@ -64,7 +64,7 @@ module.exports = function(canvas, loadedModel, inputs) {
 
         active = true;
 
-        endPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
+        endPos = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
 
         deltaPos.x = lastPos.x - endPos.x;
         deltaPos.y = lastPos.y - endPos.y;
@@ -91,7 +91,7 @@ module.exports = function(canvas, loadedModel, inputs) {
 
         active = false;
 
-        endPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
+        endPos = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
 
         window.removeEventListener('mousemove', mouseMove);
         window.removeEventListener('mouseup', mouseUp);

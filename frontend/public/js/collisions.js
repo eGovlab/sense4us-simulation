@@ -1,14 +1,14 @@
 'use strict';
 
-var Immutable = null;
+var objectHelper = require('./object-helper.js');
 
 var lineToRect = function(line) {
 	if (line.x1 > line.x2) {
-		line = line.merge({x1: line.x2, x2: line.x1});
+		line = objectHelper.merge.call(line, {x1: line.x2, x2: line.x1});
 	}
 
 	if (line.y1 > line.y2) {
-		line = line.merge({y1: line.y2, y2: line.y1});
+		line = objectHelper.merge.call(line, {y1: line.y2, y2: line.y1});
 	}
 
 	return {

@@ -190,8 +190,8 @@ function inflateModel(container) {
         }
 
         if(show) {
-            mainCanvas.height      = (parent.offsetHeight - 70) * 0.5;
-            linegraphCanvas.height = (parent.offsetHeight - 70) * 0.5;
+            mainCanvas.height      = Math.ceil(((parent.offsetHeight-20) * 0.5));
+            linegraphCanvas.height = Math.floor(((parent.offsetHeight-20) * 0.5));
 
             linegraphRefresh();
         } else {
