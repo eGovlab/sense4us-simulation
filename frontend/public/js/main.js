@@ -51,7 +51,8 @@ function inflateModel(container) {
     var CONFIG = require('rh_config-parser');
     CONFIG.setConfig(configObject);
 
-    require("./object.js");
+    //require("./object.js");
+    var objectHelper = require('./object-helper.js');
 
     var menuHeader       = document.createElement('div'),
         upperMenu        = document.createElement('div');
@@ -291,19 +292,25 @@ function inflateModel(container) {
             linegraphCanvas.height
         );
 
-        var selectedNodes = loadedModel.nodeGui.filter(function(node) {
-            return node.linegraph;
-        });
+        var selectedNodes = objectHelper.filter.call(
+            loadedModel.nodeGui,
+            function(node) {
+                return node.linegraph;
+            }
+        );
 
         var nodeData = loadedModel.nodeData;
-        var lineValues = selectedNodes.map(function(nodegui) {
-            var node = nodeData[nodegui.id];
-            return {
-                name:   node.name,
-                values: node.simulateChange,
-                color:  nodegui.graphColor
+        var lineValues = objectHelper.map.call(
+            selectedNodes,
+            function(nodegui) {
+                var node = nodeData[nodegui.id];
+                return {
+                    name:   node.name,
+                    values: node.simulateChange,
+                    color:  nodegui.graphColor
+                }
             }
-        });
+        );
 
         drawLineGraph(lctx, 20, 20, linegraphCanvas.width - 40, linegraphCanvas.height - 30, lineValues);
     }

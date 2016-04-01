@@ -1,5 +1,7 @@
 'use strict';
 
+var objectHelper = require('./../object-helper.js');
+
 module.exports = function createNode(model, data, gui, type) {
     var id = model.generateId();
 
@@ -23,20 +25,23 @@ module.exports = function createNode(model, data, gui, type) {
     };
 
     if(data !== undefined) {
-        nodeData = nodeData.merge(data);
+        nodeData = objectHelper.merge.call(nodeData, data);
     }
 
     if(gui !== undefined) {
-        nodeGui = nodeGui.merge(gui);
+        nodeGui = objectHelper.merge.call(nodeGui, gui);
     }
 
     model.nodeData[id] = nodeData;
     model.nodeGui[id]  = nodeGui;
 
     if(nodeData.timeTable) {
-        model.scenarios.forEach(function(scenario) {
-            scenario.refresh(model);
-        });
+        objectHelper.forEach.call(
+            model.scenarios,
+            function(scenario) {
+                scenario.refresh(model);
+            }
+        );
     }
 
     model.resetUI = true;

@@ -5,6 +5,8 @@ var Immutable   = null,
     settings    = require('./../settings'),
     buttons     = require('./buttons.js');
 
+var objectHelper = require('./../object-helper.js');
+
 var CONFIG      = require("rh_config-parser");
 
 var url = CONFIG.get("url");
@@ -118,18 +120,27 @@ Data.prototype = {
     },
 
     deleteEvents: function() {
-        this.rows.forEach(function(row, key) {
-            row.stepInput.deleteEvents();
-            row.valueInput.deleteEvents();
-        });
+        objectHelper.forEach.call(
+            this.rows,
+            function(row, key) {
+                row.stepInput.deleteEvents();
+                row.valueInput.deleteEvents();
+            }
+        );
 
-        this.dropdowns.forEach(function(dropdown) {
-            dropdown.deleteEvents();
-        });
+        objectHelper.forEach.call(
+            this.dropdowns,
+            function(dropdown) {
+                dropdown.deleteEvents();
+            }
+        );
 
-        this.inputs.forEach(function(input) {
-            input.deleteEvents();
-        });
+        objectHelper.forEach.call(
+            this.inputs,
+            function(input) {
+                input.deleteEvents();
+            }
+        );
     },
 
     addTimeRow: function(timeStep, timeValue) {
@@ -273,9 +284,13 @@ Data.prototype = {
         }
 
         this.timetable = value;
-        this.timetable.forEach(function(timeValue, timeStep) {
-            this.addTimeRow(timeStep, timeValue);
-        }, this);
+        objectHelper.forEach.call(
+            this.timetable,
+            function(timeValue, timeStep) {
+                this.addTimeRow(timeStep, timeValue);
+            },
+            this
+        );
 
         var that = this;
         containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
@@ -283,12 +298,15 @@ Data.prototype = {
                 that.addTimeRow(0, 0);
             } else {
                 var highestIndex = 0;
-                that.timetable.forEach(function(value, key) {
-                    var x;
-                    if(!isNaN(x = parseInt(key)) && x > highestIndex) {
-                        highestIndex = x;
+                objectHelper.forEach.call(
+                    that.timetable,
+                    function(value, key) {
+                        var x;
+                        if(!isNaN(x = parseInt(key)) && x > highestIndex) {
+                            highestIndex = x;
+                        }
                     }
-                });
+                );
 
                 var index = highestIndex + 1;
                 var value = 0;
@@ -431,7 +449,7 @@ Data.prototype = {
             }, this);
         }
 
-        this.data.forEach(function(value, key) {
+        objectHelper.forEach.call(this.data, function(value, key) {
             if(this.filter.indexOf(key) === -1) {
                 return;
             }

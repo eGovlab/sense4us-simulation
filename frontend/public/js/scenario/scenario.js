@@ -1,6 +1,8 @@
 var FloatingWindow = require('./../floating_window/floating_window.js'),
     menuBuilder    = require('./../menu_builder');
 
+var objectHelper = require('./../object-helper.js');
+
 var timeTableId = -1;
 function TimeTable(node, onChange) {
     timeTableId++;
@@ -8,19 +10,18 @@ function TimeTable(node, onChange) {
     this.syncId = false;
 
     this.node   = node;
-    this.data   = node.copy();
+    this.data   = objectHelper.copy.call(node);
 
     this.data.id = timeTableId;
 
     this.node.timeTable = this.data.timeTable;
 
-    this.header = node.name;
+    this.header   = node.name;
     this.onChange = onChange;
 
     this.container = menuBuilder.div('menu');
-    this.filter = filter;
 
-    this.timeTable   = this.data.timeTable;
+    this.timeTable = this.data.timeTable;
 
     this.timeTableDiv;
     this.rowContainer;
@@ -216,9 +217,13 @@ TimeTable.prototype = {
         }
 
         this.node.timeTable = this.timeTable;
-        this.timeTable.forEach(function(timeValue, timeStep) {
-            this.addTimeRow(timeStep, timeValue);
-        }, this);
+        objectHelper.forEach.call(
+            this.timeTable,
+            function(timeValue, timeStep) {
+                this.addTimeRow(timeStep, timeValue);
+            },
+            this
+        );
 
         var that = this;
         containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
@@ -226,12 +231,15 @@ TimeTable.prototype = {
                 that.addTimeRow(0, 0);
             } else {
                 var highestIndex = 0;
-                that.timeTable.forEach(function(value, key) {
-                    var x;
-                    if(!isNaN(x = parseInt(key)) && x > highestIndex) {
-                        highestIndex = x;
+                objectHelper.forEach.call(
+                    that.timeTable,
+                    function(value, key) {
+                        var x;
+                        if(!isNaN(x = parseInt(key)) && x > highestIndex) {
+                            highestIndex = x;
+                        }
                     }
-                });
+                );
 
                 var index = highestIndex + 1;
                 var value = 0;
@@ -311,23 +319,27 @@ Scenario.prototype = {
             this.container.removeChild(this.container.firstChild);
         }
 
-        loadedModel.nodeData.forEach(function(node) {
-            if(node.type !== "origin") {
-                return;
-            }
+        objectHelper.forEach.call(
+            loadedModel.nodeData,
+            function(node) {
+                if(node.type !== "origin") {
+                    return;
+                }
 
-            var data = this.data[node.id];
-            if(!data) {
-                data = new TimeTable(node, function() {
-                    loadedModel.refresh = true;
-                    loadedModel.resetUI = true;
-                    loadedModel.propagate();
-                });
-                this.data[node.id] = data;
-            }
-            
-            this.container.appendChild(data.generateTimeTable());
-        }, this);
+                var data = this.data[node.id];
+                if(!data) {
+                    data = new TimeTable(node, function() {
+                        loadedModel.refresh = true;
+                        loadedModel.resetUI = true;
+                        loadedModel.propagate();
+                    });
+                    this.data[node.id] = data;
+                }
+                
+                this.container.appendChild(data.generateTimeTable());
+            },
+            this
+        );
 
         loadedModel.refresh = true;
         loadedModel.propagate();

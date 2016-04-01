@@ -7,6 +7,8 @@ var Immutable  = null,
     windows    = require('./windows.js'),
     modelLayer = require('./../model_layer.js');
 
+var objectHelper = require('./../object-helper.js');
+
 var modeUpdate = function(loadedModel, savedModels) {
     var element = this;
 
@@ -56,9 +58,12 @@ var projectUpdate = function(loadedModel, savedModels) {
             throw new Error("projectUpdate: /models/all crashed");
         }
 
-        savedModels.local.forEach(function(model) {
-            element.addOption(model.id, model.settings.name);
-        });
+        objectHelper.forEach.call(
+            savedModels.local,
+            function(model) {
+                element.addOption(model.id, model.settings.name);
+            }
+        );
 
         var models = response.response;
         models.forEach(function(model) {
@@ -67,13 +72,16 @@ var projectUpdate = function(loadedModel, savedModels) {
             }
         });
 
-        savedModels.synced.forEach(function(model, key) {
-            if(typeof model === "string") {
-                element.addOption(key, model);
-            } else {
-                element.addOption(model.syncId, model.settings.name);
+        objectHelper.forEach.call(
+            savedModels.synced,
+            function(model, key) {
+                if(typeof model === "string") {
+                    element.addOption(key, model);
+                } else {
+                    element.addOption(model.syncId, model.settings.name);
+                }
             }
-        });
+        );
 
         if(error) {
             element.refreshList();

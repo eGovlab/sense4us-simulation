@@ -1,76 +1,105 @@
 'use strict';
 
-var middleware = require('./../middleware.js');
+var middleware   = require('./../middleware.js');
+var objectHelper = require('./../object-helper.js');
 
 var mouseDownWare = middleware([
-	moveLinker,
-	moveIcon,
-	moveClickedNodes,
-	pan
+    moveLinker,
+    moveIcon,
+    moveClickedNodes,
+    pan
 ]);
 
 function pan(data) {
-	data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.x;
-	data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.y;
-	
-	return data;
+    data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.x;
+    data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.y;
+    
+    return data;
 }
 
 function moveClickedNodes(data, error, done) {
-	var movingNodes = data.nodeGui
-		.filter(function(node) {return node.clicked === true;})
-		.map(function(node) {
-			return node.merge({
-				x: data.pos.x - node.offsetX,
-				y: data.pos.y - node.offsetY
-			});
-		});
-	
-	data.nodeGui = data.nodeGui.merge(movingNodes);
-	
-	if (Object.keys(movingNodes).length > 0) {
-		return done(data);
-	}
+    var movingNodes = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.clicked === true;
+        }
+    );
 
-	return data;
+    movingNodes = objectHelper.map.call(
+        movingNodes,
+        function(node) {
+            return node.merge({
+                x: data.pos.x - node.offsetX,
+                y: data.pos.y - node.offsetY
+            });
+        }
+    );
+
+    console.log(movingNodes);
+
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, movingNodes);
+
+    console.log(data.nodeGui);
+    
+    if (Object.keys(movingNodes).length > 0) {
+        return done(data);
+    }
+
+    return data;
 }
 
 function moveLinker(data, error, done) {
-	var movingLinker = data.nodeGui
-		.filter(function(node) { return node.linking === true; })
-		.map(function(node) {
-			return node.merge({
-				linkerX: data.pos.x,
-				linkerY: data.pos.y
-			});
-		});
-			
-	data.nodeGui = data.nodeGui.merge(movingLinker);
-	
-	if (Object.keys(movingLinker).length > 0) {
-		return done(data);
-	}
+    var movingLinker = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.linking === true;
+        }
+    );
 
-	return data;
+    movingLinker = objectHelper.map.call(
+        data.nodeGui,
+        function(node) {
+            return objectHelper.merge.call(node, {
+                linkerX: data.pos.x,
+                linkerY: data.pos.y
+            });
+        }
+    );
+            
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, movingLinker);
+    
+    if (Object.keys(movingLinker).length > 0) {
+        return done(data);
+    }
+
+    return data;
 }
 
 function moveIcon(data, error, done) {
-	var movingIcons = data.nodeGui
-		.filter(function(node) { return node.movingIcon === true; })
-		.map(function(node) {
-			return node.merge({
-				iconXOffset: data.pos.x - node.x,
-				iconYOffset: data.pos.y - node.y
-			});
-		});
+    var movingIcons = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.movingIcon === true;
+        }
+    );
 
-	data.nodeGui = data.nodeGui.merge(movingIcons);
+    movingIcons = objectHelper.map.call(
+        movingIcons,
+        function(node) {
+            return node.merge({
+                iconXOffset: data.pos.x - node.x,
+                iconYOffset: data.pos.y - node.y
+            });
+        }
+    );
 
-	if (Object.keys(movingIcons).length > 0) {
-		return done(data);
-	}
-	
-	return data;
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, movingIcons);
+
+    if (Object.keys(movingIcons).length > 0) {
+        return done(data);
+    }
+    
+    return data;
 }
 
 module.exports = mouseDownWare;

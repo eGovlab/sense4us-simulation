@@ -1,6 +1,7 @@
 "use strict";
 
-var mouseUpWare = require("./../mouse_handling/handle_up.js");
+var mouseUpWare  = require("./../mouse_handling/handle_up.js");
+var objectHelper = require('./../object-helper.js');
 
 function mouseUp(canvas, loadedModel, pos) {
     var _data = {
@@ -16,17 +17,29 @@ function mouseUp(canvas, loadedModel, pos) {
 
     var data = mouseUpWare(_data);
 
-    data.nodeGui.forEach(function(node, id) {
-        node.forEach(function(val, key) {
-            loadedModel.nodeGui[id][key] = val;
-        });
-    });
+    objectHelper.forEach.call(
+        data.nodeGui,
+        function(node, id) {
+            objectHelper.forEach.call(
+                node,
+                function(val, key) {
+                    loadedModel.nodeGui[id][key] = val;
+                }
+            );
+        }
+    );
 
-    data.links.forEach(function(link, id) {
-        link.forEach(function(val, key) {
-            loadedModel.links[id][key] = val;
-        });
-    });
+    objectHelper.forEach.call(
+        data.links,
+        function(link, id) {
+            objectHelper.forEach.call(
+                link,
+                function(val, key) {
+                    loadedModel.links[id][key] = val;
+                }
+            );
+        }
+    );
 
     //loadedModel.nodeGui = newState;
     //loadedModel.links   = loadedModel.links.merge(data.links);
