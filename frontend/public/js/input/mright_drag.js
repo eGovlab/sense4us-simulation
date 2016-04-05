@@ -12,7 +12,7 @@ function down(canvas, loadedModel, pos) {
         return hitTest(node, pos);
     });
 
-    collidedNodes = collidedNodes.slice(-1);
+    collidedNodes = objectHelper.slice.call(collidedNodes, -1);
     objectHelper.forEach.call(collidedNodes, function(node) {
         node.offsetX = pos.x - (node.x || 0);
         node.offsetY = pos.y - (node.y || 0);
