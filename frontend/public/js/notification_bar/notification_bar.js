@@ -13,7 +13,7 @@ function NotificationBar() {
 NotificationBar.prototype = {
     setContainer: function(container) {
         this.container = container;
-        this.notify("Initialized.");
+        this.notify('Initialized.');
     },
 
     notify: function(text, delay) {

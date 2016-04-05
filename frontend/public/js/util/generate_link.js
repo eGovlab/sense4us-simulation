@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var hitTest      = require('./../collisions.js').hitTest,
     createLink   = require('../structures/create_link'),
@@ -45,8 +45,8 @@ module.exports = function(loadedModel) {
 
                     var sourceData = nodeData[node.id];
                     var destData   = nodeData[collidedId];
-                    if(sourceData.type.toUpperCase() === "ACTOR") {
-                        if(destData.type.toUpperCase() !== "ORIGIN") {
+                    if(sourceData.type.toUpperCase() === 'ACTOR') {
+                        if(destData.type.toUpperCase() !== 'ORIGIN') {
                             return;
                         }
 

@@ -1,10 +1,10 @@
 'use strict';
 
-var CONFIG = require("rh_config-parser");
+var CONFIG = require('./../config.js');
 
-var url = CONFIG.get("url");
-if(url.charAt(url.length - 1) !== "/") {
-    url = url + "/";
+var url = CONFIG.get('url');
+if(url.charAt(url.length - 1) !== '/') {
+    url = url + '/';
 }
 
 var images = {};
@@ -86,7 +86,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
             drawImage(ctx, img, map);        
         } catch(error) {
             ctx.restore();
-            console.log(error);
+            console.error(error);
             images[imagePath] = placeholder;
         }
     } else {
@@ -112,7 +112,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         };
         
         img.onerror = function(error) {
-            console.log('the image with path', imagePath, 'doesn\'t seem to exist');
+            console.error('the image with path', imagePath, 'doesn\'t seem to exist');
             images[imagePath] = placeholder;
             img.nodesWaiting.forEach(function(_map) {
                 drawImage(ctx, placeholder, _map);

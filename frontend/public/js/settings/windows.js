@@ -1,6 +1,6 @@
 'use strict';
 
-var ScenarioEditor = require("./../scenario").ScenarioEditor;
+var ScenarioEditor = require('./../scenario').ScenarioEditor;
 
 function update(loadedModel, savedModels) {
     var element = this;

@@ -32,60 +32,11 @@ function generateHexColor() {
 }
 
 function generateColor() {
-    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+    return '#' + generateHexColor() + generateHexColor() + generateHexColor();
 }
 
 function link(data) {
     generateLink(data.loadedModel);
-
-    /*data.nodeGui
-        .filter(function(node) { return node.linking === true; })
-        .forEach(function(node) {
-            var hit = data.nodeGui.filter(function(maybeCollidingNode) {
-                return maybeCollidingNode.linking !== true && hitTest(maybeCollidingNode, linker(node));
-            }).slice(-1);
-
-            hit.forEach(function(collided) {
-                var nodeLinks = node.links;
-                if(nodeLinks === undefined) {
-                    node.links = [];
-                }
-
-                var collidedLinks = collided.links;
-                if(collidedLinks === undefined) {
-                    collided.links = [];
-                }
-
-                var nodeId     = node.id,
-                    collidedId = collided.id;
-
-                var nodeData = data.nodeData[node.id];
-                var hitData = data.nodeData[collidedId];
-                if(nodeData.type.toUpperCase() === "ACTOR") {
-                    if(hitData.type.toUpperCase() !== "ORIGIN") {
-                        return;
-                    }
-
-                    data.resetUI = true;
-                }
-
-                var nodeGui = data.nodeGui[nodeId];
-                for(var i = 0; i < nodeGui.links.length; i++) {
-                    var link = data.links[nodeGui.links[i]];
-                    if((link.node1 === nodeId && link.node2 === collidedId)
-                        || (link.node1 === collidedId && link.node2 === nodeId)) {
-                        return;
-                    }
-                }
-
-                var newLink = createLink(data.loadedModel, nodeId, collidedId);
-
-                data.links[id] = newLink;
-
-                data.nodeGui[nodeId].links.push(newLink.id);
-                data.nodeGui[collidedId].links.push(newLink.id);
-            });
-        });*/
 
     return data;
 }

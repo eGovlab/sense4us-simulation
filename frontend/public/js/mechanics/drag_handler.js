@@ -17,7 +17,7 @@ module.exports = function(canvas, loadedModel, startCallback, updateCallback, en
 		return false;
 	};
 
-	canvas.addEventListener("contextmenu", stopContextMenu);
+	canvas.addEventListener('contextmenu', stopContextMenu);
 
 	var mouseDown = function(event) {
 		active = true;

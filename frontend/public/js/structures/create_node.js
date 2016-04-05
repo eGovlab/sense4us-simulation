@@ -13,7 +13,7 @@ module.exports = function createNode(model, data, gui, type) {
         simulateChange:  [],
         type:            type || 'intermediate',
         initialValue:    0,
-        measurementUnit: "",
+        measurementUnit: '',
         description:     ''
     };
 

@@ -17,7 +17,7 @@ module.exports = function(canvas, loadedModel, inputs) {
         return false;
     };
 
-    canvas.addEventListener("contextmenu", stopContextMenu);
+    canvas.addEventListener('contextmenu', stopContextMenu);
     var mouseDown = function(event) {
         var button = event.button;
         var middlewares = inputs.filter(function(input) {

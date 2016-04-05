@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-var down = require("./mleft_down.js"),
-    move = require("./mleft_move.js"),
-    up   = require("./mleft_up.js");
+var down = require('./mleft_down.js'),
+    move = require('./mleft_move.js'),
+    up   = require('./mleft_up.js');
 
 module.exports = {
     button:    0,

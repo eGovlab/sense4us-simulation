@@ -72,7 +72,7 @@ TimeTable.prototype = {
         var containerDiv = this.timeTableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "mb-time-table";
+                containerDiv.className = 'mb-time-table';
 
             containerDiv.appendChild(menuBuilder.label(key));
 
@@ -81,7 +81,7 @@ TimeTable.prototype = {
 
         var rowContainer = this.rowContainer;
         if(!rowContainer) {
-            rowContainer      = menuBuilder.div("row-container");
+            rowContainer      = menuBuilder.div('row-container');
             this.rowContainer = rowContainer;
 
             containerDiv.appendChild(rowContainer);
@@ -89,26 +89,26 @@ TimeTable.prototype = {
 
         var that = this;
 
-        var rowDiv = menuBuilder.div("time-row");
+        var rowDiv = menuBuilder.div('time-row');
         this.rows[timeStep] = rowDiv;
 
-        var timeStepLabel       = menuBuilder.span("T");
-        timeStepLabel.className = "label";
+        var timeStepLabel       = menuBuilder.span('T');
+        timeStepLabel.className = 'label';
 
-        var timeStepInput = menuBuilder.input("time-step", timeStep, function(input, newStep) {
+        var timeStepInput = menuBuilder.input('time-step', timeStep, function(input, newStep) {
             that.setTimeStep(timeStepInput, timeStep, newStep);
         });
 
-        timeStepInput.className = "time-step";
+        timeStepInput.className = 'time-step';
 
-        var timeValueLabel = menuBuilder.span("V");
-        timeValueLabel.className = "label";
+        var timeValueLabel = menuBuilder.span('V');
+        timeValueLabel.className = 'label';
 
-        var timeValueInput = menuBuilder.input("time-value", timeValue, function(input, newValue) {
+        var timeValueInput = menuBuilder.input('time-value', timeValue, function(input, newValue) {
             that.setTimeValue(timeValueInput, timeStep, newValue);
         });
 
-        timeValueInput.className = "time-value";
+        timeValueInput.className = 'time-value';
 
         rowDiv.appendChild(timeStepLabel);
         rowDiv.appendChild(timeStepInput);
@@ -126,9 +126,9 @@ TimeTable.prototype = {
     removeTimeRow: function() {
         if (this.timeTable === undefined || this.timeTable === null || this.timeTable.size() === 0) {
             return;
-        } else {
-            this.timeTable = this.timeTable.slice(0, -1);
         }
+        
+        this.timeTable = this.timeTable.slice(0, -1);
 
         var element = this.rows.last();
         this.rowContainer.removeChild(element);
@@ -183,7 +183,7 @@ TimeTable.prototype = {
         var containerDiv = this.timeTableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "mb-time-table";
+                containerDiv.className = 'mb-time-table';
 
             containerDiv.appendChild(menuBuilder.label(this.node.name || 'TimeTable'));
 
@@ -209,7 +209,7 @@ TimeTable.prototype = {
 
         var rowContainer = this.rowContainer;
         if(!rowContainer) {
-            rowContainer      = menuBuilder.div("row-container");
+            rowContainer      = menuBuilder.div('row-container');
             this.rowContainer = rowContainer;
 
             containerDiv.appendChild(rowContainer);
@@ -265,11 +265,11 @@ function Scenario(loadedModel, syncId) {
     this.id     = loadedModel.generateId();
     this.syncId = syncId;
 
-    this.container    = menuBuilder.div("mb-scenario");
-    this.name         = "New scenario";
+    this.container    = menuBuilder.div('mb-scenario');
+    this.name         = 'New scenario';
     this.data         = {};
 
-    this.measurement         = "Week";
+    this.measurement         = 'Week';
     this.measurementAmount   = 1;
     this.maxIterations       = 4;
     this.timeStepN           = 0;
@@ -328,7 +328,7 @@ Scenario.prototype = {
         objectHelper.forEach.call(
             loadedModel.nodeData,
             function(node) {
-                if(node.type !== "origin") {
+                if(node.type !== 'origin') {
                     return;
                 }
 
@@ -356,7 +356,7 @@ Scenario.prototype = {
 
 function ScenarioEditor(loadedModel) {
     this.loadedModel     = loadedModel;
-    this.floatingWindow  = new FloatingWindow(20, 20, 440, 400, "mb-scenario-editor");
+    this.floatingWindow  = new FloatingWindow(20, 20, 440, 400, 'mb-scenario-editor');
     this.floatingWindow.killButton.removeEventListener('click', this.floatingWindow.killCallback);
     var that = this;
     this.floatingWindow.killButton.killCallback = function() {
@@ -368,13 +368,13 @@ function ScenarioEditor(loadedModel) {
     this.scenarios       = loadedModel.scenarios;
     this.currentScenario = undefined;
 
-    this.options              = menuBuilder.div("options");
-    this.options.style.height = "40px";
+    this.options              = menuBuilder.div('options');
+    this.options.style.height = '40px';
 
     this.selectedIndex = 0;
 
     this.scenarioContainer = menuBuilder.div('table-container');
-    this.scenarioContainer.style.height = "360px";
+    this.scenarioContainer.style.height = '360px';
 
     this.body.appendChild(this.options);
     this.body.appendChild(this.scenarioContainer);
@@ -412,11 +412,11 @@ ScenarioEditor.prototype = {
         this.container = this.floatingWindow.container;
         this.body      = this.floatingWindow.body;
 
-        this.options              = menuBuilder.div("options");
-        this.options.style.height = "40px";
+        this.options              = menuBuilder.div('options');
+        this.options.style.height = '40px';
 
         this.scenarioContainer = menuBuilder.div('table-container');
-        this.scenarioContainer.style.height = "360px";
+        this.scenarioContainer.style.height = '360px';
 
         this.body.appendChild(this.options);
         this.body.appendChild(this.scenarioContainer);
@@ -427,7 +427,7 @@ ScenarioEditor.prototype = {
 
     generateOptions: function() {
         var that = this;
-        this.scenarioDropdown = menuBuilder.select("text", function() {
+        this.scenarioDropdown = menuBuilder.select('text', function() {
             var value = parseInt(this.value);
             if(!that.scenarios[value]) {
                 return;
@@ -441,13 +441,13 @@ ScenarioEditor.prototype = {
             that.loadedModel.propagate();
         });
 
-        this.deleteScenario   = menuBuilder.button("Delete scenario", function() {
+        this.deleteScenario   = menuBuilder.button('Delete scenario', function() {
 
         });
 
-        this.newScenario = menuBuilder.button("New scenario", function() {
+        this.newScenario = menuBuilder.button('New scenario', function() {
             var scenario = new Scenario(that.loadedModel);
-            scenario.setName(objectHelper.size.call(that.scenarios) + ": New scenario");
+            scenario.setName(objectHelper.size.call(that.scenarios) + ': New scenario');
             that.setScenario(scenario);
             that.scenarios[scenario.id] = scenario;
             //scenario.refresh(that.loadedModel);
@@ -463,9 +463,9 @@ ScenarioEditor.prototype = {
             that.loadedModel.propagate();
         });
 
-        this.scenarioDropdown.className = "scenario-select";
-        this.deleteScenario.className   = "scenario-delete";
-        this.newScenario.className      = "scenario-new";
+        this.scenarioDropdown.className = 'scenario-select';
+        this.deleteScenario.className   = 'scenario-delete';
+        this.newScenario.className      = 'scenario-new';
 
         this.options.appendChild(this.scenarioDropdown);
         this.options.appendChild(this.deleteScenario);
@@ -486,7 +486,7 @@ ScenarioEditor.prototype = {
 
         if(objectHelper.size.call(this.loadedModel.scenarios) === 0) {
             var scenario = new Scenario(this.loadedModel);
-            scenario.setName(this.scenarios.size() + ": New scenario");
+            scenario.setName(this.scenarios.size() + ': New scenario');
 
             this.setScenario(scenario);
             this.scenarios.push(scenario);

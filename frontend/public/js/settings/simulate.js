@@ -28,8 +28,8 @@ var simulate = [
 
             backendApi('/models/simulate', data, function(response, err) {
                 if(err) {
-                    console.log(err);
-                    console.log(response);
+                    console.error(err);
+                    console.error(response);
                     notificationBar.notify(response.response.message);
                     return;
                 }
@@ -93,12 +93,10 @@ var simulate = [
         type:   'SLIDER',
 
         defaultValue: function(model) {
-            console.log(model.loadedScenario.timeStepN);
             return model.loadedScenario.timeStepN;
         },
 
         range: function(model) {
-            console.log(model.loadedScenario.maxIterations);
             return [0, model.loadedScenario.maxIterations];
         },
 
@@ -110,7 +108,6 @@ var simulate = [
         },
 
         callback: function(model, value) {
-            console.log(model.loadedModel);
             model.loadedScenario.timeStepN = value;
         }
     },

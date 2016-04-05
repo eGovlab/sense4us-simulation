@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-var mouseMoveWare = require("./../mouse_handling/handle_drag.js"),
+var mouseMoveWare = require('./../mouse_handling/handle_drag.js'),
     objectHelper  = require('./../object-helper.js');
 
 function mouseMove(canvas, loadedModel, pos, deltaPos) {

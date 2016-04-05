@@ -194,9 +194,9 @@ function startLinkingIfSelected(data, error, done) {
     // and try to select something instead
 	if (objectHelper.size.call(linkingNodes) > 0) {
 		return done(data);
-	} else {
-		return data;
 	}
+
+	return data;
 }
 
 function startMovingIconIfSelected(data, error, done) {
@@ -229,9 +229,9 @@ function startMovingIconIfSelected(data, error, done) {
     // and try to select something instead
 	if (objectHelper.size.call(movingIconNodes) > 0) {
 		return done(data);
-	} else {
-		return data;
 	}
+    
+	return data;
 }
 
 module.exports = mouseDownWare;

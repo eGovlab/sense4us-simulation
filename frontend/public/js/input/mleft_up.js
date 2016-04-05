@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-var mouseUpWare  = require("./../mouse_handling/handle_up.js");
+var mouseUpWare  = require('./../mouse_handling/handle_up.js');
 var objectHelper = require('./../object-helper.js');
 
 function mouseUp(canvas, loadedModel, pos) {

@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-var selectedMenu = require("./../selected_menu"),
-    menuBuilder  = require("./../menu_builder");
+var selectedMenu = require('./../selected_menu'),
+    menuBuilder  = require('./../menu_builder');
 
 function Sidebar(sidebarData, loadedModel) {
-    this.container = menuBuilder.div("menu");
+    this.container = menuBuilder.div('menu');
     this.data = sidebarData;
 
     this.loadedModel = loadedModel;
@@ -27,7 +27,7 @@ Sidebar.prototype = {
         var that = this;
         var label = menuBuilder.label(data.header);
         if(data.images) {
-            var list = selectedMenu.createAvatarButtons("avatar", null, function(key, value) {
+            var list = selectedMenu.createAvatarButtons('avatar', null, function(key, value) {
                 data.callback(that.loadedModel, {name: key}, {avatar: value});
             }, data.images);
 
@@ -59,7 +59,7 @@ Sidebar.prototype = {
             //console.log(defaultValue, value);
             var option = menuBuilder.option(value, value);
             if(defaultIndex === index) {
-                option.selected = "selected";
+                option.selected = 'selected';
             }
 
             dropdown.appendChild(option);
@@ -97,7 +97,7 @@ Sidebar.prototype = {
         var onChange     = data.onChange;
 
         var label = menuBuilder.label(data.header);
-        var input = menuBuilder.input("not-used", defaultValue, function(input, iteration) {
+        var input = menuBuilder.input('not-used', defaultValue, function(input, iteration) {
             onChange(that.loadedModel, iteration);
         });
 
@@ -112,32 +112,32 @@ Sidebar.prototype = {
 
         this.data.forEach(function(data) {
             switch(data.type.toUpperCase()) {
-                case "LIST":
+                case 'LIST':
                     this.lists.push(data);
                     this.createList(data);
                     break;
 
-                case "BUTTON":
+                case 'BUTTON':
                     this.buttons.push(data);
                     this.createButton(data);
                     break;
                     
-                case "DROPDOWN":
+                case 'DROPDOWN':
                     this.dropdowns.push(data);
                     this.createDropdown(data);
                     break;
                     
-                case "SLIDER":
+                case 'SLIDER':
                     this.sliders.push(data);
                     this.createSlider(data);
                     break;
-                case "INPUT":
+                case 'INPUT':
                     this.inputs.push(data);
                     this.createInput(data);
             }
             
         }, this);
-    },
+    }
 };
 
 module.exports = Sidebar;

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var arithmetics = require('../canvas/arithmetics.js'),
     hitTest     = require('./../collisions.js').hitTest,

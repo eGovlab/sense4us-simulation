@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var arithmetics = require('../canvas/arithmetics.js'),
     hitTest     = require('./../collisions.js').hitTest,
@@ -37,14 +37,14 @@ module.exports = {
         };
 
         canvas.removeHotkeyEListeners = function() {
-            canvas.removeEventListener("mousemove", mouseMove);
-            canvas.removeEventListener("mouseup",   mouseUp);
+            canvas.removeEventListener('mousemove', mouseMove);
+            canvas.removeEventListener('mouseup',   mouseUp);
 
             delete canvas.removeHotkeyEListeners;
         };
 
-        canvas.addEventListener("mousemove", mouseMove);
-        canvas.addEventListener("mouseup",   mouseUp);
+        canvas.addEventListener('mousemove', mouseMove);
+        canvas.addEventListener('mouseup',   mouseUp);
     },
 
     onUp: function(canvas, model, evt) {

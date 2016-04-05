@@ -22,17 +22,17 @@ module.exports = function drawTimeTable(ctx, map) {
         data,
         function getRowLength(value, timeStep) {
             value = Math.round(value * 100) / 100;
-            var symbol = " ";
+            var symbol = ' ';
             if(value > 0) {
-                symbol = "+";
+                symbol = '+';
             } else if(value < 0) {
-                symbol = "-";
+                symbol = '-';
             }
 
-            var rowString      = "T" + timeStep + ", " + symbol + " " + Math.abs(value) + "%",
-                timeStepLength = ctx.measureText("T" + timeStep + ", ").width,
-                symbolLength   = ctx.measureText(symbol + " ").width,
-                valueLength    = ctx.measureText(Math.abs(value) + "%").width;
+            var rowString      = 'T' + timeStep + ', ' + symbol + ' ' + Math.abs(value) + '%',
+                timeStepLength = ctx.measureText('T' + timeStep + ', ').width,
+                symbolLength   = ctx.measureText(symbol + ' ').width,
+                valueLength    = ctx.measureText(Math.abs(value) + '%').width;
 
             if(timeStepLength > longestTimeStep) {
                 longestTimeStep = timeStepLength;
@@ -59,9 +59,9 @@ module.exports = function drawTimeTable(ctx, map) {
         startX   = symbolX - longestTimeStep;
 
     rowStrings.forEach(function drawTableRow(stringInformation, index) {
-        var stepString   = "T"+stringInformation.step+", ",
-            symbolString = stringInformation.symbol + " ",
-            valueString  = Math.abs(stringInformation.value) + "%";
+        var stepString   = 'T'+stringInformation.step+', ',
+            symbolString = stringInformation.symbol + ' ',
+            valueString  = Math.abs(stringInformation.value) + '%';
 
         ctx.textBaseline = 'top';
         var y = startY + (size * index);

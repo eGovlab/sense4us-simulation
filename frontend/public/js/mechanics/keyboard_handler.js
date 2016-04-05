@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 module.exports = function(container, canvas, loadedModel, hotkeys) {
     var lookupTable = {};
@@ -10,13 +10,13 @@ module.exports = function(container, canvas, loadedModel, hotkeys) {
         lookupTable[hotkey.keyCode].push(hotkey);
     });
 
-    container.addEventListener("keydown", function(evt) {
+    container.addEventListener('keydown', function(evt) {
         if(!lookupTable[evt.keyCode]) {
             return true;
         }
 
         lookupTable[evt.keyCode].forEach(function(hotkey) {
-            if(!hotkey.onDown || typeof hotkey.onDown !== "function") {
+            if(!hotkey.onDown || typeof hotkey.onDown !== 'function') {
                 return;
             }
 
@@ -27,13 +27,13 @@ module.exports = function(container, canvas, loadedModel, hotkeys) {
         //return false;
     });
 
-    container.addEventListener("keyup", function(evt) {
+    container.addEventListener('keyup', function(evt) {
         if(!lookupTable[evt.keyCode]) {
             return true;
         }
 
         lookupTable[evt.keyCode].forEach(function(hotkey) {
-            if(!hotkey.onUp || typeof hotkey.onUp !== "function") {
+            if(!hotkey.onUp || typeof hotkey.onUp !== 'function') {
                 return;
             }
 

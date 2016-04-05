@@ -4,19 +4,19 @@ function isElement(element) {
     try {
         return element instanceof HTMLElement;
     } catch(e) {
-        return    (typeof element           === "object")
+        return    (typeof element           === 'object')
                && (obj.nodeType             === 1)
-               && (typeof obj.style         === "object")
-               && (typeof obj.ownerDocument === "object");
+               && (typeof obj.style         === 'object')
+               && (typeof obj.ownerDocument === 'object');
     }
 }
 
 function inflateModel(container) {
     if(!isElement(container)) {
-        throw new Error("Not an element given to inflateModel");
+        throw new Error('Not an element given to inflateModel');
     }
 
-    container.className = "mb-container";
+    container.className = 'mb-container';
 
     var curry       = require('./curry.js'),
         strictCurry = require('./strict_curry.js'),
@@ -28,16 +28,16 @@ function inflateModel(container) {
     var maxWidth  = container.offsetWidth,
         maxHeight = container.offsetHeight;
 
-    var protocol   = container.getAttribute("data-protocol") || "http",
-        hostname   = container.getAttribute("data-hostname") || "localhost",
-        port       = container.getAttribute("data-port"),
-        portString = "";
+    var protocol   = container.getAttribute('data-protocol') || 'http',
+        hostname   = container.getAttribute('data-hostname') || 'localhost',
+        port       = container.getAttribute('data-port'),
+        portString = '';
 
     if(port !== null) {
-        if(protocol === "http" && port !== "80") {
-            portString = ":" + port;
-        } else if(protocol === "https" && port !== "443") {
-            portString = ":" + port;
+        if(protocol === 'http' && port !== '80') {
+            portString = ':' + port;
+        } else if(protocol === 'https' && port !== '443') {
+            portString = ':' + port;
         }
     }
 
@@ -45,31 +45,31 @@ function inflateModel(container) {
         protocol: protocol,
         hostname: hostname,
         port:     parseInt(port),
-        url:      protocol + "://" + hostname + portString
+        url:      protocol + '://' + hostname + portString
     };
 
-    var CONFIG = require('rh_config-parser');
+    var CONFIG = require('./config');
     CONFIG.setConfig(configObject);
 
-    //require("./object.js");
+    //require('./object.js');
     var objectHelper = require('./object-helper.js');
 
     var menuHeader       = document.createElement('div'),
         upperMenu        = document.createElement('div');
 
-    menuHeader.className = "menu-header";
-    upperMenu.className  = "mb-upper-menu";
+    menuHeader.className = 'menu-header';
+    upperMenu.className  = 'mb-upper-menu';
 
     menuHeader.appendChild(upperMenu);
 
     var sidebar          = document.createElement('div'),
         sidebarContainer = document.createElement('div');
 
-    sidebar.className           = "mb-sidebar";
-    sidebarContainer.className  = "sidebar-container";
+    sidebar.className           = 'mb-sidebar';
+    sidebarContainer.className  = 'sidebar-container';
 
-    sidebar.style["max-width"]  = (maxWidth  - 24) + "px";
-    sidebar.style["max-height"] = (maxHeight - 44) + "px";
+    sidebar.style['max-width']  = (maxWidth  - 24) + 'px';
+    sidebar.style['max-height'] = (maxHeight - 44) + 'px';
 
     sidebar.appendChild(sidebarContainer);
 
@@ -78,12 +78,12 @@ function inflateModel(container) {
         mainCanvasC        = document.createElement('canvas'),
         linegraphCanvasC   = document.createElement('canvas');
 
-    notificationBarDiv.style.left = (maxWidth - 200) + "px";
+    notificationBarDiv.style.left = (maxWidth - 200) + 'px';
 
-    leftMain.className            = "left main";
-    notificationBarDiv.className  = "mb-notification-bar";
-    mainCanvasC.className         = "main-canvas";
-    linegraphCanvasC.className    = "linegraph";
+    leftMain.className            = 'left main';
+    notificationBarDiv.className  = 'mb-notification-bar';
+    mainCanvasC.className         = 'main-canvas';
+    linegraphCanvasC.className    = 'linegraph';
 
     leftMain.appendChild(notificationBarDiv);
     leftMain.appendChild(mainCanvasC);
@@ -154,10 +154,11 @@ function inflateModel(container) {
         var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
         var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
 
-        if (Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) > 0)
+        if (Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) > 0) {
             zoom = 1.05;
-        else
+        } else {
             zoom = 1/1.05;
+        }
         
         scaleX = scaleY *= zoom;
 
@@ -179,7 +180,7 @@ function inflateModel(container) {
     var aggregatedLink = require('./aggregated_link.js');
     var refreshNamespace = require('./refresh');
 
-    var asyncMiddleware = require("./async_middleware");
+    var asyncMiddleware = require('./async_middleware');
 
     var lastShow;
     function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
@@ -216,17 +217,17 @@ function inflateModel(container) {
         refreshNamespace.drawLinkingLine
     );
 
-    loadedModel.addListener("nodeGui",  refresh);
-    loadedModel.addListener("nodeData", refresh);
-    loadedModel.addListener("settings", refresh);
-    loadedModel.addListener("refresh",  refresh);
+    loadedModel.addListener('nodeGui',  refresh);
+    loadedModel.addListener('nodeData', refresh);
+    loadedModel.addListener('settings', refresh);
+    loadedModel.addListener('refresh',  refresh);
 
     refresh();
 
-    //var sidebarManager = new UI.SidebarManager(CONFIG.get("SIDEBAR_CONTAINER"));
+    //var sidebarManager = new UI.SidebarManager(CONFIG.get('SIDEBAR_CONTAINER'));
     var sidebarManager = new UI.SidebarManager(sidebarContainer);
 
-    loadedModel.addListener("sidebar", function() {
+    loadedModel.addListener('sidebar', function() {
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
     });
 
@@ -236,7 +237,7 @@ function inflateModel(container) {
     sidebarManager.setLoadedModel(loadedModel);
     sidebarManager.setSelectedMenu(loadedModel.settings);
 
-    loadedModel.addListener("selected", function() {
+    loadedModel.addListener('selected', function() {
         sidebarManager.setEnvironment(loadedModel.environment);
         sidebarManager.setLoadedModel(loadedModel);
 
@@ -255,7 +256,7 @@ function inflateModel(container) {
     var menu = new UI.Menu(upperMenu, settings.menu);
     menu.createMenu(loadedModel, savedModels);
 
-    loadedModel.addListener("resetUI", function() {
+    loadedModel.addListener('resetUI', function() {
         sidebarManager.setEnvironment(loadedModel.environment);
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
         menu.resetMenu(loadedModel, savedModels);
@@ -276,7 +277,7 @@ function inflateModel(container) {
         }
     });
 
-    loadedModel.addListener("settings", function() {
+    loadedModel.addListener('settings', function() {
         if(loadedModel.settings.linegraph) {
             linegraphRefresh();
         }

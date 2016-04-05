@@ -13,8 +13,8 @@ var modeUpdate = function(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
-    element.addOption('modelling', "Modelling");
-    element.addOption('simulate',  "Simulate");
+    element.addOption('modelling', 'Modelling');
+    element.addOption('simulate',  'Simulate');
 
     element.refreshList();
 };
@@ -26,11 +26,11 @@ var modeCallback = function(loadedModel, savedModels) {
     switch(option) {
         case 'modelling':
             loadedModel.sidebar     = modelling;
-            loadedModel.environment = "modelling";
+            loadedModel.environment = 'modelling';
             break;
         case 'simulate':
             loadedModel.sidebar     = simulate;
-            loadedModel.environment = "simulate";
+            loadedModel.environment = 'simulate';
             break;
     }
 
@@ -54,8 +54,8 @@ var projectUpdate = function(loadedModel, savedModels) {
 
     backendApi('/models/all', function(response, error) {
         if(error) {
-            console.log(error);
-            throw new Error("projectUpdate: /models/all crashed");
+            console.error(error);
+            throw new Error('projectUpdate: /models/all crashed');
         }
 
         objectHelper.forEach.call(
@@ -75,7 +75,7 @@ var projectUpdate = function(loadedModel, savedModels) {
         objectHelper.forEach.call(
             savedModels.synced,
             function(model, key) {
-                if(typeof model === "string") {
+                if(typeof model === 'string') {
                     element.addOption(key, model);
                 } else {
                     element.addOption(model.syncId, model.settings.name);
@@ -97,7 +97,7 @@ var projectCallback = function(loadedModel, savedModels) {
         that        = this,
         text        = this.text.match(/^(\s\*\s)?(.*)$/)[2];
 
-    modelLayer = require("./../model_layer.js");
+    modelLayer = require('./../model_layer.js');
     var m;
     if(loadedModel.synced === true) {
         m = modelLayer.moveModel(loadedModel);
@@ -154,9 +154,9 @@ var projectCallback = function(loadedModel, savedModels) {
             break;
         default:
             if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
-                if(typeof savedModels.synced[option] === "string") {
+                if(typeof savedModels.synced[option] === 'string') {
                     modelLayer.loadSyncModel(option, function(newState) {
-                        if(typeof newState === "number") {
+                        if(typeof newState === 'number') {
                             loadedModel.syncId = newState;
                             loadedModel.id     = newState;
 

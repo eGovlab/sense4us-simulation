@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 function forEach(callback, thisArg) {
     var that = this;
@@ -25,7 +25,7 @@ function copyArray(arr) {
     arr.forEach(function(value) {
         if(Array.isArray(value)) {
             newArr.push(copyArray(value));
-        } else if(typeof value === "object") {
+        } else if(typeof value === 'object') {
             newArr.push(copy.call(value.copy));
         } else {
             newArr.push(value);
@@ -42,7 +42,7 @@ function copy() {
         var value = this[key];
         if(Array.isArray(value)) {
             newObj[key] = copyArray(value);
-        } else if(typeof value === "object" && value) {
+        } else if(typeof value === 'object' && value) {
             newObj[key] = copy.call(value);
         } else {
             newObj[key] = value;
@@ -75,7 +75,7 @@ function merge() {
     });
 
     for(var i = 0; i < arguments.length; i++) {
-        if(typeof arguments[i] !== "object") {
+        if(typeof arguments[i] !== 'object') {
             return;
         }
 

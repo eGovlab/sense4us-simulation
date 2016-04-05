@@ -21,11 +21,11 @@ MenuBuilder.prototype = {
     },
 
     slider: function(defaultValue, min, max, callback, onSlideCallback) {
-        var container = this.div("mb-sidebar-slider");
+        var container = this.div('mb-sidebar-slider');
 
-        var minSpan = this.div("value");
+        var minSpan = this.div('value');
         minSpan.innerHTML = defaultValue;
-        var maxSpan = this.div("max-value");
+        var maxSpan = this.div('max-value');
         maxSpan.innerHTML = max;
 
         var input = document.createElement('input');
@@ -150,7 +150,7 @@ MenuBuilder.prototype = {
 
     span: function(key) {
         var span = document.createElement('span');
-        if(key && typeof key === "string") {
+        if(key && typeof key === 'string') {
             span.innerHTML = key;
         }
 

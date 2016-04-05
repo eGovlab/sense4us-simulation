@@ -23,15 +23,15 @@ var generateId = -1;
 function definePropagations(obj, keys) {
     keys.forEach(function(key) {
         Object.defineProperty(obj, key, {get: function() {
-            return this["_"+key];
+            return this['_'+key];
         }, set: function(newValue) {
             this.changed[key] = true;
-            /*if(key === "scenarios") {
-                console.log("Setting: ["+key+"]: " + newValue);
+            /*if(key === 'scenarios') {
+                console.log('Setting: ['+key+']: ' + newValue);
                 console.log(new Error().stack);
             }*/
             
-            this["_"+key]     = newValue;
+            this['_'+key]     = newValue;
         }});
     });
 }
@@ -52,21 +52,21 @@ function Model(id, data) {
     this.links       = {};
 
     this.selected        = false;
-    this.environment     = "modelling";
+    this.environment     = 'modelling';
     this.sidebar         = settings.sidebar;
     this.floatingWindows = [];
     this.refresh         = false;
     this.resetUI         = false;
 
     this.settings = {
-        name:          "New Model",
+        name:          'New Model',
         //maxIterations: 4,
         offsetX:       0,
         offsetY:       0,
         zoom:          1,
         linegraph:     false
 
-        //timeStepT:     "Week",
+        //timeStepT:     'Week',
         //timeStepN:     0
     };
 
@@ -154,24 +154,24 @@ Model.prototype = {
 };
 
 definePropagations(Model.prototype, [
-    "id",
-    "environment",
-    "sidebar",
-    "refresh",
-    "floatingWindows",
-    "resetUI",
-    "saved",
-    "synced",
-    "syncId",
-    "nextId",
-    "selected",
-    "nodeData",
-    "nodeGui",
-    "links",
-    "settings",
-    "treeSettings",
-    "loadedScenario",
-    "scenarios"
+    'id',
+    'environment',
+    'sidebar',
+    'refresh',
+    'floatingWindows',
+    'resetUI',
+    'saved',
+    'synced',
+    'syncId',
+    'nextId',
+    'selected',
+    'nodeData',
+    'nodeGui',
+    'links',
+    'settings',
+    'treeSettings',
+    'loadedScenario',
+    'scenarios'
 ]);
 
 module.exports = {
@@ -235,9 +235,9 @@ module.exports = {
 
         backendApi('/models/save', data, function(response, err) {
             if (err) {
-                console.log(response);
-                console.log(err);
-                //notificationBar.notify("Couldn't save model: " + (response.errors || "null"));
+                console.error(response);
+                console.error(err);
+                //notificationBar.notify('Couldn't save model: ' + (response.errors || 'null'));
                 return;
             }
 
@@ -294,7 +294,7 @@ module.exports = {
             }
 
             } catch(e) {
-                console.log(e);
+                console.error(e);
                 throw e;
             }
 
@@ -308,8 +308,8 @@ module.exports = {
         if(loadedModel.syncId !== null && loadedModel.syncId !== undefined) {
             backendApi('/models/' + loadedModel.syncId, {}, function(response, err) {
                 if(err) {
-                    console.log(response);
-                    console.log(err);
+                    console.error(response);
+                    console.error(err);
                     return;
                 }
 
@@ -330,7 +330,7 @@ module.exports = {
 
                 notificationBar.notify(response.response.message);
                 callback();
-            }, "DELETE");
+            }, 'DELETE');
         } else {
             delete savedModels.local[loadedModel.id];
             var newModel = this.newModel();
@@ -349,8 +349,8 @@ module.exports = {
         var that = this;
         backendApi('/models/bundle/' + modelId, function(response, error) {
             if (error) {
-                console.log(response);
-                console.log(error);
+                console.error(response);
+                console.error(error);
                 return;
             }
 
@@ -366,14 +366,14 @@ module.exports = {
             newState.syncId = settings.id;
             delete newState.scenarios;
             newState.scenarios = {};
-                    /*name:          "New Model",
+                    /*name:          'New Model',
                     maxIterations: 4,
                     offsetX:       0,
                     offsetY:       0,
                     zoom:          1,
                     linegraph:     false,
 
-                    timeStepT:     "Week",
+                    timeStepT:     'Week',
                     timeStepN:     0*/
             newState.settings = {
                 name:          settings.name,
@@ -406,7 +406,7 @@ module.exports = {
 
             links.forEach(function(link) {
                 if(!link.downstream || !link.upstream) {
-                    notificationBar.notify("Model with id " + modelId + " is corrupt. Its id is loaded and may be deleted from running 'Delete current'. Otherwise, contact sysadmin.", 10000);
+                    notificationBar.notify('Model with id ' + modelId + ' is corrupt. Its id is loaded and may be deleted from running \'Delete current\'. Otherwise, contact sysadmin.', 10000);
                     return callback(settings.id);
                 }
 
@@ -418,7 +418,7 @@ module.exports = {
                     node2:       link.downstream,
                     threshold:   link.threshold,
                     timelag:     link.timelag,
-                    type:        link.type || "fullchannel",
+                    type:        link.type || 'fullchannel',
                     width:       8
                 };
 

@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-var mouseDownWare = require("./../mouse_handling/handle_down.js"),
+var mouseDownWare = require('./../mouse_handling/handle_down.js'),
     objectHelper  = require('./../object-helper.js');
 
 function mouseDown(canvas, loadedModel, pos) {

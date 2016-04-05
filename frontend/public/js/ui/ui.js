@@ -10,7 +10,7 @@
 */
 
 /* The CONFIG object has its config loaded in main.js */
-var CONFIG       = require('rh_config-parser'),
+var CONFIG       = require('./../config.js'),
     menuBuilder  = require('./../menu_builder'),
     selectedMenu = require('./../selected_menu/selected_menu'),
     Immutable    = null;
@@ -62,15 +62,15 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     var ranges = element.range(setupModel);
 
     var container = menuBuilder.div();
-    container.className = "mb-sidebar-slider";
+    container.className = 'mb-sidebar-slider';
 
     var valueSpan = menuBuilder.span();
     valueSpan.innerHTML = defaultValue;
-    valueSpan.className = "value";
+    valueSpan.className = 'value';
 
     var maxValueSpan = menuBuilder.span();
     maxValueSpan.innerHTML = ranges[1];
-    maxValueSpan.className = "max-value";
+    maxValueSpan.className = 'max-value';
 
     if(element.ajax === true) {
         inputElement = menuBuilder.slider(defaultValue, ranges[0], ranges[1], function(value) {
@@ -90,7 +90,7 @@ function createSlider(element, changeCallbacks, updateModelCallback) {
     container.appendChild(maxValueSpan);
 
     var clearer         = menuBuilder.div();
-    clearer.style.clear = "right";
+    clearer.style.clear = 'right';
 
     container.appendChild(clearer);
     container.appendChild(inputElement);
@@ -166,7 +166,7 @@ MenuItem.prototype = {
         }
 
         if(button === null) {
-            throw new Error("Invalid button type.");
+            throw new Error('Invalid button type.');
             return;
         }
 
@@ -176,7 +176,7 @@ MenuItem.prototype = {
 };
 
 function Menu(container, data) {
-    this.container = menuBuilder.div("menu");
+    this.container = menuBuilder.div('menu');
     container.appendChild(this.container);
     this.data      = data;
 
@@ -210,8 +210,8 @@ Menu.prototype = {
 };
 
 module.exports = {
-    Sidebar:        require("./sidebar"),
-    SidebarManager: require("./sidebar_manager"),
+    Sidebar:        require('./sidebar'),
+    SidebarManager: require('./sidebar_manager'),
     Menu:           Menu
     /*UIRefresh:      UIRefresh,
     menuRefresh:    menuRefresh,

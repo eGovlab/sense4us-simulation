@@ -15,7 +15,7 @@ module.exports = function drawChange(ctx, x, y, value) {
     ctx.textBaseline = 'top';
     ctx.font         = '22px Arial';
 
-    var valueString = value + "%";
+    var valueString = value + '%';
 
     var textData = ctx.measureText(valueString);
     ctx.fillText(valueString, x - textData.width / 2, y);

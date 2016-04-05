@@ -142,7 +142,7 @@ module.exports = function drawLink(ctx, line) {
         var concatenatedString = coefficient;
         var timelag = line.timelag;
         if(timelag !== undefined) {
-             concatenatedString += ", T: " + timelag;
+             concatenatedString += ', T: ' + timelag;
         }
         var textMeasurement = ctx.measureText(concatenatedString);
 
@@ -166,7 +166,7 @@ module.exports = function drawLink(ctx, line) {
         ctx.fillText(coefficient, textX, textY);
         if(timelag !== undefined) {
             ctx.fillStyle = valueColors.neutral;
-            ctx.fillText(", T: " + line.timelag, textX + coefficientMeasurement.width, textY);
+            ctx.fillText(', T: ' + line.timelag, textX + coefficientMeasurement.width, textY);
         }
 
         /*
@@ -182,7 +182,7 @@ module.exports = function drawLink(ctx, line) {
         
         if(timelag !== undefined) {
             ctx.fillStyle = valueColors.neutral;
-            ctx.fillText(", T: " + line.timelag, coefficientX + coefficientMeasurement.width, 0);
+            ctx.fillText(', T: ' + line.timelag, coefficientX + coefficientMeasurement.width, 0);
         }
 
         ctx.restore();

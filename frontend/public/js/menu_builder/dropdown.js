@@ -31,11 +31,11 @@ Option.prototype = {
     },
 
     select: function() {
-        this.element.className = "mb-dropdown-selected";
+        this.element.className = 'mb-dropdown-selected';
     },
 
     deselect: function() {
-        this.element.className = "";
+        this.element.className = '';
     }
 };
 
@@ -77,9 +77,9 @@ function Dropdown(header, onselect, update) {
     };
 
     this.deleteEvents = function() {
-        that.element.removeEventListener("mouseenter", mouseEnter);
-        that.element.removeEventListener("click",      click);
-        that.element.removeEventListener("click",      mouseLeave);
+        that.element.removeEventListener('mouseenter', mouseEnter);
+        that.element.removeEventListener('click',      click);
+        that.element.removeEventListener('click',      mouseLeave);
     };
 
     this.element.addEventListener('mouseenter', mouseEnter);
@@ -157,10 +157,10 @@ Dropdown.prototype = {
     toggle: function() {
         if (this.container.style.display === 'none') {
             this.container.style.display = 'block';
-            this.container.className += " mb-dropdown-container-animation";
+            this.container.className += ' mb-dropdown-container-animation';
         } else {
             this.container.style.display = 'none';
-            this.container.className = "mb-dropdown-container";
+            this.container.className = 'mb-dropdown-container';
         }
     },
 

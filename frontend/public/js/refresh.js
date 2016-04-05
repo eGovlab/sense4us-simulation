@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var curry = require('./curry');
 
@@ -72,7 +72,7 @@ function drawLinks(ctx, canvas, loadedModel, selectedMenu, next) {
         loadedModel.links,
         function drawLinksAndArrows(link) {
             var nodeData = loadedModel.nodeData[link.node1];
-            if(nodeData.type.toUpperCase() === "ACTOR") {
+            if(nodeData.type.toUpperCase() === 'ACTOR') {
                 if(!actors[link.node2]) {
                     actors[link.node2] = 0;
                 }
@@ -112,7 +112,7 @@ function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, next) {
             if(loadedModel.environment === 'simulate' ) {
                 if(nodeGui.timeTable) {
                     drawTimeTable(ctx, nodeGui);
-                } else if(nodeGui.type.toUpperCase() !== "ACTOR") {
+                } else if(nodeGui.type.toUpperCase() !== 'ACTOR') {
                     drawChange(ctx, nodeGui.x, nodeGui.y + nodeGui.radius / 6, Math.round(n.simulateChange[loadedModel.loadedScenario.timeStepN] * 100) / 100);
                 }
             }

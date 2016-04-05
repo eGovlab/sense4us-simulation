@@ -4,7 +4,7 @@ function validateDomain(domain) {
     var check = domain.match(/^(http[s]?):\/\/([a-zA-Z0-9\.]+)\/?.*$|^(http[s]?):\/\/([a-zA-Z0-9\.]+):(\d+)\/?.*$/);
 
     if(check === null) {
-        console.log(domain);
+        console.error(domain);
         throw new Error('Domain of invalid structure!');
     }
 
@@ -13,15 +13,24 @@ function validateDomain(domain) {
 
 function sendData(domain, path, jsonData, callback, method) {
     if(typeof domain !== 'string') {
-        throw new Error("sendData got invalid type for domain or port!");
+        throw new Error('sendData got invalid type for domain or port!');
     }
 
-    if(jsonData && typeof jsonData === "function") {
-        if(callback && typeof callback === "string") {
+    if(jsonData && typeof jsonData === 'function') {
+        if(callback && typeof callback === 'string') {
             method = callback;
         }
 
         callback = jsonData;
+        jsonData = null;
+    }
+
+    if(jsonData) {
+        if(typeof jsonData !== 'object') {
+            throw new Error('Expected JS object as jsonData.');
+        }
+
+        jsonData = JSON.stringify(jsonData, null, 4);
     }
 
     var httpRequest = new XMLHttpRequest(),
@@ -30,7 +39,7 @@ function sendData(domain, path, jsonData, callback, method) {
     validateDomain(domain);
 
     if (!httpRequest) {
-        console.log('Giving up :( Cannot create an XMLHTTP instance');
+        console.error('Giving up :( Cannot create an XMLHTTP instance');
         return false;
     }
 
@@ -38,15 +47,16 @@ function sendData(domain, path, jsonData, callback, method) {
         if (httpRequest.readyState === 4) {
             try {
                 var rt = JSON.parse(httpRequest.responseText);
+                rt.status = httpRequest.status;
                 
                 if (httpRequest.status === 200) {
                     if (callback) {
                         callback(rt);
                     } else {
-                        console.log('No callback was sent with the query against ' + path);
+                        console.warn('No callback was sent with the query against ' + path);
                     }
                 } else {
-                    callback(rt, {status: httpRequest.status});
+                    callback(rt);
                 }
             } catch(err) {
                 callback(undefined, err);
@@ -55,7 +65,7 @@ function sendData(domain, path, jsonData, callback, method) {
     };
 
     if (!method) {
-        if (jsonData && typeof jsonData !== "function") {
+        if (jsonData && typeof jsonData !== 'function') {
             method = 'POST';
         } else {
             method = 'GET';
@@ -74,7 +84,7 @@ function sendData(domain, path, jsonData, callback, method) {
     httpRequest.setRequestHeader('Content-Type', 'application/json');
     if (jsonData && typeof jsonData !== 'function') {
         //console.log(JSON.stringify(jsonData, null, 4));
-        httpRequest.send(JSON.stringify(jsonData, null, 4));
+        httpRequest.send(jsonData);
     } else {
         httpRequest.send();
     }

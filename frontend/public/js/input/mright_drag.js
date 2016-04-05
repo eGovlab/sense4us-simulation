@@ -1,17 +1,19 @@
-"use strict";
+'use strict';
 
 var arithmetics  = require('../canvas/arithmetics.js'),
     hitTest      = require('./../collisions.js').hitTest,
     generateLink = require('./../util/generate_link.js');
 
+var objectHelper = require('./../object-helper.js');
+
 function down(canvas, loadedModel, pos) {
     var nodeGui = loadedModel.nodeGui;
-    var collidedNodes = nodeGui.filter(function(node) {
+    var collidedNodes = objectHelper.filter.call(nodeGui, function(node) {
         return hitTest(node, pos);
     });
 
     collidedNodes = collidedNodes.slice(-1);
-    collidedNodes.forEach(function(node) {
+    objectHelper.forEach.call(collidedNodes, function(node) {
         node.offsetX = pos.x - (node.x || 0);
         node.offsetY = pos.y - (node.y || 0);
 
@@ -27,11 +29,11 @@ function down(canvas, loadedModel, pos) {
 
 function move(canvas, loadedModel, pos, deltaPos) {
     var nodeGui      = loadedModel.nodeGui;
-    var linkingNodes = nodeGui.filter(function(node) {
+    var linkingNodes = objectHelper.filter.call(nodeGui, function(node) {
         return node.linking;
     });
 
-    linkingNodes.forEach(function(node) {
+    objectHelper.forEach.call(linkingNodes, function(node) {
         node.linkerX = pos.x;
         node.linkerY = pos.y;
     });
@@ -44,11 +46,11 @@ function up(canvas, loadedModel, pos) {
     generateLink(loadedModel);
 
     var nodeGui      = loadedModel.nodeGui;
-    var linkingNodes = nodeGui.filter(function(node) {
+    var linkingNodes = objectHelper.filter.call(nodeGui, function(node) {
         return node.linking;
     });
 
-    linkingNodes.forEach(function(node) {
+    objectHelper.forEach.call(linkingNodes, function(node) {
         node.linking = false;
         node.linkerX = 0;
         node.linkerY = 0;

@@ -7,11 +7,11 @@ var Immutable   = null,
 
 var objectHelper = require('./../object-helper.js');
 
-var CONFIG      = require("rh_config-parser");
+var CONFIG      = require('./../config.js');
 
-var url = CONFIG.get("url");
-if(url.charAt(url.length - 1) !== "/") {
-    url = url + "/";
+var url = CONFIG.get('url');
+if(url.charAt(url.length - 1) !== '/') {
+    url = url + '/';
 }
 
 function generateHexColor() {
@@ -19,7 +19,7 @@ function generateHexColor() {
 }
 
 function generateColor() {
-    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+    return '#' + generateHexColor() + generateHexColor() + generateHexColor();
 }
 
 function generateAvatarDiv(avatar, selected, name) {
@@ -151,7 +151,7 @@ Data.prototype = {
         var containerDiv = this.timetableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "mb-time-table";
+                containerDiv.className = 'mb-time-table';
 
             containerDiv.appendChild(menuBuilder.label(key));
 
@@ -160,7 +160,7 @@ Data.prototype = {
 
         var rowContainer = this.rowContainer;
         if(!rowContainer) {
-            rowContainer      = menuBuilder.div("row-container");
+            rowContainer      = menuBuilder.div('row-container');
             this.rowContainer = rowContainer;
 
             containerDiv.appendChild(rowContainer);
@@ -168,13 +168,13 @@ Data.prototype = {
 
         var that = this;
 
-        var rowDiv = menuBuilder.div("time-row");
+        var rowDiv = menuBuilder.div('time-row');
         this.rows[timeStep] = rowDiv;
 
-        var timeStepLabel       = menuBuilder.span("T");
-        timeStepLabel.className = "label";
+        var timeStepLabel       = menuBuilder.span('T');
+        timeStepLabel.className = 'label';
 
-        var timeStepInput = menuBuilder.input("time-step", timeStep, function(input, newStep) {
+        var timeStepInput = menuBuilder.input('time-step', timeStep, function(input, newStep) {
             if(newStep.match(/^\d+$/) === null) {
                 timeStepInput.value = timeStep;
                 return;
@@ -199,12 +199,12 @@ Data.prototype = {
             that.loadedModel.propagate();
         });
 
-        timeStepInput.className = "time-step";
+        timeStepInput.className = 'time-step';
 
-        var timeValueLabel = menuBuilder.span("V");
-        timeValueLabel.className = "label";
+        var timeValueLabel = menuBuilder.span('V');
+        timeValueLabel.className = 'label';
 
-        var timeValueInput = menuBuilder.input("time-value", timeValue, function(input, newValue) {
+        var timeValueInput = menuBuilder.input('time-value', timeValue, function(input, newValue) {
             if(newValue.match(/^\d+\.?\d*$/) === null) {
                 timeValueInput.value = that.timetable[timeStep];
                 return;
@@ -218,7 +218,7 @@ Data.prototype = {
             that.loadedModel.propagate();
         });
 
-        timeValueInput.className = "time-value";
+        timeValueInput.className = 'time-value';
 
         rowDiv.appendChild(timeStepLabel);
         rowDiv.appendChild(timeStepInput);
@@ -253,7 +253,7 @@ Data.prototype = {
         var containerDiv = this.timetableDiv;
         if(!containerDiv) {
             var containerDiv = menuBuilder.div();
-                containerDiv.className = "mb-time-table";
+                containerDiv.className = 'mb-time-table';
 
             containerDiv.appendChild(menuBuilder.label(header || key));
 
@@ -277,7 +277,7 @@ Data.prototype = {
 
         var rowContainer = this.rowContainer;
         if(!rowContainer) {
-            rowContainer      = menuBuilder.div("row-container");
+            rowContainer      = menuBuilder.div('row-container');
             this.rowContainer = rowContainer;
 
             containerDiv.appendChild(rowContainer);
@@ -322,10 +322,10 @@ Data.prototype = {
         containerDiv.appendChild(menuBuilder.button('Remove row', function removeTimeTableRow() {
             if (that.timetable === undefined || that.timetable === null || that.timetable.size() === 0) {
                 return;
-            } else {
-                that.data[key] = that.timetable.slice(0, -1);
-                that.timetable = that.data[key];
             }
+
+            that.data[key] = that.timetable.slice(0, -1);
+            that.timetable = that.data[key];
 
             var element = that.rows.last();
             that.rowContainer.removeChild(element);
@@ -380,20 +380,20 @@ Data.prototype = {
         );
 
         /*var focus = function(evt) {
-            console.log("Document:", document.activeElement);
-            console.log("Focused:", that.inputs[key]);
+            console.log('Document:', document.activeElement);
+            console.log('Focused:', that.inputs[key]);
             console.log(evt);
         };
 
         var focusOut = function(evt) {
-            console.log("Document:", document.activeElement);
-            console.log("Focus lost:", that.inputs[key]);
+            console.log('Document:', document.activeElement);
+            console.log('Focus lost:', that.inputs[key]);
             console.log(evt);
         };
 
         var deleteFocus = function() {
-            that.inputs[key].removeEventListener("focus", focus);
-            that.inputs[key].removeEventListener("focusout", focusout);
+            that.inputs[key].removeEventListener('focus', focus);
+            that.inputs[key].removeEventListener('focusout', focusout);
         };
 
         this.inputs[key].deleteEvent = function() {
@@ -401,8 +401,8 @@ Data.prototype = {
             this.inputs[key].deleteEvents();
         }
 
-        this.inputs[key].addEventListener("focus",    focus);
-        this.inputs[key].addEventListener("focusout", focusOut);*/
+        this.inputs[key].addEventListener('focus',    focus);
+        this.inputs[key].addEventListener('focusout', focusOut);*/
 
         container.appendChild(this.inputs[key]);
 
@@ -416,8 +416,8 @@ Data.prototype = {
         }
 
         var that = this;
-        if(this.data.type && this.data.type.toUpperCase() === "ACTOR") {
-            var randomColor = menuBuilder.button("Randomize color", function() {
+        if(this.data.type && this.data.type.toUpperCase() === 'ACTOR') {
+            var randomColor = menuBuilder.button('Randomize color', function() {
                 that.loadedModel.nodeGui[that.data.id].color = generateColor();
                 that.loadedModel.refresh = true;
                 that.loadedModel.propagate();
@@ -436,7 +436,7 @@ Data.prototype = {
                 }
 
                 var targetedNode = this.loadedModel.nodeData[link.node2];
-                var button = menuBuilder.button("Delete acting upon " + targetedNode.name, function() {
+                var button = menuBuilder.button('Delete acting upon ' + targetedNode.name, function() {
                     delete that.loadedModel.links[link.id];
                     that.loadedModel.nodeGui[that.data.id].links = [];
 
@@ -480,11 +480,11 @@ function SelectedMenu(loadedModel) {
 
 SelectedMenu.prototype = {
     show: function() {
-        this.container.style.display = "block";
+        this.container.style.display = 'block';
     },
 
     hide: function() {
-        this.container.style.display = "none";
+        this.container.style.display = 'none';
     },
 
     refresh: function() {
@@ -507,8 +507,8 @@ SelectedMenu.prototype = {
 
     addData: function(filter, data) {
         if(this.dataObjects.indexOf(data) !== -1) {
-            console.log("Exists");
-            console.log(this.dataObjects, data);
+            console.warn('Exists');
+            console.warn(this.dataObjects, data);
             return;
         }
 
