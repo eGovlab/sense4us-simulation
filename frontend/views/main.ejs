@@ -2,9 +2,9 @@
 
 <div
     id            = "model-builder"
-    data-protocol = "http"
-    data-hostname = "193.10.8.72"
-    data-port     = "4000"
+    data-protocol = "<%= locals.protocol || 'http' %>"
+    data-hostname = "<%= locals.hostname || 'localhost' %>"
+    data-port     = "<%= locals.port || 3000 %>"
     style         = "height: 700px; width: 1000px;"
 ></div>
 

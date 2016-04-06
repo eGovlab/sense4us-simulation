@@ -27,6 +27,14 @@
         "logDir":       "logs/http"
     },
 
+    "SENSE4US": {
+        "tool": {
+            "protocol": "http",
+            "hostname": "",
+            "port":     4000
+        }
+    },
+
     "CONTROLLERS":  "frontend/controllers/",
     "PUBLIC":       "frontend/public/",
     "VIEWS":        "frontend/views/",
