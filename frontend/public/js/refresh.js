@@ -28,6 +28,7 @@ function clearCanvasAndTransform(ctx, canvas, loadedModel, selectedMenu, next) {
         canvas.width,
         canvas.height
     );
+    
     /*ctx.clearRect(
         (-loadedModel.settings.offsetX || 0) * (2 - loadedModel.settings.scaleX || 1),
         (-loadedModel.settings.offsetY || 0) * (2 - loadedModel.settings.scaleX || 1),
@@ -48,8 +49,6 @@ function clearCanvasAndTransform(ctx, canvas, loadedModel, selectedMenu, next) {
 }
 
 function drawNodes(ctx, canvas, loadedModel, selectedMenu, next) {
-    // draw all the nodes
-
     objectHelper.forEach.call(
         loadedModel.nodeData,
         function drawEachNode(n) { 
@@ -79,6 +78,7 @@ function drawLinks(ctx, canvas, loadedModel, selectedMenu, next) {
 
                 actors[link.node2] += 1;
                 var layer = actors[link.node2];
+
                 drawActor(ctx, layer, link, loadedModel);
             } else {
                 drawLink(ctx, aggregatedLink(link, loadedModel.nodeGui));

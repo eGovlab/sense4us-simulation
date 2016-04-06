@@ -9,26 +9,45 @@ module.exports = [
         replacingObj:        true,
         callback: function(loadedModel, selectedData) {
             selectedData.forEach(function(data) {
-
-                if(data.data.simulateChange !== undefined) {
+                if(data.data.objectId === 'nodeData') {
                     delete loadedModel.nodeData[data.data.id];
-                    var links = loadedModel.nodeGui[data.data.id].links;
-                    objectHelper.forEach.call(
-                        links,
-                        function(link, key) {
-                            delete loadedModel.links[link];
-                        }
-                    );
-                    delete loadedModel.nodeGui[data.data.id];
-                } else if(data.data.x !== undefined || data.data.y !== undefined) {
+                } else if(data.data.objectId === 'nodeGui') {
                     if(data.data.links) {
                         data.data.links.forEach(function(link, key) {
+                            var linkObject = loadedModel.links[link];
+
+                            var upstream   = loadedModel.nodeGui[linkObject.node1];
+                            var downstream = loadedModel.nodeGui[linkObject.node2];
+
+                            var index = upstream.links.indexOf(linkObject.id);
+                            if(index !== -1) {
+                                upstream.links.splice(index, 1);
+                            }
+
+                            var index = downstream.links.indexOf(linkObject.id);
+                            if(index !== -1) {
+                                downstream.links.splice(index, 1);
+                            }
+
                             delete loadedModel.links[link];
                         });
                     }
 
                     delete loadedModel.nodeGui[data.data.id];
-                } else if(data.data.coefficient !== undefined) {
+                } else if(data.data.objectId === 'link') {
+                    var upstream   = loadedModel.nodeGui[data.data.node1];
+                    var downstream = loadedModel.nodeGui[data.data.node2];
+
+                    var index = upstream.links.indexOf(data.data.id);
+                    if(index !== -1) {
+                        upstream.links.splice(index, 1);
+                    }
+
+                    var index = downstream.links.indexOf(data.data.id);
+                    if(index !== -1) {
+                        downstream.links.splice(index, 1);
+                    }
+
                     delete loadedModel.links[data.data.id];
                 }
 

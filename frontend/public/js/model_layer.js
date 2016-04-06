@@ -11,6 +11,9 @@ var backendApi      = require('./api/backend_api.js'),
     TimeTable       = require('./scenario').TimeTable,
     menuBuilder     = require('./menu_builder');
 
+var createNode = require('./structures/create_node.js'),
+    createLink = require('./structures/create_link.js');
+
 var objectHelper    = require('./object-helper');
     
 var settings = require('./settings');
@@ -64,7 +67,8 @@ function Model(id, data) {
         offsetX:       0,
         offsetY:       0,
         zoom:          1,
-        linegraph:     false
+        linegraph:     false,
+        objectId:      'modelSettings'
 
         //timeStepT:     'Week',
         //timeStepN:     0
@@ -80,6 +84,8 @@ function Model(id, data) {
             this[key] = data[key];
         }, this);
     }
+
+    this.objectId = 'model';
 }
 
 Model.prototype = {
@@ -365,6 +371,9 @@ module.exports = {
             newState.synced = true;
             newState.syncId = settings.id;
             delete newState.scenarios;
+
+            var highestId = 0;
+
             newState.scenarios = {};
                     /*name:          'New Model',
                     maxIterations: 4,
@@ -375,12 +384,17 @@ module.exports = {
 
                     timeStepT:     'Week',
                     timeStepN:     0*/
-            newState.settings = {
+            /*newState.settings = {
                 name:          settings.name,
                 offsetX:       settings.pan_offset_x,
                 offsetY:       settings.pan_offset_y,
                 zoom:          settings.zoom
-            };
+            };*/
+
+            newState.settings.name    = settings.name,
+            newState.settings.offsetX = settings.pan_offset_x,
+            newState.settings.offsetY = settings.pan_offset_y,
+            newState.settings.zoom    = settings.zoom
 
             nodes.forEach(function(node) {
                 newState.nodeData[node.id] = {
@@ -389,7 +403,9 @@ module.exports = {
                     name:           node.name,
                     description:    node.description,
                     type:           node.type,
-                    simulateChange: 0
+                    simulateChange: 0,
+
+                    objectId:       'nodeData'
                 };
 
                 newState.nodeGui[node.id]  = {
@@ -400,8 +416,14 @@ module.exports = {
                     y:          node.y,
                     avatar:     node.avatar,
                     graphColor: node.color,
-                    links:      []
+                    links:      [],
+
+                    objectId:   'nodeGui'
                 };
+
+                if(highestId < node.id) {
+                    highestId = node.id;
+                }
             });
 
             links.forEach(function(link) {
@@ -419,11 +441,17 @@ module.exports = {
                     threshold:   link.threshold,
                     timelag:     link.timelag,
                     type:        link.type || 'fullchannel',
-                    width:       8
+                    width:       8,
+
+                    objectId:    'link'
                 };
 
                 newState.nodeGui[link.downstream].links.push(link.id);
                 newState.nodeGui[link.upstream].links.push(link.id);
+
+                if(highestId < link.id) {
+                    highestId = link.id;
+                }
             });
 
             scenarios.forEach(function(scenario, index) {
@@ -441,6 +469,10 @@ module.exports = {
 
                 if(index === 0) {
                     newState.loadedScenario = newState.scenarios[scenario.id];
+                }
+
+                if(highestId < scenario.id) {
+                    highestId = scenario.id;
                 }
             });
 
@@ -475,6 +507,8 @@ module.exports = {
             /*timetableLookup.forEach(function(tt) {
                 tt.refreshTimeTable();
             });*/
+
+            newState.nextId = ++highestId;
 
             callback(newState);
         });

@@ -53,20 +53,28 @@ module.exports = function(loadedModel) {
                         loadedModel.resetUI = true;
                     }
 
-                    var sourceGui = nodeGui[nodeId];
-                    for(var i = 0; i < sourceGui.links.length; i++) {
-                        var link = links[sourceGui.links[i]];
-                        if((link.node1 === nodeId && link.node2 === collidedId)
-                            || (link.node1 === collidedId && link.node2 === nodeId)) {
-                            return;
+                    try {
+                        var sourceGui = nodeGui[nodeId];
+                        for(var i = 0; i < sourceGui.links.length; i++) {
+                            var link = links[sourceGui.links[i]];
+                            if((link.node1 === nodeId && link.node2 === collidedId)
+                                || (link.node1 === collidedId && link.node2 === nodeId)) {
+                                return;
+                            }
                         }
+
+                        var newLink       = createLink(loadedModel, nodeId, collidedId);
+                        links[newLink.id] = newLink;
+
+                        nodeGui[nodeId].links.push(newLink.id);
+                        nodeGui[collidedId].links.push(newLink.id);
+                    } catch(e) {
+                        console.error(nodeData);
+                        console.error(nodeGui);
+                        console.error(links);
+                        
+                        throw e;
                     }
-
-                    var newLink       = createLink(loadedModel, nodeId, collidedId);
-                    links[newLink.id] = newLink;
-
-                    nodeGui[nodeId].links.push(newLink.id);
-                    nodeGui[collidedId].links.push(newLink.id);
                 }
             );
         }

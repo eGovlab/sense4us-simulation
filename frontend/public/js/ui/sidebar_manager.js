@@ -110,15 +110,20 @@ SidebarManager.prototype = {
     },
 
     getFilter: function(data) {
-        if(data.coefficient !== undefined) {
+        if(data.objectId === 'link') {
             return this.getLinkFilter();
         }
 
-        if(data.x !== undefined && data.y !== undefined || data.simulateChange !== undefined) {
+        if(data.objectId === 'nodeData' || data.objectId === 'nodeGui') {
             return this.getDataFilter();
         }
 
-        return this.getModelFilter();
+        if(data.objectId === 'modelSettings') {
+            return this.getModelFilter();
+        }
+
+        console.error(data);
+        throw new Error('Unrecognized objectId given to getFilter.');
     },
 
     setSelectedMenu: function() {

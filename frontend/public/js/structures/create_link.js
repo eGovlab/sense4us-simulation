@@ -11,6 +11,8 @@ module.exports = function createLink(model, source, destination, type) {
         type:        type || 'fullchannel',
         timelag:     0,
         threshold:   0,
-        width:       8
+        width:       8,
+
+        objectId:    'link'
     };
 };

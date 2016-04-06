@@ -9,19 +9,22 @@ module.exports = function createNode(model, data, gui, type) {
         id:              id,
         syncId:          false,
         value:           0,
-        relativeChange:  0,
         simulateChange:  [],
         type:            type || 'intermediate',
         initialValue:    0,
         measurementUnit: '',
-        description:     ''
+        description:     '',
+
+        objectId: 'nodeData'
     };
 
     var nodeGui = {
-        id:     id,
-        x:      400,
-        y:      100,
-        radius: 45
+        id:       id,
+        x:        400,
+        y:        100,
+        radius:   45,
+
+        objectId: 'nodeGui'
     };
 
     if(data !== undefined) {

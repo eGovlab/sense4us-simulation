@@ -113,6 +113,22 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-browserify");
     grunt.loadNpmTasks("grunt-contrib-uglify");
 
+    grunt.registerTask("watchify", "Run and keep alive browserify", function() {
+        var browserifyConfig = grunt.config.get("browserify");
+        
+        browserifyConfig.options.watch     = true;
+        browserifyConfig.options.keepAlive = true;
+        browserifyConfig.options.debug     = true;
+        
+        browserifyConfig.options.browserifyOptions = {
+            debug: true
+        };
+
+        grunt.config.set("browserify", browserifyConfig);
+
+        grunt.task.run(["browserify"]);
+    });
+
     grunt.registerTask("default", [
         "eslint",
         "browserify",

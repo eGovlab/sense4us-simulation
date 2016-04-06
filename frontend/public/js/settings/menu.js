@@ -123,6 +123,10 @@ var projectCallback = function(loadedModel, savedModels) {
 
             that.parent.toggle();
             projectUpdate.call(this.parent, loadedModel, savedModels);
+
+            loadedModel.refresh = true;
+            loadedModel.resetUI = true;
+            loadedModel.propagate();
             break;
         case 'save':
             objectHelper.forEach.call(
@@ -179,6 +183,7 @@ var projectCallback = function(loadedModel, savedModels) {
                         );
 
                         loadedModel.refresh = true;
+                        loadedModel.resetUI = true;
                         loadedModel.propagate();
                     });
                 } else {
@@ -195,11 +200,13 @@ var projectCallback = function(loadedModel, savedModels) {
                     );
 
                     loadedModel.refresh = true;
+                    loadedModel.resetUI = true;
+                    loadedModel.propagate();
                 }
             } else {
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
-                loadedModel.propagate();
+                //loadedModel.propagate();
                 
                 var savedModel = savedModels.local[option];
                 objectHelper.forEach.call(
@@ -209,12 +216,11 @@ var projectCallback = function(loadedModel, savedModels) {
                     }
                 );
 
+                loadedModel.resetUI = true;
                 loadedModel.refresh = true;
+                loadedModel.propagate();
             }
     }
-
-    loadedModel.resetUI = true;
-    loadedModel.propagate();
 
     return loadedModel;
 };
