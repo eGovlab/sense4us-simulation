@@ -116,7 +116,6 @@ module.exports = function(grunt) {
     grunt.registerTask("default", [
         "eslint",
         "browserify",
-        "uglify",
-        "karma"
+        "uglify"
     ]);
 };

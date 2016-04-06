@@ -21,6 +21,10 @@ module.exports = function(config) {
         files: [
             "frontend/public/static/js/model-builder.debug.js",
             "test/unit/model/*.spec.js"
-        ]
+        ],
+
+        client: {
+            args: ["--require test/config.js"]
+        }
     });
 }

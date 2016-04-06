@@ -44,4 +44,4 @@ describe("Array", function() {
         (_.length).should.be.exactly(6);
         (_[_.length - 1]).should.be.exactly(6);
     });
-})
+});

@@ -9,9 +9,10 @@ module.exports = [
         replacingObj:        true,
         callback: function(loadedModel, selectedData) {
             selectedData.forEach(function(data) {
-                if(data.data.relativeChange !== undefined) {
+
+                if(data.data.simulateChange !== undefined) {
                     delete loadedModel.nodeData[data.data.id];
-                    var links = loadedModel.nodeGui[data.data.id];
+                    var links = loadedModel.nodeGui[data.data.id].links;
                     objectHelper.forEach.call(
                         links,
                         function(link, key) {

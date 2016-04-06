@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+        <input type="text">
+        <script>
+            var input = document.body.children[0];
+            var baseString = "____/S ___-______";
+
+            console.log("d", input);
+
+            input.value = baseString;
+            var last    = baseString;
+
+            function findFirstDifference(str1, str2) {
+                if(str2.length > str1.length) {
+                    var t = str2;
+
+                    str2  = str1;
+                    str1  = t;
+                }
+
+                var i = 0;
+                while(true) {
+                    if(i >= str2.length) {
+                        return i;
+                    }
+
+                    if(str1.charAt(i) !== str2.charAt(i)) {
+                        return i;
+                    }
+
+                    i++;
+                }
+            }
+
+            var writtenInput = [];
+            input.addEventListener("input", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var caretPosition = this.selectionStart;
+
+                var from  = findFirstDifference(this.value, last);
+                var to    = caretPosition;
+                var range = this.value.slice(from, to);
+
+                var validCharactersLast = last.replace(/[^_0-9]/g, "");
+                var validCharactersNow  = this.value.replace(/[^_0-9]/g, "");
+
+                var deltaValid = Math.abs(validCharactersLast.length - validCharactersNow.length);
+
+                var newString      = "";
+                var remembered     = [];
+                var numberIterator = 0;
+                var numberOffset   = range.length;
+
+                var fromValid = findFirstDifference(validCharactersNow, validCharactersLast);
+
+                var deltaLength = Math.abs(this.value.length - baseString.length);
+
+                console.log(validCharactersLast, validCharactersNow);
+                if(deltaValid < fromValid) {
+                    console.log(deltaValid, fromValid - deltaValid);
+                } else {
+                    console.log(deltaValid, fromValid);
+                }
+
+                //console.log("Offset", numberOffset, from, to, deltaLength, from - deltaLength);
+                // 42
+                // 555
+
+                for(var i = 0; i < baseString.length; i++) {
+                    var c           = baseString.charAt(i);
+                    var foundNumber = false;
+
+                    if(c === "_") {
+                        var length = i < from ? i : i + range.length - numberOffset;
+                        while(numberIterator <= length) {
+                            if(numberOffset > 0 && numberIterator >= from) {
+                                numberOffset--;
+                            }
+
+                            var nc         = this.value.charAt(numberIterator);
+                            var validation = !isNaN(parseInt(nc));
+
+                            if(validation) {
+                                newString   += nc;
+                                foundNumber  = true;
+
+                                if(numberIterator === from + range.length - 1) {
+                                    numberIterator += range.length + 1;
+                                } else {
+                                    numberIterator++;
+                                }
+
+                                break;
+                            }
+
+                            numberIterator++;
+                        }
+                    }
+
+                    if(!foundNumber) {
+                        newString += c;
+                    }
+                }
+
+                console.log(newString);
+
+                this.value = newString;
+                last       = this.value;
+            });
+
+
+            /*function doGetCaretPosition (oField) {
+                // Initialize
+                var iCaretPos = 0;
+
+                // IE Support
+                if (document.selection) {
+                    // Set focus on the element
+                    oField.focus();
+
+                    // To get cursor position, get empty selection range
+                    var oSel = document.selection.createRange();
+
+                    // Move selection start to 0 position
+                    oSel.moveStart('character', -oField.value.length);
+
+                    // The caret position is selection length
+                    iCaretPos = oSel.text.length;
+                }
+
+                // Firefox support
+                else if (oField.selectionStart || oField.selectionStart == '0')
+                    iCaretPos = oField.selectionStart;
+
+                // Return results
+                return iCaretPos;
+            } */
+        </script>
+    </body>
+</html>

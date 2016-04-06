@@ -389,8 +389,7 @@ module.exports = {
                     name:           node.name,
                     description:    node.description,
                     type:           node.type,
-                    simulateChange: 0,
-                    links:          []
+                    simulateChange: 0
                 };
 
                 newState.nodeGui[node.id]  = {
@@ -400,7 +399,8 @@ module.exports = {
                     x:          node.x,
                     y:          node.y,
                     avatar:     node.avatar,
-                    graphColor: node.color
+                    graphColor: node.color,
+                    links:      []
                 };
             });
 
@@ -422,8 +422,8 @@ module.exports = {
                     width:       8
                 };
 
-                newState.nodeData[link.downstream].links.push(link.id);
-                newState.nodeData[link.upstream].links.push(link.id);
+                newState.nodeGui[link.downstream].links.push(link.id);
+                newState.nodeGui[link.upstream].links.push(link.id);
             });
 
             scenarios.forEach(function(scenario, index) {
