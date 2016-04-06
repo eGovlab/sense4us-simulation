@@ -415,7 +415,7 @@ module.exports = {
                     x:          node.x,
                     y:          node.y,
                     avatar:     node.avatar,
-                    graphColor: node.color,
+                    color:      node.color,
                     links:      [],
 
                     objectId:   'nodeGui'

@@ -51,7 +51,6 @@ function inflateModel(container) {
     var CONFIG = require('./config');
     CONFIG.setConfig(configObject);
 
-    //require('./object.js');
     var objectHelper = require('./object-helper.js');
 
     var menuHeader       = document.createElement('div'),
@@ -93,8 +92,26 @@ function inflateModel(container) {
     container.appendChild(sidebar);
     container.appendChild(leftMain);
 
-    var mainCanvas       = canvas(mainCanvasC,      refresh),
-        linegraphCanvas  = canvas(linegraphCanvasC, refresh);
+    var mainCanvas       = canvas(container, mainCanvasC),
+        linegraphCanvas  = canvas(container, linegraphCanvasC);
+
+    var timer = null;
+    window.addEventListener('resize', function() {
+        if (timer !== null) {
+            clearTimeout(timer);
+        }
+
+        timer = setTimeout(function() {
+            mainCanvas.width            = container.offsetWidth;
+            linegraphCanvas.width       = container.offsetWidth;
+            /*mainCanvas.height           = container.offsetHeight;
+            linegraphCanvas.height      = container.offsetHeight;*/
+
+            sidebar.style['max-height'] = (container.offsetHeight - 44) + 'px';
+
+            refresh();
+        }, 500);
+    });
 
     /*var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
     var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);*/
@@ -184,24 +201,19 @@ function inflateModel(container) {
 
     var lastShow;
     function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
-        var show = loadedModel.settings.linegraph;
-        var parent = linegraphCanvas.parentElement;
-        if(show === lastShow) {
-            return next();
-        }
+        var show   = loadedModel.settings.linegraph;
 
         if(show) {
-            mainCanvas.height      = Math.ceil(((parent.offsetHeight-20) * 0.5));
-            linegraphCanvas.height = Math.floor(((parent.offsetHeight-20) * 0.5));
+            mainCanvas.height      = Math.ceil(((container.offsetHeight-20) * 0.5));
+            linegraphCanvas.height = Math.floor(((container.offsetHeight-20) * 0.5));
 
             linegraphRefresh();
         } else {
-            mainCanvas.height      = parent.offsetHeight;
+            mainCanvas.height      = container.offsetHeight;
             linegraphCanvas.height = 0;
         }
 
         lastShow = show;
-
         next();
     }
 

@@ -73,8 +73,15 @@ module.exports = function(grunt) {
             },
 
             client: {
-                src:  ['./frontend/public/js/main.js'],
-                dest: './frontend/public/static/js/model-builder.debug.js'
+                src:  ["./frontend/public/js/main.js"],
+                dest: "./frontend/public/static/js/model-builder.debug.js"
+            }
+        },
+
+        watch: {
+            scripts: {
+                files: ["./frontend/public/js/**/*.js"],
+                tasks: ["eslint", "browserify_debug"]
             }
         },
 
@@ -112,21 +119,16 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-karma");
     grunt.loadNpmTasks("grunt-browserify");
     grunt.loadNpmTasks("grunt-contrib-uglify");
+    grunt.loadNpmTasks("grunt-contrib-watch");
 
-    grunt.registerTask("watchify", "Run and keep alive browserify", function() {
+    grunt.registerTask("browserify_debug", function() {
         var browserifyConfig = grunt.config.get("browserify");
-        
-        browserifyConfig.options.watch     = true;
-        browserifyConfig.options.keepAlive = true;
-        browserifyConfig.options.debug     = true;
-        
         browserifyConfig.options.browserifyOptions = {
             debug: true
         };
 
         grunt.config.set("browserify", browserifyConfig);
-
-        grunt.task.run(["browserify"]);
+        grunt.task.run("browserify");
     });
 
     grunt.registerTask("default", [

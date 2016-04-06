@@ -5,23 +5,10 @@
     data-protocol = "<%= locals.protocol || 'http' %>"
     data-hostname = "<%= locals.hostname || 'localhost' %>"
     data-port     = "<%= locals.port || 3000 %>"
-    style         = "height: 700px; width: 1000px;"
+    style         = "height: 100%; width: 100%;"
 ></div>
 
-<!--
-    style="100px; 100px;" or any dimensions you need.
-    The model builder won't fit well in tiny areas though.
--->
-
-<!-- 
-    or src="http://our-server/js/model-builder.min.js"
-    I don't have it available live yet.
-
-    Gotta set up some uglification.
--->
-
 <script src="/static/js/model-builder.debug.js"></script>
-<!-- <script src="/static/js/model-builder.min.js"></script> -->
 <script>
     docReady(function() {
         var modelBuilder = document.getElementById("model-builder");

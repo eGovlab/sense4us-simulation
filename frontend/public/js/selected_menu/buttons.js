@@ -20,12 +20,12 @@ module.exports = [
                             var downstream = loadedModel.nodeGui[linkObject.node2];
 
                             var index = upstream.links.indexOf(linkObject.id);
-                            if(index !== -1) {
+                            if(index !== -1 && upstream.id !== data.data.id) {
                                 upstream.links.splice(index, 1);
                             }
 
-                            var index = downstream.links.indexOf(linkObject.id);
-                            if(index !== -1) {
+                            index = downstream.links.indexOf(linkObject.id);
+                            if(index !== -1 && downstream.id !== data.data.id) {
                                 downstream.links.splice(index, 1);
                             }
 

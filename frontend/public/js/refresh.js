@@ -28,7 +28,7 @@ function clearCanvasAndTransform(ctx, canvas, loadedModel, selectedMenu, next) {
         canvas.width,
         canvas.height
     );
-    
+
     /*ctx.clearRect(
         (-loadedModel.settings.offsetX || 0) * (2 - loadedModel.settings.scaleX || 1),
         (-loadedModel.settings.offsetY || 0) * (2 - loadedModel.settings.scaleX || 1),

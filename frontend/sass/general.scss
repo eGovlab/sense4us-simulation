@@ -1,48 +1,8 @@
-@import "colors";
-
-/*
-* {
-    font-family: Helvetica;
-}
-
+html,
 body {
-    position: absolute;
-
-    margin: 0;
-    padding: 12px;
-    overflow: hidden;
-
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: $bodyBackground;
-}*/
-
-.hidden {
-    display: none;
+    margin:  0;
+    padding: 0;
+    
+    width:   100%;
+    height:  100%;
 }
-
-.visible {
-    display: block;
-}
-
-.mb-sidebar {
-    z-index: 1;
-}
-
-.mb-notification-bar {
-    z-index: 2;
-}
-
-.mb-dropdown .mb-dropdown-container {
-    z-index: 3;
-}
-
-/*
-#inspector {
-    color: #FAFAFA;
-    background-color: inherit;
-    text-align: center;
-    margin-top: 4px;
-}*/
