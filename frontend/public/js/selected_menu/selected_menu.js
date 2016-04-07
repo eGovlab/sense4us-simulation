@@ -6,8 +6,8 @@ var Immutable   = null,
     buttons     = require('./buttons.js');
 
 var objectHelper = require('./../object-helper.js');
-
-var CONFIG      = require('./../config.js');
+var TimeTable    = require('./../structures/timetable.js');
+var CONFIG       = require('./../config.js');
 
 var url = CONFIG.get('url');
 if(url.charAt(url.length - 1) !== '/') {
@@ -143,206 +143,8 @@ Data.prototype = {
         );
     },
 
-    addTimeRow: function(timeStep, timeValue) {
-        if(!this.timetable) {
-            this.timetable = {};
-        }
-
-        var containerDiv = this.timetableDiv;
-        if(!containerDiv) {
-            var containerDiv = menuBuilder.div();
-                containerDiv.className = 'mb-time-table';
-
-            containerDiv.appendChild(menuBuilder.label(key));
-
-            this.timetableDiv = containerDiv;
-        }
-
-        var rowContainer = this.rowContainer;
-        if(!rowContainer) {
-            rowContainer      = menuBuilder.div('row-container');
-            this.rowContainer = rowContainer;
-
-            containerDiv.appendChild(rowContainer);
-        }
-
-        var that = this;
-
-        var rowDiv = menuBuilder.div('time-row');
-        this.rows[timeStep] = rowDiv;
-
-        var timeStepLabel       = menuBuilder.span('T');
-        timeStepLabel.className = 'label';
-
-        var timeStepInput = menuBuilder.input('time-step', timeStep, function(input, newStep) {
-            if(newStep.match(/^\d+$/) === null) {
-                timeStepInput.value = timeStep;
-                return;
-            }
-
-            var storingValue = that.timetable[timeStep];
-            if(that.timetable[newStep]) {
-                return timeStepInput.value = timeStep;
-            }
-
-            that.timetable[newStep] = that.timetable[timeStep];
-            delete that.timetable[timeStep];
-            that.rows[newStep] = that.rows[timeStep];
-            delete that.rows[timeStep];
-
-            timeStepInput.value = newStep;
-
-            that.refreshTimeTable();
-
-            that.loadedModel.refresh = true;
-            that.loadedModel.resetUI = true;
-            that.loadedModel.propagate();
-        });
-
-        timeStepInput.className = 'time-step';
-
-        var timeValueLabel = menuBuilder.span('C');
-        timeValueLabel.className = 'label';
-
-        var timeValueInput = menuBuilder.input('time-value', timeValue, function(input, newValue) {
-            if(newValue.match(/^\d+\.?\d*$/) === null) {
-                timeValueInput.value = that.timetable[timeStep];
-                return;
-            }
-
-            that.timetable[timeStep] = Number(newValue);
-            timeValueInput.value     = newValue;
-
-            that.loadedModel.refresh = true;
-            that.loadedModel.resetUI = true;
-            that.loadedModel.propagate();
-        });
-
-        timeValueInput.className = 'time-value';
-
-        rowDiv.appendChild(timeStepLabel);
-        rowDiv.appendChild(timeStepInput);
-        rowDiv.appendChild(timeValueLabel);
-        rowDiv.appendChild(timeValueInput);
-
-        var percentLabel = menuBuilder.span('%');
-        percentLabel.className = 'label';
-
-        rowDiv.appendChild(percentLabel);
-
-        rowDiv.stepInput  = timeStepInput;
-        rowDiv.valueInput = timeValueInput;
-
-        rowContainer.appendChild(rowDiv);
-    },
-
     refreshTimeTable: function() {
-        if(!this.rowContainer) {
-            return;
-        }
-
-        while(this.rowContainer.firstChild) {
-            this.rowContainer.removeChild(this.rowContainer.firstChild);
-        }
-
-        this.deleteEvents();
-
-        this.rows = {};
-
-        this.timetable.forEach(function(timeValue, timeStep) {
-            this.addTimeRow(timeStep, timeValue);
-        }, this);
-    },
-
-    generateTimeTable: function(key, value, header) {
-        var containerDiv = this.timetableDiv;
-        if(!containerDiv) {
-            var containerDiv = menuBuilder.div();
-                containerDiv.className = 'mb-time-table';
-
-            containerDiv.appendChild(menuBuilder.label(header || key));
-
-            this.timetableDiv = containerDiv;
-        } else {
-            while(this.timetableDiv.firstChild) {
-                this.timetableDiv.removeChild(this.timetableDiv.firstChild);
-            }
-
-            this.timetableDiv.appendChild(menuBuilder.label(header || key));
-
-            this.rows.forEach(function(row, key) {
-                row.stepInput.deleteEvents();
-                row.valueInput.deleteEvents();
-            });
-
-            this.rows = {};
-
-            this.rowContainer = null;
-        }
-
-        var rowContainer = this.rowContainer;
-        if(!rowContainer) {
-            rowContainer      = menuBuilder.div('row-container');
-            this.rowContainer = rowContainer;
-
-            containerDiv.appendChild(rowContainer);
-        }
-
-        this.timetable = value;
-        objectHelper.forEach.call(
-            this.timetable,
-            function(timeValue, timeStep) {
-                this.addTimeRow(timeStep, timeValue);
-            },
-            this
-        );
-
-        var that = this;
-        containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
-            if (that.timetable === undefined || that.timetable === null) {
-                that.addTimeRow(0, 0);
-            } else {
-                var highestIndex = 0;
-                objectHelper.forEach.call(
-                    that.timetable,
-                    function(value, key) {
-                        var x;
-                        if(!isNaN(x = parseInt(key)) && x > highestIndex) {
-                            highestIndex = x;
-                        }
-                    }
-                );
-
-                var index = highestIndex + 1;
-                var value = 0;
-                that.timetable[index] = value;
-                that.addTimeRow(index, value);
-
-                that.loadedModel.refresh = true;
-                that.loadedModel.resetUI = true;
-                that.loadedModel.propagate();
-            }
-        }));
-
-        containerDiv.appendChild(menuBuilder.button('Remove row', function removeTimeTableRow() {
-            if (that.timetable === undefined || that.timetable === null || that.timetable.size() === 0) {
-                return;
-            }
-
-            that.data[key] = that.timetable.slice(0, -1);
-            that.timetable = that.data[key];
-
-            var element = that.rows.last();
-            that.rowContainer.removeChild(element);
-
-            delete that.rows[that.rows.lastKey()];
-
-            that.loadedModel.refresh = true;
-            that.loadedModel.resetUI = true;
-            that.loadedModel.propagate();
-        }));
-
-        return containerDiv;
+        this.timetable.refreshTimeTable();
     },
 
     generateDropdown: function(key, options, value) {
@@ -460,7 +262,19 @@ Data.prototype = {
             }
 
             if (key === 'timeTable') {
-                element.appendChild(this.generateTimeTable(key, value));
+                console.warn(this.data);
+                var timeTable = new TimeTable(this.data, function(step, value) {
+                    that.loadedModel.refresh = true;
+                    that.loadedModel.resetUI = true;
+                    that.loadedModel.propagate();
+                }, true);
+
+                timeTable.generateTimeTable();
+
+                this.timetable    = timeTable;
+                this.timetableDiv = timeTable.timeTableDiv;
+
+                element.appendChild(this.timetableDiv);
             } else if(this.data.coefficient !== undefined && key === 'type') {
                 element.appendChild(this.generateDropdown(key, ['fullchannel', 'halfchannel'], value));
             } else {

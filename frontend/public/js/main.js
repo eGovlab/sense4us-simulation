@@ -253,12 +253,12 @@ function inflateModel(container) {
         sidebarManager.setEnvironment(loadedModel.environment);
         sidebarManager.setLoadedModel(loadedModel);
 
-        if(this.selected.x !== undefined && this.selected.y !== undefined) {
+        if(this.selected.objectId === 'nodeGui') {
             var nodeData = loadedModel.nodeData[this.selected.id];
             var nodeGui  = loadedModel.nodeGui[this.selected.id];
 
             sidebarManager.setSelectedMenu(nodeData, nodeGui);
-        } else if(this.selected.coefficient !== undefined) {
+        } else if(this.selected.objectId === 'link') {
             sidebarManager.setSelectedMenu(this.selected);
         } else {
             sidebarManager.setSelectedMenu(loadedModel.settings);
