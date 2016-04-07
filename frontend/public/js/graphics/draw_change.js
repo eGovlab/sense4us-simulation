@@ -2,7 +2,7 @@
 
 var valueColors = require('./value_colors.js');
 
-module.exports = function drawChange(ctx, x, y, value) {
+module.exports = function drawChange(ctx, x, y, radius, value) {
     ctx.fillStyle = valueColors.neutral;
     if(value > 0) {
         ctx.fillStyle = valueColors.positive;
@@ -13,10 +13,15 @@ module.exports = function drawChange(ctx, x, y, value) {
     }
     
     ctx.textBaseline = 'top';
-    ctx.font         = '22px Arial';
+    ctx.font         = '22px Monospace';
 
     var valueString = value + '%';
 
+    var charLength = radius / valueString.length;
+    var height     = charLength / 0.6;
+
+    ctx.font = height + 'px Monospace';
     var textData = ctx.measureText(valueString);
-    ctx.fillText(valueString, x - textData.width / 2, y);
+
+    ctx.fillText(valueString, x - textData.width / 2, (y + 4) - (height / 2));
 };
