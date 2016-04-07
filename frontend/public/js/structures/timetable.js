@@ -245,7 +245,7 @@ TimeTable.prototype = {
             if (that.timeTable === undefined || that.timeTable === null) {
                 that.addTimeRow(0, 0);
             } else {
-                var highestIndex = 0;
+                var highestIndex = -1;
                 objectHelper.forEach.call(
                     that.timeTable,
                     function(value, key) {
@@ -256,7 +256,7 @@ TimeTable.prototype = {
                     }
                 );
 
-                var index = highestIndex + 1;
+                var index = highestIndex === -1 ? 0 : highestIndex + 1;
                 var value = 0;
                 that.timeTable[index] = value;
                 that.addTimeRow(index, value);

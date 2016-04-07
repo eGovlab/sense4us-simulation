@@ -32,8 +32,8 @@ function generateAvatarDiv(avatar, selected, name) {
         avatarDiv.className += ' selected';
     }
 
-    img.src         = url + avatar.src;
-    avatarDiv.value = url + avatar.src;
+    img.src         = avatar.src;
+    avatarDiv.value = avatar.src;
     avatarDiv.name  = avatar.header || name;
 
     avatarDiv.appendChild(img);

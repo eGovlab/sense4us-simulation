@@ -70,11 +70,6 @@ function drawPicture(ctx, imagePath, map, refresh) {
     refresh = refresh || drawPicture;
     
     var img = null;
-    var index = imagePath.indexOf(url);
-    if(index === -1) {
-        imagePath = url + imagePath;
-    }
-    
     if (images.hasOwnProperty(imagePath)) {
         img = images[imagePath];
         if (img.isLoading === true) {
@@ -94,7 +89,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         //window.derp = img;
 
         images[imagePath] = img;
-        img.src = imagePath; // Set source path
+        img.src = url + imagePath; // Set source path
         img.isLoading = true;
         img.nodesWaiting = [
             map

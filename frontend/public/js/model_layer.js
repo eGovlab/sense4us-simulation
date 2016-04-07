@@ -232,12 +232,14 @@ module.exports = {
 
     saveModel: function(loadedModel, onDone) {
         var data = {
-            modelId:   loadedModel.settings.syncId,
+            modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
             nodes:     breakout.nodes(loadedModel),
             links:     breakout.links(loadedModel),
             scenarios: loadedModel.scenariosToJson()
         };
+
+        console.warn(data);
 
         backendApi('/models/save', data, function(response, err) {
             if (err) {
