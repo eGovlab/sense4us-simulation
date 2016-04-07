@@ -201,7 +201,7 @@ Data.prototype = {
 
         timeStepInput.className = 'time-step';
 
-        var timeValueLabel = menuBuilder.span('V');
+        var timeValueLabel = menuBuilder.span('C');
         timeValueLabel.className = 'label';
 
         var timeValueInput = menuBuilder.input('time-value', timeValue, function(input, newValue) {
@@ -224,6 +224,11 @@ Data.prototype = {
         rowDiv.appendChild(timeStepInput);
         rowDiv.appendChild(timeValueLabel);
         rowDiv.appendChild(timeValueInput);
+
+        var percentLabel = menuBuilder.span('%');
+        percentLabel.className = 'label';
+
+        rowDiv.appendChild(percentLabel);
 
         rowDiv.stepInput  = timeStepInput;
         rowDiv.valueInput = timeValueInput;

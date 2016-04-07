@@ -33,16 +33,12 @@ function TimeTable(node, onChange) {
 
 TimeTable.prototype = {
     setTimeStep: function(timeStepInput, timeStep, newStep) {
-        var storingValue = this.timeTable[timeStep];
-        if(this.timeTable[newStep]) {
+        if(this.timeTable[newStep] !== undefined) {
             return timeStepInput.value = timeStep;
         }
 
         this.timeTable[newStep] = this.timeTable[timeStep];
         delete this.timeTable[timeStep];
-
-        this.node.timeTable[newStep] = this.node.timeTable[timeStep];
-        delete this.node.timeTable[timeStep];
 
         this.rows[newStep] = this.rows[timeStep];
         delete this.rows[timeStep];
@@ -101,7 +97,7 @@ TimeTable.prototype = {
 
         timeStepInput.className = 'time-step';
 
-        var timeValueLabel = menuBuilder.span('V');
+        var timeValueLabel = menuBuilder.span('C');
         timeValueLabel.className = 'label';
 
         var timeValueInput = menuBuilder.input('time-value', timeValue, function(input, newValue) {
@@ -115,6 +111,11 @@ TimeTable.prototype = {
         rowDiv.appendChild(timeValueLabel);
         rowDiv.appendChild(timeValueInput);
 
+        var percentLabel = menuBuilder.span('%');
+        percentLabel.className = 'label';
+
+        rowDiv.appendChild(percentLabel);
+
         rowDiv.stepInput  = timeStepInput;
         rowDiv.valueInput = timeValueInput;
 
@@ -124,18 +125,18 @@ TimeTable.prototype = {
     },
 
     removeTimeRow: function() {
-        if (this.timeTable === undefined || this.timeTable === null || this.timeTable.size() === 0) {
+        if (this.timeTable === undefined || this.timeTable === null || objectHelper.size.call(this.timeTable) === 0) {
             return;
         }
         
-        this.timeTable = this.timeTable.slice(0, -1);
+        this.timeTable = objectHelper.slice.call(this.timeTable, 0, -1);
 
-        var element = this.rows.last();
+        var element = objectHelper.last.call(this.rows);
         this.rowContainer.removeChild(element);
 
-        delete this.rows[this.rows.lastKey()];
+        delete this.rows[objectHelper.lastKey.call(this.rows)];
 
-        this.node.timeTable = this.node.timeTable.slice(0, -1);
+        this.node.timeTable = objectHelper.slice.call(this.node.timeTable, 0, -1);
 
         this.onChange();
     },
@@ -149,14 +150,13 @@ TimeTable.prototype = {
             this.rowContainer.removeChild(this.rowContainer.firstChild);
         }
 
-        this.rows.forEach(function(row, key) {
+        objectHelper.forEach.call(this.rows, function(row, key) {
             row.stepInput.deleteEvents();
             row.valueInput.deleteEvents();
         });
 
         this.rows = {};
-
-        this.timeTable.forEach(function(timeValue, timeStep) {
+        objectHelper.forEach.call(this.timeTable, function(timeValue, timeStep) {
             this.addTimeRow(timeStep, timeValue);
             this.node.timeTable[timeStep] = timeValue;
         }, this);
@@ -171,7 +171,7 @@ TimeTable.prototype = {
             this.rowContainer.removeChild(this.rowContainer.firstChild);
         }
 
-        this.rows.forEach(function(row, key) {
+        objectHelper.forEach.call(this.rows, function(row, key) {
             row.stepInput.deleteEvents();
             row.valueInput.deleteEvents();
         });

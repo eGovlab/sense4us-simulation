@@ -8,18 +8,29 @@
 
 .mb-time-table .row-container .label {
     display: inline-block;
-    margin-right: 6px;
+    margin: 0px 3px;
 }
 
 .mb-time-table .row-container .time-step {
     width: 20%;
-    margin-right: 6px;
+    margin: 0px 3px;
 }
 
 .mb-time-table .row-container .time-value {
     width: 40%;
+    margin: 0px 3px;
 }
 
 .mb-time-table .row-container .time-row {
-    margin: 8px 0px;
+    margin: 12px 0px;
+}
+
+.mb-time-table .row-container .time-row span:first-child,
+.mb-time-table .row-container .time-row input:first-child {
+    margin-left: 0px;
+}
+
+.mb-time-table .row-container .time-row span:last-child,
+.mb-time-table .row-container .time-row input:last-child {
+    margin-right: 0px;
 }
