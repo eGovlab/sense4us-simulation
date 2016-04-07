@@ -262,7 +262,6 @@ Data.prototype = {
             }
 
             if (key === 'timeTable') {
-                console.warn(this.data);
                 var timeTable = new TimeTable(this.data, function(step, value) {
                     that.loadedModel.refresh = true;
                     that.loadedModel.resetUI = true;
