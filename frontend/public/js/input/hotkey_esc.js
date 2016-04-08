@@ -24,8 +24,7 @@ module.exports = {
 
         document.body.removeHotkeyEListeners();
 
-        model.refresh = true;
-        model.propagate();
+        model.emit('refresh');
     },
 
     onUp: function(canvas, model) {

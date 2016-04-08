@@ -1,6 +1,7 @@
 .menu-header
 
 .mb-upper-menu {
+    width: 100%;
     display: inline-block;
     height: inherit;
 }
@@ -17,6 +18,11 @@
 }
 
 .mb-upper-menu > .menu > div:first-child {
+}
+
+.mb-upper-menu > .menu > div {
+    width: 180px;
+    max-width: 33%;
 }
 
 .mb-upper-menu > .menu > button {

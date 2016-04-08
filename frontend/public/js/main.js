@@ -124,7 +124,7 @@ function inflateModel(container) {
         informationTree  = require('./information_tree'),
         UI               = require('./ui');
 
-    notificationBar.setContainer(notificationBarDiv);
+    //notificationBar.setContainer(notificationBarDiv);
 
     var selectedMenu  = {},
         textStrings   = {
@@ -137,8 +137,12 @@ function inflateModel(container) {
             synced: {}
         };
 
-    window.sense4us.loadedModel       = loadedModel;
-    savedModels.local[loadedModel.id] = loadedModel;
+    if(!window.sense4us[container.getAttribute('id')]) {
+        window.sense4us[container.getAttribute('id')] = {};
+    }
+
+    window.sense4us[container.getAttribute('id')].loadedModel = loadedModel;
+    savedModels.local[loadedModel.id]                         = loadedModel;
 
     var settings      = require('./settings');
 
@@ -151,7 +155,75 @@ function inflateModel(container) {
     var mleftDrag     = require('./input/mleft_drag.js'),
         mrightDrag    = require('./input/mright_drag.js');
 
-    mouseHandler(mainCanvas, loadedModel, [mleftDrag, mrightDrag]);
+    var mouseMiddlewares = [
+        mleftDrag,
+        mrightDrag
+    ];
+
+    mouseHandler(mainCanvas, loadedModel);
+
+    loadedModel.addListener('mouseDown', function(canvas, button, startPos, lastPos, mouseMove, mouseUp) {
+        var middlewares = mouseMiddlewares.filter(function(input) {
+            return input.button === button;
+        });
+
+        var activateMouseMove = false,
+            activateMouseUp   = false;
+
+        middlewares.forEach(function(middleware) {
+            var startCallback  = middleware.mouseDown,
+                updateCallback = middleware.mouseMove,
+                endCallback    = middleware.mouseUp,
+                missCallback   = middleware.miss;
+
+            var result = startCallback(canvas, loadedModel, startPos);
+            if (result) {
+                if (updateCallback) {
+                    activateMouseMove = true;
+                }
+
+                if (endCallback) {
+                    activateMouseUp = true;
+                }
+            } else if (missCallback) {
+                missCallback(canvas, loadedModel, startPos);
+            }
+        });
+
+        if(activateMouseMove) {
+            window.addEventListener('mousemove', mouseMove);
+        }
+
+        if(activateMouseUp) {
+            window.addEventListener('mouseup', mouseUp);
+        }
+
+        this.emit('refresh');
+    });
+
+    loadedModel.addListener('mouseMove', function(canvas, button, startPos, lastPos, endPos, deltaPos) {
+        var middlewares = mouseMiddlewares.filter(function(input) {
+            return input.button === button;
+        });
+
+        middlewares.forEach(function(middleware) {
+            middleware.mouseMove(canvas, loadedModel, endPos, deltaPos);
+        });
+
+        this.emit('refresh');
+    });
+
+    loadedModel.addListener('mouseUp', function(canvas, button, endPos) {
+        var middlewares = mouseMiddlewares.filter(function(input) {
+            return input.button === button;
+        });
+
+        middlewares.forEach(function(middleware) {
+            middleware.mouseUp(canvas, loadedModel, endPos);
+        });
+
+        this.emit('refresh');
+    });
 
     var keyboardHandler = require('./mechanics/keyboard_handler.js'),
         hotkeyE         = require('./input/hotkey_e.js'),
@@ -194,10 +266,10 @@ function inflateModel(container) {
         //refresh();
     }
 
-    var aggregatedLink = require('./aggregated_link.js');
+    var aggregatedLink   = require('./aggregated_link.js');
     var refreshNamespace = require('./refresh');
 
-    var asyncMiddleware = require('./async_middleware');
+    var asyncMiddleware  = require('./async_middleware');
 
     var lastShow;
     function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
@@ -239,11 +311,16 @@ function inflateModel(container) {
     //var sidebarManager = new UI.SidebarManager(CONFIG.get('SIDEBAR_CONTAINER'));
     var sidebarManager = new UI.SidebarManager(sidebarContainer);
 
+    loadedModel.addListener('notification', function() {
+
+
+    });
+
     loadedModel.addListener('sidebar', function() {
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
     });
 
-    loadedModel.propagate();
+    //loadedModel.propagate();
 
     sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
@@ -294,6 +371,8 @@ function inflateModel(container) {
             linegraphRefresh();
         }
     });
+
+    loadedModel.emit(null, 'refresh', 'resetUI', 'settings', 'sidebar');
 
     var drawLineGraph = require('./graphics/draw_line_graph.js');
     function _linegraphRefresh() {

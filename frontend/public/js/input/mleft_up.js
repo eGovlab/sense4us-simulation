@@ -49,9 +49,12 @@ function mouseUp(canvas, loadedModel, pos) {
         loadedModel.selected = data.selected;
     }
 
-    loadedModel.refresh = true;
     if(data.resetUI) {
-        loadedModel.resetUI = true;
+        loadedModel.emit('resetUI');
+    }
+
+    if(data.selected) {
+        loadedModel.emit('selected');
     }
 
     canvas.panX = -loadedModel.settings.offsetX;

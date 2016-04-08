@@ -34,14 +34,16 @@ var modeCallback = function(loadedModel, savedModels) {
             break;
     }
 
-    loadedModel.refresh = true;
-    loadedModel.resetUI = true;
+    /*loadedModel.refresh = true;
+    loadedModel.resetUI = true;*/
 
     if(!loadedModel.selected) {
         loadedModel.selected = loadedModel.settings;
     }
 
-    loadedModel.propagate();
+    //loadedModel.propagate();
+
+    loadedModel.emit(null, 'refresh', 'resetUI');
 };
 
 var projectUpdate = function(loadedModel, savedModels) {
@@ -124,9 +126,11 @@ var projectCallback = function(loadedModel, savedModels) {
             that.parent.toggle();
             projectUpdate.call(this.parent, loadedModel, savedModels);
 
-            loadedModel.refresh = true;
+            /*loadedModel.refresh = true;
             loadedModel.resetUI = true;
-            loadedModel.propagate();
+            loadedModel.propagate();*/
+
+            loadedModel.emit(null, 'refresh', 'resetUI');
             break;
         case 'save':
             objectHelper.forEach.call(
@@ -139,18 +143,22 @@ var projectCallback = function(loadedModel, savedModels) {
             modelLayer.saveModel(loadedModel, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
 
-                loadedModel.refresh = true;
+                /*loadedModel.refresh = true;
                 loadedModel.resetUI = true;
-                loadedModel.propagate();
+                loadedModel.propagate();*/
+
+                loadedModel.emit(null, 'refresh', 'resetUI');
             });
             return;
             break;
         case 'delete':
             modelLayer.deleteModel(loadedModel, savedModels, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
-                loadedModel.refresh = true;
+                /*loadedModel.refresh = true;
                 loadedModel.resetUI = true;
-                loadedModel.propagate();
+                loadedModel.propagate();*/
+
+                loadedModel.emit(null, 'refresh', 'resetUI');
             });
             return;
             break;
@@ -164,15 +172,17 @@ var projectCallback = function(loadedModel, savedModels) {
                             loadedModel.syncId = newState;
                             loadedModel.id     = newState;
 
-                            loadedModel.refresh = true;
+                            /*loadedModel.refresh = true;
                             loadedModel.resetUI = true;
-                            loadedModel.propagate();
+                            loadedModel.propagate();*/
+
+                            loadedModel.emit(null, 'refresh', 'resetUI');
                             return;
                         }
 
                         loadedModel.nodeGui  = {};
                         loadedModel.nodeData = {};
-                        loadedModel.propagate();
+                        //loadedModel.propagate();
 
                         savedModels.synced[option] = newState;
                         objectHelper.forEach.call(
@@ -182,14 +192,16 @@ var projectCallback = function(loadedModel, savedModels) {
                             }
                         );
 
-                        loadedModel.refresh = true;
+                        /*loadedModel.refresh = true;
                         loadedModel.resetUI = true;
-                        loadedModel.propagate();
+                        loadedModel.propagate();*/
+
+                        loadedModel.emit(null, 'refresh', 'resetUI');
                     });
                 } else {
                     loadedModel.nodeGui  = {};
                     loadedModel.nodeData = {};
-                    loadedModel.propagate();
+                    //loadedModel.propagate();
 
                     var savedModel = savedModels.synced[option];
                     objectHelper.forEach.call(
@@ -199,9 +211,11 @@ var projectCallback = function(loadedModel, savedModels) {
                         }
                     );
 
-                    loadedModel.refresh = true;
+                    /*loadedModel.refresh = true;
                     loadedModel.resetUI = true;
-                    loadedModel.propagate();
+                    loadedModel.propagate();*/
+
+                    loadedModel.emit(null, 'refresh', 'resetUI');
                 }
             } else {
                 loadedModel.nodeGui  = {};
@@ -216,9 +230,11 @@ var projectCallback = function(loadedModel, savedModels) {
                     }
                 );
 
-                loadedModel.resetUI = true;
+                /*loadedModel.resetUI = true;
                 loadedModel.refresh = true;
-                loadedModel.propagate();
+                loadedModel.propagate();*/
+
+                loadedModel.emit(null, 'refresh', 'resetUI');
             }
     }
 

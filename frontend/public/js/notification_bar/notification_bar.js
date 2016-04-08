@@ -32,4 +32,4 @@ NotificationBar.prototype = {
     }
 };
 
-module.exports = new NotificationBar();
+module.exports = NotificationBar;

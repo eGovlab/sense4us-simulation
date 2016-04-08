@@ -101,7 +101,7 @@ TimeTable.prototype = {
         this.rows[timeStep] = rowDiv;
 
         var timeStepLabel       = menuBuilder.span('T');
-        timeStepLabel.className = 'label';
+        timeStepLabel.className = 'time-label';
 
         var timeStepInput = menuBuilder.input('time-step', timeStep, function(input, newStep) {
             that.setTimeStep(timeStepInput, timeStep, newStep);
@@ -110,7 +110,7 @@ TimeTable.prototype = {
         timeStepInput.className = 'time-step';
 
         var timeValueLabel = menuBuilder.span('C');
-        timeValueLabel.className = 'label';
+        timeValueLabel.className = 'time-label';
 
         var timeValueInput = menuBuilder.input('time-value', timeValue, function(input, newValue) {
             that.setTimeValue(timeValueInput, timeStep, newValue);
@@ -124,7 +124,7 @@ TimeTable.prototype = {
         rowDiv.appendChild(timeValueInput);
 
         var percentLabel = menuBuilder.span('%');
-        percentLabel.className = 'label';
+        percentLabel.className = 'time-label';
 
         rowDiv.appendChild(percentLabel);
 

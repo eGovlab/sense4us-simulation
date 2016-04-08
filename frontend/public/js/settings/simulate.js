@@ -43,9 +43,11 @@ var simulate = [
                     });
                 });
 
-                loadedModel.refresh  = true;
+                //loadedModel.refresh  = true;
                 loadedModel.settings = loadedModel.settings;
-                loadedModel.propagate();
+                //loadedModel.propagate();
+
+                loadedModel.emit(null, 'settings', 'refresh');
             });
         }
     },
@@ -58,8 +60,10 @@ var simulate = [
             var settings       = loadedModel.settings;
             settings.linegraph = !settings.linegraph
 
-            loadedModel.refresh = true;
-            loadedModel.propagate();
+            /*loadedModel.refresh = true;
+            loadedModel.propagate();*/
+
+            loadedModel.emit('refresh');
         }
     },
 

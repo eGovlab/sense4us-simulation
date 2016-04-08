@@ -76,8 +76,22 @@
     animation:         MENU_FADEIN 0.5s 1;
 }
 
-.mb-sidebar .menu {
+.mb-sidebar .menu label,
+.mb-sidebar .menu .mb-sidebar-slider {
     color: #fafafa;
+}
+
+.mb-sidebar .menu input {
+    color: #202020;
+}
+
+.mb-sidebar .menu input[type="text"] {
+    width: 100%;
+}
+
+.mb-sidebar .menu input[type="range"] {
+    display: inline-block;
+    width: 75%;
 }
 
 .mb-sidebar > .menu > div {

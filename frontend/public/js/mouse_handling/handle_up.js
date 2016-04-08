@@ -11,21 +11,11 @@ var middleware   = require('./../middleware.js'),
 
 var mouseDownWare = middleware([
     link,
-    //stopClicked,
     stopLinking,
     stopMovingIcon,
     deselect,
     select
 ]);
-
-/*function stopClicked(data) {
-    data.nodeGui = data.nodeGui.merge(
-            data.nodeGui.filter(function(obj) { return obj.clicked === true; })
-                .map(function(obj) { return obj.delete('clicked').delete('offsetX').delete('offsetY'); })
-    );
-
-    return data;
-}*/
 
 function generateHexColor() {
     return Math.round(Math.random() * 255).toString(16);

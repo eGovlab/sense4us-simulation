@@ -51,5 +51,7 @@ module.exports = function createNode(model, data, gui, type) {
     model.refresh = true;
     model.propagate();
 
+    model.emit(null, 'resetUI', 'refresh');
+
     return model;
 };

@@ -38,7 +38,7 @@ function move(canvas, loadedModel, pos, deltaPos) {
         node.linkerY = pos.y;
     });
 
-    loadedModel.refresh = true;
+    //loadedModel.refresh = true;
     /*model.propagate();*/
 }
 
@@ -56,7 +56,7 @@ function up(canvas, loadedModel, pos) {
         node.linkerY = 0;
     });
 
-    loadedModel.refresh = true;
+    //loadedModel.refresh = true;
 }
 
 module.exports = {

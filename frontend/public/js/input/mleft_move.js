@@ -38,8 +38,6 @@ function mouseMove(canvas, loadedModel, pos, deltaPos) {
         }
     );
 
-    loadedModel.refresh = true;
-
     //loadedModel.nodeGui  = loadedModel.nodeGui.merge(data.nodeGui);
     //loadedModel.links    = loadedModel.links.merge(data.links);
     

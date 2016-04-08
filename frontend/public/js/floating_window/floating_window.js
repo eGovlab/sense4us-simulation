@@ -51,10 +51,10 @@ FloatingWindow.prototype = {
         this.body       = menuBuilder.div(this.className);
         this.body.style.height = h + 'px';
 
-        this.span           = document.createElement('span');
-        this.span.className = 'glyphicon glyphicon-remove';
+        /*this.span           = document.createElement('span');
+        this.span.className = 'glyphicon glyphicon-remove';*/
 
-        this.killButton.appendChild(this.span);
+        //this.killButton.appendChild(this.span);
 
         this.title.appendChild(this.killButton);
         this.title.appendChild(this.clear);

@@ -79,7 +79,6 @@ function clickAndMove(data, error, done, env) {
                 offsetX:   data.pos.x - (node.x || 0),
                 offsetY:   data.pos.y - (node.y || 0),
                 clicked:   true
-                //selected: true
             });
 
             return node;
@@ -111,7 +110,6 @@ function clickAndMove(data, error, done, env) {
                     offsetX:  data.pos.x - (link.x || 0),
                     offsetY:  data.pos.y - (link.y || 0),
                     clicked:  true
-                    //selected: true
                 }
             );
         }

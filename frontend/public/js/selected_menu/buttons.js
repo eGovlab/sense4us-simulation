@@ -53,9 +53,11 @@ module.exports = [
 
                 loadedModel.selected = false;
 
-                loadedModel.refresh = true;
+                loadedModel.propagate(null, 'selected', 'refresh', 'resetUI');
+
+                /*loadedModel.refresh = true;
                 loadedModel.resetUI = true;
-                loadedModel.propagate();
+                loadedModel.propagate();*/
             });
         }
     }

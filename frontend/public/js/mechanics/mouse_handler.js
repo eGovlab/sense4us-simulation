@@ -20,47 +20,20 @@ module.exports = function(canvas, loadedModel, inputs) {
     canvas.addEventListener('contextmenu', stopContextMenu);
     var mouseDown = function(event) {
         var button = event.button;
-        var middlewares = inputs.filter(function(input) {
-            return input.button === button;
-        });
+        active     = true;
 
-        active = true;
-
-        startPos = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
-        lastPos  = {x: startPos.x, y: startPos.y};
+        startPos   = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
+        lastPos    = {x: startPos.x, y: startPos.y};
 
         loadedModel.didDrag = false;
 
-        middlewares.forEach(function(middleware) {
-            var startCallback  = middleware.mouseDown,
-                updateCallback = middleware.mouseMove,
-                endCallback    = middleware.mouseUp,
-                missCallback   = middleware.miss;
-
-            var result = startCallback(canvas, loadedModel, startPos);
-            if (result) {
-                if (updateCallback) {
-                    window.addEventListener('mousemove', mouseMove);
-                }
-
-                if (endCallback) {
-                    window.addEventListener('mouseup', mouseUp);
-                }
-            } else if (missCallback) {
-                missCallback(canvas, loadedModel, startPos);
-            }
-        });
-
-        loadedModel.propagate();
+        loadedModel.emit([canvas, button, startPos, lastPos, mouseMove, mouseUp], 'mouseDown');
     };
 
     canvas.addEventListener('mousedown', mouseDown);
 
     var mouseMove = function(event) {
         var button = event.button;
-        var middlewares = inputs.filter(function(input) {
-            return input.button === button;
-        });
 
         active = true;
 
@@ -74,32 +47,21 @@ module.exports = function(canvas, loadedModel, inputs) {
 
         loadedModel.didDrag = true;
 
-        middlewares.forEach(function(middleware) {
-            middleware.mouseMove(canvas, loadedModel, endPos, deltaPos);
-        });
-
-        loadedModel.propagate();
-        
         lastPos = {x: endPos.x, y: endPos.y};
+
+        loadedModel.emit([canvas, button, startPos, lastPos, endPos, deltaPos], 'mouseMove');
     };
 
     var mouseUp = function(event) {
         var button = event.button;
-        var middlewares = inputs.filter(function(input) {
-            return input.button === button;
-        });
 
         active = false;
 
         endPos = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
 
         window.removeEventListener('mousemove', mouseMove);
-        window.removeEventListener('mouseup', mouseUp);
+        window.removeEventListener('mouseup',   mouseUp);
 
-        middlewares.forEach(function(middleware) {
-            middleware.mouseUp(canvas, loadedModel, endPos);
-        });
-        
-        loadedModel.propagate();
+        loadedModel.emit([canvas, button, endPos], 'mouseUp');
     };
 };

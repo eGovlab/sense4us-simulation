@@ -28,7 +28,7 @@ module.exports = function(canvas, loadedModel, startCallback, updateCallback, en
 		loadedModel.didDrag = false;
 
 		var result = startCallback(canvas, loadedModel, startPos);
-		loadedModel.propagate();
+		//loadedModel.propagate();
 
 		if (result) {
 			if (updateCallback) {

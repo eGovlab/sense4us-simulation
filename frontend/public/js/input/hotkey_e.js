@@ -28,8 +28,9 @@ module.exports = {
             model.nodeGui[selected.id].linkerX = pos.x;
             model.nodeGui[selected.id].linkerY = pos.y;
 
-            model.refresh = true;
-            model.propagate();
+            /*model.refresh = true;
+            model.propagate();*/
+            model.emit('refresh');
         };
 
         var mouseUp = function() {

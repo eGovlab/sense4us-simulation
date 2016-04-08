@@ -152,8 +152,10 @@ Data.prototype = {
         var containerSelect = menuBuilder.select(key, function(evt) {
             that.data[key] = this.value;
 
-            that.loadedModel.refresh = true;
-            that.loadedModel.propagate();
+            /*that.loadedModel.refresh = true;
+            that.loadedModel.propagate();*/
+
+            that.loadedModel.emit('refresh');
         });
 
         options.forEach(function(option) {
@@ -180,9 +182,10 @@ Data.prototype = {
             function(thatKey, newValue) {
                 that.data[thatKey] = newValue;
 
-                that.loadedModel.refresh = true;
+                /*that.loadedModel.refresh = true;
                 that.loadedModel.resetUI = true;
-                that.loadedModel.propagate();
+                that.loadedModel.propagate();*/
+                that.loadedModel.emit(null, 'refresh', 'resetUI');
             }
         );
 
@@ -226,8 +229,9 @@ Data.prototype = {
         if(this.data.type && this.data.type.toUpperCase() === 'ACTOR') {
             var randomColor = menuBuilder.button('Randomize color', function() {
                 that.loadedModel.nodeGui[that.data.id].color = generateColor();
-                that.loadedModel.refresh = true;
-                that.loadedModel.propagate();
+                /*that.loadedModel.refresh = true;
+                that.loadedModel.propagate();*/
+                that.loadedModel.emit('refresh');
             });
 
             element.appendChild(randomColor);
@@ -247,9 +251,10 @@ Data.prototype = {
                     delete that.loadedModel.links[link.id];
                     that.loadedModel.nodeGui[that.data.id].links = [];
 
-                    that.loadedModel.refresh = true;
+                    /*that.loadedModel.refresh = true;
                     that.loadedModel.resetUI = true;
-                    that.loadedModel.propagate();
+                    that.loadedModel.propagate();*/
+                    that.loadedModel.emit(null, 'refresh', 'resetUI');
                 });
 
                 element.appendChild(button);
@@ -263,9 +268,11 @@ Data.prototype = {
 
             if (key === 'timeTable') {
                 var timeTable = new TimeTable(this.data, function(step, value) {
-                    that.loadedModel.refresh = true;
+                    /*that.loadedModel.refresh = true;
                     that.loadedModel.resetUI = true;
-                    that.loadedModel.propagate();
+                    that.loadedModel.propagate();*/
+
+                    that.loadedModel.emit(null, 'refresh', 'resetUI');
                 }, true);
 
                 timeTable.generateTimeTable();

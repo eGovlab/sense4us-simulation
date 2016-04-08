@@ -61,6 +61,7 @@ function Model(id, data) {
     this.refresh         = false;
     this.resetUI         = false;
 
+
     this.settings = {
         name:          'New Model',
         //maxIterations: 4,
@@ -89,7 +90,42 @@ function Model(id, data) {
 }
 
 Model.prototype = {
-    listeners:   {},
+    //listeners:   {},
+    emit: function() {
+        if(!this.listeners) {
+            return;
+        }
+
+        var data;
+        var events = [];
+
+        if(arguments.length !== 1) {
+            data = arguments[0];
+            for(var i = 1; i < arguments.length; i++) {
+                var ev = arguments[i];
+                if(typeof ev !== 'string') {
+                    throw new Error('Listener id must be a string.');
+                }
+
+                events.push(ev);
+            }
+        } else {
+            events = [arguments[0]];
+        }
+
+        if(data && !data.forEach) {
+            data = [data];
+        }
+
+        events.forEach(function(ev) { 
+            if(this.listeners[ev]) {
+                this.listeners[ev].forEach(function(listener) {
+                    listener.apply(this, data);
+                }, this);
+            }
+        }, this);
+    },
+
     generateId: function() {
         this.nextId++;
 
@@ -97,6 +133,35 @@ Model.prototype = {
     },
 
     addListener: function(key, listener) {
+        if(!this.listeners) {
+            this.listeners = {};
+        }
+
+        if(!this.listeners[key]) {
+            this.listeners[key] = [];
+        }
+
+        this.listeners[key].push(listener);
+    },
+
+    removeListener: function(key, listener) {
+        if(!this.listeners[key]) {
+            return;
+        }
+
+        var index = this.listeners[key].indexOf(listener);
+        if(index === -1) {
+            return;
+        }
+
+        this.listeners[key].splice(index, 1);
+    },
+
+    remvoeListeners: function(key) {
+        this.listeners[key] = [];
+    },
+
+    /*addListener: function(key, listener) {
         if(!Model.prototype.listeners[key]) {
             Model.prototype.listeners[key] = [];
         }
@@ -118,7 +183,7 @@ Model.prototype = {
 
     removeListeners: function(key) {
         Model.prototype.listeners[key] = [];
-    },
+    },*/
 
     propagate: function() {
         var validListeners = [];
@@ -159,7 +224,7 @@ Model.prototype = {
     }
 };
 
-definePropagations(Model.prototype, [
+/*definePropagations(Model.prototype, [
     'id',
     'environment',
     'sidebar',
@@ -178,7 +243,7 @@ definePropagations(Model.prototype, [
     'treeSettings',
     'loadedScenario',
     'scenarios'
-]);
+]);*/
 
 module.exports = {
     newModel: function(data) {
@@ -207,6 +272,7 @@ module.exports = {
         newModel.treeSettings    = model.treeSettings;
         newModel.loadedScenario  = model.loadedScenario;
         newModel.scenarios       = model.scenarios;
+        newModel.listeners       = model.listeners;
 
         model.floatingWindows.forEach(function(floatingWindow) {
             floatingWindow.destroyWindow();
@@ -482,9 +548,10 @@ module.exports = {
             timetables.forEach(function(timetable) {
                 var node = newState.nodeData[timetable.node];
                 var newTimetable = new TimeTable(node, function() {
-                    newState.refresh = true;
+                    newState.emit(null, 'refresh', 'resetUI');
+                    /*newState.refresh = true;
                     newState.resetUI = true;
-                    newState.propagate();
+                    newState.propagate();*/
                 });
 
                 timetableLookup[timetable.id] = newTimetable;

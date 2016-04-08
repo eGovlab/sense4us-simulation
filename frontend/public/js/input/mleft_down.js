@@ -40,8 +40,6 @@ function mouseDown(canvas, loadedModel, pos) {
         }
     );
 
-    loadedModel.refresh = true;
-
     return true;
 }
 

@@ -1,7 +1,7 @@
 .mb-dropdown {
     display: inline-block;
 
-    width: 180px;
+    width: 100%;
     cursor: pointer;
     
     background-color: inherit;
@@ -14,9 +14,6 @@
 }
 
 .mb-dropdown > .mb-dropdown-header {
-    width: inherit;
-    padding-top: 3px;
-
     color: #505050;
     text-align: center;
     margin: 0;
@@ -38,13 +35,10 @@
 
 .mb-dropdown .mb-dropdown-container {
     position: absolute;
-    width: inherit;
     text-align: center;
     box-shadow: 0px 10px 15px 0px rgba(20, 20, 20, 0.3);
     /* box-shadow: 0px 10px 15px 0px rgba(20, 45, 45, 0.7); */
 }
-
-
 
 .mb-dropdown .mb-dropdown-container-animation {
     -webkit-animation: CONTAINER_FADEIN 0.5s 1;
@@ -54,7 +48,7 @@
 
 .mb-dropdown .mb-dropdown-container > div {
     color: #202020;
-    padding: 6px 0px;
+    padding: 6px 12px;
     background-color: #efefef;
     color: #505050;
     /*background-color: rgba(42, 136, 136, 0.7);*/
