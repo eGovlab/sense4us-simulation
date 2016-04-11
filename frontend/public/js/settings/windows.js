@@ -16,9 +16,13 @@ function callback(loadedModel, savedModels) {
 
     this.parent.toggle();
 
+    loadedModel.emit(option, 'newWindow');
+    return;
+
     switch(option.toUpperCase()) {
         case 'SCENARIO':
-            var scenarioEditor = new ScenarioEditor(loadedModel);
+            loadedModel.emit('SCENARIO', 'newWindow');
+            //var scenarioEditor = new ScenarioEditor(loadedModel);
             /*var scenarioEditor = floatingWindow.createWindow(20, 20, 440, 400);
             var scenarioContainer = createScenarioEditor(loadedModel, savedModels);
             scenarioEditor.appendChild(scenarioContainer);

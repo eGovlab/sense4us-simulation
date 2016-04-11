@@ -6,9 +6,9 @@ var FloatingWindow = require('./../floating_window/floating_window.js'),
 
 var objectHelper   = require('./../object-helper.js');
 
-function ScenarioEditor(loadedModel) {
+function ScenarioEditor(loadedModel, x, y) {
     this.loadedModel     = loadedModel;
-    this.floatingWindow  = new FloatingWindow(20, 20, 440, 400, 'mb-scenario-editor');
+    this.floatingWindow  = new FloatingWindow(x || 20, y || 20, 440, 400, 'mb-scenario-editor');
     this.floatingWindow.killButton.removeEventListener('click', this.floatingWindow.killCallback);
     var that = this;
     this.floatingWindow.killButton.killCallback = function() {

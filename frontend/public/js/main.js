@@ -311,8 +311,8 @@ function inflateModel(container) {
         refreshNamespace.drawLinkingLine
     );
 
-    loadedModel.addListener('nodeGui',  refresh);
-    loadedModel.addListener('nodeData', refresh);
+    //loadedModel.addListener('nodeGui',  refresh);
+    //loadedModel.addListener('nodeData', refresh);
     loadedModel.addListener('settings', refresh);
     loadedModel.addListener('refresh',  refresh);
 
@@ -323,7 +323,15 @@ function inflateModel(container) {
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
     });
 
-    //loadedModel.propagate();
+    var ScenarioEditor = require('./scenario').ScenarioEditor;
+    loadedModel.addListener('newWindow', function(option) {
+        console.dir(container);
+        switch(option.toUpperCase()) {
+            case 'SCENARIO':
+                new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
+                break;
+        }
+    });
 
     sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);

@@ -100,7 +100,6 @@ module.exports = function(grunt) {
                     "eqeqeq":         ["error", "smart"],
                     "curly":          "error",
                     "quotes":         ["error", "single"],
-                    "no-console":     ["error", {allow: ["warn", "error"]}],
                     "no-else-return": "error",
                     "dot-notation":   "error"
                 }

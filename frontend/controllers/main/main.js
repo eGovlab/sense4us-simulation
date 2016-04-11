@@ -7,7 +7,6 @@ var protocol = CONFIG.get("SENSE4US", "tool", "protocol"),
     port     = CONFIG.get("SENSE4US", "tool", "port");
 
 function root(req, res, next) {
-
     res.render("main", {locals: {
         protocol: protocol,
         hostname: hostname,
