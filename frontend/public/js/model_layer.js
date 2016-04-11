@@ -306,61 +306,63 @@ module.exports = {
 
         backendApi('/models/save', data, function(response, err) {
             if (err) {
-                console.error(response);
-                console.error(err);
+                loadedModel.emit('Couldn\'t save model: ' + err.message, 'notification');
+                return;
+            }
+
+            if(response.status !== 200) {
                 loadedModel.emit('Couldn\'t save model: ' + (response.errors || 'null'), 'notification');
                 return;
             }
 
             try {
+                loadedModel.synced         = true;
+                loadedModel.syncId         = response.response.model.id;
+                loadedModel.settings.saved = true;
 
-            loadedModel.synced         = true;
-            loadedModel.syncId         = response.response.model.id;
-            loadedModel.settings.saved = true;
+                var nodes      = response.response.nodes;
+                var links      = response.response.links;
+                var scenarios  = response.response.scenarios;
+                var timetables = response.response.timetables;
+                var timesteps  = response.response.timesteps;
 
-            var nodes      = response.response.nodes;
-            var links      = response.response.links;
-            var scenarios  = response.response.scenarios;
-            var timetables = response.response.timetables;
-            var timesteps  = response.response.timesteps;
+                var nodeLookup = {};
+                nodes.forEach(function(node) {
+                    loadedModel.nodeData[node.id].syncId = node.syncId;
+                    loadedModel.nodeGui[node.id].syncId  = node.syncId;
 
-            var nodeLookup = {};
-            nodes.forEach(function(node) {
-                loadedModel.nodeData[node.id].syncId = node.syncId;
-                loadedModel.nodeGui[node.id].syncId  = node.syncId;
+                    nodeLookup[node.syncId] = loadedModel.nodeData[node.id];
+                });
 
-                nodeLookup[node.syncId] = loadedModel.nodeData[node.id];
-            });
+                links.forEach(function(link) {
+                    loadedModel.links[link.id].syncId = link.syncId;
+                });
 
-            links.forEach(function(link) {
-                loadedModel.links[link.id].syncId = link.syncId;
-            });
+                var scenarioLookup = {};
+                scenarios.forEach(function(scenario) {
+                    loadedModel.scenarios[scenario.id].syncId = scenario.syncId;
+                    scenarioLookup[scenario.syncId] = loadedModel.scenarios[scenario.id];
+                });
 
-            var scenarioLookup = {};
-            scenarios.forEach(function(scenario) {
-                loadedModel.scenarios[scenario.id].syncId = scenario.syncId;
-                scenarioLookup[scenario.syncId] = loadedModel.scenarios[scenario.id];
-            });
+                var timetableLookup = {};
+                timetables.forEach(function(timetable) {
+                    scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node].id].syncId = timetable.syncId;
+                    timetableLookup[timetable.syncId] = scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node]];
+                });
 
-            var timetableLookup = {};
-            timetables.forEach(function(timetable) {
-                scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node].id].syncId = timetable.syncId;
-                timetableLookup[timetable.syncId] = scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node]];
-            });
+                /*timesteps.forEach(function(timestep) {
+                    timetableLookup[timestep.timetable]
+                });*/
 
-            /*timesteps.forEach(function(timestep) {
-                timetableLookup[timestep.timetable]
-            });*/
+                /*loadedModel = loadedModel.set('syncId',   response.response.id);
+                loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
+                _loadedModel(loadedModel);*/
 
-            /*loadedModel = loadedModel.set('syncId',   response.response.id);
-            loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
-            _loadedModel(loadedModel);*/
-
-            if(response.response.message) {
-                loadedModel.emit(response.response.message, 'notification');
-            } else {
-                loadedModel.emit('Model['+loadedModel.settings.name+'] saved.', 'notification');
-            }
+                if(response.response.message) {
+                    loadedModel.emit(response.response.message, 'notification');
+                } else {
+                    loadedModel.emit('Model['+loadedModel.settings.name+'] saved.', 'notification');
+                }
 
             } catch(e) {
                 console.error(e);

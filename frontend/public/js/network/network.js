@@ -46,19 +46,20 @@ function sendData(domain, path, jsonData, callback, method) {
     httpRequest.onreadystatechange = function() {
         if (httpRequest.readyState === 4) {
             try {
-                var rt = JSON.parse(httpRequest.responseText);
+                if(httpRequest.status === 0) {
+                    throw new Error('Connection refused.');
+                }
+
+                var rt    = JSON.parse(httpRequest.responseText);
                 rt.status = httpRequest.status;
                 
-                if (httpRequest.status === 200) {
-                    if (callback) {
-                        callback(rt);
-                    } else {
-                        console.warn('No callback was sent with the query against ' + path);
-                    }
-                } else {
+                if(callback) {
                     callback(rt);
+                } else {
+                    console.warn('No callback was sent with the query against ' + path);
                 }
             } catch(err) {
+                console.warn(httpRequest);
                 callback(undefined, err);
             }
         }

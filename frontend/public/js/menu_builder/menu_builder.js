@@ -122,6 +122,7 @@ MenuBuilder.prototype = {
         MenuBuilder.prototype.addValueCallback(input, callback);
 
         input.setAttribute('value', value);
+        input.type  = 'text';
         input.name  = key;
         input.value = value;
       

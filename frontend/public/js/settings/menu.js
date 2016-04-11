@@ -57,7 +57,11 @@ var projectUpdate = function(loadedModel, savedModels) {
     backendApi('/models/all', function(response, error) {
         if(error) {
             console.error(error);
-            throw new Error('projectUpdate: /models/all crashed');
+            loadedModel.emit('Couldn\'t fetch all models.', 'notification');
+            response = {
+                response: []
+            };
+            //throw new Error('projectUpdate: /models/all crashed');
         }
 
         objectHelper.forEach.call(
@@ -85,10 +89,10 @@ var projectUpdate = function(loadedModel, savedModels) {
             }
         );
 
-        if(error) {
+        /*if(error) {
             element.refreshList();
             return;
-        }
+        }*/
 
         element.refreshList();
     });

@@ -8,7 +8,7 @@ if(url.charAt(url.length - 1) !== '/') {
 }
 
 var images = {};
-var PLACEHOLDER_PATH = url + 'img/file_not_found.png';
+var PLACEHOLDER_PATH = '/img/not-found.png';
 
 function drawScaledImage(ctx, image, x, y, w, h) {
     if (w > image.width || h > image.h) {
