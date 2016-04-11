@@ -3,8 +3,7 @@
 var Immutable       = null,
     breakout        = require('./../breakout.js'),
     backendApi      = require('./../api/backend_api.js'),
-    objectHelper    = require('./../object-helper.js'),
-    notificationBar = require('./../notification_bar');
+    objectHelper    = require('./../object-helper.js');
 
 var simulate = [
     {
@@ -30,7 +29,7 @@ var simulate = [
                 if(err) {
                     console.error(err);
                     console.error(response);
-                    notificationBar.notify(response.response.message);
+                    loadedModel.emit(response.response.message, 'notification');
                     return;
                 }
 
@@ -107,8 +106,7 @@ var simulate = [
         onSlide: function(model, value) {
             model.loadedScenario.timeStepN = value;
 
-            model.refresh = true;
-            model.propagate();
+            model.emit('refresh');
         },
 
         callback: function(model, value) {

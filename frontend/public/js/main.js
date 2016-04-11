@@ -119,7 +119,7 @@ function inflateModel(container) {
     var colorValues      = require('./graphics/value_colors.js'),
         modelLayer       = require('./model_layer.js'),
         menuBuilder      = require('./menu_builder'),
-        notificationBar  = require('./notification_bar'),
+        notification     = require('./notification_bar'),
         network          = require('./network'),
         informationTree  = require('./information_tree'),
         UI               = require('./ui');
@@ -161,6 +161,16 @@ function inflateModel(container) {
     ];
 
     mouseHandler(mainCanvas, loadedModel);
+
+    loadedModel.addListener('notification', function(message) {
+        var delay = 4000;
+        if(typeof message === 'object') {
+            delay   = message.delay;
+            message = message.message;
+        }
+
+        notification.notify(notificationBarDiv, message);
+    });
 
     loadedModel.addListener('mouseDown', function(canvas, button, startPos, lastPos, mouseMove, mouseUp) {
         var middlewares = mouseMiddlewares.filter(function(input) {
@@ -306,15 +316,8 @@ function inflateModel(container) {
     loadedModel.addListener('settings', refresh);
     loadedModel.addListener('refresh',  refresh);
 
-    refresh();
-
     //var sidebarManager = new UI.SidebarManager(CONFIG.get('SIDEBAR_CONTAINER'));
     var sidebarManager = new UI.SidebarManager(sidebarContainer);
-
-    loadedModel.addListener('notification', function() {
-
-
-    });
 
     loadedModel.addListener('sidebar', function() {
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
@@ -373,6 +376,7 @@ function inflateModel(container) {
     });
 
     loadedModel.emit(null, 'refresh', 'resetUI', 'settings', 'sidebar');
+    loadedModel.emit('Initialized', 'notification');
 
     var drawLineGraph = require('./graphics/draw_line_graph.js');
     function _linegraphRefresh() {

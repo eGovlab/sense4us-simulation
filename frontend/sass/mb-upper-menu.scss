@@ -1,9 +1,9 @@
 .menu-header
 
 .mb-upper-menu {
-    width: 100%;
+    width:   100%;
     display: inline-block;
-    height: inherit;
+    height:  inherit;
 }
 
 .mb-upper-menu > .menu {
@@ -21,45 +21,45 @@
 }
 
 .mb-upper-menu > .menu > div {
-    width: 180px;
+    width:     180px;
     max-width: 33%;
 }
 
 .mb-upper-menu > .menu > button {
-    padding: 3px 0px;
-    color: #505050;
+    padding:          3px 0px;
+    color:            #505050;
 
     background-color: inherit;
     
-    border: none;
-    width: 200px;
+    border:           none;
+    width:            200px;
 
-    font-weight: bold;
-    font-size: 12px;
+    font-weight:      bold;
+    font-size:        12px;
 }
 
 .mb-upper-menu > .menu > button:hover {
     background-color: rgba(255, 255, 255, 1);
 
     -webkit-animation: DROPDOWN_FADEIN 0.5s 1;
-    -moz-animation: DROPDOWN_FADEIN 0.5s 1;
-    animation: DROPDOWN_FADEIN 0.5s 1;
+    -moz-animation:    DROPDOWN_FADEIN 0.5s 1;
+    animation:         DROPDOWN_FADEIN 0.5s 1;
 }
 
 .mb-upper-menu h2 {
     background-color: inherit;
 
-    padding: 7px 20px 7px;
-    font-size: 24px;
+    padding:          7px 20px 7px;
+    font-size:        24px;
 
-    margin: 0px;
+    margin:           0px;
 
-    color: #FFFFFF;
+    color:            #FFFFFF;
 }
 
 .mb-upper-menu select {
     display: block;
 
-    width: 200px;
+    width:   200px;
     padding: 13px 20px 13px;
 }

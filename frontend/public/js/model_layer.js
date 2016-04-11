@@ -6,9 +6,8 @@
 var backendApi      = require('./api/backend_api.js'),
     Immutable       = null,
     breakout        = require('./breakout.js'),
-    notificationBar = require('./notification_bar'),
     Scenario        = require('./scenario').Scenario,
-    TimeTable       = require('./scenario').TimeTable,
+    TimeTable       = require('./structures/timetable.js'),
     menuBuilder     = require('./menu_builder');
 
 var createNode = require('./structures/create_node.js'),
@@ -305,13 +304,11 @@ module.exports = {
             scenarios: loadedModel.scenariosToJson()
         };
 
-        console.warn(data);
-
         backendApi('/models/save', data, function(response, err) {
             if (err) {
                 console.error(response);
                 console.error(err);
-                //notificationBar.notify('Couldn't save model: ' + (response.errors || 'null'));
+                loadedModel.emit('Couldn\'t save model: ' + (response.errors || 'null'), 'notification');
                 return;
             }
 
@@ -355,16 +352,14 @@ module.exports = {
                 timetableLookup[timestep.timetable]
             });*/
 
-
-
             /*loadedModel = loadedModel.set('syncId',   response.response.id);
             loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
             _loadedModel(loadedModel);*/
 
             if(response.response.message) {
-                notificationBar.notify(response.response.message);
+                loadedModel.emit(response.response.message, 'notification');
             } else {
-                notificationBar.notify('Model['+loadedModel.settings.name+'] saved.');
+                loadedModel.emit('Model['+loadedModel.settings.name+'] saved.', 'notification');
             }
 
             } catch(e) {
@@ -402,7 +397,7 @@ module.exports = {
                     }
                 );
 
-                notificationBar.notify(response.response.message);
+                loadedModel.emit(response.response.message, 'notification');
                 callback();
             }, 'DELETE');
         } else {
@@ -496,7 +491,6 @@ module.exports = {
 
             links.forEach(function(link) {
                 if(!link.downstream || !link.upstream) {
-                    notificationBar.notify('Model with id ' + modelId + ' is corrupt. Its id is loaded and may be deleted from running \'Delete current\'. Otherwise, contact sysadmin.', 10000);
                     return callback(settings.id);
                 }
 

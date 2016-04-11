@@ -1,4 +1,4 @@
 {
     "name": "scenario",
-    "main": "./scenario.js"
+    "main": "./scenario_index.js"
 }

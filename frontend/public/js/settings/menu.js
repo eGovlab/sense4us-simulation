@@ -176,6 +176,13 @@ var projectCallback = function(loadedModel, savedModels) {
                             loadedModel.resetUI = true;
                             loadedModel.propagate();*/
 
+                            loadedModel.emit(
+                                {
+                                    delay: 10000,
+                                    message: 'Model with id ' + modelId + ' is corrupt. Its id is loaded and may be deleted from running \'Delete current\'. Otherwise, contact sysadmin.'
+                                },
+                                'notification'
+                            );
                             loadedModel.emit(null, 'refresh', 'resetUI');
                             return;
                         }
