@@ -68,12 +68,12 @@ FloatingWindow.prototype = {
 
         this.killButton.addEventListener('click', this.killCallback);
 
-        var startX = this.x,
-            startY = this.y;
+        var lastX  = 0,
+            lastY  = 0;
 
         this.initializeMove = function(pos) {
-            startX = pos.clientX;
-            startY = pos.clientY;
+            lastX = pos.clientX;
+            lastY = pos.clientY;
 
             document.body.addEventListener('mousemove', moveCallback);
             document.body.addEventListener('mouseup',   that.deactivateMove);
@@ -85,16 +85,14 @@ FloatingWindow.prototype = {
         };
 
         var moveCallback = function(pos) {
-            var rect = container.getBoundingClientRect();
+            var newX = pos.clientX - lastX,
+                newY = pos.clientY - lastY;
 
-            var newX = pos.clientX - startX,
-                newY = pos.clientY - startY;
+            lastX = pos.clientX;
+            lastY = pos.clientY;
 
-            startX = pos.clientX;
-            startY = pos.clientY;
-
-            that.x = rect.left + newX;
-            that.y = rect.top  + newY;
+            that.x = that.x + newX;
+            that.y = that.y  + newY;
 
             container.style.left = that.x + 'px';
             container.style.top  = that.y + 'px';
