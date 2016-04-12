@@ -1,40 +1,54 @@
 'use strict';
 
+var objectHelper = require('./../object-helper.js');
+
 module.exports = function createNode(model, data, gui, type) {
-    var id = model.nextId;
-    model.nextId = id + 1;
+    var id = model.generateId();
 
     var nodeData = {
         id:              id,
+        syncId:          false,
         value:           0,
-        relativeChange:  0,
         simulateChange:  [],
         type:            type || 'intermediate',
         initialValue:    0,
-        measurementUnit: "",
-        description:     ''
+        measurementUnit: '',
+        description:     '',
+
+        objectId: 'nodeData'
     };
 
     var nodeGui = {
-        id:     id,
-        x:      200,
-        y:      100,
-        radius: 45
+        id:       id,
+        x:        400,
+        y:        100,
+        radius:   45,
+
+        objectId: 'nodeGui'
     };
 
     if(data !== undefined) {
-        nodeData = nodeData.merge(data);
+        nodeData = objectHelper.merge.call(nodeData, data);
     }
 
     if(gui !== undefined) {
-        nodeGui = nodeGui.merge(gui);
+        nodeGui = objectHelper.merge.call(nodeGui, gui);
     }
 
     model.nodeData[id] = nodeData;
     model.nodeGui[id]  = nodeGui;
 
-    model.refresh = true;
-    model.propagate();
+    if(nodeData.timeTable) {
+        objectHelper.forEach.call(
+            model.scenarios,
+            function(scenario) {
+                scenario.refresh(model);
+            }
+        );
+    }
+
+    model.emit(null, 'resetUI', 'refresh');
+    model.emit([id, nodeData, nodeGui], 'newNode');
 
     return model;
 };

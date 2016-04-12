@@ -21,11 +21,11 @@ MenuBuilder.prototype = {
     },
 
     slider: function(defaultValue, min, max, callback, onSlideCallback) {
-        var container = this.div("sidebar-slider");
+        var container = this.div('mb-sidebar-slider');
 
-        var minSpan = this.div("value");
+        var minSpan = this.div('value');
         minSpan.innerHTML = defaultValue;
-        var maxSpan = this.div("max-value");
+        var maxSpan = this.div('max-value');
         maxSpan.innerHTML = max;
 
         var input = document.createElement('input');
@@ -69,6 +69,9 @@ MenuBuilder.prototype = {
     button: function(text, callback) {
         var button = document.createElement('button');
         button.addEventListener('click', callback);
+        button.deleteEvents = function() {
+            button.removeEventListener('click', callback);
+        };
         button.appendChild(document.createTextNode(text));
         
         return button;        
@@ -77,7 +80,7 @@ MenuBuilder.prototype = {
     dropdown: function(text, callback, update) {
         var select = new Dropdown(text, callback, update);
         this.refreshable.push(select);
-        return select.element;
+        return select;
     },
 
     select: function(name, callback) {
@@ -86,6 +89,9 @@ MenuBuilder.prototype = {
         select.name = name;
 
         select.addEventListener('change', callback);
+        select.deleteEvents = function() {
+            select.removeEventListener('click', callback);
+        };
 
         return select;
     },
@@ -105,7 +111,7 @@ MenuBuilder.prototype = {
         var cb = function(event) {callback(element.name, element.value); };
         
         element.addEventListener(event, cb);
-        element.deleteEvent = function() {
+        element.deleteEvents = function() {
             element.removeEventListener(event, cb);
         };
     },
@@ -116,6 +122,7 @@ MenuBuilder.prototype = {
         MenuBuilder.prototype.addValueCallback(input, callback);
 
         input.setAttribute('value', value);
+        input.type  = 'text';
         input.name  = key;
         input.value = value;
       
@@ -144,7 +151,7 @@ MenuBuilder.prototype = {
 
     span: function(key) {
         var span = document.createElement('span');
-        if(key && typeof key === "string") {
+        if(key && typeof key === 'string') {
             span.innerHTML = key;
         }
 
@@ -156,6 +163,9 @@ MenuBuilder.prototype = {
         button.setAttribute('type', 'button');
         button.setAttribute('value', text);
         button.addEventListener('click', callback);
+        button.deleteEvents = function() {
+            button.removeEventListener('click', callback);
+        };
         button.className = 'button';
         
         return button;

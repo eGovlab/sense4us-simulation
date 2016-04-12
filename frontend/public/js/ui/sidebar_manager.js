@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-var menuBuilder = require("./../menu_builder");
-var selectedMenu = require("./../selected_menu");
+var menuBuilder = require('./../menu_builder');
+var selectedMenu = require('./../selected_menu');
 var SelectedMenu = selectedMenu.SelectedMenu;
 
-var Sidebar = require("./sidebar");
+var Sidebar = require('./sidebar');
 
 function SidebarManager(container) {
     this.sidebars        = [];
@@ -12,8 +12,8 @@ function SidebarManager(container) {
 
     this.container = container;
 
-    this.sidebarContainer      = menuBuilder.div("menu");
-    this.selectedMenuContainer = menuBuilder.div("menu");
+    this.sidebarContainer      = menuBuilder.div('menu');
+    this.selectedMenuContainer = menuBuilder.div('menu');
 
     this.container.appendChild(this.sidebarContainer);
     this.container.appendChild(this.selectedMenuContainer);
@@ -83,9 +83,9 @@ SidebarManager.prototype = {
 
     getLinkFilter: function() {
         switch(this.environment) {
-            case "modelling":
+            case 'modelling':
                 return SidebarManager.prototype.linkModellingFilter;
-            case "simulate":
+            case 'simulate':
                 return SidebarManager.prototype.linkSimulateFilter;
         }
         
@@ -93,32 +93,37 @@ SidebarManager.prototype = {
 
     getModelFilter: function() {
         switch(this.environment) {
-            case "modelling":
+            case 'modelling':
                 return SidebarManager.prototype.modelModellingFilter;
-            case "simulate":
+            case 'simulate':
                 return SidebarManager.prototype.modelSimulateFilter;
         }
     },
 
     getDataFilter: function() {
         switch(this.environment) {
-            case "modelling":
+            case 'modelling':
                 return SidebarManager.prototype.dataModellingFilter;
-            case "simulate":
+            case 'simulate':
                 return SidebarManager.prototype.dataSimulateFilter;
         }
     },
 
     getFilter: function(data) {
-        if(data.coefficient !== undefined) {
+        if(data.objectId === 'link') {
             return this.getLinkFilter();
         }
 
-        if(data.x !== undefined && data.y !== undefined || data.relativeChange !== undefined) {
+        if(data.objectId === 'nodeData' || data.objectId === 'nodeGui') {
             return this.getDataFilter();
         }
 
-        return this.getModelFilter();
+        if(data.objectId === 'modelSettings') {
+            return this.getModelFilter();
+        }
+
+        console.error(data);
+        throw new Error('Unrecognized objectId given to getFilter.');
     },
 
     setSelectedMenu: function() {
@@ -163,11 +168,11 @@ SidebarManager.prototype = {
 
         notSelected.forEach(function(data) {
             if(data === undefined) {
-                console.log(selectedData);
-                console.log(previouslySelected);
-                console.log(notSelected);
-                console.log(this.selectedData);
-                console.log("NOT SELECTED?", data);
+                console.warn(selectedData);
+                console.warn(previouslySelected);
+                console.warn(notSelected);
+                console.warn(this.selectedData);
+                console.warn('NOT SELECTED?', data);
             }
             
             var selectedMenu = this.selected[data.id];
@@ -176,7 +181,7 @@ SidebarManager.prototype = {
                 selectedMenu = this.selected[data.id];
                 this.selectedMenuContainer.appendChild(selectedMenu.container);
             }
-            
+
             selectedMenu.addData(this.getFilter(data), data);
         }, this);
 

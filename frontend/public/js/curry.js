@@ -21,11 +21,11 @@ function curry(fn) {
 		// then we return a new curry, that we can then add more arguments to
 		if (fn.length > allArguments.length) {
 			return curry(fn, allArguments);
-		} else {
-			// otherwise, if we have enoug arguments, we call the function
-			// with all the arguments
-			return fn.apply(this, allArguments);
 		}
+		
+		// otherwise, if we have enoug arguments, we call the function
+		// with all the arguments
+		return fn.apply(this, allArguments);
 	};
 }
 

@@ -7,12 +7,14 @@ var Immutable  = null,
     windows    = require('./windows.js'),
     modelLayer = require('./../model_layer.js');
 
+var objectHelper = require('./../object-helper.js');
+
 var modeUpdate = function(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
-    element.addOption('modelling', "Modelling");
-    element.addOption('simulate',  "Simulate");
+    element.addOption('modelling', 'Modelling');
+    element.addOption('simulate',  'Simulate');
 
     element.refreshList();
 };
@@ -24,22 +26,24 @@ var modeCallback = function(loadedModel, savedModels) {
     switch(option) {
         case 'modelling':
             loadedModel.sidebar     = modelling;
-            loadedModel.environment = "modelling";
+            loadedModel.environment = 'modelling';
             break;
         case 'simulate':
             loadedModel.sidebar     = simulate;
-            loadedModel.environment = "simulate";
+            loadedModel.environment = 'simulate';
             break;
     }
 
-    loadedModel.refresh = true;
-    loadedModel.resetUI = true;
+    /*loadedModel.refresh = true;
+    loadedModel.resetUI = true;*/
 
     if(!loadedModel.selected) {
         loadedModel.selected = loadedModel.settings;
     }
 
-    loadedModel.propagate();
+    //loadedModel.propagate();
+
+    loadedModel.emit(null, 'refresh', 'resetUI');
 };
 
 var projectUpdate = function(loadedModel, savedModels) {
@@ -51,41 +55,44 @@ var projectUpdate = function(loadedModel, savedModels) {
     element.addOption('delete', 'Delete Current');
 
     backendApi('/models/all', function(response, error) {
-        savedModels.local.forEach(function(model) {
-            if(model.synced === true) {
-                return;
-            }
-
-            var savedString = "";
-            if(model.saved === false) {
-                savedString = " * ";
-            }
-
-            element.addOption(model.id, 'LOCAL' + savedString + model.settings.name);
-        });
-
-        savedModels.synced.forEach(function(model) {
-            var savedString = "";
-            if(model.saved === false) {
-                savedString = " * ";
-            }
-
-            element.addOption(model.syncId, savedString + model.settings.name);
-        });
-
         if(error) {
-            element.refreshList();
-            return;
+            console.error(error);
+            loadedModel.emit('Couldn\'t fetch all models.', 'notification');
+            response = {
+                response: []
+            };
+            //throw new Error('projectUpdate: /models/all crashed');
         }
 
+        objectHelper.forEach.call(
+            savedModels.local,
+            function(model) {
+                element.addOption(model.id, model.settings.name);
+            }
+        );
+
         var models = response.response;
-
-        var local  = savedModels.local,
-            synced = savedModels.synced;
-
         models.forEach(function(model) {
-            element.addOption(model.id, model.name);
+            if(!savedModels.synced[model.id]) {
+                savedModels.synced[model.id] = model.name;
+            }
         });
+
+        objectHelper.forEach.call(
+            savedModels.synced,
+            function(model, key) {
+                if(typeof model === 'string') {
+                    element.addOption(key, model);
+                } else {
+                    element.addOption(model.syncId, model.settings.name);
+                }
+            }
+        );
+
+        /*if(error) {
+            element.refreshList();
+            return;
+        }*/
 
         element.refreshList();
     });
@@ -94,14 +101,15 @@ var projectUpdate = function(loadedModel, savedModels) {
 var projectCallback = function(loadedModel, savedModels) {
     var option      = this.value,
         that        = this,
-        text        = this.text.match(/^(LOCAL)?(\s\*\s)?(.*)$/)[3];
+        text        = this.text.match(/^(\s\*\s)?(.*)$/)[2];
 
-    modelLayer = require("./../model_layer.js");
+    modelLayer = require('./../model_layer.js');
+    var m;
     if(loadedModel.synced === true) {
-        var m = modelLayer.newModel(loadedModel.copy());
+        m = modelLayer.moveModel(loadedModel);
         savedModels.synced[loadedModel.syncId] = m;
     } else {
-        var m = modelLayer.newModel(loadedModel.copy());
+        m = modelLayer.moveModel(loadedModel);
         savedModels.local[loadedModel.id] = m;
     }
 
@@ -110,72 +118,136 @@ var projectCallback = function(loadedModel, savedModels) {
         case 'new':
             var m = modelLayer.newModel();
 
-            m.forEach(function(value, key) {
-                loadedModel[key] = value;
-            });
+            objectHelper.forEach.call(
+                m,
+                function(value, key) {
+                    loadedModel[key] = value;
+                }
+            );
+
+            savedModels.local[loadedModel.id] = m;
 
             that.parent.toggle();
             projectUpdate.call(this.parent, loadedModel, savedModels);
+
+            /*loadedModel.refresh = true;
+            loadedModel.resetUI = true;
+            loadedModel.propagate();*/
+
+            loadedModel.emit(null, 'refresh', 'resetUI');
             break;
         case 'save':
+            objectHelper.forEach.call(
+                m,
+                function(value, key) {
+                    loadedModel[key] = value;
+                }
+            );
+
             modelLayer.saveModel(loadedModel, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
-                loadedModel.refresh = true;
-                loadedModel.propagate();
+
+                /*loadedModel.refresh = true;
+                loadedModel.resetUI = true;
+                loadedModel.propagate();*/
+
+                loadedModel.emit(null, 'refresh', 'resetUI');
             });
+            return;
             break;
         case 'delete':
             modelLayer.deleteModel(loadedModel, savedModels, function() {
                 projectUpdate.call(that.parent, loadedModel, savedModels);
-                loadedModel.refresh = true;
-                loadedModel.propagate();
+                /*loadedModel.refresh = true;
+                loadedModel.resetUI = true;
+                loadedModel.propagate();*/
+
+                loadedModel.emit(null, 'refresh', 'resetUI');
             });
+            return;
             break;
         case undefined:
             break;
         default:
             if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
-                if(savedModels.synced[option] === undefined) {
+                if(typeof savedModels.synced[option] === 'string') {
                     modelLayer.loadSyncModel(option, function(newState) {
+                        if(typeof newState === 'number') {
+                            loadedModel.syncId = newState;
+                            loadedModel.id     = newState;
+
+                            /*loadedModel.refresh = true;
+                            loadedModel.resetUI = true;
+                            loadedModel.propagate();*/
+
+                            loadedModel.emit(
+                                {
+                                    delay: 10000,
+                                    message: 'Model with id ' + modelId + ' is corrupt. Its id is loaded and may be deleted from running \'Delete current\'. Otherwise, contact sysadmin.'
+                                },
+                                'notification'
+                            );
+                            loadedModel.emit(null, 'refresh', 'resetUI');
+                            return;
+                        }
+
                         loadedModel.nodeGui  = {};
                         loadedModel.nodeData = {};
-                        loadedModel.propagate();
+                        //loadedModel.propagate();
 
-                        savedModels.synced[option] = modelLayer.newModel(newState.copy());
-                        newState.forEach(function(value, key) {
-                            loadedModel[key] = value;
-                        });
+                        savedModels.synced[option] = newState;
+                        objectHelper.forEach.call(
+                            newState,
+                            function(value, key) {
+                                loadedModel[key] = value;
+                            }
+                        );
 
-                        loadedModel.refresh = true;
-                        loadedModel.propagate();
+                        /*loadedModel.refresh = true;
+                        loadedModel.resetUI = true;
+                        loadedModel.propagate();*/
+
+                        loadedModel.emit(null, 'refresh', 'resetUI');
                     });
                 } else {
                     loadedModel.nodeGui  = {};
                     loadedModel.nodeData = {};
-                    loadedModel.propagate();
-                    var savedModel = savedModels.synced[option];
-                    savedModel.forEach(function(value, key) {
-                        loadedModel[key] = value;
-                    });
+                    //loadedModel.propagate();
 
-                    loadedModel.refresh = true;
+                    var savedModel = savedModels.synced[option];
+                    objectHelper.forEach.call(
+                        savedModel,
+                        function(value, key) {
+                            loadedModel[key] = value;
+                        }
+                    );
+
+                    /*loadedModel.refresh = true;
+                    loadedModel.resetUI = true;
+                    loadedModel.propagate();*/
+
+                    loadedModel.emit(null, 'refresh', 'resetUI');
                 }
             } else {
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
-                loadedModel.propagate();
+                //loadedModel.propagate();
                 
                 var savedModel = savedModels.local[option];
-                savedModel.forEach(function(value, key) {
-                    loadedModel[key] = value;
-                });
+                objectHelper.forEach.call(
+                    savedModel,
+                    function(value, key) {
+                        loadedModel[key] = value;
+                    }
+                );
 
+                /*loadedModel.resetUI = true;
                 loadedModel.refresh = true;
+                loadedModel.propagate();*/
+
+                loadedModel.emit(null, 'refresh', 'resetUI');
             }
     }
-
-    loadedModel.resetUI = true;
-    loadedModel.propagate();
 
     return loadedModel;
 };

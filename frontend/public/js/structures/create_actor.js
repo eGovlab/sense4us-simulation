@@ -8,7 +8,7 @@ function generateHexColor() {
 }
 
 function generateColor() {
-    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+    return '#' + generateHexColor() + generateHexColor() + generateHexColor();
 }
 
 module.exports = function createActorNode(model, data, gui) {

@@ -12,6 +12,7 @@ module.exports = {
             }
 
             var obj = dd[_dd_id];
+
             Object.keys(dg[_dd_id]).forEach(function(_dg_property) {
                 obj[_dg_property] = dg[_dd_id][_dg_property];
             });

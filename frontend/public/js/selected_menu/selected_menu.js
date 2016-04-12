@@ -5,12 +5,21 @@ var Immutable   = null,
     settings    = require('./../settings'),
     buttons     = require('./buttons.js');
 
+var objectHelper = require('./../object-helper.js');
+var TimeTable    = require('./../structures/timetable.js');
+var CONFIG       = require('./../config.js');
+
+var url = CONFIG.get('url');
+if(url.charAt(url.length - 1) !== '/') {
+    url = url + '/';
+}
+
 function generateHexColor() {
     return Math.round(Math.random() * 255).toString(16);
 }
 
 function generateColor() {
-    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+    return '#' + generateHexColor() + generateHexColor() + generateHexColor();
 }
 
 function generateAvatarDiv(avatar, selected, name) {
@@ -23,9 +32,9 @@ function generateAvatarDiv(avatar, selected, name) {
         avatarDiv.className += ' selected';
     }
 
-    img.src = avatar.src;
+    img.src         = avatar.src;
     avatarDiv.value = avatar.src;
-    avatarDiv.name = avatar.header || name;
+    avatarDiv.name  = avatar.header || name;
 
     avatarDiv.appendChild(img);
 
@@ -33,7 +42,7 @@ function generateAvatarDiv(avatar, selected, name) {
 }
 
 function createAvatarButtons(header, value, callback, images) {
-    var avatarsDiv   = menuBuilder.div();
+    var avatarsDiv = menuBuilder.div();
     
     avatarsDiv.className = 'avatars';
     
@@ -44,6 +53,13 @@ function createAvatarButtons(header, value, callback, images) {
 
         avatarsDiv.appendChild(avatarDiv);
     });
+
+    avatarsDiv.deleteEvents = function() {
+        for(var i = 0; i < avatarsDiv.children.length; i++) {
+            var child = avatarsDiv.children[i];
+            child.deleteEvents();
+        }
+    };
 
     return avatarsDiv;
 }
@@ -103,187 +119,32 @@ Data.prototype = {
         this.createMenu();
     },
 
-    addTimeRow: function(timeStep, timeValue) {
-        if(!this.timetable) {
-            this.timetable = {};
-        }
-
-        var containerDiv = this.timetableDiv;
-        if(!containerDiv) {
-            var containerDiv = menuBuilder.div();
-                containerDiv.className = "time-table";
-
-            containerDiv.appendChild(menuBuilder.label(key));
-
-            this.timetableDiv = containerDiv;
-        }
-
-        var rowContainer = this.rowContainer;
-        if(!rowContainer) {
-            rowContainer      = menuBuilder.div("row-container");
-            this.rowContainer = rowContainer;
-
-            containerDiv.appendChild(rowContainer);
-        }
-
-        var that = this;
-
-        var rowDiv = menuBuilder.div("time-row");
-        this.rows[timeStep] = rowDiv;
-
-        var timeStepLabel       = menuBuilder.span("T");
-        timeStepLabel.className = "label";
-
-        var timeStepInput = menuBuilder.input("time-step", timeStep, function(input, newStep) {
-            var storingValue = that.timetable[timeStep];
-            if(that.timetable[newStep]) {
-                return timeStepInput.value = timeStep;
+    deleteEvents: function() {
+        objectHelper.forEach.call(
+            this.rows,
+            function(row, key) {
+                row.stepInput.deleteEvents();
+                row.valueInput.deleteEvents();
             }
+        );
 
-            console.log(that.rows);
+        objectHelper.forEach.call(
+            this.dropdowns,
+            function(dropdown) {
+                dropdown.deleteEvents();
+            }
+        );
 
-            that.timetable[newStep] = that.timetable[timeStep];
-            delete that.timetable[timeStep];
-            that.rows[newStep] = that.rows[timeStep];
-            delete that.rows[timeStep];
-
-            console.log(that.rows);
-
-            timeStepInput.value = newStep;
-
-            that.refreshTimeTable();
-
-            that.loadedModel.refresh = true;
-            that.loadedModel.propagate();
-        });
-
-        timeStepInput.className = "time-step";
-
-        var timeValueLabel = menuBuilder.span("T");
-        timeValueLabel.className = "label";
-
-        var timeValueInput = menuBuilder.input("time-value", timeValue, function(input, newValue) {
-            that.timetable[timeStep] = newValue;
-            timeValueInput.value     = newValue;
-
-            that.loadedModel.refresh = true;
-            that.loadedModel.propagate();
-        });
-
-        timeValueInput.className = "time-value";
-
-        rowDiv.appendChild(timeStepLabel);
-        rowDiv.appendChild(timeStepInput);
-        rowDiv.appendChild(timeValueLabel);
-        rowDiv.appendChild(timeValueInput);
-
-        rowDiv.stepInput  = timeStepInput;
-        rowDiv.valueInput = timeValueInput;
-
-        rowContainer.appendChild(rowDiv);
+        objectHelper.forEach.call(
+            this.inputs,
+            function(input) {
+                input.deleteEvents();
+            }
+        );
     },
 
     refreshTimeTable: function() {
-        if(!this.rowContainer) {
-            return;
-        }
-
-        while(this.rowContainer.firstChild) {
-            this.rowContainer.removeChild(this.rowContainer.firstChild);
-        }
-
-        this.rows.forEach(function(row, key) {
-            row.stepInput.deleteEvent();
-            row.valueInput.deleteEvent();
-        });
-
-        this.rows = {};
-
-        this.timetable.forEach(function(timeValue, timeStep) {
-            this.addTimeRow(timeStep, timeValue);
-        }, this);
-    },
-
-    generateTimeTable: function(key, value) {
-        var containerDiv = this.timetableDiv;
-        if(!containerDiv) {
-            var containerDiv = menuBuilder.div();
-                containerDiv.className = "time-table";
-
-            containerDiv.appendChild(menuBuilder.label(key));
-
-            this.timetableDiv = containerDiv;
-        } else {
-            while(this.timetableDiv.firstChild) {
-                this.timetableDiv.removeChild(this.timetableDiv.firstChild);
-            }
-
-            this.timetableDiv.appendChild(menuBuilder.label(key));
-
-            this.rows.forEach(function(row, key) {
-                row.stepInput.deleteEvent();
-                row.valueInput.deleteEvent();
-            });
-
-            this.rows = {};
-
-            this.rowContainer = null;
-        }
-
-        var rowContainer = this.rowContainer;
-        if(!rowContainer) {
-            rowContainer      = menuBuilder.div("row-container");
-            this.rowContainer = rowContainer;
-
-            containerDiv.appendChild(rowContainer);
-        }
-
-        this.timetable = value;
-        this.timetable.forEach(function(timeValue, timeStep) {
-            this.addTimeRow(timeStep, timeValue);
-        }, this);
-
-        var that = this;
-        containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
-            if (that.timetable === undefined || that.timetable === null) {
-                that.addTimeRow(0, 0);
-            } else {
-                var highestIndex = 0;
-                that.timetable.forEach(function(value, key) {
-                    var x;
-                    if(!isNaN(x = parseInt(key)) && x > highestIndex) {
-                        highestIndex = x;
-                    }
-                });
-
-                var index = highestIndex + 1;
-                var value = 0;
-                that.timetable[index] = value;
-                that.addTimeRow(index, value);
-
-                that.loadedModel.refresh = true;
-                that.loadedModel.propagate();
-            }
-        }));
-
-        containerDiv.appendChild(menuBuilder.button('Remove row', function removeTimeTableRow() {
-            if (that.timetable === undefined || that.timetable === null || that.timetable.size() === 0) {
-                return;
-            } else {
-                that.data[key] = that.timetable.slice(0, -1);
-                that.timetable = that.data[key];
-            }
-
-            var element = that.rows.last();
-            that.rowContainer.removeChild(element);
-
-            delete that.rows[that.rows.lastKey()];
-
-            that.loadedModel.refresh = true;
-            that.loadedModel.propagate();
-        }));
-
-        return containerDiv;
+        this.timetable.refreshTimeTable();
     },
 
     generateDropdown: function(key, options, value) {
@@ -291,8 +152,10 @@ Data.prototype = {
         var containerSelect = menuBuilder.select(key, function(evt) {
             that.data[key] = this.value;
 
-            that.loadedModel.refresh = true;
-            that.loadedModel.propagate();
+            /*that.loadedModel.refresh = true;
+            that.loadedModel.propagate();*/
+
+            that.loadedModel.emit('refresh');
         });
 
         options.forEach(function(option) {
@@ -319,11 +182,37 @@ Data.prototype = {
             function(thatKey, newValue) {
                 that.data[thatKey] = newValue;
 
-                that.loadedModel.refresh = true;
+                /*that.loadedModel.refresh = true;
                 that.loadedModel.resetUI = true;
-                that.loadedModel.propagate();
+                that.loadedModel.propagate();*/
+                that.loadedModel.emit(null, 'refresh', 'resetUI');
             }
         );
+
+        /*var focus = function(evt) {
+            console.log('Document:', document.activeElement);
+            console.log('Focused:', that.inputs[key]);
+            console.log(evt);
+        };
+
+        var focusOut = function(evt) {
+            console.log('Document:', document.activeElement);
+            console.log('Focus lost:', that.inputs[key]);
+            console.log(evt);
+        };
+
+        var deleteFocus = function() {
+            that.inputs[key].removeEventListener('focus', focus);
+            that.inputs[key].removeEventListener('focusout', focusout);
+        };
+
+        this.inputs[key].deleteEvent = function() {
+            deleteFocus();
+            this.inputs[key].deleteEvents();
+        }
+
+        this.inputs[key].addEventListener('focus',    focus);
+        this.inputs[key].addEventListener('focusout', focusOut);*/
 
         container.appendChild(this.inputs[key]);
 
@@ -337,11 +226,12 @@ Data.prototype = {
         }
 
         var that = this;
-        if(this.data.type && this.data.type.toUpperCase() === "ACTOR") {
-            var randomColor = menuBuilder.button("Randomize color", function() {
+        if(this.data.type && this.data.type.toUpperCase() === 'ACTOR') {
+            var randomColor = menuBuilder.button('Randomize color', function() {
                 that.loadedModel.nodeGui[that.data.id].color = generateColor();
-                that.loadedModel.refresh = true;
-                that.loadedModel.propagate();
+                /*that.loadedModel.refresh = true;
+                that.loadedModel.propagate();*/
+                that.loadedModel.emit('refresh');
             });
 
             element.appendChild(randomColor);
@@ -357,26 +247,36 @@ Data.prototype = {
                 }
 
                 var targetedNode = this.loadedModel.nodeData[link.node2];
-                var button = menuBuilder.button("Delete acting upon " + targetedNode.name, function() {
+                var button = menuBuilder.button('Delete acting upon ' + targetedNode.name, function() {
                     delete that.loadedModel.links[link.id];
                     that.loadedModel.nodeGui[that.data.id].links = [];
 
-                    that.loadedModel.refresh = true;
+                    /*that.loadedModel.refresh = true;
                     that.loadedModel.resetUI = true;
-                    that.loadedModel.propagate();
+                    that.loadedModel.propagate();*/
+                    that.loadedModel.emit(null, 'refresh', 'resetUI');
                 });
 
                 element.appendChild(button);
             }, this);
         }
 
-        this.data.forEach(function(value, key) {
+        objectHelper.forEach.call(this.data, function(value, key) {
             if(this.filter.indexOf(key) === -1) {
                 return;
             }
 
             if (key === 'timeTable') {
-                element.appendChild(this.generateTimeTable(key, value));
+                var timeTable = new TimeTable(this.data, function(step, value) {
+                    that.loadedModel.emit(null, 'refresh', 'resetUI');
+                }, true);
+
+                timeTable.generateTimeTable();
+
+                this.timetable    = timeTable;
+                this.timetableDiv = timeTable.timeTableDiv;
+
+                element.appendChild(this.timetableDiv);
             } else if(this.data.coefficient !== undefined && key === 'type') {
                 element.appendChild(this.generateDropdown(key, ['fullchannel', 'halfchannel'], value));
             } else {
@@ -401,11 +301,11 @@ function SelectedMenu(loadedModel) {
 
 SelectedMenu.prototype = {
     show: function() {
-        this.container.style.display = "block";
+        this.container.style.display = 'block';
     },
 
     hide: function() {
-        this.container.style.display = "none";
+        this.container.style.display = 'none';
     },
 
     refresh: function() {
@@ -428,8 +328,8 @@ SelectedMenu.prototype = {
 
     addData: function(filter, data) {
         if(this.dataObjects.indexOf(data) !== -1) {
-            console.log("Exists");
-            console.log(this.dataObjects, data);
+            console.warn('Exists');
+            console.warn(this.dataObjects, data);
             return;
         }
 
@@ -455,6 +355,7 @@ SelectedMenu.prototype = {
             return true;
         });
 
+        this.data[i].deleteEvents();
         var element = this.data[i].container;
         this.container.removeChild(element);
 
@@ -500,6 +401,7 @@ SelectedMenu.prototype = {
 };
 
 var namespace = {
+    Data:                 Data,
     SelectedMenu:         SelectedMenu,
     createAvatarSelector: createAvatarSelector,
     createAvatarButtons:  createAvatarButtons

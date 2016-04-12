@@ -1,7 +1,14 @@
 'use strict';
 
+var CONFIG = require('./../config.js');
+
+var url = CONFIG.get('url');
+if(url.charAt(url.length - 1) !== '/') {
+    url = url + '/';
+}
+
 var images = {};
-var PLACEHOLDER_PATH = 'img/file_not_found.png';
+var PLACEHOLDER_PATH = '/img/not-found.png';
 
 function drawScaledImage(ctx, image, x, y, w, h) {
     if (w > image.width || h > image.h) {
@@ -63,7 +70,6 @@ function drawPicture(ctx, imagePath, map, refresh) {
     refresh = refresh || drawPicture;
     
     var img = null;
-    
     if (images.hasOwnProperty(imagePath)) {
         img = images[imagePath];
         if (img.isLoading === true) {
@@ -75,14 +81,15 @@ function drawPicture(ctx, imagePath, map, refresh) {
             drawImage(ctx, img, map);        
         } catch(error) {
             ctx.restore();
-            console.log(error);
+            console.error(error);
             images[imagePath] = placeholder;
         }
     } else {
         img = new Image();   // Create new img element
         //window.derp = img;
+
         images[imagePath] = img;
-        img.src = imagePath; // Set source path
+        img.src = url + imagePath; // Set source path
         img.isLoading = true;
         img.nodesWaiting = [
             map
@@ -100,7 +107,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         };
         
         img.onerror = function(error) {
-            console.log('the image with path', imagePath, 'doesn\'t seem to exist');
+            console.error('the image with path', imagePath, 'doesn\'t seem to exist');
             images[imagePath] = placeholder;
             img.nodesWaiting.forEach(function(_map) {
                 drawImage(ctx, placeholder, _map);

@@ -84,12 +84,14 @@ module.exports = function drawLink(ctx, line) {
 
     ctx.lineWidth = line.width * 1.2;
     ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(arrowStartX, arrowStartY);
+
+    ctx.moveTo(startX,       startY);
+    ctx.lineTo(arrowStartX,  arrowStartY);
     ctx.lineTo(leftAnchorX,  leftAnchorY);
     ctx.lineTo(arrowEndX,    arrowEndY);
     ctx.lineTo(rightAnchorX, rightAnchorY);
     ctx.lineTo(arrowStartX,  arrowStartY);
+
     ctx.closePath();
     ctx.stroke();
 
@@ -110,18 +112,21 @@ module.exports = function drawLink(ctx, line) {
         ctx.lineJoin = 'miter';
         ctx.lineCap  = 'square';
         ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(arrowStartX, arrowStartY);
+
+        ctx.moveTo(startX,       startY);
+        ctx.lineTo(arrowStartX,  arrowStartY);
         ctx.lineTo(leftAnchorX,  leftAnchorY);
         ctx.lineTo(arrowEndX,    arrowEndY);
         ctx.lineTo(rightAnchorX, rightAnchorY);
         ctx.lineTo(arrowStartX,  arrowStartY);
+
         ctx.closePath();
         ctx.stroke();
     }
 
     if(line.coefficient !== undefined) {
-        var textHeight = 22;
+        var textHeight = 14,
+            offsetBase = 8;
         ctx.font = textHeight + 'px Arial';
         var coefficient = line.coefficient;
         if(coefficient > 0) {
@@ -137,7 +142,7 @@ module.exports = function drawLink(ctx, line) {
         var concatenatedString = coefficient;
         var timelag = line.timelag;
         if(timelag !== undefined) {
-             concatenatedString += ", T: " + timelag;
+             concatenatedString += ', T: ' + timelag;
         }
         var textMeasurement = ctx.measureText(concatenatedString);
 
@@ -152,8 +157,8 @@ module.exports = function drawLink(ctx, line) {
         var halfTextWidth  = textMeasurement.width / 2,
             halfTextHeight = textHeight / 2;
 
-        var offsetX = halfTextWidth  + 22, // padding X
-            offsetY = halfTextHeight + 22; // padding Y
+        var offsetX = halfTextWidth  + offsetBase, // padding X
+            offsetY = halfTextHeight + offsetBase; // padding Y
 
         var textX = arrowMiddleX - halfTextWidth  + Math.cos(angle + halfPI)*offsetX,
             textY = arrowMiddleY + halfTextHeight + Math.sin(angle + halfPI)*offsetY;
@@ -161,7 +166,7 @@ module.exports = function drawLink(ctx, line) {
         ctx.fillText(coefficient, textX, textY);
         if(timelag !== undefined) {
             ctx.fillStyle = valueColors.neutral;
-            ctx.fillText(", T: " + line.timelag, textX + coefficientMeasurement.width, textY);
+            ctx.fillText(', T: ' + line.timelag, textX + coefficientMeasurement.width, textY);
         }
 
         /*
@@ -177,7 +182,7 @@ module.exports = function drawLink(ctx, line) {
         
         if(timelag !== undefined) {
             ctx.fillStyle = valueColors.neutral;
-            ctx.fillText(", T: " + line.timelag, coefficientX + coefficientMeasurement.width, 0);
+            ctx.fillText(', T: ' + line.timelag, coefficientX + coefficientMeasurement.width, 0);
         }
 
         ctx.restore();

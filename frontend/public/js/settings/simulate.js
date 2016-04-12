@@ -3,7 +3,7 @@
 var Immutable       = null,
     breakout        = require('./../breakout.js'),
     backendApi      = require('./../api/backend_api.js'),
-    notificationBar = require('./../notification_bar');
+    objectHelper    = require('./../object-helper.js');
 
 var simulate = [
     {
@@ -12,28 +12,29 @@ var simulate = [
         ajax:   true,
         callback: function(loadedModel) {
             var data = {
-                timestep: loadedModel.settings.maxIterations,
+                timestep: loadedModel.loadedScenario.maxIterations,
                 nodes:    breakout.nodes(loadedModel),
-                links:    breakout.links(loadedModel)
+                links:    breakout.links(loadedModel),
+                scenario: loadedModel.loadedScenario.toJson()
             };
 
-            loadedModel.nodeData.forEach(function(node) {
-                node.simulateChange = [];
-            });
-
-            console.log(data);
+            objectHelper.forEach.call(
+                loadedModel.nodeData,
+                function(node) {
+                    node.simulateChange = [];
+                }
+            );
 
             backendApi('/models/simulate', data, function(response, err) {
                 if(err) {
-                    console.log(err);
-                    console.log(response);
-                    notificationBar.notify(response.response.message);
+                    console.error(err);
+                    console.error(response);
+                    loadedModel.emit(response.response.message, 'notification');
                     return;
                 }
 
                 var timeSteps = response.response;
                 var nodeData  = loadedModel.nodeData;
-                console.log(timeSteps);
                 timeSteps.forEach(function(timeStep) {
                     timeStep.forEach(function(node) {
                         var currentNode = nodeData[node.id];
@@ -41,9 +42,11 @@ var simulate = [
                     });
                 });
 
-                loadedModel.refresh  = true;
+                //loadedModel.refresh  = true;
                 loadedModel.settings = loadedModel.settings;
-                loadedModel.propagate();
+                //loadedModel.propagate();
+
+                loadedModel.emit(null, 'settings', 'refresh');
             });
         }
     },
@@ -53,11 +56,13 @@ var simulate = [
         type:   'BUTTON',
         ajax:   true,
         callback: function(loadedModel) {
-            var settings = loadedModel.settings;
+            var settings       = loadedModel.settings;
             settings.linegraph = !settings.linegraph
 
-            loadedModel.refresh = true;
-            loadedModel.propagate();
+            /*loadedModel.refresh = true;
+            loadedModel.propagate();*/
+
+            loadedModel.emit('refresh');
         }
     },
 
@@ -71,7 +76,7 @@ var simulate = [
         ],
 
         setDefault: function(model, values) {
-            var selected = model.settings.timeStepT;
+            var selected = model.loadedScenario.measurement;
             for(var i = 0; i < values.length; i++) {
                 if(values[i] === selected) {
                     return i;
@@ -82,7 +87,7 @@ var simulate = [
         },
 
         callback: function(model, value) {
-            model.settings.timeStepT = value;
+            model.loadedScenario.measurement = value;
         }
     },
 
@@ -91,22 +96,34 @@ var simulate = [
         type:   'SLIDER',
 
         defaultValue: function(model) {
-            return model.settings.timeStepN;
+            return model.loadedScenario.timeStepN;
         },
 
         range: function(model) {
-            return [0, model.settings.maxIterations];
+            return [0, model.loadedScenario.maxIterations];
         },
 
         onSlide: function(model, value) {
-            model.settings.timeStepN = value;
+            model.loadedScenario.timeStepN = value;
 
-            model.refresh = true;
-            model.propagate();
+            model.emit('refresh');
         },
 
         callback: function(model, value) {
-            model.settings.timeStepN = value;
+            model.loadedScenario.timeStepN = value;
+        }
+    },
+
+    {
+        header: 'Max iterations',
+        type:   'INPUT',
+
+        defaultValue: function(model) {
+            return model.loadedScenario.maxIterations;
+        },
+
+        onChange: function(model, value) {
+            model.loadedScenario.maxIterations = parseInt(value);
         }
     }
 ];

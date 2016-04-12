@@ -1,0 +1,29 @@
+.node .mb-step-container {
+
+}
+
+.mb-step-container .step {
+    display: inline-block;
+    color: #fafafa;
+    width: 30%;
+}
+
+.mb-step-container .step label,
+.mb-step-container .value label {
+    display: inline-block;
+    margin: 0px 4px;
+}
+
+.mb-step-container .step input {
+    width: 60%;
+}
+
+.mb-step-container .value {
+    display: inline-block;
+    color: #fafafa;
+    width: 60%;
+}
+
+.mb-step-container .value input {
+    width: 80%;
+}

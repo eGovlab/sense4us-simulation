@@ -5,8 +5,8 @@ function asyncMiddleware() {
             errorCallbacks = [];
 
         for(var i = 0; i < arguments.length; i++) {
-            if(typeof arguments[i] !== "function") {
-                throw "Not a function given to asyncMiddleware";
+            if(typeof arguments[i] !== 'function') {
+                throw 'Not a function given to asyncMiddleware';
             }
 
             if(arguments[i].length === parameters.length + 1) {
@@ -14,8 +14,8 @@ function asyncMiddleware() {
             } else if(arguments[i].length === parameters.length + 2) {
                 errorCallbacks.push(arguments[i]);
             } else {
-                console.log(arguments[i].length, parameters, parameters.length);
-                throw "Invalid amount of parameters to middleware.";
+                console.error(arguments[i].length, parameters, parameters.length);
+                throw 'Invalid amount of parameters to middleware.';
             }
         }
 

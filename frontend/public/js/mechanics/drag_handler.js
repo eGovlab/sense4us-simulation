@@ -11,6 +11,14 @@ module.exports = function(canvas, loadedModel, startCallback, updateCallback, en
 
 	var deltaPos = {x: 0, y: 0};
 
+	var stopContextMenu = function(evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		return false;
+	};
+
+	canvas.addEventListener('contextmenu', stopContextMenu);
+
 	var mouseDown = function(event) {
 		active = true;
 
@@ -20,7 +28,7 @@ module.exports = function(canvas, loadedModel, startCallback, updateCallback, en
 		loadedModel.didDrag = false;
 
 		var result = startCallback(canvas, loadedModel, startPos);
-		loadedModel.propagate();
+		//loadedModel.propagate();
 
 		if (result) {
 			if (updateCallback) {

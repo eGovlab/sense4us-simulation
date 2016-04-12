@@ -1,0 +1,21 @@
+@import "colors";
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}
+
+.mb-sidebar {
+    z-index: 1;
+}
+
+.mb-notification-bar {
+    z-index: 2;
+}
+
+.mb-dropdown .mb-dropdown-container {
+    z-index: 3;
+}

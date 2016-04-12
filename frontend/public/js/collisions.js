@@ -1,14 +1,14 @@
 'use strict';
 
-var Immutable = null;
+var objectHelper = require('./object-helper.js');
 
 var lineToRect = function(line) {
 	if (line.x1 > line.x2) {
-		line = line.merge({x1: line.x2, x2: line.x1});
+		line = objectHelper.merge.call(line, {x1: line.x2, x2: line.x1});
 	}
 
 	if (line.y1 > line.y2) {
-		line = line.merge({y1: line.y2, y2: line.y1});
+		line = objectHelper.merge.call(line, {y1: line.y2, y2: line.y1});
 	}
 
 	return {
@@ -80,10 +80,10 @@ var collisions = {
 			return collisions.pointLine(data.points[0], data.lines[0]);
 		} else if (data.circles.length === 1 && data.points.length === 1) {
 			return collisions.pointCircle(data.points[0], data.circles[0]);
-		} else {
-			console.log('UNDEFINED');
-			console.log(obj1);
 		}
+		
+		console.error('UNDEFINED');
+		console.error(obj1);
 	}
 };
 

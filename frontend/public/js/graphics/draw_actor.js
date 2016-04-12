@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 function drawActor(ctx, layer, link, loadedModel) {
     var fromNode   = loadedModel.nodeGui[link.node1],
