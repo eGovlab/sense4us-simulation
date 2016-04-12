@@ -22,7 +22,8 @@ module.exports = function(canvas, loadedModel, inputs) {
         var button = event.button;
         active     = true;
 
-        startPos   = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
+        //startPos   = arithmetics.mouseToCanvas({x: event.pageX, y: event.pageY}, canvas);
+        startPos   = {x: event.offsetX, y: event.offsetY};
         lastPos    = {x: startPos.x, y: startPos.y};
 
         loadedModel.didDrag = false;
