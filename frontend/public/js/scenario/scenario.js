@@ -80,9 +80,6 @@ Scenario.prototype = {
                 var data = this.data[node.id];
                 if(!data) {
                     data = new TimeTable(node, function() {
-                        /*loadedModel.refresh = true;
-                        loadedModel.resetUI = true;
-                        loadedModel.propagate();*/
                         loadedModel.emit(null, 'refresh', 'resetUI');
                     });
                     
@@ -93,9 +90,6 @@ Scenario.prototype = {
             },
             this
         );
-
-        /*loadedModel.refresh = true;
-        loadedModel.propagate();*/
 
         loadedModel.emit('refresh');
 

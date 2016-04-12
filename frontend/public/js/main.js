@@ -333,6 +333,10 @@ function inflateModel(container) {
         }
     });
 
+    loadedModel.addListener('newNode', function(id, nodeData, nodeGui) {
+        loadedModel.loadedScenario.generateScenarioContainer(loadedModel);
+    });
+
     sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
     sidebarManager.setSelectedMenu(loadedModel.settings);

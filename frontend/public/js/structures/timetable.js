@@ -137,6 +137,8 @@ TimeTable.prototype = {
     },
 
     removeTimeRow: function() {
+        console.log(this.timeTable);
+        console.log(this.node);
         if (this.timeTable === undefined || this.timeTable === null || objectHelper.size.call(this.timeTable) === 0) {
             return;
         }

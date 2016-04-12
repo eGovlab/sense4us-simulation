@@ -47,11 +47,8 @@ module.exports = function createNode(model, data, gui, type) {
         );
     }
 
-    model.resetUI = true;
-    model.refresh = true;
-    model.propagate();
-
     model.emit(null, 'resetUI', 'refresh');
+    model.emit([id, nodeData, nodeGui], 'newNode');
 
     return model;
 };
