@@ -11,8 +11,8 @@ var mouseDownWare = middleware([
 ]);
 
 function pan(data) {
-    data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.x;
-    data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.y;
+    data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.x;
+    data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.y;
     
     return data;
 }

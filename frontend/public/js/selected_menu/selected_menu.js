@@ -32,7 +32,7 @@ function generateAvatarDiv(avatar, selected, name) {
         avatarDiv.className += ' selected';
     }
 
-    img.src         = avatar.src;
+    img.src         = url + avatar.src;
     avatarDiv.value = avatar.src;
     avatarDiv.name  = avatar.header || name;
 

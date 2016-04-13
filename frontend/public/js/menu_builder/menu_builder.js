@@ -106,7 +106,7 @@ MenuBuilder.prototype = {
     },
     
     addValueCallback: function(element, callback, event) {
-        event = event || 'change';
+        event = event || 'change';
         
         var cb = function(event) {callback(element.name, element.value); };
         

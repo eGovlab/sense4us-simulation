@@ -35,6 +35,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint-tap": "^1.1.0",
+    "grunt": "^1.0.1",
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-eslint": "^18.0.0",

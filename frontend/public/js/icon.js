@@ -2,7 +2,7 @@
 
 var Immutable = null;
 
-function icon(map) {
+function icon(map) {
 	var x = map.x;
 	var y = map.y;
 	
@@ -17,7 +17,7 @@ function icon(map) {
 	}
 	
 	return {
-		//x: map.x + (map.iconXOffset || 0) - map.radius * 0.707,
+		//x: map.x + (map.iconXOffset || 0) - map.radius * 0.707,
 		//y: map.y + (map.iconYOffset || 0) - map.radius * 0.707,
 		x: x,
 		y: y,

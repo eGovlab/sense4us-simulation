@@ -10,7 +10,7 @@ module.exports = function createNode(model, data, gui, type) {
         syncId:          false,
         value:           0,
         simulateChange:  [],
-        type:            type || 'intermediate',
+        type:            type || 'intermediate',
         initialValue:    0,
         measurementUnit: '',
         description:     '',

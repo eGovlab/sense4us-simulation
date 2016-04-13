@@ -8,10 +8,10 @@ if(url.charAt(url.length - 1) !== '/') {
 }
 
 var images = {};
-var PLACEHOLDER_PATH = '/img/not-found.png';
+var PLACEHOLDER_PATH = 'img/not-found.png';
 
 function drawScaledImage(ctx, image, x, y, w, h) {
-    if (w > image.width || h > image.h) {
+    if(w > image.width || h > image.h) {
         ctx.drawImage(image, x, y, w, h);
         return;
     }
@@ -64,10 +64,10 @@ function drawImage(ctx, image, map) {
 }
 
 var placeholder = new Image();
-placeholder.src = PLACEHOLDER_PATH;
+placeholder.src = url + PLACEHOLDER_PATH;
 
 function drawPicture(ctx, imagePath, map, refresh) {
-    refresh = refresh || drawPicture;
+    refresh = refresh || drawPicture;
     
     var img = null;
     if (images.hasOwnProperty(imagePath)) {
@@ -82,7 +82,7 @@ function drawPicture(ctx, imagePath, map, refresh) {
         } catch(error) {
             ctx.restore();
             console.error(error);
-            images[imagePath] = placeholder;
+            images[imagePath] = placeholder;
         }
     } else {
         img = new Image();   // Create new img element

@@ -11,7 +11,7 @@ function isElement(element) {
     }
 }
 
-function inflateModel(container) {
+function inflateModel(container, exportUnder) {
     if(!isElement(container)) {
         throw new Error('Not an element given to inflateModel');
     }
@@ -141,8 +141,17 @@ function inflateModel(container) {
         window.sense4us[container.getAttribute('id')] = {};
     }
 
-    window.sense4us[container.getAttribute('id')].loadedModel = loadedModel;
-    savedModels.local[loadedModel.id]                         = loadedModel;
+    if(exportUnder && typeof exportUnder === 'string') {
+        window.sense4us[exportUnder] = loadedModel;
+    } else {
+        if(!window.sense4us.models) {
+            window.sense4us.models = [];
+        }
+
+        window.sense4us.models.push(loadedModel);
+    }
+
+    savedModels.local[loadedModel.id] = loadedModel;
 
     var settings      = require('./settings');
 
@@ -188,7 +197,7 @@ function inflateModel(container) {
 
             var result = startCallback(canvas, loadedModel, startPos);
             if (result) {
-                if (updateCallback) {
+                if(updateCallback) {
                     activateMouseMove = true;
                 }
 
@@ -249,7 +258,7 @@ function inflateModel(container) {
         var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
         var mouse_canvas_y = e.y - mainCanvas.offsetTop;
         var scaleX = loadedModel.settings.scaleX || 1;
-        var scaleY = loadedModel.settings.scaleX || 1;
+        var scaleY = loadedModel.settings.scaleY || 1;
         var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
         var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
 
@@ -261,14 +270,14 @@ function inflateModel(container) {
         
         scaleX = scaleY *= zoom;
 
-        var mouse_stage_new_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
-        var mouse_stage_new_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
+        var mouse_stage_new_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
+        var mouse_stage_new_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
 
         var zoom_effect_x = (mouse_stage_new_x - mouse_stage_x) * scaleX;
         var zoom_effect_y = (mouse_stage_new_y - mouse_stage_y) * scaleY;
         
-        loadedModel.settings.offsetX = ((loadedModel.settings.offsetX || 0) + zoom_effect_x);
-        loadedModel.settings.offsetY = ((loadedModel.settings.offsetY || 0) + zoom_effect_y);
+        loadedModel.settings.offsetX = ((loadedModel.settings.offsetX || 0) + zoom_effect_x);
+        loadedModel.settings.offsetY = ((loadedModel.settings.offsetY || 0) + zoom_effect_y);
 
         loadedModel.settings.scaleX = scaleX;
         loadedModel.settings.scaleY = scaleY;
@@ -325,7 +334,6 @@ function inflateModel(container) {
 
     var ScenarioEditor = require('./scenario').ScenarioEditor;
     loadedModel.addListener('newWindow', function(option) {
-        console.dir(container);
         switch(option.toUpperCase()) {
             case 'SCENARIO':
                 new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
@@ -340,6 +348,62 @@ function inflateModel(container) {
     sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
     sidebarManager.setSelectedMenu(loadedModel.settings);
+
+    loadedModel.addListener('deleteSelected', function() {
+        var selectedData = loadedModel.selected;
+
+        if(selectedData.objectId === 'nodeData' || selectedData.objectId === 'nodeGui') {
+            var selectedNodeData = loadedModel.nodeData[selectedData.id];
+            var selectedNodeGui  = loadedModel.nodeGui[selectedData.id];
+
+            delete loadedModel.nodeData[selectedNodeData.id];
+            loadedModel.emit(selectedNodeData, 'deletedNodeData');
+
+            if(selectedNodeGui.links) {
+                selectedNodeGui.links.forEach(function(link, key) {
+                    var linkObject = loadedModel.links[link];
+
+                    var upstream   = loadedModel.nodeGui[linkObject.node1];
+                    var downstream = loadedModel.nodeGui[linkObject.node2];
+
+                    var index = upstream.links.indexOf(linkObject.id);
+                    if(index !== -1 && upstream.id !== selectedNodeGui.id) {
+                        upstream.links.splice(index, 1);
+                    }
+
+                    index = downstream.links.indexOf(linkObject.id);
+                    if(index !== -1 && downstream.id !== selectedNodeGui.id) {
+                        downstream.links.splice(index, 1);
+                    }
+
+                    delete loadedModel.links[link];
+                    loadedModel.emit(linkObject, 'deletedLink');
+                });
+            }
+
+            delete loadedModel.nodeGui[selectedNodeGui.id];
+            loadedModel.emit(selectedNodeGui, 'deletedNodeGui');
+        } else if(selectedData.objectId === 'link') {
+            var upstream   = loadedModel.nodeGui[selectedData.node1];
+            var downstream = loadedModel.nodeGui[selectedData.node2];
+
+            var index = upstream.links.indexOf(selectedData.id);
+            if(index !== -1) {
+                upstream.links.splice(index, 1);
+            }
+
+            var index = downstream.links.indexOf(selectedData.id);
+            if(index !== -1) {
+                downstream.links.splice(index, 1);
+            }
+
+            delete loadedModel.links[selectedData.id];
+            loadedModel.emit(selectedData, 'deletedLink');
+        }
+
+        loadedModel.selected = false;
+        loadedModel.emit(null, 'refresh', 'resetUI', 'selected');
+    });
 
     loadedModel.addListener('selected', function() {
         sidebarManager.setEnvironment(loadedModel.environment);

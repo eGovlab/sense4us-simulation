@@ -76,7 +76,7 @@ function clickAndMove(data, error, done, env) {
         collidedNodes,
         function(node) {
             node = objectHelper.merge.call(node, {
-                offsetX:   data.pos.x - (node.x || 0),
+                offsetX:   data.pos.x - (node.x || 0),
                 offsetY:   data.pos.y - (node.y || 0),
                 clicked:   true
             });
@@ -107,7 +107,7 @@ function clickAndMove(data, error, done, env) {
             return objectHelper.merge.call(
                 link,
                 {
-                    offsetX:  data.pos.x - (link.x || 0),
+                    offsetX:  data.pos.x - (link.x || 0),
                     offsetY:  data.pos.y - (link.y || 0),
                     clicked:  true
                 }
@@ -145,7 +145,7 @@ function clickAndMove(data, error, done, env) {
         collidedTables,
         function(node) {
             return node.concat({
-                offsetX: data.pos.x - (node.x || 0),
+                offsetX: data.pos.x - (node.x || 0),
                 offsetY: data.pos.y - (node.y || 0),
                 clicked: true
             });

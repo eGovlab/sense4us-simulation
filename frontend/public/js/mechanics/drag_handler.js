@@ -31,7 +31,7 @@ module.exports = function(canvas, loadedModel, startCallback, updateCallback, en
 		//loadedModel.propagate();
 
 		if (result) {
-			if (updateCallback) {
+			if (updateCallback) {
 				window.addEventListener('mousemove', mouseMove);
 			}
 
