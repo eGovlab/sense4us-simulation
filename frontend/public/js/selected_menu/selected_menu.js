@@ -269,7 +269,7 @@ Data.prototype = {
             if (key === 'timeTable') {
                 var timeTable = new TimeTable(this.data, function(step, value) {
                     that.loadedModel.emit(null, 'refresh', 'resetUI');
-                }, true);
+                }, this.loadedModel.loadedScenario.data[this.data.id].data);
 
                 timeTable.generateTimeTable();
 

@@ -147,7 +147,6 @@ function inflateModel(container, exportUnder) {
         };
     }
 
-    console.log(exportUnder);
     if(exportUnder && typeof exportUnder === 'string') {
         window.sense4us.models[exportUnder] = loadedModel;
     } else {
@@ -164,97 +163,14 @@ function inflateModel(container, exportUnder) {
     var context       = mainCanvas.getContext('2d');
 
     var mouseHandler  = require('./mechanics/mouse_handler.js');
-    var mleftDrag     = require('./input/mleft_drag.js'),
-        mrightDrag    = require('./input/mright_drag.js');
-
-    var mouseMiddlewares = [
-        mleftDrag,
-        mrightDrag
-    ];
 
     mouseHandler(mainCanvas, loadedModel);
-
-    loadedModel.addListener('notification', function(message) {
-        var delay = 4000;
-        if(typeof message === 'object') {
-            delay   = message.delay;
-            message = message.message;
-        }
-
-        notification.notify(notificationBarDiv, message);
-    });
-
-    loadedModel.addListener('mouseDown', function(canvas, button, startPos, lastPos, mouseMove, mouseUp) {
-        var middlewares = mouseMiddlewares.filter(function(input) {
-            return input.button === button;
-        });
-
-        var activateMouseMove = false,
-            activateMouseUp   = false;
-
-        middlewares.forEach(function(middleware) {
-            var startCallback  = middleware.mouseDown,
-                updateCallback = middleware.mouseMove,
-                endCallback    = middleware.mouseUp,
-                missCallback   = middleware.miss;
-
-            var result = startCallback(canvas, loadedModel, startPos);
-            if (result) {
-                if(updateCallback) {
-                    activateMouseMove = true;
-                }
-
-                if (endCallback) {
-                    activateMouseUp = true;
-                }
-            } else if (missCallback) {
-                missCallback(canvas, loadedModel, startPos);
-            }
-        });
-
-        if(activateMouseMove) {
-            window.addEventListener('mousemove', mouseMove);
-        }
-
-        if(activateMouseUp) {
-            window.addEventListener('mouseup', mouseUp);
-        }
-
-        this.emit('refresh');
-    });
-
-    loadedModel.addListener('mouseMove', function(canvas, button, startPos, lastPos, endPos, deltaPos) {
-        var middlewares = mouseMiddlewares.filter(function(input) {
-            return input.button === button;
-        });
-
-        middlewares.forEach(function(middleware) {
-            middleware.mouseMove(canvas, loadedModel, endPos, deltaPos);
-        });
-
-        this.emit('refresh');
-    });
-
-    loadedModel.addListener('mouseUp', function(canvas, button, endPos) {
-        var middlewares = mouseMiddlewares.filter(function(input) {
-            return input.button === button;
-        });
-
-        middlewares.forEach(function(middleware) {
-            middleware.mouseUp(canvas, loadedModel, endPos);
-        });
-
-        this.emit('refresh');
-    });
-
+    
     var keyboardHandler = require('./mechanics/keyboard_handler.js'),
         hotkeyE         = require('./input/hotkey_e.js'),
         hotkeyESC       = require('./input/hotkey_esc.js');
 
     keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyESC]);
-
-    //mainCanvas.addEventListener('mousewheel',MouseWheelHandler, false);
-    //mainCanvas.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
 
     var zoom = 1;
     function MouseWheelHandler(e) {
@@ -284,8 +200,6 @@ function inflateModel(container, exportUnder) {
 
         loadedModel.settings.scaleX = scaleX;
         loadedModel.settings.scaleY = scaleY;
-        
-        //refresh();
     }
 
     var aggregatedLink   = require('./aggregated_link.js');
@@ -323,12 +237,15 @@ function inflateModel(container, exportUnder) {
         refreshNamespace.drawLinkingLine
     );
 
-    //loadedModel.addListener('nodeGui',  refresh);
-    //loadedModel.addListener('nodeData', refresh);
+    require('./model/listeners/notification.js')(notificationBarDiv, loadedModel);
+    require('./model/listeners/mouse_down.js')(loadedModel);
+    require('./model/listeners/mouse_move.js')(loadedModel);
+    require('./model/listeners/mouse_up.js')(loadedModel);
+    require('./model/listeners/delete_selected.js')(loadedModel);
+
     loadedModel.addListener('settings', refresh);
     loadedModel.addListener('refresh',  refresh);
 
-    //var sidebarManager = new UI.SidebarManager(CONFIG.get('SIDEBAR_CONTAINER'));
     var sidebarManager = new UI.SidebarManager(sidebarContainer);
 
     loadedModel.addListener('sidebar', function() {
@@ -352,102 +269,13 @@ function inflateModel(container, exportUnder) {
     sidebarManager.setLoadedModel(loadedModel);
     sidebarManager.setSelectedMenu(loadedModel.settings);
 
-    loadedModel.addListener('deleteSelected', function() {
-        var selectedData = loadedModel.selected;
-
-        if(selectedData.objectId === 'nodeData' || selectedData.objectId === 'nodeGui') {
-            var selectedNodeData = loadedModel.nodeData[selectedData.id];
-            var selectedNodeGui  = loadedModel.nodeGui[selectedData.id];
-
-            delete loadedModel.nodeData[selectedNodeData.id];
-            loadedModel.emit(selectedNodeData, 'deletedNodeData');
-
-            if(selectedNodeGui.links) {
-                selectedNodeGui.links.forEach(function(link, key) {
-                    var linkObject = loadedModel.links[link];
-
-                    var upstream   = loadedModel.nodeGui[linkObject.node1];
-                    var downstream = loadedModel.nodeGui[linkObject.node2];
-
-                    var index = upstream.links.indexOf(linkObject.id);
-                    if(index !== -1 && upstream.id !== selectedNodeGui.id) {
-                        upstream.links.splice(index, 1);
-                    }
-
-                    index = downstream.links.indexOf(linkObject.id);
-                    if(index !== -1 && downstream.id !== selectedNodeGui.id) {
-                        downstream.links.splice(index, 1);
-                    }
-
-                    delete loadedModel.links[link];
-                    loadedModel.emit(linkObject, 'deletedLink');
-                });
-            }
-
-            delete loadedModel.nodeGui[selectedNodeGui.id];
-            loadedModel.emit(selectedNodeGui, 'deletedNodeGui');
-        } else if(selectedData.objectId === 'link') {
-            var upstream   = loadedModel.nodeGui[selectedData.node1];
-            var downstream = loadedModel.nodeGui[selectedData.node2];
-
-            var index = upstream.links.indexOf(selectedData.id);
-            if(index !== -1) {
-                upstream.links.splice(index, 1);
-            }
-
-            var index = downstream.links.indexOf(selectedData.id);
-            if(index !== -1) {
-                downstream.links.splice(index, 1);
-            }
-
-            delete loadedModel.links[selectedData.id];
-            loadedModel.emit(selectedData, 'deletedLink');
-        }
-
-        loadedModel.selected = false;
-        loadedModel.emit(null, 'refresh', 'resetUI', 'selected');
-    });
-
-    loadedModel.addListener('selected', function() {
-        sidebarManager.setEnvironment(loadedModel.environment);
-        sidebarManager.setLoadedModel(loadedModel);
-
-        if(this.selected.objectId === 'nodeGui') {
-            var nodeData = loadedModel.nodeData[this.selected.id];
-            var nodeGui  = loadedModel.nodeGui[this.selected.id];
-
-            sidebarManager.setSelectedMenu(nodeData, nodeGui);
-        } else if(this.selected.objectId === 'link') {
-            sidebarManager.setSelectedMenu(this.selected);
-        } else {
-            sidebarManager.setSelectedMenu(loadedModel.settings);
-        }
-    });
-
     var menu = new UI.Menu(upperMenu, settings.menu);
     menu.createMenu(loadedModel, savedModels);
 
-    loadedModel.addListener('resetUI', function() {
-        sidebarManager.setEnvironment(loadedModel.environment);
-        sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
-        menu.resetMenu(loadedModel, savedModels);
+    require('./model/listeners/selected.js')(sidebarManager, loadedModel);
+    require('./model/listeners/reset_ui.js')(sidebarManager, menu, savedModels, loadedModel);
 
-        loadedModel.floatingWindows.forEach(function(floatingWindow) {
-            floatingWindow.refresh();
-        });
-
-        if(this.selected && this.selected.x !== undefined && this.selected.y !== undefined) {
-            var nodeData = loadedModel.nodeData[this.selected.id];
-            var nodeGui  = loadedModel.nodeGui[this.selected.id];
-
-            sidebarManager.setSelectedMenu(nodeData, nodeGui);
-        } else if(this.selected && this.selected.coefficient !== undefined) {
-            sidebarManager.setSelectedMenu(this.selected);
-        } else {
-            sidebarManager.setSelectedMenu(loadedModel.settings);
-        }
-    });
-
+    require('./model/listeners/settings.js')(loadedModel);
     loadedModel.addListener('settings', function() {
         if(loadedModel.settings.linegraph) {
             linegraphRefresh();

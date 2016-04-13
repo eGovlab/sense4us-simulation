@@ -10,25 +10,22 @@ function TimeTable(node, onChange, reference) {
 
     this.node           = node;
 
-    this.data           = objectHelper.copy.call(node);
+    if(reference) {
+        this.data = reference;
+    } else {
+        this.data = objectHelper.copy.call(node);
+    }
+
     this.data.id        = timeTableId;
 
-    if(reference) {
-        this.node.timeTable = this.node.timeTable;
-    } else {
-        this.node.timeTable = this.data.timeTable;
-    }
+    this.node.timeTable = this.data.timeTable;
 
     this.header         = node.name;
     this.onChange       = onChange;
 
     this.container      = menuBuilder.div('menu');
 
-    if(reference) {
-        this.timeTable = this.node.timeTable;
-    } else {
-        this.timeTable = this.data.timeTable;
-    }
+    this.timeTable      = this.data.timeTable;
 
     this.timeTableDiv;
     this.rowContainer;
@@ -139,11 +136,14 @@ TimeTable.prototype = {
     removeTimeRow: function() {
         console.log(this.timeTable);
         console.log(this.node);
-        if (this.timeTable === undefined || this.timeTable === null || objectHelper.size.call(this.timeTable) === 0) {
+        var size = objectHelper.size.call(this.timeTable);
+        if (this.timeTable === undefined || this.timeTable === null || size === 0) {
             return;
         }
         
-        this.timeTable = objectHelper.slice.call(this.timeTable, 0, -1);
+        var iter = 0;
+        var lastKey = objectHelper.lastKey.call(this.timeTable);
+        delete this.timeTable[lastKey];
 
         var element = objectHelper.last.call(this.rows);
         this.rowContainer.removeChild(element);
