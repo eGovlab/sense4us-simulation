@@ -141,14 +141,17 @@ function inflateModel(container, exportUnder) {
         window.sense4us[container.getAttribute('id')] = {};
     }
 
-    if(exportUnder && typeof exportUnder === 'string') {
-        window.sense4us[exportUnder] = loadedModel;
-    } else {
-        if(!window.sense4us.models) {
-            window.sense4us.models = [];
-        }
+    if(!window.sense4us.models) {
+        window.sense4us.models = {
+            unsorted: []
+        };
+    }
 
-        window.sense4us.models.push(loadedModel);
+    console.log(exportUnder);
+    if(exportUnder && typeof exportUnder === 'string') {
+        window.sense4us.models[exportUnder] = loadedModel;
+    } else {
+        window.sense4us.models.unsorted.push(loadedModel);
     }
 
     savedModels.local[loadedModel.id] = loadedModel;
