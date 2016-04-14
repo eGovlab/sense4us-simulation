@@ -169,84 +169,8 @@ var projectCallback = function(loadedModel, savedModels) {
         case undefined:
             break;
         default:
-            if(savedModels.local[option] === undefined || savedModels.local[option].settings.name !== text) {
-                if(typeof savedModels.synced[option] === 'string') {
-                    modelLayer.loadSyncModel(option, function(newState) {
-                        if(typeof newState === 'number') {
-                            loadedModel.syncId = newState;
-                            loadedModel.id     = newState;
-
-                            /*loadedModel.refresh = true;
-                            loadedModel.resetUI = true;
-                            loadedModel.propagate();*/
-
-                            loadedModel.emit(
-                                {
-                                    delay: 10000,
-                                    message: 'Model with id ' + modelId + ' is corrupt. Its id is loaded and may be deleted from running \'Delete current\'. Otherwise, contact sysadmin.'
-                                },
-                                'notification'
-                            );
-                            loadedModel.emit(null, 'refresh', 'resetUI');
-                            return;
-                        }
-
-                        loadedModel.nodeGui  = {};
-                        loadedModel.nodeData = {};
-                        //loadedModel.propagate();
-
-                        savedModels.synced[option] = newState;
-                        objectHelper.forEach.call(
-                            newState,
-                            function(value, key) {
-                                loadedModel[key] = value;
-                            }
-                        );
-
-                        /*loadedModel.refresh = true;
-                        loadedModel.resetUI = true;
-                        loadedModel.propagate();*/
-
-                        loadedModel.emit(null, 'refresh', 'resetUI');
-                    });
-                } else {
-                    loadedModel.nodeGui  = {};
-                    loadedModel.nodeData = {};
-                    //loadedModel.propagate();
-
-                    var savedModel = savedModels.synced[option];
-                    objectHelper.forEach.call(
-                        savedModel,
-                        function(value, key) {
-                            loadedModel[key] = value;
-                        }
-                    );
-
-                    /*loadedModel.refresh = true;
-                    loadedModel.resetUI = true;
-                    loadedModel.propagate();*/
-
-                    loadedModel.emit(null, 'refresh', 'resetUI');
-                }
-            } else {
-                loadedModel.nodeGui  = {};
-                loadedModel.nodeData = {};
-                //loadedModel.propagate();
-                
-                var savedModel = savedModels.local[option];
-                objectHelper.forEach.call(
-                    savedModel,
-                    function(value, key) {
-                        loadedModel[key] = value;
-                    }
-                );
-
-                /*loadedModel.resetUI = true;
-                loadedModel.refresh = true;
-                loadedModel.propagate();*/
-
-                loadedModel.emit(null, 'refresh', 'resetUI');
-            }
+            loadedModel.emit(option, 'loadModel');
+            break;
     }
 
     return loadedModel;

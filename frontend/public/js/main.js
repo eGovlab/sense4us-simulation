@@ -243,6 +243,7 @@ function inflateModel(container, exportUnder) {
     require('./model/listeners/mouse_up.js')(loadedModel);
     require('./model/listeners/delete_selected.js')(loadedModel);
 
+
     loadedModel.addListener('settings', refresh);
     loadedModel.addListener('refresh',  refresh);
 
@@ -280,6 +281,7 @@ function inflateModel(container, exportUnder) {
 
     require('./model/listeners/selected.js')(sidebarManager, loadedModel);
     require('./model/listeners/reset_ui.js')(sidebarManager, menu, savedModels, loadedModel);
+    require('./model/listeners/load_model.js')(savedModels, loadedModel);
 
     require('./model/listeners/settings.js')(loadedModel);
     loadedModel.addListener('settings', function() {

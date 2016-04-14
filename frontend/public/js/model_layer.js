@@ -13,7 +13,7 @@ var backendApi      = require('./api/backend_api.js'),
 var createNode = require('./structures/create_node.js'),
     createLink = require('./structures/create_link.js');
 
-var objectHelper    = require('./object-helper');
+var objectHelper = require('./object-helper');
     
 var settings = require('./settings');
 
@@ -112,7 +112,7 @@ Model.prototype = {
             events = [arguments[0]];
         }
 
-        if(data && !data.forEach) {
+        if(data !== null && data !== undefined && !data.forEach) {
             data = [data];
         }
 
