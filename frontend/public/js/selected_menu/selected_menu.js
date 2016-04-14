@@ -249,11 +249,14 @@ Data.prototype = {
                 var targetedNode = this.loadedModel.nodeData[link.node2];
                 var button = menuBuilder.button('Delete acting upon ' + targetedNode.name, function() {
                     delete that.loadedModel.links[link.id];
-                    that.loadedModel.nodeGui[that.data.id].links = [];
 
-                    /*that.loadedModel.refresh = true;
-                    that.loadedModel.resetUI = true;
-                    that.loadedModel.propagate();*/
+                    var linkArr = that.loadedModel.nodeGui[that.data.id].links;
+                    var index   = linkArr.indexOf(link.id);
+
+                    if(index !== -1) {
+                        delete linkArr[index];
+                    }
+
                     that.loadedModel.emit(null, 'refresh', 'resetUI');
                 });
 
