@@ -11,9 +11,9 @@ var middleware   = require('./../middleware.js'),
 
 var mouseDownWare = middleware([
     link,
+    deselect,
     stopLinking,
     stopMovingIcon,
-    deselect,
     select
 ]);
 
@@ -84,7 +84,7 @@ function deselect(data) {
     var selectedNodes = objectHelper.filter.call(
         data.nodeGui,
         function(node) {
-            return node.selected === true && !node.clicked
+            return node.selected === true && !node.clicked && !node.linking
         }
     );
 
@@ -110,7 +110,7 @@ function deselect(data) {
     );
 
     selectedLinks = objectHelper.map.call(
-        data.links,
+        selectedLinks,
         function(link) {
             data.selected = {};
             delete link.selected;

@@ -250,11 +250,18 @@ Data.prototype = {
                 var button = menuBuilder.button('Delete acting upon ' + targetedNode.name, function() {
                     delete that.loadedModel.links[link.id];
 
-                    var linkArr = that.loadedModel.nodeGui[that.data.id].links;
+                    var linkArr = that.loadedModel.nodeGui[link.node1].links;
                     var index   = linkArr.indexOf(link.id);
 
                     if(index !== -1) {
-                        delete linkArr[index];
+                        linkArr.splice(index, 1);
+                    }
+
+                    linkArr = that.loadedModel.nodeGui[link.node2].links;
+                    index   = linkArr.indexOf(link.id);
+
+                    if(index !== -1) {
+                        linkArr.splice(index, 1);
                     }
 
                     that.loadedModel.emit(null, 'refresh', 'resetUI');

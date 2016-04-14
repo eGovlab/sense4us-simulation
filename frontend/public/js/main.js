@@ -261,6 +261,12 @@ function inflateModel(container, exportUnder) {
         }
     });
 
+    loadedModel.addListener('newLink', function(link) {
+        if(this.selected) {
+            this.emit('resetUI');
+        }
+    });
+
     loadedModel.addListener('newNode', function(id, nodeData, nodeGui) {
         loadedModel.loadedScenario.generateScenarioContainer(loadedModel);
     });

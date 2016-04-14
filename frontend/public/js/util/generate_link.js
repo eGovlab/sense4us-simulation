@@ -30,8 +30,7 @@ module.exports = function(loadedModel) {
             objectHelper.forEach.call(
                 hit,
                 function(collided) {
-                    var nodeLinks = node.links;
-                    if(nodeLinks === undefined) {
+                    if(node.links === undefined) {
                         node.links = [];
                     }
 
@@ -68,6 +67,8 @@ module.exports = function(loadedModel) {
 
                         nodeGui[nodeId].links.push(newLink.id);
                         nodeGui[collidedId].links.push(newLink.id);
+
+                        loadedModel.emit(newLink, 'newLink');
                     } catch(e) {
                         console.error(nodeData);
                         console.error(nodeGui);
