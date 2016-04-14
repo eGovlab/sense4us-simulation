@@ -21,8 +21,8 @@ module.exports = {
         sumX += canvas.offsetLeft;
         sumY += canvas.offsetTop;
 
-        var x = pos.x - sumX - (canvas.panX || 0);
-        var y = pos.y - sumY - (canvas.panY || 0);
+        var x = pos.x - sumX + (canvas.panX || 0);
+        var y = pos.y - sumY + (canvas.panY || 0);
 
 		return {x: x, y: y};
 	},
