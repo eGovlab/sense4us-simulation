@@ -125,7 +125,7 @@ function inflateModel(container, exportUnder) {
         UI               = require('./ui');
 
     //notificationBar.setContainer(notificationBarDiv);
-
+    
     var selectedMenu  = {},
         textStrings   = {
             unsorted: [],
@@ -279,9 +279,13 @@ function inflateModel(container, exportUnder) {
     var menu = new UI.Menu(upperMenu, settings.menu);
     menu.createMenu(loadedModel, savedModels);
 
-    require('./model/listeners/selected.js')(sidebarManager, loadedModel);
-    require('./model/listeners/reset_ui.js')(sidebarManager, menu, savedModels, loadedModel);
-    require('./model/listeners/load_model.js')(savedModels, loadedModel);
+    require('./model/listeners/selected.js')    (sidebarManager, loadedModel);
+    require('./model/listeners/reset_ui.js')    (sidebarManager, menu, savedModels, loadedModel);
+    require('./model/listeners/store_model.js') (savedModels, loadedModel);
+    require('./model/listeners/load_model.js')  (savedModels, loadedModel);
+    require('./model/listeners/new_model.js')   (savedModels, loadedModel);
+    require('./model/listeners/delete_model.js')(savedModels, loadedModel);
+    require('./model/listeners/save_model.js')  (savedModels, loadedModel);
 
     require('./model/listeners/settings.js')(loadedModel);
     loadedModel.addListener('settings', function() {

@@ -26,7 +26,6 @@ function addLoadModelListeners(savedModels, loadedModel) {
 
                     loadedModel.nodeGui  = {};
                     loadedModel.nodeData = {};
-                    //loadedModel.propagate();
 
                     savedModels.synced[option] = newState;
                     objectHelper.forEach.call(
@@ -36,16 +35,11 @@ function addLoadModelListeners(savedModels, loadedModel) {
                         }
                     );
 
-                    /*loadedModel.refresh = true;
-                    loadedModel.resetUI = true;
-                    loadedModel.propagate();*/
-
                     loadedModel.emit(null, 'refresh', 'resetUI');
                 });
             } else {
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
-                //loadedModel.propagate();
 
                 var savedModel = savedModels.synced[option];
                 objectHelper.forEach.call(
@@ -55,16 +49,11 @@ function addLoadModelListeners(savedModels, loadedModel) {
                     }
                 );
 
-                /*loadedModel.refresh = true;
-                loadedModel.resetUI = true;
-                loadedModel.propagate();*/
-
                 loadedModel.emit(null, 'refresh', 'resetUI');
             }
         } else {
             loadedModel.nodeGui  = {};
             loadedModel.nodeData = {};
-            //loadedModel.propagate();
             
             var savedModel = savedModels.local[option];
             objectHelper.forEach.call(

@@ -107,6 +107,50 @@ module.exports = function(grunt) {
             target: ["./frontend/public/js/**/*.js"]
         },
 
+        jsdoc: {
+            dist: {
+                src: ["./frontend/controllers/*/**.js", "./frontend/controllers/*/**.jsdoc"],
+                options: {
+                    tags: {
+                        "allowUnknownTags": true,
+                        "dictionaries":     ["jsdoc", "closure"]
+                    },
+                    destination: 'docs',
+                    templates: {
+                        "systemName":        "Sense4us Server",
+                        "theme":             "flatly",
+                        "linenums":          "true",
+                        "outputSourceFiles": "false",
+                        "outputSourcePath":  "false"
+                    }
+                }
+            }
+        },
+
+        jsdoc: {
+            dist: {
+                src: [
+                    "./frontend/public/js/*/**.js",   "./frontend/public/js/*/**.jsdoc",
+                    "./frontend/controllers/*/**.js", "./frontend/controllers/*/**.jsdoc"
+                ],
+
+                options: {
+                    tags: {
+                        "allowUnknownTags": true,
+                        "dictionaries":     ["jsdoc", "closure"]
+                    },
+                    destination: 'docs',
+                    templates: {
+                        "systemName":        "Sense4us Server",
+                        "theme":             "flatly",
+                        "linenums":          "true",
+                        "outputSourceFiles": "false",
+                        "outputSourcePath":  "false"
+                    }
+                }
+            }
+        },
+
         karma: {
             unit: {
                 configFile: "./karma.conf.js"
@@ -119,6 +163,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-browserify");
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-jsdoc");
 
     grunt.registerTask("browserify_debug", function() {
         var browserifyConfig = grunt.config.get("browserify");

@@ -4,12 +4,13 @@ var Immutable  = null,
     backendApi = require('./../api/backend_api.js'),
     modelling  = require('./modelling.js'),
     simulate   = require('./simulate.js'),
-    windows    = require('./windows.js'),
-    modelLayer = require('./../model_layer.js');
+    windows    = require('./windows.js');
 
+
+var modelLayer   = require('./../model_layer.js');
 var objectHelper = require('./../object-helper.js');
 
-var modeUpdate = function(loadedModel, savedModels) {
+function modeUpdate(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
@@ -19,7 +20,7 @@ var modeUpdate = function(loadedModel, savedModels) {
     element.refreshList();
 };
 
-var modeCallback = function(loadedModel, savedModels) {
+function modeCallback(loadedModel, savedModels) {
     var option = this.value;
 
     this.parent.toggle();
@@ -34,19 +35,14 @@ var modeCallback = function(loadedModel, savedModels) {
             break;
     }
 
-    /*loadedModel.refresh = true;
-    loadedModel.resetUI = true;*/
-
     if(!loadedModel.selected) {
         loadedModel.selected = loadedModel.settings;
     }
 
-    //loadedModel.propagate();
-
     loadedModel.emit(null, 'refresh', 'resetUI');
 };
 
-var projectUpdate = function(loadedModel, savedModels) {
+function projectUpdate(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
@@ -61,6 +57,7 @@ var projectUpdate = function(loadedModel, savedModels) {
             response = {
                 response: []
             };
+
             //throw new Error('projectUpdate: /models/all crashed');
         }
 
@@ -89,82 +86,25 @@ var projectUpdate = function(loadedModel, savedModels) {
             }
         );
 
-        /*if(error) {
-            element.refreshList();
-            return;
-        }*/
-
         element.refreshList();
     });
 };
 
-var projectCallback = function(loadedModel, savedModels) {
-    var option      = this.value,
-        that        = this,
-        text        = this.text.match(/^(\s\*\s)?(.*)$/)[2];
+function projectCallback(loadedModel, savedModels) {
+    var option = this.value;
 
-    modelLayer = require('./../model_layer.js');
-    var m;
-    if(loadedModel.synced === true) {
-        m = modelLayer.moveModel(loadedModel);
-        savedModels.synced[loadedModel.syncId] = m;
-    } else {
-        m = modelLayer.moveModel(loadedModel);
-        savedModels.local[loadedModel.id] = m;
-    }
+    loadedModel.emit('storeModel');
 
     this.parent.toggle();
-    switch(option) {
-        case 'new':
-            var m = modelLayer.newModel();
-
-            objectHelper.forEach.call(
-                m,
-                function(value, key) {
-                    loadedModel[key] = value;
-                }
-            );
-
-            savedModels.local[loadedModel.id] = m;
-
-            that.parent.toggle();
-            projectUpdate.call(this.parent, loadedModel, savedModels);
-
-            /*loadedModel.refresh = true;
-            loadedModel.resetUI = true;
-            loadedModel.propagate();*/
-
-            loadedModel.emit(null, 'refresh', 'resetUI');
+    switch(option.toUpperCase()) {
+        case 'NEW':
+            loadedModel.emit('newModel');
             break;
-        case 'save':
-            objectHelper.forEach.call(
-                m,
-                function(value, key) {
-                    loadedModel[key] = value;
-                }
-            );
-
-            modelLayer.saveModel(loadedModel, function() {
-                projectUpdate.call(that.parent, loadedModel, savedModels);
-
-                /*loadedModel.refresh = true;
-                loadedModel.resetUI = true;
-                loadedModel.propagate();*/
-
-                loadedModel.emit(null, 'refresh', 'resetUI');
-            });
-            return;
+        case 'SAVE':
+            loadedModel.emit('saveModel');
             break;
-        case 'delete':
-            modelLayer.deleteModel(loadedModel, savedModels, function() {
-                projectUpdate.call(that.parent, loadedModel, savedModels);
-                /*loadedModel.refresh = true;
-                loadedModel.resetUI = true;
-                loadedModel.propagate();*/
-
-                loadedModel.emit(null, 'refresh', 'resetUI');
-            });
-            return;
+        case 'DELETE':
+            loadedModel.emit('deleteModel');
             break;
         case undefined:
             break;
