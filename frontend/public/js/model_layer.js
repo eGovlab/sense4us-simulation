@@ -1,8 +1,10 @@
 'use strict';
 
-/*
-** Dependencies
-*/
+/**
+ * @file Model helper methods
+ * @author {@link https://github.com/Rhineheart Robin Swenson}
+ */
+
 var backendApi      = require('./api/backend_api.js'),
     Immutable       = null,
     breakout        = require('./breakout.js'),
@@ -17,11 +19,10 @@ var objectHelper = require('./object-helper');
     
 var settings = require('./settings');
 
-/*
-** Used to generate a local and incremential ID to avoid collisions for models.
-*/
+// Used to generate a local and incremential ID to avoid collisions for models.
 var generateId = -1;
 
+// Not used anymore, I think.
 function definePropagations(obj, keys) {
     keys.forEach(function(key) {
         Object.defineProperty(obj, key, {get: function() {
@@ -37,6 +38,20 @@ function definePropagations(obj, keys) {
         }});
     });
 }
+
+/**
+ * Model layer for model related helper methods.
+ * @module models
+ */
+
+/**
+ * @description Model constructor
+ * @see {@link model/Model}
+ *
+ * @param {integer} id
+ * @param {object} data
+ */ 
+
 
 function Model(id, data) {
     this.changed     = {};

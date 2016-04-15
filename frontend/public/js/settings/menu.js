@@ -93,6 +93,10 @@ function projectUpdate(loadedModel, savedModels) {
 function projectCallback(loadedModel, savedModels) {
     var option = this.value;
 
+    if(option === undefined) {
+        return;
+    }
+
     loadedModel.emit('storeModel');
 
     this.parent.toggle();
@@ -105,8 +109,6 @@ function projectCallback(loadedModel, savedModels) {
             break;
         case 'DELETE':
             loadedModel.emit('deleteModel');
-            break;
-        case undefined:
             break;
         default:
             loadedModel.emit(option, 'loadModel');
