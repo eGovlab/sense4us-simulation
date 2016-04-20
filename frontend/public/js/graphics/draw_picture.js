@@ -1,12 +1,5 @@
 'use strict';
 
-var CONFIG = require('./../config.js');
-
-var url = CONFIG.get('url');
-if(url.charAt(url.length - 1) !== '/') {
-    url = url + '/';
-}
-
 var images = {};
 var PLACEHOLDER_PATH = 'img/not-found.png';
 
@@ -64,7 +57,6 @@ function drawImage(ctx, image, map) {
 }
 
 var placeholder = new Image();
-placeholder.src = url + PLACEHOLDER_PATH;
 
 function drawPicture(ctx, imagePath, map, refresh) {
     refresh = refresh || drawPicture;
@@ -82,14 +74,13 @@ function drawPicture(ctx, imagePath, map, refresh) {
         } catch(error) {
             ctx.restore();
             console.error(error);
-            images[imagePath] = placeholder;
+            images[imagePath] = map.url + '/' + placeholder;
         }
     } else {
         img = new Image();   // Create new img element
-        //window.derp = img;
 
         images[imagePath] = img;
-        img.src = url + imagePath; // Set source path
+        img.src = map.url + '/' + imagePath; // Set source path
         img.isLoading = true;
         img.nodesWaiting = [
             map
@@ -100,21 +91,34 @@ function drawPicture(ctx, imagePath, map, refresh) {
             
             img.nodesWaiting.forEach(function(_map) {
                 drawImage(ctx, img, _map);
-                //refresh(ctx, imagePath, _map, refresh);
             });
 
             img.nodesWaiting = undefined;
         };
         
         img.onerror = function(error) {
-            console.error('the image with path', imagePath, 'doesn\'t seem to exist');
             images[imagePath] = placeholder;
-            img.nodesWaiting.forEach(function(_map) {
-                drawImage(ctx, placeholder, _map);
-            });
+            if(!placeholder.src) {
+                placeholder.src = map.url + '/' + PLACEHOLDER_PATH;
+                placeholder.isLoading = true;
+                placeholder.nodesWaiting = [
+                    map
+                ];
 
-            img.nodesWaiting = undefined;
-            //refresh(ctx, imagePath, map, refresh);
+                placeholder.onload = function() {
+                    placeholder.nodesWaiting.forEach(function(_map) {
+                        drawImage(ctx, placeholder, _map);
+                    });
+
+                    placeholder.isLoading = false;
+
+                    delete placeholder.nodesWaiting;
+                };
+            } else if(placeholder.isLoading) {
+                placeholder.nodesWaiting.push(map);
+            } else {
+                drawImage(ctx, placeholder, map)
+            }
         };
     }
 }

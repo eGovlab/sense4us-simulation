@@ -57,6 +57,8 @@ function drawNodes(ctx, canvas, loadedModel, selectedMenu, next) {
                 nodeGui.linegraph = false;
             }
 
+            nodeGui.url = loadedModel.CONFIG.url;
+
             drawNode(ctx, nodeGui);
         }
     );

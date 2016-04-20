@@ -1,8 +1,8 @@
 'use strict';
 
 var Immutable       = null,
+    network         = require('./../network'),
     breakout        = require('./../breakout.js'),
-    backendApi      = require('./../api/backend_api.js'),
     objectHelper    = require('./../object-helper.js');
 
 var simulate = [
@@ -25,7 +25,7 @@ var simulate = [
                 }
             );
 
-            backendApi('/models/simulate', data, function(response, err) {
+            network(loadedModel.CONFIG.url, '/models/simulate', data, function(response, err) {
                 if(err) {
                     console.error(err);
                     console.error(response);

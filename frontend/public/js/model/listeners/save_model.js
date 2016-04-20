@@ -22,7 +22,7 @@ function addSaveModelListeners(savedModels, loadedModel) {
             }
         );*/
 
-        modelLayer.saveModel(m, function() {
+        modelLayer.saveModel(loadedModel.CONFIG.url, m, function() {
             /*if(loadedModel.syncId === syncId || loadedModel.id === id) {
                 objectHelper.forEach.call(m, function(v, k){loadedModel[k] = v;});
             }*/
@@ -31,8 +31,9 @@ function addSaveModelListeners(savedModels, loadedModel) {
         });
     });
 
-    loadedModel.addListener('modelSaved', function(syncId) {
-        console.log('Saved model:', syncId);
+    loadedModel.addListener('modelSaved', function(id, syncId) {
+        var m = savedModels.synced[syncId] || savedModels.local[id];
+        loadedModel.emit('Model \'' + m.settings.name + '\' saved.', 'notification');
         loadedModel.emit(null, 'refresh', 'resetUI');
     });
 }

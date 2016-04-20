@@ -5,7 +5,7 @@
  * @author {@link https://github.com/Rhineheart Robin Swenson}
  */
 
-var backendApi      = require('./api/backend_api.js'),
+var network         = require('./network'),
     Immutable       = null,
     breakout        = require('./breakout.js'),
     Scenario        = require('./scenario').Scenario,
@@ -105,8 +105,9 @@ function Model(id, data) {
 }
 
 function getAllModels(callback) {
+    var url = this.CONFIG.url;
     return new Promise(function(fulfill, reject) {
-        backendApi('/models/all', function(response, error) {
+        network(url, '/models/all', function(response, error) {
             if(error || response.status !== 200) {
                 return reject(error, response);
             }
@@ -385,6 +386,7 @@ module.exports = {
     moveModel: function(model) {
         var newModel = this.newModel();
 
+        newModel.CONFIG          = model.CONFIG;
         newModel.id              = model.id;
         newModel.environment     = model.environment;
         newModel.sidebar         = model.sidebar;
@@ -427,9 +429,9 @@ module.exports = {
         return newModel;
     },
 
-    getAllModels: getAllModels,
+    getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
 
-    saveModel: function(loadedModel, onDone) {
+    saveModel: function(url, loadedModel, onDone) {
         var data = {
             modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
@@ -438,7 +440,7 @@ module.exports = {
             scenarios: loadedModel.scenariosToJson()
         };
 
-        backendApi('/models/save', data, function(response, err) {
+        network(url, '/models/save', data, function(response, err) {
             if (err) {
                 loadedModel.emit('Couldn\'t save model: ' + err.message, 'notification');
                 return;
@@ -507,10 +509,10 @@ module.exports = {
         });
     },
 
-    deleteModel: function(modelId, savedModels, callback) {
+    deleteModel: function(url, modelId, savedModels, callback) {
         var that = this;
         if(savedModels.local[modelId] === undefined) {
-            backendApi('/models/' + modelId, {}, function(response, err) {
+            network(url, '/models/' + modelId, {}, function(response, err) {
                 if(err) {
                     console.error(response);
                     console.error(err);
@@ -528,9 +530,9 @@ module.exports = {
         }
     },
     
-    loadSyncModel: function(modelId, callback) {
+    loadSyncModel: function(url, modelId, callback) {
         var that = this;
-        backendApi('/models/bundle/' + modelId, function(response, error) {
+        network(url, '/models/bundle/' + modelId, function(response, error) {
             if (error) {
                 console.error(response);
                 console.error(error);

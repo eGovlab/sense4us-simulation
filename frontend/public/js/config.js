@@ -1,5 +1,3 @@
 'use strict';
 
-var CONFIG = require('rh_config-parser');
-
-module.exports = CONFIG;
+throw new Error('Stop loading this.');

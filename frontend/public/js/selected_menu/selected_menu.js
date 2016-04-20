@@ -7,12 +7,6 @@ var Immutable   = null,
 
 var objectHelper = require('./../object-helper.js');
 var TimeTable    = require('./../structures/timetable.js');
-var CONFIG       = require('./../config.js');
-
-var url = CONFIG.get('url');
-if(url.charAt(url.length - 1) !== '/') {
-    url = url + '/';
-}
 
 function generateHexColor() {
     return Math.round(Math.random() * 255).toString(16);
@@ -22,7 +16,7 @@ function generateColor() {
     return '#' + generateHexColor() + generateHexColor() + generateHexColor();
 }
 
-function generateAvatarDiv(avatar, selected, name) {
+function generateAvatarDiv(url, avatar, selected, name) {
     var avatarDiv = menuBuilder.div();
     var img = menuBuilder.img();
 
@@ -32,7 +26,7 @@ function generateAvatarDiv(avatar, selected, name) {
         avatarDiv.className += ' selected';
     }
 
-    img.src         = url + avatar.src;
+    img.src         = url + '/' + avatar.src;
     avatarDiv.value = avatar.src;
     avatarDiv.name  = avatar.header || name;
 
@@ -41,13 +35,13 @@ function generateAvatarDiv(avatar, selected, name) {
     return avatarDiv;
 }
 
-function createAvatarButtons(header, value, callback, images) {
+function createAvatarButtons(url, header, value, callback, images) {
     var avatarsDiv = menuBuilder.div();
     
     avatarsDiv.className = 'avatars';
-    
+
     images.forEach(function(avatar) {
-        var avatarDiv = generateAvatarDiv(avatar, value, header);
+        var avatarDiv = generateAvatarDiv(url, avatar, value, header);
 
         menuBuilder.addValueCallback(avatarDiv, callback, 'click');
 
@@ -66,7 +60,6 @@ function createAvatarButtons(header, value, callback, images) {
 
 function createAvatarSelector(header, value, callback) {
     var containerDiv = menuBuilder.div();
-
     containerDiv.appendChild(menuBuilder.label(header));
 
     settings.avatars.forEach(function(avatarGroup) {

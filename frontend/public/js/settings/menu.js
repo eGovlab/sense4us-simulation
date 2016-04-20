@@ -1,11 +1,9 @@
 'use strict';
 
 var Immutable  = null,
-    backendApi = require('./../api/backend_api.js'),
     modelling  = require('./modelling.js'),
     simulate   = require('./simulate.js'),
     windows    = require('./windows.js');
-
 
 var modelLayer   = require('./../model_layer.js');
 var objectHelper = require('./../object-helper.js');
@@ -51,7 +49,7 @@ function projectUpdate(loadedModel, savedModels) {
     element.addOption('delete', 'Delete Current');
 
     modelLayer = require('./../model_layer.js');
-    modelLayer.getAllModels().then(
+    modelLayer.getAllModels(loadedModel).then(
         function(models) {
             objectHelper.forEach.call(
                 savedModels.local,
@@ -156,11 +154,10 @@ function projectCallback(loadedModel, savedModels) {
         option = '' + option;
     }
 
-    loadedModel.emit('storeModel');
-
     this.parent.toggle();
     switch(option.toUpperCase()) {
         case 'NEW':
+            loadedModel.emit('storeModel');
             loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
             loadedModel.emit('newModel');
             break;
@@ -172,6 +169,7 @@ function projectCallback(loadedModel, savedModels) {
             loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
             break;
         default:
+            loadedModel.emit('storeModel');
             loadedModel.emit(option, 'loadModel');
             break;
     }

@@ -5,7 +5,7 @@ var selectedMenu = require('./../selected_menu'),
 
 function Sidebar(sidebarData, loadedModel) {
     this.container = menuBuilder.div('menu');
-    this.data = sidebarData;
+    this.data      = sidebarData;
 
     this.loadedModel = loadedModel;
 
@@ -27,7 +27,7 @@ Sidebar.prototype = {
         var that = this;
         var label = menuBuilder.label(data.header);
         if(data.images) {
-            var list = selectedMenu.createAvatarButtons('avatar', null, function(key, value) {
+            var list = selectedMenu.createAvatarButtons(this.loadedModel.CONFIG.url, 'avatar', null, function(key, value) {
                 data.callback(that.loadedModel, {name: key}, {avatar: value});
             }, data.images);
 

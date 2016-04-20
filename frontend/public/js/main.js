@@ -48,8 +48,6 @@ function inflateModel(container, exportUnder) {
         url:      protocol + '://' + hostname + portString
     };
 
-    var CONFIG = require('./config');
-    CONFIG.setConfig(configObject);
 
     var objectHelper = require('./object-helper.js');
 
@@ -157,6 +155,7 @@ function inflateModel(container, exportUnder) {
     }
 
     savedModels.local[loadedModel.id] = loadedModel;
+    loadedModel.CONFIG                = configObject;
 
     var settings      = require('./settings');
 

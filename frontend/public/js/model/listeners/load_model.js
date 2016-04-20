@@ -7,7 +7,7 @@ function addLoadModelListeners(savedModels, loadedModel) {
     loadedModel.addListener('loadModel', function(option) {
         if(savedModels.local[option] === undefined) {
             if(typeof savedModels.synced[option] === 'string' || savedModels.synced[option] === undefined) {
-                modelLayer.loadSyncModel(option, function(newState) {
+                modelLayer.loadSyncModel(loadedModel.CONFIG.url, option, function(newState) {
                     if(typeof newState === 'number') {
                         loadedModel.syncId = newState;
                         loadedModel.id     = newState;

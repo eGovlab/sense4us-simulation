@@ -5,22 +5,25 @@ function addSelectedListeners(sidebarManager, loadedModel) {
         sidebarManager.setEnvironment(loadedModel.environment);
         sidebarManager.setLoadedModel(loadedModel);
 
+        try {
+            if(!this.selected) {
+                sidebarManager.setSelectedMenu(loadedModel.settings);
+                return;
+            }
 
-        if(!this.selected) {
-            sidebarManager.setSelectedMenu(loadedModel.settings);
+            if(this.selected.objectId === 'nodeGui') {
+                var nodeData = loadedModel.nodeData[this.selected.id];
+                var nodeGui  = loadedModel.nodeGui[this.selected.id];
 
-            return;
-        }
-
-        if(this.selected.objectId === 'nodeGui') {
-            var nodeData = loadedModel.nodeData[this.selected.id];
-            var nodeGui  = loadedModel.nodeGui[this.selected.id];
-
-            sidebarManager.setSelectedMenu(nodeData, nodeGui);
-        } else if(this.selected.objectId === 'link') {
-            sidebarManager.setSelectedMenu(this.selected);
-        } else {
-            sidebarManager.setSelectedMenu(loadedModel.settings);
+                sidebarManager.setSelectedMenu(nodeData, nodeGui);
+            } else if(this.selected.objectId === 'link') {
+                sidebarManager.setSelectedMenu(this.selected);
+            } else {
+                sidebarManager.setSelectedMenu(loadedModel.settings);
+            }
+        } catch(err) {
+            console.error('Selected menu broke down.');
+            console.error(err);
         }
     });
 }

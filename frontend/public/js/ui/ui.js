@@ -9,9 +9,7 @@
 ** Dependencies
 */
 
-/* The CONFIG object has its config loaded in main.js */
-var CONFIG       = require('./../config.js'),
-    menuBuilder  = require('./../menu_builder'),
+var menuBuilder  = require('./../menu_builder'),
     selectedMenu = require('./../selected_menu/selected_menu'),
     Immutable    = null;
 
