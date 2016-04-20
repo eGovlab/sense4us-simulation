@@ -147,9 +147,12 @@ function inflateModel(container, exportUnder) {
         };
     }
 
-    if(exportUnder && typeof exportUnder === 'string') {
+    if(exportUnder && typeof exportUnder === 'string' && exportUnder !== 'unsorted') {
         window.sense4us.models[exportUnder] = loadedModel;
     } else {
+        if(exportUnder === 'unsorted') {
+            console.warn('Can\'t add a model with id unsorted.');
+        }
         window.sense4us.models.unsorted.push(loadedModel);
     }
 

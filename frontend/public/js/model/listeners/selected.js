@@ -5,6 +5,13 @@ function addSelectedListeners(sidebarManager, loadedModel) {
         sidebarManager.setEnvironment(loadedModel.environment);
         sidebarManager.setLoadedModel(loadedModel);
 
+
+        if(!this.selected) {
+            sidebarManager.setSelectedMenu(loadedModel.settings);
+
+            return;
+        }
+
         if(this.selected.objectId === 'nodeGui') {
             var nodeData = loadedModel.nodeData[this.selected.id];
             var nodeGui  = loadedModel.nodeGui[this.selected.id];

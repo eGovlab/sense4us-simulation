@@ -365,6 +365,10 @@ SelectedMenu.prototype = {
             return true;
         });
 
+        if(!this.data[i]) {
+            return;
+        }
+
         this.data[i].deleteEvents();
         var element = this.data[i].container;
         this.container.removeChild(element);

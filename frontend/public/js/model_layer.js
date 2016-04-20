@@ -10,7 +10,8 @@ var backendApi      = require('./api/backend_api.js'),
     breakout        = require('./breakout.js'),
     Scenario        = require('./scenario').Scenario,
     TimeTable       = require('./structures/timetable.js'),
-    menuBuilder     = require('./menu_builder');
+    menuBuilder     = require('./menu_builder'),
+    Promise         = require('promise');
 
 var createNode = require('./structures/create_node.js'),
     createLink = require('./structures/create_link.js');
@@ -103,6 +104,18 @@ function Model(id, data) {
     this.objectId = 'model';
 }
 
+function getAllModels(callback) {
+    return new Promise(function(fulfill, reject) {
+        backendApi('/models/all', function(response, error) {
+            if(error || response.status !== 200) {
+                return reject(error, response);
+            }
+
+            fulfill(response.response);
+        });
+    });
+}
+
 Model.prototype = {
     //listeners:   {},
     emit: function() {
@@ -127,18 +140,121 @@ Model.prototype = {
             events = [arguments[0]];
         }
 
-        if(data !== null && data !== undefined && !data.forEach) {
+        if(!data || !data.forEach) {
             data = [data];
         }
 
         events.forEach(function(ev) { 
             if(this.listeners[ev]) {
                 this.listeners[ev].forEach(function(listener) {
-                    listener.apply(this, data);
+                    listener.apply(this, data.concat([ev]));
                 }, this);
             }
         }, this);
     },
+
+    getAllModels: getAllModels,
+
+    loadModel: function(id) {
+        var that = this;
+
+        var currentId     = id || this.id,
+            currentSyncId = id || this.syncId;
+
+        return new Promise(function(fulfill, reject) {
+            var cb = function(_id, _syncId, ev) {
+                if(_id !== currentId && _syncId !== currentSyncId) {
+                    return;
+                }
+
+                that.removeListener('modelLoaded',       cb);
+                that.removeListener('errorLoadingModel', cb);
+
+                if(ev === 'errorLoadingModel') {
+                    return reject();
+                }
+
+                fulfill();
+            };
+
+            that.addListener('modelLoaded',       cb);
+            that.addListener('errorLoadingModel', cb);
+
+            that.emit('storeModel');
+            if(id && (typeof id === 'string' || typeof id === 'number')) {
+                that.emit([id, id], 'preLoadModel');
+                that.emit([id, id], 'loadModel');
+                return;
+            }
+
+            that.emit([that.id, that.syncId], 'preLoadModel');
+            that.emit([that.id, that.syncId], 'loadModel');
+        });
+    },
+
+    saveModel: function(id) {
+        var that = this;
+
+        var currentId     = id || this.id,
+            currentSyncId = id || this.syncId;
+
+        return new Promise(function(fulfill, reject) {
+            var cb = function(_id, _syncId, ev) {
+                if(_id !== currentId && _syncId !== currentSyncId) {
+                    return;
+                }
+
+                if(ev === 'errorSavingModel') {
+                    return reject(id);
+                }
+
+                fulfill(id);
+            };
+
+            that.addListener('modelSaved', cb);
+            if(id && (typeof id === 'string' || typeof id === 'integer')) {
+                that.emit([id, id], 'preSaveModel');
+                that.emit([id, id], 'saveModel');
+                return;
+            } 
+
+            that.emit('storeModel');
+            that.emit([currentId, currentSyncId], 'preSaveModel');
+            that.emit([currentId, currentSyncId], 'saveModel');
+        });
+    },
+
+    deleteModel: function(id) {
+        var that = this;
+
+        var currentId     = id || this.id,
+            currentSyncId = id || this.syncId;
+
+        return new Promise(function(fulfill, reject) {
+            var cb = function(_id, _syncId, ev) {
+                if(_id !== currentId && _syncId !== currentSyncId) {
+                    return;
+                }
+
+                that.removeListener('modelDeleted', cb);
+                if(ev === 'errorDeletingModel') {
+                    return reject(id);
+                }
+
+                fulfill(id);
+            };
+
+            that.addListener('modelDeleted', cb);
+            if(id && (typeof id === 'string' || typeof id === 'integer')) {
+                that.emit([id, id], 'deleteModel');
+                return;
+            } 
+
+            that.emit('storeModel');
+            that.emit([that.id, that.syncId], 'deleteModel');
+        });
+    },
+    
 
     generateId: function() {
         this.nextId++;
@@ -165,13 +281,14 @@ Model.prototype = {
 
         var index = this.listeners[key].indexOf(listener);
         if(index === -1) {
+            console.log('Didn\'t find listener.');
             return;
         }
 
         this.listeners[key].splice(index, 1);
     },
 
-    remvoeListeners: function(key) {
+    removeListeners: function(key) {
         this.listeners[key] = [];
     },
 
@@ -310,6 +427,8 @@ module.exports = {
         return newModel;
     },
 
+    getAllModels: getAllModels,
+
     saveModel: function(loadedModel, onDone) {
         var data = {
             modelId:   loadedModel.syncId,
@@ -373,11 +492,11 @@ module.exports = {
                 loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
                 _loadedModel(loadedModel);*/
 
-                if(response.response.message) {
+                /*if(response.response.message) {
                     loadedModel.emit(response.response.message, 'notification');
                 } else {
                     loadedModel.emit('Model['+loadedModel.settings.name+'] saved.', 'notification');
-                }
+                }*/
 
             } catch(e) {
                 console.error(e);
@@ -388,45 +507,23 @@ module.exports = {
         });
     },
 
-    deleteModel: function(loadedModel, savedModels, callback) {
+    deleteModel: function(modelId, savedModels, callback) {
         var that = this;
-        var modelId = loadedModel.syncId;
-        if(loadedModel.syncId !== null && loadedModel.syncId !== undefined) {
-            backendApi('/models/' + loadedModel.syncId, {}, function(response, err) {
+        if(savedModels.local[modelId] === undefined) {
+            backendApi('/models/' + modelId, {}, function(response, err) {
                 if(err) {
                     console.error(response);
                     console.error(err);
                     return;
                 }
 
-                delete savedModels.local[loadedModel.id];
-                delete savedModels.synced[loadedModel.syncId];
-                var firstLocal = objectHelper.first.call(savedModels.local);
+                //delete savedModels.local[loadedModel.id];
+                delete savedModels.synced[modelId];
 
-                if(firstLocal === undefined) {
-                    firstLocal = that.newModel();
-                }
-
-                objectHelper.forEach.call(
-                    firstLocal,
-                    function(value, key) {
-                        loadedModel[key] = value;
-                    }
-                );
-
-                loadedModel.emit(response.response.message, 'notification');
-                callback();
+                callback(response.response.message);
             }, 'DELETE');
         } else {
-            delete savedModels.local[loadedModel.id];
-            var newModel = this.newModel();
-            objectHelper.forEach.call(
-                newModel,
-                function(value, key) {
-                    loadedModel[key] = value;
-                }
-            );
-
+            delete savedModels.local[modelId];
             callback();
         }
     },
@@ -437,6 +534,14 @@ module.exports = {
             if (error) {
                 console.error(response);
                 console.error(error);
+                return;
+            }
+
+            if(response.status !== 200) {
+                if(!response.response) {
+                    response.response = {};
+                }
+                callback(new Error(response.response.message || 'Error loading model'));
                 return;
             }
 

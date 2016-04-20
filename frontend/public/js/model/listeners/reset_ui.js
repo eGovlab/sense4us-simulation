@@ -10,16 +10,7 @@ function addResetUIListeners(sidebarManager, menu, savedModels, loadedModel) {
             floatingWindow.refresh();
         });
 
-        if(this.selected && this.selected.x !== undefined && this.selected.y !== undefined) {
-            var nodeData = loadedModel.nodeData[this.selected.id];
-            var nodeGui  = loadedModel.nodeGui[this.selected.id];
-
-            sidebarManager.setSelectedMenu(nodeData, nodeGui);
-        } else if(this.selected && this.selected.coefficient !== undefined) {
-            sidebarManager.setSelectedMenu(this.selected);
-        } else {
-            sidebarManager.setSelectedMenu(loadedModel.settings);
-        }
+        loadedModel.emit('selected');
     });
 }
 

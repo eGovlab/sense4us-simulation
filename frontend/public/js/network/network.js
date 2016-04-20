@@ -52,12 +52,19 @@ function sendData(domain, path, jsonData, callback, method) {
 
                 var rt    = JSON.parse(httpRequest.responseText);
                 rt.status = httpRequest.status;
-                
-                if(callback) {
-                    callback(rt);
-                } else {
-                    console.warn('No callback was sent with the query against ' + path);
+
+                try {
+                    if(callback) {
+                        callback(rt);
+                    } else {
+                        console.warn('No callback was sent with the query against ' + path);
+                    }
+                } catch(err) {
+                    console.warn(httpRequest);
+                    callback(rt, err);
                 }
+                
+                
             } catch(err) {
                 console.warn(httpRequest);
                 callback(undefined, err);

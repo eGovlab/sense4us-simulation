@@ -6,7 +6,7 @@ var objectHelper = require('./../../object-helper.js');
 function addLoadModelListeners(savedModels, loadedModel) {
     loadedModel.addListener('loadModel', function(option) {
         if(savedModels.local[option] === undefined) {
-            if(typeof savedModels.synced[option] === 'string') {
+            if(typeof savedModels.synced[option] === 'string' || savedModels.synced[option] === undefined) {
                 modelLayer.loadSyncModel(option, function(newState) {
                     if(typeof newState === 'number') {
                         loadedModel.syncId = newState;
@@ -22,6 +22,10 @@ function addLoadModelListeners(savedModels, loadedModel) {
 
                         loadedModel.emit(null, 'refresh', 'resetUI');
                         return;
+                    } else if(newState instanceof Error) {
+                        loadedModel.emit(newState, 'notification');
+                        loadedModel.emit([option, option], 'errorLoadingModel');
+                        return;
                     }
 
                     loadedModel.nodeGui  = {};
@@ -35,9 +39,10 @@ function addLoadModelListeners(savedModels, loadedModel) {
                         }
                     );
 
+                    loadedModel.emit([loadedModel.id, loadedModel.syncId], 'modelLoaded');
                     loadedModel.emit(null, 'refresh', 'resetUI');
                 });
-            } else {
+            }  else {
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
 
@@ -49,6 +54,7 @@ function addLoadModelListeners(savedModels, loadedModel) {
                     }
                 );
 
+                loadedModel.emit([loadedModel.id, loadedModel.syncId], 'modelLoaded');
                 loadedModel.emit(null, 'refresh', 'resetUI');
             }
         } else {
@@ -63,8 +69,17 @@ function addLoadModelListeners(savedModels, loadedModel) {
                 }
             );
 
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'modelLoaded');
             loadedModel.emit(null, 'refresh', 'resetUI');
         }
+    });
+
+    loadedModel.addListener('errorLoadingModel', function() {
+        if(objectHelper.size.call(savedModels.local) === 0) {
+            return loadedModel.emit('newModel');
+        }
+
+        loadedModel.emit(objectHelper.first.call(savedModels.local).id, 'loadModel');
     });
 }
 

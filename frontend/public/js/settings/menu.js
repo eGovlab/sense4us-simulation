@@ -50,7 +50,61 @@ function projectUpdate(loadedModel, savedModels) {
     element.addOption('save',   'Save Current');
     element.addOption('delete', 'Delete Current');
 
-    backendApi('/models/all', function(response, error) {
+    modelLayer = require('./../model_layer.js');
+    modelLayer.getAllModels().then(
+        function(models) {
+            objectHelper.forEach.call(
+                savedModels.local,
+                function(model) {
+                    element.addOption(model.id, model.settings.name);
+                }
+            );
+
+            models.forEach(function(model) {
+                if(!savedModels.synced[model.id]) {
+                    savedModels.synced[model.id] = model.name;
+                }
+            });
+
+            objectHelper.forEach.call(
+                savedModels.synced,
+                function(model, key) {
+                    if(typeof model === 'string') {
+                        element.addOption(key, model);
+                    } else {
+                        element.addOption(model.syncId, model.settings.name);
+                    }
+                }
+            );
+
+            element.refreshList();
+        },
+
+        function(error, response) {
+            objectHelper.forEach.call(
+                savedModels.local,
+                function(model) {
+                    console.log(model);
+                    element.addOption(model.id, model.settings.name);
+                }
+            );
+
+            objectHelper.forEach.call(
+                savedModels.synced,
+                function(model, key) {
+                    if(typeof model === 'string') {
+                        element.addOption(key, model);
+                    } else {
+                        element.addOption(model.syncId, model.settings.name);
+                    }
+                }
+            );
+
+            element.refreshList();
+        }
+    );
+
+    /*backendApi('/models/all', function(response, error) {
         if(error) {
             console.error(error);
             loadedModel.emit('Couldn\'t fetch all models.', 'notification');
@@ -64,6 +118,7 @@ function projectUpdate(loadedModel, savedModels) {
         objectHelper.forEach.call(
             savedModels.local,
             function(model) {
+                console.log(model);
                 element.addOption(model.id, model.settings.name);
             }
         );
@@ -87,7 +142,7 @@ function projectUpdate(loadedModel, savedModels) {
         );
 
         element.refreshList();
-    });
+    });*/
 };
 
 function projectCallback(loadedModel, savedModels) {
@@ -97,18 +152,24 @@ function projectCallback(loadedModel, savedModels) {
         return;
     }
 
+    if(typeof option === 'number') {
+        option = '' + option;
+    }
+
     loadedModel.emit('storeModel');
 
     this.parent.toggle();
     switch(option.toUpperCase()) {
         case 'NEW':
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
             loadedModel.emit('newModel');
             break;
         case 'SAVE':
-            loadedModel.emit('saveModel');
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preSaveModel');
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'saveModel');
             break;
         case 'DELETE':
-            loadedModel.emit('deleteModel');
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
             break;
         default:
             loadedModel.emit(option, 'loadModel');

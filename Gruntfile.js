@@ -109,29 +109,10 @@ module.exports = function(grunt) {
 
         jsdoc: {
             dist: {
-                src: ["./frontend/controllers/*/**.js", "./frontend/controllers/*/**.jsdoc"],
-                options: {
-                    tags: {
-                        "allowUnknownTags": true,
-                        "dictionaries":     ["jsdoc", "closure"]
-                    },
-                    destination: 'docs',
-                    templates: {
-                        "systemName":        "Sense4us Server",
-                        "theme":             "flatly",
-                        "linenums":          "true",
-                        "outputSourceFiles": "false",
-                        "outputSourcePath":  "false"
-                    }
-                }
-            }
-        },
-
-        jsdoc: {
-            dist: {
                 src: [
                     "./frontend/public/js/*/**.js",   "./frontend/public/js/*/**.jsdoc",
-                    "./frontend/controllers/*/**.js", "./frontend/controllers/*/**.jsdoc"
+                    "./frontend/controllers/*/**.js", "./frontend/controllers/*/**.jsdoc",
+                    "./frontend/docs/*/**.jsdoc"
                 ],
 
                 options: {
