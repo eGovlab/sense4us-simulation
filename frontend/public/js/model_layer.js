@@ -69,13 +69,16 @@ function Model(id, data) {
     this.nodeGui     = {};
     this.links       = {};
 
+    this.historyLength   = 0;
+    this.history         = [];
+    this.revertedHistory = [];
+
     this.selected        = false;
     this.environment     = 'modelling';
     this.sidebar         = settings.sidebar;
     this.floatingWindows = [];
     this.refresh         = false;
     this.resetUI         = false;
-
 
     this.settings = {
         name:          'New Model',
@@ -118,7 +121,97 @@ function getAllModels(callback) {
 }
 
 Model.prototype = {
-    //listeners:   {},
+    pushHistory: function(data) {
+        if(!data.action) {
+            return;
+        }
+
+        this.history.push(data);
+        this.revertedHistory = [];
+    },
+
+    undo: function() {
+        if(this.history.length === 0) {
+            return;
+        }
+
+        var lastAction = this.history.splice(this.history.length - 1, 1)[0];
+        this.revertedHistory.push(lastAction);
+
+        switch(lastAction.action.toUpperCase()) {
+            case 'NEWNODE':
+                var data = lastAction.data;
+                this.emit(data.data.id, 'deleteNode');
+                break;
+            case 'NEWLINK':
+                var link = lastAction.data.link;
+                this.emit(link.id, 'deleteLink');
+                break;
+
+            case 'DELETENODE':
+                var data = lastAction.data;
+                this.nodeData[data.data.id] = data.data;
+                this.nodeGui[data.gui.id]   = data.gui;
+
+                data.links.forEach(function(l) {
+                    this.nodeGui[l.node1].links.push(l.id);
+                    this.nodeGui[l.node2].links.push(l.id);
+
+                    this.links[l.id] = l;
+                }, this);
+
+                break;
+
+            case 'DELETELINK':
+                var link = lastAction.data.link;
+                this.links[link.id] = link;
+
+                this.nodeGui[link.node1].links.push(link.id);
+                this.nodeGui[link.node2].links.push(link.id);
+                break;
+        }
+
+        this.selected = false;
+        this.emit(null, 'selected', 'refresh', 'resetUI');
+    },
+
+    revert: function() {
+        if(this.revertedHistory.length === 0) {
+            return;
+        }
+
+        var lastAction = this.revertedHistory.splice(this.revertedHistory.length - 1, 1)[0];
+        this.history.push(lastAction);
+
+        switch(lastAction.action.toUpperCase()) {
+            case 'NEWNODE':
+                var data                    = lastAction.data;
+                this.nodeData[data.data.id] = data.data;
+                this.nodeGui[data.gui.id]   = data.gui;
+                break;
+            case 'NEWLINK':
+                var link            = lastAction.data.link;
+                this.links[link.id] = link;
+
+                this.nodeGui[link.node1].links.push(link.id);
+                this.nodeGui[link.node2].links.push(link.id);
+                break;
+
+            case 'DELETENODE':
+                var data = lastAction.data;
+                this.emit(data.data.id, 'deleteNode');
+                break;
+
+            case 'DELETELINK':
+                var link = lastAction.data.link;
+                this.emit(link.id, 'deleteLink');
+                break;
+        }
+
+        this.selected = false;
+        this.emit(null, 'selected', 'refresh', 'resetUI');
+    },
+
     emit: function() {
         if(!this.listeners) {
             return;
@@ -152,6 +245,39 @@ Model.prototype = {
                 }, this);
             }
         }, this);
+    },
+
+    selectNode: function(id, name) {
+        if(id !== undefined && name !== undefined) {
+            throw new Error('Can\'t select a node from id and name at the same time.');
+        }
+
+        if(id !== undefined && this.nodeData[id] !== undefined) {
+            var n                     = this.nodeData[id];
+            this.nodeGui[id].selected = true;
+            this.selected             = n;
+
+            this.emit(null, 'refresh', 'resetUI', 'selected');
+            return;
+        }
+
+        objectHelper.forEach.call(this.nodeData, function(n) {
+            if(n.name === name) {
+                this.nodeGui[n.id].selected = true;
+                this.selected               = n;
+
+                this.emit(null, 'refresh', 'resetUI', 'selected');
+                return false;
+            }
+        }, this);
+    },
+
+    selectNodeById: function(id) {
+        this.selectNode(id, undefined);
+    },
+
+    selectNodeByName: function(name) {
+        this.selectNode(undefined, name);
     },
 
     getAllModels: getAllModels,
@@ -406,6 +532,8 @@ module.exports = {
         newModel.loadedScenario  = model.loadedScenario;
         newModel.scenarios       = model.scenarios;
         newModel.listeners       = model.listeners;
+        newModel.static          = model.static;
+        newModel.history         = model.history;
 
         model.floatingWindows.forEach(function(floatingWindow) {
             floatingWindow.destroyWindow();
@@ -425,6 +553,8 @@ module.exports = {
         model.scenarios[_.id] = _;
         model.loadedScenario  = _;
         model.settings        = {};
+
+        model.history         = [];
 
         return newModel;
     },
@@ -578,10 +708,10 @@ module.exports = {
                 zoom:          settings.zoom
             };*/
 
-            newState.settings.name    = settings.name,
-            newState.settings.offsetX = settings.pan_offset_x,
-            newState.settings.offsetY = settings.pan_offset_y,
-            newState.settings.zoom    = settings.zoom
+            newState.settings.name    = settings.name;
+            newState.settings.offsetX = settings.pan_offset_x;
+            newState.settings.offsetY = settings.pan_offset_y;
+            newState.settings.zoom    = settings.zoom;
 
             nodes.forEach(function(node) {
                 newState.nodeData[node.id] = {

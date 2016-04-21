@@ -18,14 +18,36 @@ module.exports = function createNode(model, data, gui, type) {
         objectId: 'nodeData'
     };
 
+    var x      = 400;
+    var y      = 100;
+    var radius = gui ? gui.radius || 45 : 45;
+
+    var offsetX     = model.settings.offsetX;
+    var offsetY     = model.settings.offsetY;
+    var modelWidth  = model.static.width  || -1;
+    var modelHeight = model.static.height || -1;
+
+    objectHelper.forEach.call(model.nodeGui, function(n) {
+        if(n.x < Math.abs(offsetX) || n.x > modelWidth + Math.abs(offsetX)) {
+            return;
+        }
+
+        if(n.x > x) {
+            x = n.x;
+        }
+    });
+
+    x += radius;
+
     var nodeGui = {
         id:       id,
-        x:        400,
-        y:        100,
-        radius:   45,
+        x:        x,
+        y:        y,
+        radius:   radius,
 
         objectId: 'nodeGui'
     };
+
 
     if(data !== undefined) {
         nodeData = objectHelper.merge.call(nodeData, data);
@@ -34,6 +56,15 @@ module.exports = function createNode(model, data, gui, type) {
     if(gui !== undefined) {
         nodeGui = objectHelper.merge.call(nodeGui, gui);
     }
+
+    model.history.push({
+        action: 'newNode',
+        data:   {
+            data: nodeData,
+            gui:  nodeGui
+        }
+    });
+    model.revertedHistory = [];
 
     model.nodeData[id] = nodeData;
     model.nodeGui[id]  = nodeGui;

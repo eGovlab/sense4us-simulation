@@ -11,7 +11,7 @@ function addSelectedListeners(sidebarManager, loadedModel) {
                 return;
             }
 
-            if(this.selected.objectId === 'nodeGui') {
+            if(this.selected.objectId === 'nodeGui' || this.selected.objectId === 'nodeData') {
                 var nodeData = loadedModel.nodeData[this.selected.id];
                 var nodeGui  = loadedModel.nodeGui[this.selected.id];
 

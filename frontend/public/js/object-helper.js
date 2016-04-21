@@ -2,9 +2,15 @@
 
 function forEach(callback, thisArg) {
     var that = this;
-    Object.keys(this).forEach(function(key, i, arr) {
-        callback.call(thisArg, that[key], key, i, arr);
-    });
+
+    var keys   = Object.keys(this);
+    var length = keys.length;
+    for(var i = 0; i < length; i++) {
+        var key = keys[i];
+        if(callback.call(thisArg, this[key], key, i, keys) === false) {
+            break;
+        }
+    }
 };
 
 function filter(callback) {

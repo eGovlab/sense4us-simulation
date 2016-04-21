@@ -93,23 +93,7 @@ function inflateModel(container, exportUnder) {
     var mainCanvas       = canvas(container, mainCanvasC),
         linegraphCanvas  = canvas(container, linegraphCanvasC);
 
-    var timer = null;
-    window.addEventListener('resize', function() {
-        if (timer !== null) {
-            clearTimeout(timer);
-        }
-
-        timer = setTimeout(function() {
-            mainCanvas.width            = container.offsetWidth;
-            linegraphCanvas.width       = container.offsetWidth;
-            /*mainCanvas.height           = container.offsetHeight;
-            linegraphCanvas.height      = container.offsetHeight;*/
-
-            sidebar.style['max-height'] = (container.offsetHeight - 44) + 'px';
-
-            refresh();
-        }, 500);
-    });
+    
 
     /*var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
     var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);*/
@@ -134,6 +118,31 @@ function inflateModel(container, exportUnder) {
             local:  {},
             synced: {}
         };
+
+    loadedModel.static        = {};
+    loadedModel.static.width  = container.offsetWidth;
+    loadedModel.static.height = container.offsetHeight;
+
+    var timer = null;
+    window.addEventListener('resize', function() {
+        if (timer !== null) {
+            clearTimeout(timer);
+        }
+
+        timer = setTimeout(function() {
+            mainCanvas.width            = container.offsetWidth;
+            linegraphCanvas.width       = container.offsetWidth;
+            /*mainCanvas.height           = container.offsetHeight;
+            linegraphCanvas.height      = container.offsetHeight;*/
+
+            loadedModel.static.width  = container.offsetWidth;
+            loadedModel.static.height = container.offsetHeight;
+
+            sidebar.style['max-height'] = (container.offsetHeight - 44) + 'px';
+
+            refresh();
+        }, 500);
+    });
 
     if(!window.sense4us[container.getAttribute('id')]) {
         window.sense4us[container.getAttribute('id')] = {};
@@ -167,12 +176,18 @@ function inflateModel(container, exportUnder) {
     var mouseHandler  = require('./mechanics/mouse_handler.js');
 
     mouseHandler(mainCanvas, loadedModel);
+
+    container.addEventListener('mousedown', function(ev) {
+        window.sense4us.lastTarget = ev.target;
+    });
     
     var keyboardHandler = require('./mechanics/keyboard_handler.js'),
         hotkeyE         = require('./input/hotkey_e.js'),
+        hotkeyZ         = require('./input/hotkey_z.js'),
+        hotkeyY         = require('./input/hotkey_y.js'),
         hotkeyESC       = require('./input/hotkey_esc.js');
 
-    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyESC]);
+    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);
 
     var zoom = 1;
     function MouseWheelHandler(e) {
@@ -243,8 +258,7 @@ function inflateModel(container, exportUnder) {
     require('./model/listeners/mouse_down.js')(loadedModel);
     require('./model/listeners/mouse_move.js')(loadedModel);
     require('./model/listeners/mouse_up.js')(loadedModel);
-    require('./model/listeners/delete_selected.js')(loadedModel);
-
+    require('./model/listeners/delete.js')(loadedModel);
 
     loadedModel.addListener('settings', refresh);
     loadedModel.addListener('refresh',  refresh);
@@ -344,4 +358,5 @@ function inflateModel(container, exportUnder) {
 }
 
 window.sense4us              = window.sense4us || {};
+window.sense4us.lastTarget   = false;
 window.sense4us.inflateModel = inflateModel;

@@ -62,7 +62,16 @@ module.exports = function(loadedModel) {
                             }
                         }
 
-                        var newLink       = createLink(loadedModel, nodeId, collidedId);
+                        var newLink = createLink(loadedModel, nodeId, collidedId);
+
+                        loadedModel.history.push({
+                            action: 'newLink',
+                            data:   {
+                                link: newLink
+                            }
+                        });
+                        loadedModel.revertedHistory = [];
+
                         links[newLink.id] = newLink;
 
                         nodeGui[nodeId].links.push(newLink.id);
