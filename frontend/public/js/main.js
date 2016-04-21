@@ -47,6 +47,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         exportUnder   = undefined;
     }
 
+    if(typeof projectFilter !== 'string' || typeof userFilter !== 'string') {
+        throw new Error('Need to initialize inflateModel with a user and project id.');
+    }
+
     var configObject = {
         protocol:      protocol,
         hostname:      hostname,
