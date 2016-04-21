@@ -1,6 +1,6 @@
 'use strict';
 
-var Immutable = require('Immutable'),
+var Immutable = null,
     Dropdown  = require('./dropdown.js');
 
 function MenuBuilder() {
@@ -21,6 +21,13 @@ MenuBuilder.prototype = {
     },
 
     slider: function(defaultValue, min, max, callback, onSlideCallback) {
+        var container = this.div('mb-sidebar-slider');
+
+        var minSpan = this.div('value');
+        minSpan.innerHTML = defaultValue;
+        var maxSpan = this.div('max-value');
+        maxSpan.innerHTML = max;
+
         var input = document.createElement('input');
         
         input.type = 'range';
@@ -28,23 +35,33 @@ MenuBuilder.prototype = {
         input.max = max;
         input.value = defaultValue;
 
-        input.addEventListener('change', callback);
-        if(onSlideCallback) {
-            input.addEventListener('input',  onSlideCallback);
-        }
+        input.addEventListener('change', function(){callback(parseInt(input.value))});
+        var onSlide = function(val) {
+            minSpan.innerHTML = input.value;
+            if(onSlideCallback) {
+                onSlideCallback(parseInt(input.value));
+            }
+        };
+
+        input.addEventListener('input', onSlide);
 
         input.deleteCallbacks = function() {
             input.removeEventListener('change', callback);
-            if(onSlideCallback) {
-                input.removeEventListener('input',  onSlideCallback);
-            }
+            input.removeEventListener('input',  onSlide);
         }
 
-        return input;
+        container.appendChild(minSpan);
+        container.appendChild(input);
+        container.appendChild(maxSpan);
+
+        return container;
     },
 
-    div: function() {
+    div: function(className) {
         var div = document.createElement('div');
+        if(className) {
+            div.className = className;
+        }
 
         return div;
     },
@@ -52,6 +69,9 @@ MenuBuilder.prototype = {
     button: function(text, callback) {
         var button = document.createElement('button');
         button.addEventListener('click', callback);
+        button.deleteEvents = function() {
+            button.removeEventListener('click', callback);
+        };
         button.appendChild(document.createTextNode(text));
         
         return button;        
@@ -60,7 +80,7 @@ MenuBuilder.prototype = {
     dropdown: function(text, callback, update) {
         var select = new Dropdown(text, callback, update);
         this.refreshable.push(select);
-        return select.element;
+        return select;
     },
 
     select: function(name, callback) {
@@ -69,6 +89,9 @@ MenuBuilder.prototype = {
         select.name = name;
 
         select.addEventListener('change', callback);
+        select.deleteEvents = function() {
+            select.removeEventListener('click', callback);
+        };
 
         return select;
     },
@@ -83,12 +106,12 @@ MenuBuilder.prototype = {
     },
     
     addValueCallback: function(element, callback, event) {
-        event = event || 'change';
+        event = event || 'change';
         
         var cb = function(event) {callback(element.name, element.value); };
         
         element.addEventListener(event, cb);
-        element.deleteEvent = function() {
+        element.deleteEvents = function() {
             element.removeEventListener(event, cb);
         };
     },
@@ -99,6 +122,7 @@ MenuBuilder.prototype = {
         MenuBuilder.prototype.addValueCallback(input, callback);
 
         input.setAttribute('value', value);
+        input.type  = 'text';
         input.name  = key;
         input.value = value;
       
@@ -127,7 +151,7 @@ MenuBuilder.prototype = {
 
     span: function(key) {
         var span = document.createElement('span');
-        if(key && typeof key === "string") {
+        if(key && typeof key === 'string') {
             span.innerHTML = key;
         }
 
@@ -139,6 +163,9 @@ MenuBuilder.prototype = {
         button.setAttribute('type', 'button');
         button.setAttribute('value', text);
         button.addEventListener('click', callback);
+        button.deleteEvents = function() {
+            button.removeEventListener('click', callback);
+        };
         button.className = 'button';
         
         return button;

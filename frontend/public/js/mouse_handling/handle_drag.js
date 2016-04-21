@@ -1,76 +1,104 @@
 'use strict';
 
-var middleware = require('./../middleware.js');
+var middleware   = require('./../middleware.js');
+var objectHelper = require('./../object-helper.js');
 
 var mouseDownWare = middleware([
-	moveLinker,
-	moveIcon,
-	moveClickedNodes,
-	pan
+    moveLinker,
+    moveIcon,
+    moveClickedNodes,
+    pan
 ]);
 
 function pan(data) {
-	data.settings = data.settings.set('offsetX', (data.settings.get('offsetX') || 0) - data.deltaPos.get('x'));
-	data.settings = data.settings.set('offsetY', (data.settings.get('offsetY') || 0) - data.deltaPos.get('y'));
-	
-	return data;
+    data.settings.offsetX = (data.settings.offsetX || 0) - data.deltaPos.x;
+    data.settings.offsetY = (data.settings.offsetY || 0) - data.deltaPos.y;
+    
+    return data;
 }
 
 function moveClickedNodes(data, error, done) {
-	var movingNodes = data.nodeGui
-		.filter(function(node) {return node.get('clicked') === true;})
-		.map(function(node) {
-			return node.concat({
-				x: data.pos.get('x') - node.get('offsetX'),
-				y: data.pos.get('y') - node.get('offsetY')
-			});
-		});
-	
-	data.nodeGui = data.nodeGui.merge(movingNodes);
-	
-	if (movingNodes.size > 0) {
-		return done(data);
-	}
+    var movingNodes = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.clicked === true;
+        }
+    );
 
-	return data;
+    movingNodes = objectHelper.map.call(
+        movingNodes,
+        function(node) {
+            return objectHelper.merge.call(
+                node,
+                {
+                    x: data.pos.x - node.offsetX,
+                    y: data.pos.y - node.offsetY
+                }
+            );
+        }
+    );
+
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, movingNodes);
+    
+    if (Object.keys(movingNodes).length > 0) {
+        return done(data);
+    }
+
+    return data;
 }
 
 function moveLinker(data, error, done) {
-	var movingLinker = data.nodeGui
-		.filter(function(node) { return node.get('linking') === true; })
-		.map(function(node) {
-			return node.concat({
-				linkerX: data.pos.get('x'),
-				linkerY: data.pos.get('y')
-			});
-		});
-			
-	data.nodeGui = data.nodeGui.merge(movingLinker);
-	
-	if (movingLinker.size > 0) {
-		return done(data);
-	}
+    var movingLinker = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.linking === true;
+        }
+    );
 
-	return data;
+    movingLinker = objectHelper.map.call(
+        movingLinker,
+        function(node) {
+            return objectHelper.merge.call(node, {
+                linkerX: data.pos.x,
+                linkerY: data.pos.y
+            });
+        }
+    );
+
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, movingLinker);
+    
+    if (Object.keys(movingLinker).length > 0) {
+        return done(data);
+    }
+
+    return data;
 }
 
 function moveIcon(data, error, done) {
-	var movingIcons = data.nodeGui
-		.filter(function(node) { return node.get('movingIcon') === true; })
-		.map(function(node) {
-			return node.concat({
-				iconXOffset: data.pos.get('x') - node.get('x'),
-				iconYOffset: data.pos.get('y') - node.get('y')
-			});
-		});
+    var movingIcons = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.movingIcon === true;
+        }
+    );
 
-	data.nodeGui = data.nodeGui.merge(movingIcons);
+    movingIcons = objectHelper.map.call(
+        movingIcons,
+        function(node) {
+            return node.merge({
+                iconXOffset: data.pos.x - node.x,
+                iconYOffset: data.pos.y - node.y
+            });
+        }
+    );
 
-	if (movingIcons.size > 0) {
-		return done(data);
-	}
-	
-	return data;
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, movingIcons);
+
+    if (Object.keys(movingIcons).length > 0) {
+        return done(data);
+    }
+    
+    return data;
 }
 
 module.exports = mouseDownWare;

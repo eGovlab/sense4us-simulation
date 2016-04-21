@@ -1,262 +1,850 @@
 'use strict';
 
-/*
-** Dependencies
-*/
-var Model           = require('./model.js'),
-    backendApi      = require('./api/backend_api.js'),
-    Immutable       = require('Immutable'),
+/**
+ * @file Model helper methods
+ * @author {@link https://github.com/Rhineheart Robin Swenson}
+ */
+
+var network         = require('./network'),
+    Immutable       = null,
     breakout        = require('./breakout.js'),
-    notificationBar = require('./notification_bar'),
-    menuBuilder     = require('./menu_builder');
+    Scenario        = require('./scenario').Scenario,
+    TimeTable       = require('./structures/timetable.js'),
+    menuBuilder     = require('./menu_builder'),
+    Promise         = require('promise');
 
-/*
-** Used to generate a local and incremential ID to avoid collisions for models.
-*/
-var generateId = 0;
+var createNode = require('./structures/create_node.js'),
+    createLink = require('./structures/create_link.js');
 
-/*
-** Said namespace.
-** Methods exposed:
-**     name:        newModel()
-**     params:      id
-**     description: The argument given may override the above local variable generateId.
-**                  Only for advance usage.
-**     returns:     An immutable map with data relevant to a model. See method for data.
+var objectHelper = require('./object-helper');
+    
+var settings = require('./settings');
 
-**     name:        saveModel()
-**     params:      loadedModelCallback, refreshCallback
-**     description: This method will run AJAX and should not be expected to
-**                  return anything at runtime.
-**                  The refreshCallback will be called at AJAX completion.
-**                  The loadedModelCallback should return a map with a model if called
-**                  without parameters. If called with one argument, it should replace
-**                  the model with the argument.
-**                  This method will try to save a model on a remote server using the backendApi
-**                  dependency above. If successful, will notify the user with notificationBar.
+// Used to generate a local and incremential ID to avoid collisions for models.
+var generateId = -1;
 
-**     name:        deleteModel()
-**     params:      loadedModelCallback, savedModelsCallback, refreshCallback
-**     description: This method will run AJAX and should not be expected to
-**                  return anything at runtime.
-**                  The refreshCallback will be called at AJAX completion.
-**                  The loadedModelCallback should return a map with a model if called
-**                  without parameters. If called with one argument, it should replace
-**                  the model with the argument.
-**                  The savedModelsCallback should return a map with saved models if called
-**                  without parameters. If called with one argument, it should replace
-**                  the map with the argument. See /js/main.js for structure.
-**                  This method will try to delete the model from a remote server if it exists,
-**                  if not, only delete it from the local savedModels map. It will also load the
-**                  first local model from savedModels, or if there is none, create a new one.
+// Not used anymore, I think.
+function definePropagations(obj, keys) {
+    keys.forEach(function(key) {
+        Object.defineProperty(obj, key, {get: function() {
+            return this['_'+key];
+        }, set: function(newValue) {
+            this.changed[key] = true;
+            /*if(key === 'scenarios') {
+                console.log('Setting: ['+key+']: ' + newValue);
+                console.log(new Error().stack);
+            }*/
+            
+            this['_'+key]     = newValue;
+        }});
+    });
+}
 
-**     name:        loadSyncModel()
-**     params:      id, onDoneCallback
-**     description: This method will run AJAX and should not be expected to
-**                  return anything at runtime.
-**                  The AJAX will try to fetch a model with given id argument from a remote server.
-**                  If successful, will setup a new model map.
-**     returns:     Will call onDoneCallback with the remote models data in a map similar to
-**                  newModel as the only argument.
-*/
-module.exports = {
-    newModel: function(id) {
-        var map = Immutable.Map({
-            id:       id || generateId,
-            saved:    false,
-            synced:   false,
-            syncId:   null,
+/**
+ * Model layer for model related helper methods.
+ * @module models
+ */
 
-            nextId:   0,
-            nodeData: Immutable.Map({}),
-            nodeGui:  Immutable.Map({}),
-            links:    Immutable.Map({}),
-            settings: Immutable.Map({
-                name:          "New Model",
-                maxIterations: 4,
-                offsetX:       0,
-                offsetY:       0,
-                zoom:          1,
+/**
+ * @description Model constructor
+ * @see {@link model/Model}
+ *
+ * @param {integer} id
+ * @param {object} data
+ */ 
 
-                timeStepT:     "Week",
-                timeStepN:     0
-            }),
-            treeSettings: Immutable.Map({
-                x:      400,
-                y:      20,
-                width:  200,
-                height: 0,
-                scroll: 0
-            })
-        });
 
-        generateId += 1;
+function Model(id, data) {
+    this.changed     = {};
+    this.timestamps  = {};
 
-        return map;
-    },
+    this.id          = id;
+    this.syncId      = false;
+    this.saved       = false;
+    this.synced      = false;
+    this.syncId      = null;
 
-    saveModel: function(_loadedModel, refresh) {
-        var loadedModel = _loadedModel();
-        var data = {
-            modelId:  loadedModel.get('syncId'),
-            settings: loadedModel.get('settings').toJSON(),
-            nodes:    breakout.nodes(loadedModel),
-            links:    breakout.links(loadedModel)
-        };
+    this.nextId      = -1;
+    this.nodeData    = {};
+    this.nodeGui     = {};
+    this.links       = {};
 
-        console.log(data);
+    this.historyLength   = 0;
+    this.history         = [];
+    this.revertedHistory = [];
 
-        backendApi('/models/save', data, function(response, err) {
-            if (err) {
-                console.log(response);
-                notificationBar.notify("Couldn't save model: " + response.errors);
-                return;
+    this.selected        = false;
+    this.environment     = 'modelling';
+    this.sidebar         = settings.sidebar;
+    this.floatingWindows = [];
+    this.refresh         = false;
+    this.resetUI         = false;
+
+    this.settings = {
+        name:          'New Model',
+        //maxIterations: 4,
+        offsetX:       0,
+        offsetY:       0,
+        zoom:          1,
+        linegraph:     false,
+        objectId:      'modelSettings'
+
+        //timeStepT:     'Week',
+        //timeStepN:     0
+    };
+
+    this.scenarios      = {};
+    var __ = new Scenario(this);
+    this.scenarios[__.id] = __;
+    this.loadedScenario = __;
+
+    if(data) {
+        Object.keys(data).forEach(function(key) {
+            this[key] = data[key];
+        }, this);
+    }
+
+    this.objectId = 'model';
+}
+
+function getAllModels(callback) {
+    var userFilter    = this.CONFIG.userFilter,
+        projectFilter = this.CONFIG.projectFilter,
+        url           = this.CONFIG.url;
+
+    return new Promise(function(fulfill, reject) {
+        network(url, '/models/' + userFilter + '/' + projectFilter + '/all', function(response, error) {
+            if(error || response.status !== 200) {
+                return reject(error, response);
             }
 
-            loadedModel = loadedModel.set('syncId',   response.response.id);
-            loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('saved', true));
-            _loadedModel(loadedModel);
-
-            if(response.response.message) {
-                notificationBar.notify(response.response.message);
-            } else {
-                notificationBar.notify('Model['+loadedModel.get('settings').get('name')+'] saved.');
-            }
-
-            refresh();
+            fulfill(response.response);
         });
+    });
+}
+
+Model.prototype = {
+    pushHistory: function(data) {
+        if(!data.action) {
+            return;
+        }
+
+        this.history.push(data);
+        this.revertedHistory = [];
     },
 
-    deleteModel: function(_loadedModel, _savedModels, refresh) {
-        var savedModels = _savedModels(),
-            loadedModel = _loadedModel(),
-            that        = this;
+    undo: function() {
+        if(this.history.length === 0) {
+            return;
+        }
 
-        if(loadedModel.get('synced') === true && (loadedModel.get('syncId') !== null && loadedModel.get('syncId') !== undefined)) {
-            backendApi('/models/bundle/' + loadedModel.get('syncId'), {}, function(response, err) {
-                if(err) {
-                    console.log(response);
-                    console.log(err);
+        var lastAction = this.history.splice(this.history.length - 1, 1)[0];
+        this.revertedHistory.push(lastAction);
+
+        switch(lastAction.action.toUpperCase()) {
+            case 'NEWNODE':
+                var data = lastAction.data;
+                this.emit(data.data.id, 'deleteNode');
+                break;
+            case 'NEWLINK':
+                var link = lastAction.data.link;
+                this.emit(link.id, 'deleteLink');
+                break;
+
+            case 'DELETENODE':
+                var data = lastAction.data;
+                this.nodeData[data.data.id] = data.data;
+                this.nodeGui[data.gui.id]   = data.gui;
+
+                data.links.forEach(function(l) {
+                    this.nodeGui[l.node1].links.push(l.id);
+                    this.nodeGui[l.node2].links.push(l.id);
+
+                    this.links[l.id] = l;
+                }, this);
+
+                break;
+
+            case 'DELETELINK':
+                var link = lastAction.data.link;
+                this.links[link.id] = link;
+
+                this.nodeGui[link.node1].links.push(link.id);
+                this.nodeGui[link.node2].links.push(link.id);
+                break;
+        }
+
+        this.selected = false;
+        this.emit(null, 'selected', 'refresh', 'resetUI');
+    },
+
+    createNode: function(name) {
+        createNode(this, {name: name}, {}, 'template');
+    },
+
+    redo: function() {
+        if(this.revertedHistory.length === 0) {
+            return;
+        }
+
+        var lastAction = this.revertedHistory.splice(this.revertedHistory.length - 1, 1)[0];
+        this.history.push(lastAction);
+
+        switch(lastAction.action.toUpperCase()) {
+            case 'NEWNODE':
+                var data                    = lastAction.data;
+                this.nodeData[data.data.id] = data.data;
+                this.nodeGui[data.gui.id]   = data.gui;
+                break;
+            case 'NEWLINK':
+                var link            = lastAction.data.link;
+                this.links[link.id] = link;
+
+                this.nodeGui[link.node1].links.push(link.id);
+                this.nodeGui[link.node2].links.push(link.id);
+                break;
+
+            case 'DELETENODE':
+                var data = lastAction.data;
+                this.emit(data.data.id, 'deleteNode');
+                break;
+
+            case 'DELETELINK':
+                var link = lastAction.data.link;
+                this.emit(link.id, 'deleteLink');
+                break;
+        }
+
+        this.selected = false;
+        this.emit(null, 'selected', 'refresh', 'resetUI');
+    },
+
+    emit: function() {
+        if(!this.listeners) {
+            return;
+        }
+
+        var data;
+        var events = [];
+
+        if(arguments.length !== 1) {
+            data = arguments[0];
+            for(var i = 1; i < arguments.length; i++) {
+                var ev = arguments[i];
+                if(typeof ev !== 'string') {
+                    throw new Error('Listener id must be a string.');
+                }
+
+                events.push(ev);
+            }
+        } else {
+            events = [arguments[0]];
+        }
+
+        if(!data || !data.forEach) {
+            data = [data];
+        }
+
+        events.forEach(function(ev) { 
+            if(this.listeners[ev]) {
+                this.listeners[ev].forEach(function(listener) {
+                    listener.apply(this, data.concat([ev]));
+                }, this);
+            }
+        }, this);
+    },
+
+    selectNode: function(id, name) {
+        if(id !== undefined && name !== undefined) {
+            throw new Error('Can\'t select a node from id and name at the same time.');
+        }
+
+        if(id !== undefined && this.nodeData[id] !== undefined) {
+            var n                     = this.nodeData[id];
+            this.nodeGui[id].selected = true;
+            this.selected             = n;
+
+            this.emit(null, 'refresh', 'resetUI', 'selected');
+            return;
+        }
+
+        objectHelper.forEach.call(this.nodeData, function(n) {
+            if(n.name === name) {
+                this.nodeGui[n.id].selected = true;
+                this.selected               = n;
+
+                this.emit(null, 'refresh', 'resetUI', 'selected');
+                return false;
+            }
+        }, this);
+    },
+
+    selectNodeById: function(id) {
+        this.selectNode(id, undefined);
+    },
+
+    selectNodeByName: function(name) {
+        this.selectNode(undefined, name);
+    },
+
+    getAllModels: getAllModels,
+
+    loadModel: function(id) {
+        var that = this;
+
+        var currentId     = id || this.id,
+            currentSyncId = id || this.syncId;
+
+        return new Promise(function(fulfill, reject) {
+            if(id === undefined || id === null || isNaN(parseInt(id))) {
+                reject(new Error('Id must be a valid number.'));
+            }
+
+            var cb = function(_id, _syncId, ev) {
+                if(_id !== currentId && _syncId !== currentSyncId) {
                     return;
                 }
 
-                savedModels = savedModels.set('synced', savedModels.get('synced').delete(loadedModel.get('syncId')));
-                loadedModel = savedModels.get('local').first();
+                that.removeListener('modelLoaded',       cb);
+                that.removeListener('errorLoadingModel', cb);
 
-                if(loadedModel === undefined) {
-                    loadedModel = that.newModel();
+                if(ev === 'errorLoadingModel') {
+                    return reject();
                 }
 
-                notificationBar.notify(response.response);
-                _savedModels(savedModels);
-                _loadedModel(loadedModel);
-                refresh();
-            }, "DELETE");
-        } else {
-            savedModels = savedModels.set('local', savedModels.get('local').delete(loadedModel.get('id')));
-            loadedModel = this.newModel();
+                fulfill();
+            };
 
-            _savedModels(savedModels);
-            _loadedModel(loadedModel);
-            refresh();
-        }
-    },
-    
-    loadSyncModel: function(modelId, callback) {
-        var that = this;
-        backendApi('/models/bundle/' + modelId, function(response, error) {
-            if (error) {
-                console.log(response);
-                console.log(error);
+            that.addListener('modelLoaded',       cb);
+            that.addListener('errorLoadingModel', cb);
+
+            that.emit('storeModel');
+            if(id && (typeof id === 'string' || typeof id === 'number')) {
+                that.emit([id, id], 'preLoadModel');
+                that.emit([id, id], 'loadModel');
                 return;
             }
 
-            var nodes    = response.response.nodes,
-                links    = response.response.links,
-                settings = response.response.settings
+            that.emit([that.id, that.syncId], 'preLoadModel');
+            that.emit([that.id, that.syncId], 'loadModel');
+        });
+    },
 
-            var highestId = 0;
-            //var nextId = 0;
-            nodes.forEach(function(n) {
-                if(n.id > highestId) {
-                    highestId = n.id;
+    saveModel: function(id) {
+        var that = this;
+
+        var currentId     = id || this.id,
+            currentSyncId = id || this.syncId;
+
+        return new Promise(function(fulfill, reject) {
+            if(id === undefined || id === null || isNaN(parseInt(id))) {
+                reject(new Error('Id must be a valid number.'));
+            }
+
+            var cb = function(_id, _syncId, ev) {
+                if(_id !== currentId && _syncId !== currentSyncId) {
+                    return;
                 }
-            });
 
-            links.forEach(function(l) {
-                if(l.id > highestId) {
-                    highestId = l.id;
+                if(ev === 'errorSavingModel') {
+                    return reject(id);
                 }
+
+                fulfill(id);
+            };
+
+            that.addListener('modelSaved', cb);
+            if(id && (typeof id === 'string' || typeof id === 'integer')) {
+                that.emit([id, id], 'preSaveModel');
+                that.emit([id, id], 'saveModel');
+                return;
+            } 
+
+            that.emit('storeModel');
+            that.emit([currentId, currentSyncId], 'preSaveModel');
+            that.emit([currentId, currentSyncId], 'saveModel');
+        });
+    },
+
+    deleteModel: function(id) {
+        var that = this;
+
+        var currentId     = id || this.id,
+            currentSyncId = id || this.syncId;
+
+        return new Promise(function(fulfill, reject) {
+            if(id === undefined || id === null || isNaN(parseInt(id))) {
+                reject(new Error('Id must be a valid number.'));
+            }
+
+            var cb = function(_id, _syncId, ev) {
+                if(_id !== currentId && _syncId !== currentSyncId) {
+                    return;
+                }
+
+                that.removeListener('modelDeleted', cb);
+                if(ev === 'errorDeletingModel') {
+                    return reject(id);
+                }
+
+                fulfill(id);
+            };
+
+            that.addListener('modelDeleted', cb);
+            if(id && (typeof id === 'string' || typeof id === 'integer')) {
+                that.emit([id, id], 'deleteModel');
+                return;
+            } 
+
+            that.emit('storeModel');
+            that.emit([that.id, that.syncId], 'deleteModel');
+        });
+    },
+    
+
+    generateId: function() {
+        this.nextId++;
+
+        return this.nextId;
+    },
+
+    addListener: function(key, listener) {
+        if(!this.listeners) {
+            this.listeners = {};
+        }
+
+        if(!this.listeners[key]) {
+            this.listeners[key] = [];
+        }
+
+        this.listeners[key].push(listener);
+    },
+
+    removeListener: function(key, listener) {
+        if(!this.listeners[key]) {
+            return;
+        }
+
+        var index = this.listeners[key].indexOf(listener);
+        if(index === -1) {
+            console.log('Didn\'t find listener.');
+            return;
+        }
+
+        this.listeners[key].splice(index, 1);
+    },
+
+    removeListeners: function(key) {
+        this.listeners[key] = [];
+    },
+
+    /*addListener: function(key, listener) {
+        if(!Model.prototype.listeners[key]) {
+            Model.prototype.listeners[key] = [];
+        }
+
+        if(Model.prototype.listeners[key].indexOf(listener) !== -1) {
+            return;
+        }
+
+        Model.prototype.listeners[key].push(listener);
+    },
+
+    removeListener: function(key, listener) {
+        if(!Model.prototype.listeners[key]) {
+            return;
+        }
+
+        Model.prototype.listeners[key] = Model.prototype.listeners[key].filter(function(value){return value !== listener;});
+    },
+
+    removeListeners: function(key) {
+        Model.prototype.listeners[key] = [];
+    },*/
+
+    propagate: function() {
+        var validListeners = [];
+        Object.keys(this.changed).forEach(function(key) {
+            var property = this[key];
+            if(!property) {
+                return;
+            }
+
+            var _l = Model.prototype.listeners[key];
+            if(!_l || _l.length === 0) {
+                return;
+            }
+
+            _l.forEach(function(listener) {
+                if(validListeners.indexOf(listener) !== -1) {
+                    return;
+                }
+
+                validListeners.push(listener);
             });
+        }, this);
 
-            var newState = that.newModel();
-            newState = newState.merge(Immutable.Map({
-                syncId: response.response.id,
-                nextId: highestId + 1,
-                synced: true
-            }));
-            console.log();
-            var s = newState.get('settings');
-            s = s.merge(Immutable.Map(settings));
-            newState = newState.set('settings', s);
+        this.changed = {};
+        validListeners.forEach(function(listener) {
+            listener.call(this);
+        }, this);
+    },
 
-            nodes.forEach(function(node) {
-                var newNode = Immutable.Map({
-                    id:             node.id,
-                    value:          node.starting_value,
-                    relativeChange: node.change_value   || 0,
-                    simulateChange: Immutable.List(),
-                    threshold:      node.threshold      || 0,
-                    type:           node.type,
-                    name:           node.name           || undefined,
-                    description:    node.description    || undefined
+    scenariosToJson: function() {
+        var scenarios = [];
+        Object.keys(this.scenarios).forEach(function(key) {
+            var scenario = this.scenarios[key];
+            scenarios.push(scenario.toJson(this));
+        }, this);
+
+        return scenarios;
+    }
+};
+
+/*definePropagations(Model.prototype, [
+    'id',
+    'environment',
+    'sidebar',
+    'refresh',
+    'floatingWindows',
+    'resetUI',
+    'saved',
+    'synced',
+    'syncId',
+    'nextId',
+    'selected',
+    'nodeData',
+    'nodeGui',
+    'links',
+    'settings',
+    'treeSettings',
+    'loadedScenario',
+    'scenarios'
+]);*/
+
+module.exports = {
+    newModel: function(data) {
+        generateId++;
+        return new Model(generateId, data);
+    },
+
+    moveModel: function(model) {
+        var newModel = this.newModel();
+
+        newModel.CONFIG          = model.CONFIG;
+        newModel.id              = model.id;
+        newModel.environment     = model.environment;
+        newModel.sidebar         = model.sidebar;
+        newModel.refresh         = false;
+        newModel.resetUI         = false;
+        newModel.floatingWindows = model.floatingWindows;
+        newModel.saved           = model.saved;
+        newModel.synced          = model.synced;
+        newModel.syncId          = model.syncId;
+        newModel.nextId          = model.nextId;
+        newModel.selected        = null;
+        newModel.nodeData        = model.nodeData;
+        newModel.nodeGui         = model.nodeGui;
+        newModel.links           = model.links;
+        newModel.settings        = model.settings;
+        newModel.treeSettings    = model.treeSettings;
+        newModel.loadedScenario  = model.loadedScenario;
+        newModel.scenarios       = model.scenarios;
+        newModel.listeners       = model.listeners;
+        newModel.static          = model.static;
+        newModel.history         = model.history;
+
+        model.floatingWindows.forEach(function(floatingWindow) {
+            floatingWindow.destroyWindow();
+
+            if(floatingWindow.hide) {
+                floatingWindow.hide();
+            }
+        });
+
+        model.floatingWindows = [];
+        model.nodeData        = {};
+        model.nodeGui         = {};
+        model.links           = {};
+        model.treeSettings    = {};
+        var _                 = new Scenario(model);
+        model.scenarios       = {};
+        model.scenarios[_.id] = _;
+        model.loadedScenario  = _;
+        model.settings        = {};
+
+        model.history         = [];
+
+        return newModel;
+    },
+
+    getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
+
+    saveModel: function(url, userFilter, projectFilter, loadedModel, onDone) {
+        var data = {
+            modelId:   loadedModel.syncId,
+            settings:  loadedModel.settings,
+            nodes:     breakout.nodes(loadedModel),
+            links:     breakout.links(loadedModel),
+            scenarios: loadedModel.scenariosToJson()
+        };
+
+        network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
+            if (err) {
+                loadedModel.emit('Couldn\'t save model: ' + err.message, 'notification');
+                return;
+            }
+
+            if(response.status !== 200) {
+                loadedModel.emit('Couldn\'t save model: ' + (response.errors || 'null'), 'notification');
+                return;
+            }
+
+            try {
+                loadedModel.synced         = true;
+                loadedModel.syncId         = response.response.model.id;
+                loadedModel.settings.saved = true;
+
+                var nodes      = response.response.nodes;
+                var links      = response.response.links;
+                var scenarios  = response.response.scenarios;
+                var timetables = response.response.timetables;
+                var timesteps  = response.response.timesteps;
+
+                var nodeLookup = {};
+                nodes.forEach(function(node) {
+                    loadedModel.nodeData[node.id].syncId = node.syncId;
+                    loadedModel.nodeGui[node.id].syncId  = node.syncId;
+
+                    nodeLookup[node.syncId] = loadedModel.nodeData[node.id];
                 });
 
-                if(node.timeTable) {
-                    newNode = newNode.set('timeTable', Immutable.Map(node.timeTable));
+                links.forEach(function(link) {
+                    loadedModel.links[link.id].syncId = link.syncId;
+                });
+
+                var scenarioLookup = {};
+                scenarios.forEach(function(scenario) {
+                    loadedModel.scenarios[scenario.id].syncId = scenario.syncId;
+                    scenarioLookup[scenario.syncId] = loadedModel.scenarios[scenario.id];
+                });
+
+                var timetableLookup = {};
+                timetables.forEach(function(timetable) {
+                    scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node].id].syncId = timetable.syncId;
+                    timetableLookup[timetable.syncId] = scenarioLookup[timetable.scenario].data[nodeLookup[timetable.node]];
+                });
+
+                /*timesteps.forEach(function(timestep) {
+                    timetableLookup[timestep.timetable]
+                });*/
+
+                /*loadedModel = loadedModel.set('syncId',   response.response.id);
+                loadedModel = loadedModel.set('settings', loadedModel.settings.set('saved', true));
+                _loadedModel(loadedModel);*/
+
+                /*if(response.response.message) {
+                    loadedModel.emit(response.response.message, 'notification');
+                } else {
+                    loadedModel.emit('Model['+loadedModel.settings.name+'] saved.', 'notification');
+                }*/
+
+            } catch(e) {
+                console.error(e);
+                throw e;
+            }
+
+            onDone();
+        });
+    },
+
+    deleteModel: function(url, userFilter, projectFilter, modelId, savedModels, callback) {
+        var that = this;
+        if(savedModels.local[modelId] === undefined) {
+            network(url, '/models/' + userFilter + '/' + projectFilter + '/' + modelId, {}, function(response, err) {
+                if(err) {
+                    console.error(response);
+                    console.error(err);
+                    return;
                 }
 
-                var nd = newState.get('nodeData').set(node.id, newNode);
+                //delete savedModels.local[loadedModel.id];
+                delete savedModels.synced[modelId];
 
-                newState = newState.set('nodeData', nd);
+                callback(response.response.message);
+            }, 'DELETE');
+        } else {
+            delete savedModels.local[modelId];
+            callback();
+        }
+    },
+    
+    loadSyncModel: function(url, userFilter, projectFilter, modelId, callback) {
+        var that = this;
+        network(url, '/models/' + userFilter + '/' + projectFilter + '/bundle/' + modelId, function(response, error) {
+            if (error) {
+                console.error(response);
+                console.error(error);
+                return;
+            }
 
-                var ng = newState.get('nodeGui').set(node.id, Immutable.Map({
-                    id:     node.id,
-                    x:      parseInt(node.x),
-                    y:      parseInt(node.y),
-                    radius: parseFloat(node.radius),
-                    links:  Immutable.List(),
-                    avatar: node.avatar,
-                    icon:   node.icon
-                }));
-                newState = newState.set('nodeGui', ng);
+            if(response.status !== 200) {
+                if(!response.response) {
+                    response.response = {};
+                }
+                callback(new Error(response.response.message || 'Error loading model'));
+                return;
+            }
+
+            var settings   = response.response.model,
+                nodes      = response.response.nodes,
+                links      = response.response.links,
+                scenarios  = response.response.scenarios,
+                timetables = response.response.timetables,
+                timesteps  = response.response.timesteps;
+
+            var newState = that.newModel();
+            newState.synced = true;
+            newState.syncId = settings.id;
+            delete newState.scenarios;
+
+            var highestId = 0;
+
+            newState.scenarios = {};
+                    /*name:          'New Model',
+                    maxIterations: 4,
+                    offsetX:       0,
+                    offsetY:       0,
+                    zoom:          1,
+                    linegraph:     false,
+
+                    timeStepT:     'Week',
+                    timeStepN:     0*/
+            /*newState.settings = {
+                name:          settings.name,
+                offsetX:       settings.pan_offset_x,
+                offsetY:       settings.pan_offset_y,
+                zoom:          settings.zoom
+            };*/
+
+            newState.settings.name    = settings.name;
+            newState.settings.offsetX = settings.pan_offset_x;
+            newState.settings.offsetY = settings.pan_offset_y;
+            newState.settings.zoom    = settings.zoom;
+
+            nodes.forEach(function(node) {
+                newState.nodeData[node.id] = {
+                    id:             node.id,
+                    syncId:         node.id,
+                    name:           node.name,
+                    description:    node.description,
+                    type:           node.type,
+                    simulateChange: 0,
+
+                    objectId:       'nodeData'
+                };
+
+                newState.nodeGui[node.id]  = {
+                    id:         node.id,
+                    syncId:     node.id,
+                    radius:     node.radius,
+                    x:          node.x,
+                    y:          node.y,
+                    avatar:     node.avatar,
+                    color:      node.color,
+                    links:      [],
+
+                    objectId:   'nodeGui'
+                };
+
+                if(highestId < node.id) {
+                    highestId = node.id;
+                }
             });
 
             links.forEach(function(link) {
-                var l = newState.get('links').set(link.id, Immutable.Map({
+                if(!link.downstream || !link.upstream) {
+                    return callback(settings.id);
+                }
+
+                newState.links[link.id] = {
                     id:          link.id,
+                    syncId:      link.id,
+                    coefficient: link.coefficient,
                     node1:       link.upstream,
                     node2:       link.downstream,
-                    coefficient: link.threshold,
-                    type:        link.type,
+                    threshold:   link.threshold,
                     timelag:     link.timelag,
-                    width:       8
-                }));
+                    type:        link.type || 'fullchannel',
+                    width:       8,
 
-                newState = newState.set('links', l);
+                    objectId:    'link'
+                };
 
-                var ng1 = newState.get('nodeGui').get(link.upstream);
-                ng1 = ng1.set('links', ng1.get('links').push(link.id));
+                newState.nodeGui[link.downstream].links.push(link.id);
+                newState.nodeGui[link.upstream].links.push(link.id);
 
-                var ng2 = newState.get('nodeGui').get(link.downstream);
-                ng2 = ng2.set('links', ng2.get('links').push(link.id));
-
-                var ng = newState.get('nodeGui');
-                ng = ng.set(link.upstream, ng1);
-                ng = ng.set(link.downstream, ng2);
-
-                newState = newState.set('nodeGui', ng);
+                if(highestId < link.id) {
+                    highestId = link.id;
+                }
             });
+
+            scenarios.forEach(function(scenario, index) {
+                var newScenario = new Scenario(newState);
+
+                newScenario.id                = scenario.id,
+                newScenario.syncId            = scenario.id,
+                newScenario.name              = scenario.name,
+                newScenario.maxIterations     = scenario.max_iterations,
+                newScenario.timeStepN         = scenario.timestep_n,
+                newScenario.measurement       = scenario.measurement,
+                newScenario.measurementAmount = scenario.measurement_amount,
+
+                newState.scenarios[newScenario.id] = newScenario;
+
+                if(index === 0) {
+                    newState.loadedScenario = newState.scenarios[scenario.id];
+                }
+
+                if(highestId < scenario.id) {
+                    highestId = scenario.id;
+                }
+            });
+
+            var timetableLookup = {};
+            timetables.forEach(function(timetable) {
+                var node = newState.nodeData[timetable.node];
+                var newTimetable = new TimeTable(node, function() {
+                    newState.emit(null, 'refresh', 'resetUI');
+                    /*newState.refresh = true;
+                    newState.resetUI = true;
+                    newState.propagate();*/
+                });
+
+                timetableLookup[timetable.id] = newTimetable;
+
+                newState.scenarios[timetable.scenario].data[node.id] = newTimetable;
+            });
+
+            timesteps.forEach(function(timestep) {
+                var timetable = timetableLookup[timestep.timetable];
+                if(!timetable.timeTable) {
+                    timetable.timeTable = {};
+                }
+
+                if(!timetable.node.timeTable) {
+                    timetable.node.timeTable = {};
+                }
+                
+                timetable.timeTable[timestep.step]      = timestep.value;
+                timetable.node.timeTable[timestep.step] = timestep.value;
+            });
+
+            /*timetableLookup.forEach(function(tt) {
+                tt.refreshTimeTable();
+            });*/
+
+            newState.nextId = ++highestId;
 
             callback(newState);
         });

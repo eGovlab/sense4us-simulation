@@ -8,10 +8,10 @@ module.exports = function drawLink(ctx, line) {
     ** Variable initiation
     */
 
-    var x1             = line.get('x1'),
-        y1             = line.get('y1'),
-        x2             = line.get('x2'),
-        y2             = line.get('y2'),
+    var x1             = line.x1,
+        y1             = line.y1,
+        x2             = line.x2,
+        y2             = line.y2,
 
         dx             = x2 - x1,
         dy             = y2 - y1,
@@ -19,9 +19,9 @@ module.exports = function drawLink(ctx, line) {
         distance       = Math.sqrt(dx*dx + dy*dy),
         angle          = Math.atan2(dy, dx),
         
-        fromRadius     = line.get('fromRadius')   + 8,
-        targetRadius   = line.get('targetRadius') + 8,
-        lineWidth      = line.get('width'),
+        fromRadius     = line.fromRadius   + 8,
+        targetRadius   = line.targetRadius + 8,
+        lineWidth      = line.width,
         halfLineWidth  = lineWidth * 0.80,
 
         startX         = x1 + Math.cos(angle) * (fromRadius),
@@ -52,7 +52,7 @@ module.exports = function drawLink(ctx, line) {
         coefficientX   = arrowMiddleX + Math.cos(leftAngle) * 20,
         coefficientY   = arrowMiddleY + Math.sin(leftAngle) * 20;
 
-    if(distance < fromRadius) {
+    if(distance < fromRadius + targetRadius) {
         return;
     }
 
@@ -68,26 +68,34 @@ module.exports = function drawLink(ctx, line) {
     ctx.lineJoin = 'miter';
     ctx.lineCap  = 'square';
 
-    if (line.get('selected') === true) {
-        ctx.strokeStyle = 'rgba(30, 220, 140, 0.8)';
-    } else if(line.get('loop') === true) {
+    if (line.selected === true) {
+        ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
+    } else if(line.loop === true) {
         ctx.strokeStyle = 'rgba(220, 30, 140, 0.8)';
     }  else {
-        ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
+        if(line.coefficient > 0) {
+            ctx.strokeStyle = valueColors.positive;
+        } else if(line.coefficient < 0) {
+            ctx.strokeStyle = valueColors.negative;
+        } else {
+            ctx.strokeStyle = 'rgba(0,0,0, 0.6)';
+        }
     }
 
-    ctx.lineWidth = line.get('width') * 1.2;
+    ctx.lineWidth = line.width * 1.2;
     ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(arrowStartX, arrowStartY);
+
+    ctx.moveTo(startX,       startY);
+    ctx.lineTo(arrowStartX,  arrowStartY);
     ctx.lineTo(leftAnchorX,  leftAnchorY);
     ctx.lineTo(arrowEndX,    arrowEndY);
     ctx.lineTo(rightAnchorX, rightAnchorY);
     ctx.lineTo(arrowStartX,  arrowStartY);
+
     ctx.closePath();
     ctx.stroke();
 
-    if(line.get('type') === 'halfchannel') {
+    if(line.type === 'halfchannel') {
         /*
         ** Draw another smaller line on top of the initial arrow.
         */
@@ -100,24 +108,27 @@ module.exports = function drawLink(ctx, line) {
         
         ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
 
-        ctx.lineWidth = line.get('width');
+        ctx.lineWidth = line.width;
         ctx.lineJoin = 'miter';
         ctx.lineCap  = 'square';
         ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(arrowStartX, arrowStartY);
+
+        ctx.moveTo(startX,       startY);
+        ctx.lineTo(arrowStartX,  arrowStartY);
         ctx.lineTo(leftAnchorX,  leftAnchorY);
         ctx.lineTo(arrowEndX,    arrowEndY);
         ctx.lineTo(rightAnchorX, rightAnchorY);
         ctx.lineTo(arrowStartX,  arrowStartY);
+
         ctx.closePath();
         ctx.stroke();
     }
 
-    if(line.get('coefficient') !== undefined) {
-        var textHeight = 22;
+    if(line.coefficient !== undefined) {
+        var textHeight = 14,
+            offsetBase = 8;
         ctx.font = textHeight + 'px Arial';
-        var coefficient = line.get('coefficient');
+        var coefficient = line.coefficient;
         if(coefficient > 0) {
             ctx.fillStyle = valueColors.positive;
         } else if(coefficient < 0) {
@@ -129,9 +140,9 @@ module.exports = function drawLink(ctx, line) {
         var coefficientMeasurement = ctx.measureText(coefficient);
 
         var concatenatedString = coefficient;
-        var timelag = line.get('timelag');
+        var timelag = line.timelag;
         if(timelag !== undefined) {
-             concatenatedString += ", T: " + timelag;
+             concatenatedString += ', T: ' + timelag;
         }
         var textMeasurement = ctx.measureText(concatenatedString);
 
@@ -146,8 +157,8 @@ module.exports = function drawLink(ctx, line) {
         var halfTextWidth  = textMeasurement.width / 2,
             halfTextHeight = textHeight / 2;
 
-        var offsetX = halfTextWidth  + 22, // padding X
-            offsetY = halfTextHeight + 22; // padding Y
+        var offsetX = halfTextWidth  + offsetBase, // padding X
+            offsetY = halfTextHeight + offsetBase; // padding Y
 
         var textX = arrowMiddleX - halfTextWidth  + Math.cos(angle + halfPI)*offsetX,
             textY = arrowMiddleY + halfTextHeight + Math.sin(angle + halfPI)*offsetY;
@@ -155,7 +166,7 @@ module.exports = function drawLink(ctx, line) {
         ctx.fillText(coefficient, textX, textY);
         if(timelag !== undefined) {
             ctx.fillStyle = valueColors.neutral;
-            ctx.fillText(", T: " + line.get('timelag'), textX + coefficientMeasurement.width, textY);
+            ctx.fillText(', T: ' + line.timelag, textX + coefficientMeasurement.width, textY);
         }
 
         /*
@@ -171,7 +182,7 @@ module.exports = function drawLink(ctx, line) {
         
         if(timelag !== undefined) {
             ctx.fillStyle = valueColors.neutral;
-            ctx.fillText(", T: " + line.get('timelag'), coefficientX + coefficientMeasurement.width, 0);
+            ctx.fillText(', T: ' + line.timelag, coefficientX + coefficientMeasurement.width, 0);
         }
 
         ctx.restore();

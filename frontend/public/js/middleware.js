@@ -22,7 +22,7 @@ var middleware = function(callbacks, error, done) {
 			throw new Error('something pooped');
 		}
 
-		if (pos + 1 === callbacks.length || data.done === true) {
+		if (pos + 1 === callbacks.length || data.done === true) {
 			return data;
 		}
 

@@ -1,29 +1,48 @@
 <% layout("layout") %>
 
-<div class="header">
-    <h3 id="policy-issue">Replace with current policy issue?</h3>
-    <!-- <input type="button" value="Button" />
-    <input type="button" value="Button" />
-    <input type="button" value="Button" />
-    <input type="button" value="Button" />
-    <input type="button" value="Button" /> -->
+<div class="container-fluid">
+<div class="row">
+<div class="col-lg-2"></div>
+<div class="col-lg-8">
+<div
+    id            = "model-builder-1"
+    data-protocol = "<%= locals.protocol || 'https' %>"
+    data-hostname = "<%= locals.hostname || 'localhost' %>"
+    data-port     = "<%= locals.port || 3000 %>"
+    style         = "height: 600px; width: 100%;"
+></div>
+</div>
+<div class="col-lg-2"></div>
+</div>
 </div>
 
-<div class="menu-header">
-    <div id="upper-menu"></div>
+<div class="panel panel-default">
+<div class="panel-body">
+<div
+    id            = "model-builder-2"
+    data-protocol = "<%= locals.protocol || 'https' %>"
+    data-hostname = "<%= locals.hostname || 'localhost' %>"
+    data-port     = "<%= locals.port || 3000 %>"
+    style         = "height: 600px; width: 100%;"
+></div>
+</div>
 </div>
 
-<div class="sidebar">
-    <div id="sidebar"></div>
-</div>
+<script src="/static/js/model-builder.debug.js"></script>
+<script>
+    docReady(function() {
+        var modelBuilder1 = document.getElementById("model-builder-1");
+        var modelBuilder2 = document.getElementById("model-builder-2");
 
-<div class="left main">
-    <div id="notification-bar"></div>
-    <canvas id="canvas"></canvas>
-    <canvas id="linegraph"></canvas>
-</div>
-<div class="right">
-    <div id="keyword-container"></div>
-</div>
-<div class="clear"></div>
-<script src="/js/bundle.js"></script>
+        window.sense4us.inflateModel(modelBuilder1, "sample", "project");
+        window.sense4us.inflateModel(modelBuilder2, "sample", "project");
+
+        /*var loadedModel = window.sense4us.loadedModel;
+        loadedModel.addListener("selected", function() {
+            var nodeData = this.nodeData[this.selected.id];
+            if(nodeData) {
+                console.log("Name:", nodeData.name);
+            }
+        });*/
+    });
+</script>

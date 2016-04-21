@@ -2,34 +2,48 @@
   "name": "template",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "start": "node ./bin/init"
-  },
   "dependencies": {
     "body-parser": "~1.8.1",
-    "cookie-parser": "~1.3.3",
+    "browserify": "latest",
     "connect": "^3.3.4",
+    "cookie-parser": "~1.3.3",
     "ejs": "latest",
     "ejs-locals": "latest",
     "express": "~4.9.0",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-nodeunit": "latest",
+    "grunt-contrib-uglify": "latest",
     "iconv-lite": "^0.4.5",
-    "browserify": "latest",
     "immutable": "latest",
-    "uglify-js": "latest",
-    "watchify": "latest",
+    "node-sass-middleware": "latest",
+    "promise": "^7.1.1",
     "rh_config-parser": "latest",
-    "rh_cookie-cutter": "latest",
     "rh_controller-layer": "latest",
+    "rh_cookie-cutter": "latest",
     "rh_logger": "latest",
-    "rh_router": "latest"
+    "rh_router": "latest",
+    "uglify-js": "latest",
+    "watchify": "latest"
   },
-
   "author": "Robin Swenson, Anton Haughey, Jona Ekenberg",
-
-  "scripts": {
-    "prestart": "npm install; echo '\n * Running browserify for production!\n'; npm run browserify",
-    "start": "node bin/init.js",
-    "browserify": "node_modules/browserify/bin/cmd.js frontend/public/js/main.js | node_modules/uglify-js/bin/uglifyjs > frontend/public/js/bundle.js",
-    "watch": "node_modules/watchify/bin/cmd.js frontend/public/js/main.js -o frontend/public/js/bundle.js --debug --verbose"
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint-tap": "^1.1.0",
+    "grunt": "^1.0.1",
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-eslint": "^18.0.0",
+    "grunt-jsdoc": "^1.1.0",
+    "grunt-karma": "^0.12.2",
+    "jsdoc": "^3.4.0",
+    "karma": "^0.13.22",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^0.2.3",
+    "karma-mocha": "^0.2.2",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "mocha": "^2.4.5",
+    "phantomjs-prebuilt": "^2.1.7",
+    "remapify": "^2.1.0",
+    "should": "^8.3.0"
   }
 }

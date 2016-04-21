@@ -4,24 +4,33 @@ function validateDomain(domain) {
     var check = domain.match(/^(http[s]?):\/\/([a-zA-Z0-9\.]+)\/?.*$|^(http[s]?):\/\/([a-zA-Z0-9\.]+):(\d+)\/?.*$/);
 
     if(check === null) {
-        console.log(domain);
+        console.error(domain);
         throw new Error('Domain of invalid structure!');
     }
 
     return domain;
 }
 
-function sendData(domain, port, path, jsonData, callback, method) {
-    if(typeof domain !== 'string' || typeof port !== 'number') {
-        throw new Error("sendData got invalid type for domain or port!");
+function sendData(domain, path, jsonData, callback, method) {
+    if(typeof domain !== 'string') {
+        throw new Error('sendData got invalid type for domain or port!');
     }
 
-    if(jsonData && typeof jsonData === "function") {
-        if(callback && typeof callback === "string") {
+    if(jsonData && typeof jsonData === 'function') {
+        if(callback && typeof callback === 'string') {
             method = callback;
         }
 
         callback = jsonData;
+        jsonData = null;
+    }
+
+    if(jsonData) {
+        if(typeof jsonData !== 'object') {
+            throw new Error('Expected JS object as jsonData.');
+        }
+
+        jsonData = JSON.stringify(jsonData, null, 4);
     }
 
     var httpRequest = new XMLHttpRequest(),
@@ -30,30 +39,41 @@ function sendData(domain, port, path, jsonData, callback, method) {
     validateDomain(domain);
 
     if (!httpRequest) {
-        console.log('Giving up :( Cannot create an XMLHTTP instance');
+        console.error('Giving up :( Cannot create an XMLHTTP instance');
         return false;
     }
 
     httpRequest.onreadystatechange = function() {
         if (httpRequest.readyState === 4) {
-            var rt = JSON.parse(httpRequest.responseText);
-            console.log(rt);
-            
-            if (httpRequest.status === 200) {
-                if (callback) {
-                    callback(rt);
-                } else {
-                    console.log('No callback was sent with the query against ' + path);
+            try {
+                if(httpRequest.status === 0) {
+                    throw new Error('Connection refused.');
                 }
 
-            } else {
-                callback(rt, {status: httpRequest.status});
+                var rt    = JSON.parse(httpRequest.responseText);
+                rt.status = httpRequest.status;
+
+                try {
+                    if(callback) {
+                        callback(rt);
+                    } else {
+                        console.warn('No callback was sent with the query against ' + path);
+                    }
+                } catch(err) {
+                    console.warn(httpRequest);
+                    callback(rt, err);
+                }
+                
+                
+            } catch(err) {
+                console.warn(httpRequest);
+                callback(undefined, err);
             }
         }
     };
 
     if (!method) {
-        if (jsonData && typeof jsonData !== "function") {
+        if (jsonData && typeof jsonData !== 'function') {
             method = 'POST';
         } else {
             method = 'GET';
@@ -68,29 +88,13 @@ function sendData(domain, port, path, jsonData, callback, method) {
         path = '/' + path;
     }
 
-    httpRequest.open(method, domain + ':' + port + path);
+    httpRequest.open(method, domain + path);
     httpRequest.setRequestHeader('Content-Type', 'application/json');
     if (jsonData && typeof jsonData !== 'function') {
-        httpRequest.send(JSON.stringify(jsonData, null, 4));
+        httpRequest.send(jsonData);
     } else {
         httpRequest.send();
     }
 }
-
-/*function getData(domain, port, path, callback) {
-    this.sendData(domain, port, path, false, callback, 'GET');
-}
-
-function postData(domain, port, path, jsonData, callback) {
-    this.sendData(domain, port, path, jsonData, callback, 'POST');  
-}
-
-function putData(domain, port, path, jsonData, callback) {
-    this.sendData(domain, port, path, jsonData, callback, 'PATCH');
-}
-
-function deleteData(domain, port, path, jsonData, callback) {
-    this.sendData(domain, port, path, jsonData, callback, 'DELETE');
-}*/
 
 module.exports = sendData;

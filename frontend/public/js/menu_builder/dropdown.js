@@ -31,11 +31,11 @@ Option.prototype = {
     },
 
     select: function() {
-        this.element.className = "s4u-dropdown-selected";
+        this.element.className = 'mb-dropdown-selected';
     },
 
     deselect: function() {
-        this.element.className = "";
+        this.element.className = '';
     }
 };
 
@@ -48,34 +48,45 @@ function Dropdown(header, onselect, update) {
     this.headerElement   = document.createElement('h4');
     this.container       = document.createElement('div');
 
-    this.headerElement.className = 's4u-dropdown-header';
-    this.container.className     = 's4u-dropdown-container';
+    this.headerElement.className = 'mb-dropdown-header';
+    this.container.className     = 'mb-dropdown-container';
     this.container.style.display = 'none';
 
     this.element.appendChild(this.headerElement);
     this.element.appendChild(this.container);
 
-    this.element.className = 's4u-dropdown';
+    this.element.className = 'mb-dropdown';
     var that = this;
-    this.element.addEventListener('mouseenter', function(e) {
-        that.toggle();
-    });
 
-    this.element.addEventListener('click', function(e) {
+    var mouseEnter = function() {
+        that.toggle();
+    };
+
+    var click = function(e) {
         if (e.target.tagName.toLowerCase() !== 'h4') {
             var option = that.options[e.target.getAttribute('data-id')];
             option.update = function(){that.update.call(that)};
             that.onselect.call(option);
         }
-    });
+    };
 
-    this.element.addEventListener('mouseleave', function(e) {
+    var mouseLeave = function(e) {
         if(that.visible()) {
             that.toggle();
         }
-    });
+    };
 
-    this.header = header;
+    this.deleteEvents = function() {
+        that.element.removeEventListener('mouseenter', mouseEnter);
+        that.element.removeEventListener('click',      click);
+        that.element.removeEventListener('click',      mouseLeave);
+    };
+
+    this.element.addEventListener('mouseenter', mouseEnter);
+    this.element.addEventListener('click',      click);
+    this.element.addEventListener('mouseleave', mouseLeave);
+
+    this.header                  = header;
     this.headerElement.innerHTML = this.header;
 
     this.options  = [];
@@ -146,10 +157,10 @@ Dropdown.prototype = {
     toggle: function() {
         if (this.container.style.display === 'none') {
             this.container.style.display = 'block';
-            this.container.className += " s4u-dropdown-container-animation";
+            this.container.className += ' mb-dropdown-container-animation';
         } else {
             this.container.style.display = 'none';
-            this.container.className = "s4u-dropdown-container";
+            this.container.className = 'mb-dropdown-container';
         }
     },
 

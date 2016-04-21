@@ -1,82 +1,72 @@
 'use strict';
 
-var Immutable       = require('Immutable'),
+var Immutable       = null,
+    network         = require('./../network'),
     breakout        = require('./../breakout.js'),
-    backendApi      = require('./../api/backend_api.js'),
-    notificationBar = require('./../notification_bar');
+    objectHelper    = require('./../object-helper.js');
 
-var simulate = Immutable.List([
-    Immutable.Map({
+var simulate = [
+    {
         header: 'Simulate',
         type:   'BUTTON',
         ajax:   true,
-        callback: function(refresh, changeCallbacks) {
-            var loadedModel = changeCallbacks.get('loadedModel'),
-                newState    = loadedModel();
-
+        callback: function(loadedModel) {
             var data = {
-                timestep: newState.get('settings').get('maxIterations'),
-                nodes:    breakout.nodes(newState),
-                links:    breakout.links(newState)
+                timestep: loadedModel.loadedScenario.maxIterations,
+                nodes:    breakout.nodes(loadedModel),
+                links:    breakout.links(loadedModel),
+                scenario: loadedModel.loadedScenario.toJson()
             };
 
-            var resetNodes = newState.get('nodeData').map(function(node) { return node.set('simulateChange', Immutable.List()); });
-            newState = newState.set('nodeData', resetNodes);
+            objectHelper.forEach.call(
+                loadedModel.nodeData,
+                function(node) {
+                    node.simulateChange = [];
+                }
+            );
 
-            backendApi('/models/simulate', data, function(response, err) {
+            network(loadedModel.CONFIG.url, '/models/' + loadedModel.CONFIG.userFilter + '/' + loadedModel.CONFIG.projectFilter + '/simulate', data, function(response, err) {
                 if(err) {
-                    console.log(err);
-                    console.log(response);
-                    notificationBar.notify(response.response.message);
+                    console.error(err);
+                    console.error(response);
+                    loadedModel.emit(response.response.message, 'notification');
                     return;
                 }
 
                 var timeSteps = response.response;
+                var nodeData  = loadedModel.nodeData;
                 timeSteps.forEach(function(timeStep) {
                     timeStep.forEach(function(node) {
-                        var nodeData = newState.get('nodeData');
-                        var currentNode = nodeData.get(node.id);
-                        currentNode = currentNode.set('simulateChange', currentNode.get('simulateChange').push(node.relativeChange));
-                        nodeData = nodeData.set(node.id, currentNode);
-                        newState = newState.set('nodeData', nodeData);
+                        var currentNode = nodeData[node.id];
+                        currentNode.simulateChange.push(node.relativeChange);
                     });
                 });
 
-                /*nodes.forEach(function(node) {
-                    var nodeData = newState.get('nodeData');
-                    nodeData = nodeData.set(node.id, nodeData.get(node.id).set('simulateChange', node.relativeChange));
-                    newState = newState.set('nodeData', nodeData);
-                });*/
+                //loadedModel.refresh  = true;
+                loadedModel.settings = loadedModel.settings;
+                //loadedModel.propagate();
 
-                loadedModel(newState);
-                refresh();
+                loadedModel.emit(null, 'settings', 'refresh');
             });
         }
-    }),
+    },
 
-    Immutable.Map({
+    {
         header: 'Linegraph',
         type:   'BUTTON',
         ajax:   true,
-        callback: function(refresh, changeCallbacks) {
-            var loadedModel = changeCallbacks.get('loadedModel'),
-                newState    = loadedModel();
+        callback: function(loadedModel) {
+            var settings       = loadedModel.settings;
+            settings.linegraph = !settings.linegraph
 
-            var settings = newState.get('settings');
-            if(!settings.get('linegraph')) {
-                settings = settings.set('linegraph', true);
-            } else {
-                settings = settings.set('linegraph', false);
-            }
+            /*loadedModel.refresh = true;
+            loadedModel.propagate();*/
 
-            newState = newState.set('settings', settings);
-            loadedModel(newState);
-
-            refresh();
+            loadedModel.emit('refresh');
         }
-    }),
+    },
 
-    Immutable.Map( {
+    {
         header: 'Time step T',
         type:   'DROPDOWN',
         values: [
@@ -84,9 +74,9 @@ var simulate = Immutable.List([
             'Month',
             'Year'
         ],
-        /* This is a stupid name for a method. It sets the default selected value. */
-        select: function(model, values) {
-            var selected = model.get('settings').get('timeStepT');
+
+        setDefault: function(model, values) {
+            var selected = model.loadedScenario.measurement;
             for(var i = 0; i < values.length; i++) {
                 if(values[i] === selected) {
                     return i;
@@ -95,34 +85,47 @@ var simulate = Immutable.List([
 
             return 0;
         },
-        callback: function(model, attrs, value) {
-            model = model.set('settings', model.get('settings').set('timeStepT', value));
-            return model;
-        }
-    }),
 
-    Immutable.Map({
+        callback: function(model, value) {
+            model.loadedScenario.measurement = value;
+        }
+    },
+
+    {
         header: 'Time step N',
         type:   'SLIDER',
 
         defaultValue: function(model) {
-            return model.get('settings').get('timeStepN');
+            return model.loadedScenario.timeStepN;
         },
 
         range: function(model) {
-            return [0, model.get('settings').get('maxIterations')];
+            return [0, model.loadedScenario.maxIterations];
         },
 
-        onSlide: function(value, model) {
-            model = model.set('settings', model.get('settings').set('timeStepN', value));
-            return model;
+        onSlide: function(model, value) {
+            model.loadedScenario.timeStepN = value;
+
+            model.emit('refresh');
         },
 
-        callback: function(value, model) {
-            model = model.set('settings', model.get('settings').set('timeStepN', value));
-            return model;
+        callback: function(model, value) {
+            model.loadedScenario.timeStepN = value;
         }
-    })
-]);
+    },
+
+    {
+        header: 'Max iterations',
+        type:   'INPUT',
+
+        defaultValue: function(model) {
+            return model.loadedScenario.maxIterations;
+        },
+
+        onChange: function(model, value) {
+            model.loadedScenario.maxIterations = parseInt(value);
+        }
+    }
+];
 
 module.exports = simulate;

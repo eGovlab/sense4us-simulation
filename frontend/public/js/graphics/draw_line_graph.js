@@ -1,32 +1,38 @@
-"use strict";
+'use strict';
+
+var objectHelper = require('./../object-helper.js');
 
 function generateHexColor() {
     return Math.round(Math.random() * 255).toString(16);
 }
 
 function generateColor() {
-    return "#" + generateHexColor() + generateHexColor() + generateHexColor();
+    return '#' + generateHexColor() + generateHexColor() + generateHexColor();
 }
 
 function drawLineGraph(ctx, x, y, w, h, values) {
     var highestValue  = 0,
         lowestValue   = false,
         amountOfSteps = 0;
-    values.forEach(function(node) {
-        node.values.forEach(function(value, step) {
-            if(value > highestValue) {
-                highestValue = value;
-            }
 
-            if(lowestValue === false || value < lowestValue) {
-                lowestValue = value;
-            }
+    objectHelper.forEach.call(
+        values,
+        function(node) {
+            node.values.forEach(function(value, step) {
+                if(value > highestValue) {
+                    highestValue = value;
+                }
 
-            if(step > amountOfSteps) {
-                amountOfSteps = step;
-            }
-        });
-    });
+                if(lowestValue === false || value < lowestValue) {
+                    lowestValue = value;
+                }
+
+                if(step > amountOfSteps) {
+                    amountOfSteps = step;
+                }
+            });
+        }
+    );
 
     var innerlineMargin = ((w + h) / 2) * 0.05,
         twiceMargin     = innerlineMargin * 2,
@@ -39,7 +45,7 @@ function drawLineGraph(ctx, x, y, w, h, values) {
 
     /* Body */
 
-    ctx.strokeStyle = "#000000";
+    ctx.strokeStyle = '#000000';
     ctx.beginPath();
     ctx.moveTo(x + 40, y);
     ctx.lineTo(x + 40, y + h - 40);
@@ -52,8 +58,8 @@ function drawLineGraph(ctx, x, y, w, h, values) {
 
     var fontSize = 14;
 
-    ctx.font         = fontSize + "px Arial";
-    ctx.textBaseline = "top"; 
+    ctx.font         = fontSize + 'px Arial';
+    ctx.textBaseline = 'top'; 
     ctx.fillText(0, x + 36 + innerlineMargin, timestepStringY);
 
     var halfSteps = Math.round(amountOfSteps / 2);
@@ -63,13 +69,13 @@ function drawLineGraph(ctx, x, y, w, h, values) {
     var allStepsWidth = ctx.measureText(amountOfSteps).width;
     ctx.fillText(amountOfSteps, x + w - allStepsWidth, timestepStringY);
 
-    var timestepLegend = "Timestep";
+    var timestepLegend = 'Timestep';
     var timestepLegendWidth = ctx.measureText(timestepLegend).width;
-    ctx.fillText("Timestep", (x + 40) + ((w - 40) / 2) - timestepLegendWidth / 2, y + h - 16);
+    ctx.fillText('Timestep', (x + 40) + ((w - 40) / 2) - timestepLegendWidth / 2, y + h - 16);
 
     /* Values */
 
-    ctx.textBaseline = "middle"; 
+    ctx.textBaseline = 'middle'; 
     var lowestValueY = y + h - 44 - innerlineMargin / 2;
 
     var highestValueWidth = ctx.measureText(highestValue).width;
@@ -82,7 +88,7 @@ function drawLineGraph(ctx, x, y, w, h, values) {
     var lowestValueWidth = ctx.measureText(lowestValue).width;
     ctx.fillText(lowestValue, x + 36 - lowestValueWidth, lowestValueY);
 
-    var valueLegend = "Value";
+    var valueLegend = 'Value';
     var valueLegendWidth = ctx.measureText(valueLegend).width;
 
     ctx.save();
@@ -115,22 +121,40 @@ function drawLineGraph(ctx, x, y, w, h, values) {
         return {x: circleX, y: circleY};
     }
 
-    values.forEach(function(node) {
-        var lastX     = undefined,
-            lastY     = undefined,
-            //step      = 0,
-            lastValue = 0,
-            coords;
-        ctx.save();
-        ctx.translate(graphX, graphY);
+    objectHelper.forEach.call(
+        values,
+        function(node) {
+            var lastX     = undefined,
+                lastY     = undefined,
+                //step      = 0,
+                lastValue = 0,
+                coords;
+            ctx.save();
+            ctx.translate(graphX, graphY);
 
-        ctx.fillStyle      = node.color;
-        ctx.strokeStyle    = node.color;
-        ctx.lineWidth      = 4;
-        ctx.lineCap        = "round";
-        
-        node.values.forEach(function(value, step) {
-            /*while(step < index) {
+            ctx.fillStyle      = node.color;
+            ctx.strokeStyle    = node.color;
+            ctx.lineWidth      = 4;
+            ctx.lineCap        = 'round';
+            
+            node.values.forEach(function(value, step) {
+                /*while(step < index) {
+                    coords = drawNode(step, lastValue, lastX, lastY);
+                    step++;
+
+                    lastX = coords.x;
+                    lastY = coords.y;
+                }*/
+
+                coords = drawNode(step, value, lastX, lastY);
+                lastValue = value;
+                //step++;
+
+                lastX = coords.x;
+                lastY = coords.y;
+            });
+
+            /*while(step <= amountOfSteps) {
                 coords = drawNode(step, lastValue, lastX, lastY);
                 step++;
 
@@ -138,25 +162,10 @@ function drawLineGraph(ctx, x, y, w, h, values) {
                 lastY = coords.y;
             }*/
 
-            coords = drawNode(step, value, lastX, lastY);
-            lastValue = value;
-            //step++;
-
-            lastX = coords.x;
-            lastY = coords.y;
-        });
-
-        /*while(step <= amountOfSteps) {
-            coords = drawNode(step, lastValue, lastX, lastY);
-            step++;
-
-            lastX = coords.x;
-            lastY = coords.y;
-        }*/
-
-        //ctx.fillText(node.name, lastX + circleRadius + 4, lastY);
-        ctx.restore();
-    });
+            //ctx.fillText(node.name, lastX + circleRadius + 4, lastY);
+            ctx.restore();
+        }
+    );
 }
 
 module.exports = drawLineGraph;

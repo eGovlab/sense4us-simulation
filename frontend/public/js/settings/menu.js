@@ -1,184 +1,198 @@
 'use strict';
 
-var Immutable  = require('Immutable'),
-    backendApi = require('./../api/backend_api.js'),
+var Immutable  = null,
     modelling  = require('./modelling.js'),
     simulate   = require('./simulate.js'),
-    modelLayer = require('./../model_layer.js');
+    windows    = require('./windows.js');
 
-var modeUpdate = function(refresh, UIRefresh, changeCallbacks) {
+var modelLayer   = require('./../model_layer.js');
+var objectHelper = require('./../object-helper.js');
+
+function modeUpdate(loadedModel, savedModels) {
     var element = this;
 
     element.resetOptions();
-    element.addOption('modelling', "Modelling");
-    element.addOption('simulate',  "Simulate");
+    element.addOption('modelling', 'Modelling');
+    element.addOption('simulate',  'Simulate');
 
     element.refreshList();
 };
 
-var modeCallback = function(refresh, UIRefresh, changeCallbacks) {
+function modeCallback(loadedModel, savedModels) {
     var option = this.value;
 
-    var UIData      = changeCallbacks.get('UIData'),
-        environment = changeCallbacks.get('environment'),
-        ui          = UIData();
-
     this.parent.toggle();
-
     switch(option) {
         case 'modelling':
-            ui = ui.set('sidebar', modelling);
-            environment('modelling');
-            UIData(ui);
-            UIRefresh();
-            refresh();
+            loadedModel.sidebar     = modelling;
+            loadedModel.environment = 'modelling';
             break;
         case 'simulate':
-            ui = ui.set('sidebar', simulate);
-            environment('simulate');
-            UIData(ui);
-            UIRefresh();
-            refresh();
+            loadedModel.sidebar     = simulate;
+            loadedModel.environment = 'simulate';
             break;
     }
+
+    if(!loadedModel.selected) {
+        loadedModel.selected = loadedModel.settings;
+    }
+
+    loadedModel.emit(null, 'refresh', 'resetUI');
 };
 
-var projectUpdate = function(refresh, UIRefresh, changeCallbacks) {
+function projectUpdate(loadedModel, savedModels) {
     var element = this;
-
-    var savedModels = changeCallbacks.get('savedModels'),
-        loadedModel = changeCallbacks.get('loadedModel');
 
     element.resetOptions();
     element.addOption('new',    'New Model');
     element.addOption('save',   'Save Current');
     element.addOption('delete', 'Delete Current');
 
-    backendApi('/models/all', function(response, error) {
-        var sm = savedModels();
-        sm.get('local').forEach(function(model) {
-            if(model.get('synced') === true) {
-                return;
-            }
+    modelLayer = require('./../model_layer.js');
+    modelLayer.getAllModels(loadedModel).then(
+        function(models) {
+            objectHelper.forEach.call(
+                savedModels.local,
+                function(model) {
+                    element.addOption(model.id, model.settings.name);
+                }
+            );
 
-            var savedString = "";
-            if(model.get('saved') === false) {
-                savedString = " * ";
-            }
+            models.forEach(function(model) {
+                if(!savedModels.synced[model.id]) {
+                    savedModels.synced[model.id] = model.name;
+                }
+            });
 
-            element.addOption(model.get('id'), '[' + model.get('id') + ']' +savedString + model.get('settings').get('name'));
-        });
+            objectHelper.forEach.call(
+                savedModels.synced,
+                function(model, key) {
+                    if(typeof model === 'string') {
+                        element.addOption(key, model);
+                    } else {
+                        element.addOption(model.syncId, model.settings.name);
+                    }
+                }
+            );
 
-        sm.get('synced').forEach(function(model) {
-            var savedString = "";
-            if(model.get('saved') === false) {
-                savedString = " * ";
-            }
-
-            element.addOption(model.get('syncId'), savedString + model.get('settings').get('name'));
-        });
-
-        if(error) {
             element.refreshList();
-            return;
+        },
+
+        function(error, response) {
+            objectHelper.forEach.call(
+                savedModels.local,
+                function(model) {
+                    console.log(model);
+                    element.addOption(model.id, model.settings.name);
+                }
+            );
+
+            objectHelper.forEach.call(
+                savedModels.synced,
+                function(model, key) {
+                    if(typeof model === 'string') {
+                        element.addOption(key, model);
+                    } else {
+                        element.addOption(model.syncId, model.settings.name);
+                    }
+                }
+            );
+
+            element.refreshList();
+        }
+    );
+
+    /*backendApi('/models/all', function(response, error) {
+        if(error) {
+            console.error(error);
+            loadedModel.emit('Couldn\'t fetch all models.', 'notification');
+            response = {
+                response: []
+            };
+
+            //throw new Error('projectUpdate: /models/all crashed');
         }
 
+        objectHelper.forEach.call(
+            savedModels.local,
+            function(model) {
+                console.log(model);
+                element.addOption(model.id, model.settings.name);
+            }
+        );
+
         var models = response.response;
-
-        var local  = sm.get('local'),
-            synced = sm.get('synced');
-
         models.forEach(function(model) {
-            element.addOption(model.id, model.name);
+            if(!savedModels.synced[model.id]) {
+                savedModels.synced[model.id] = model.name;
+            }
         });
 
+        objectHelper.forEach.call(
+            savedModels.synced,
+            function(model, key) {
+                if(typeof model === 'string') {
+                    element.addOption(key, model);
+                } else {
+                    element.addOption(model.syncId, model.settings.name);
+                }
+            }
+        );
+
         element.refreshList();
-    });
+    });*/
 };
 
-var projectCallback = function(refresh, UIRefresh, changeCallbacks) {
-    var option      = this.value,
-        savedModels = changeCallbacks.get('savedModels'),
-        loadedModel = changeCallbacks.get('loadedModel'),
-        s           = savedModels(),
-        text        = this.text.match(/^(\[\w+\])?(\s\*\s)?(.*)$/)[3],
-        loaded      = loadedModel(),
-        that        = this;
+function projectCallback(loadedModel, savedModels) {
+    var option = this.value;
 
-    if(loaded.get('synced') === true) {
-        s = s.set('synced', s.get('synced').set(loaded.get('syncId'), loaded));
-        savedModels(s)
-    } else {
-        s = s.set('local', s.get('local').set(loaded.get('id'), loaded));
-        savedModels(s)
+    if(option === undefined) {
+        return;
+    }
+
+    if(typeof option === 'number') {
+        option = '' + option;
     }
 
     this.parent.toggle();
-
-    switch(option) {
-        case 'new':
-            var m = modelLayer.newModel(),
-                s = savedModels();
-
-            s = s.set('local', s.get('local').set(m.get('id'), m));
-
-            savedModels(s);
-            loadedModel(m);
-
-            that.parent.toggle();
-            projectUpdate.call(this.parent, refresh, UIRefresh, changeCallbacks);
-            refresh();
+    switch(option.toUpperCase()) {
+        case 'NEW':
+            loadedModel.emit('storeModel');
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
+            loadedModel.emit('newModel');
             break;
-        case 'save':
-            modelLayer.saveModel(loadedModel, function() {
-                projectUpdate.call(that.parent, refresh, UIRefresh, changeCallbacks);
-                refresh();
-            });
+        case 'SAVE':
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preSaveModel');
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'saveModel');
             break;
-        case 'delete':
-            modelLayer.deleteModel(loadedModel, savedModels, function() {
-                projectUpdate.call(that.parent, refresh, UIRefresh, changeCallbacks);
-                refresh();
-            });
-            break;
-        case undefined:
+        case 'DELETE':
+            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
             break;
         default:
-            if(s.get('local').get(option) === undefined || s.get('local').get(option).get('settings').get('name') !== text) {
-                if(s.get('synced').get(option) === undefined) {
-                    modelLayer.loadSyncModel(option, function(newState) {
-                        s = s.set('synced', s.get('synced').set(option, newState));
-                        savedModels(s);
-                        loadedModel(newState);
-                        refresh();
-                    });
-                } else {
-                    loadedModel(s.get('synced').get(option));
-                    refresh();
-                }
-            } else {
-                loadedModel(s.get('local').get(option));
-                refresh();
-            }
+            loadedModel.emit('storeModel');
+            loadedModel.emit(option, 'loadModel');
+            break;
     }
 
     return loadedModel;
 };
 
-var menu = Immutable.List([
-    Immutable.Map({
+var menu = [
+    {
         header:   'Project',
         type:     'DROPDOWN',
         update:   projectUpdate,
         callback: projectCallback
-    }),
+    },
 
-    Immutable.Map({
+    {
         header:   'Mode',
         type:     'DROPDOWN',
         update:   modeUpdate,
         callback: modeCallback
-    })
-]);
+    },
+
+    windows
+];
 
 module.exports = menu;

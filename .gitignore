@@ -2,7 +2,7 @@
 docs/
 bundle.js
 typings/
-frontend/public/js/config.js
+logs/
 
 local_storage
 
@@ -12,3 +12,4 @@ node_modules/*
 server-key.pem
 server-csr.pem
 server-cert.pem
+*.session

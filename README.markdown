@@ -1,23 +1,17 @@
 # Sense4us Simulation
 
-## When developing
-1. ```$ npm start```  
-   This will run npm install and then start the application, it will also browserify + uglify the client side javascript
-2. ```$ npm run watch```  
-   This will run watcherify on the public javascripts, which means the javascript will be re-compiled whenever main.js or a file included in main.js is edited. It will compile using browserify in debug mode, which means you get a sourcemap in the bundle.js, which means chrome debugging will show you the errors in separate files instead of in the bundle.js.
+## Compiling
+1. ```grunt```
+   To build the tool.
+2. ```grunt watch```
+   To build the tool on file change.
 
-## When deploying
-1. Setup some cool server or something
-2. ```$ npm start```  
-   This will run npm install and then start the application, it will also browserify + uglify the client side javascript
-
-3. ```$ npm run browserify```  
-   This will run browserify on the public javascript, and then uglify it. This is needed if you have changed the client side javascript but don't want to restart the server.
+## If you want to run a server which serves the tool
+1. ```node bin/init.js```
 
 ## To generate the code documentation
-1. Install YUIDoc (http://yui.github.io/yuidoc/)
-	1. For the lazy: ```$ npm install -g yuidocjs```
-2. Go to the root of the project and execute cmdline: "yuidoc ."
+1. ```grunt jsdoc```
+   Default target is docs.
 
 ## Made by
 Jona Ekenberg, Robin Swenson & Anton Haughey

@@ -2,8 +2,8 @@
 
 module.exports = {
     nodes: function(model) {
-        var dd = model.get('nodeData').toJSON(),
-            dg = model.get('nodeGui').toJSON(),
+        var dd = model.nodeData,
+            dg = model.nodeGui,
             allNodes = [];
 
         Object.keys(dd).forEach(function(_dd_id) {
@@ -12,6 +12,7 @@ module.exports = {
             }
 
             var obj = dd[_dd_id];
+
             Object.keys(dg[_dd_id]).forEach(function(_dg_property) {
                 obj[_dg_property] = dg[_dd_id][_dg_property];
             });
@@ -23,7 +24,7 @@ module.exports = {
     },
 
     links: function(model) {
-        var links = model.get('links').toJSON(),
+        var links = model.links,
             allLinks = [];
 
         Object.keys(links).forEach(function(key) {
