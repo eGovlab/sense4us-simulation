@@ -1,6 +1,12 @@
 'use strict';
 
 function addResetUIListeners(sidebarManager, menu, savedModels, loadedModel) {
+    /**
+     * @description Redraw the UI.
+     * @event resetUI
+     * @memberof module:model/propagationEvents
+     * @fires module:model/statusEvents.selected
+     */
     loadedModel.addListener('resetUI', function() {
         sidebarManager.setEnvironment(loadedModel.environment);
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
@@ -10,7 +16,7 @@ function addResetUIListeners(sidebarManager, menu, savedModels, loadedModel) {
             floatingWindow.refresh();
         });
 
-        loadedModel.emit('selected');
+        loadedModel.emit('select');
     });
 }
 

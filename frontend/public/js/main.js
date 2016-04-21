@@ -104,8 +104,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var mainCanvas       = canvas(container, mainCanvasC),
         linegraphCanvas  = canvas(container, linegraphCanvasC);
 
-    
-
     /*var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
     var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);*/
 
@@ -272,6 +270,11 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     require('./model/listeners/delete.js')(loadedModel);
 
     loadedModel.addListener('settings', refresh);
+    /**
+     * @description Renders a new frame for the canvas.
+     * @event refresh
+     * @memberof module:model/propagationEvents
+     */
     loadedModel.addListener('refresh',  refresh);
 
     var sidebarManager = new UI.SidebarManager(sidebarContainer);
@@ -281,22 +284,19 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     });
 
     var ScenarioEditor = require('./scenario').ScenarioEditor;
+    /**
+     * @description A new window should be created.
+     * @event newWindow
+     * @memberof module:model/propagationEvents
+     *
+     * @param {string} option - Option key
+     */
     loadedModel.addListener('newWindow', function(option) {
         switch(option.toUpperCase()) {
             case 'SCENARIO':
                 new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
                 break;
         }
-    });
-
-    loadedModel.addListener('newLink', function(link) {
-        if(this.selected) {
-            this.emit('resetUI');
-        }
-    });
-
-    loadedModel.addListener('newNode', function(id, nodeData, nodeGui) {
-        loadedModel.loadedScenario.generateScenarioContainer(loadedModel);
     });
 
     sidebarManager.setEnvironment(loadedModel.environment);

@@ -4,6 +4,11 @@ var modelLayer   = require('./../../model_layer.js'),
     objectHelper = require('./../../object-helper.js');
 
 function addStoreModelListeners(savedModels, loadedModel) {
+    /**
+     * @description A new model should be stored and moved away from the currently loaded one.
+     * @event storeModel
+     * @memberof module:model/propagationEvents
+     */
     loadedModel.addListener('storeModel', function() {
         var m;
         if(loadedModel.synced === true) {

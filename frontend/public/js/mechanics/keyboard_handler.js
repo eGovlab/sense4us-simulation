@@ -43,6 +43,18 @@ module.exports = function(container, canvas, loadedModel, hotkeys) {
             return;
         }
 
+        /**
+         * @description A key was pressed with canvas active.
+         * @event keyDown
+         * @memberof module:model/statusEvents
+         *
+         * @param {integer} keyCode - Character keycode.
+         * @example tool.addListener('keyDown', function(key) {
+         *     console.log('Key', key, 'pressed.');
+         * });
+         */
+        loadedModel.emit(evt.keyCode, 'keyDown');
+
         if(!lookupTable[evt.keyCode]) {
             return true;
         }
@@ -82,6 +94,18 @@ module.exports = function(container, canvas, loadedModel, hotkeys) {
         if(window.sense4us.lastTarget !== canvas) {
             return;
         }
+
+        /**
+         * @description A key was released with canvas active.
+         * @event keyUp
+         * @memberof module:model/statusEvents
+         *
+         * @param {integer} keyCode - Character keycode.
+         * @example tool.addListener('keyUp', function(key) {
+         *     console.log('Key', key, 'released.');
+         * });
+         */
+        loadedModel.emit(evt.keyCode, 'keyUp');
 
         if(!lookupTable[evt.keyCode]) {
             return true;

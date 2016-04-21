@@ -6,6 +6,16 @@ function addDeleteSelectedListeners(loadedModel) {
         var selectedNodeGui  = loadedModel.nodeGui[id];
 
         delete loadedModel.nodeData[selectedNodeData.id];
+        /**
+         * @description NodeData was deleted.
+         * @event deletedNodeData
+         * @memberof module:model/statusEvents
+         *
+         * @param {object} nodeData - The deleted nodeData object.
+         * @example tool.addListener('deletedNodeData', function(data) {
+         *     console.log('Node data with id:', data.id, 'was deleted');
+         * })
+         */
         loadedModel.emit(selectedNodeData, 'deletedNodeData');
 
         if(selectedNodeGui.links) {
@@ -33,6 +43,16 @@ function addDeleteSelectedListeners(loadedModel) {
         selectedNodeGui.links = [];
 
         delete loadedModel.nodeGui[selectedNodeGui.id];
+        /**
+         * @description Renders a new frame for the canvas.
+         * @event deletedNodeGui
+         * @memberof module:model/statusEvents
+         *
+         * @param {object} nodeGui - The deleted nodeGui object.
+         * @example tool.addListener('deletedNodeGui', function(data) {
+         *     console.log('Node gui with id:', data.id, 'was deleted');
+         * })
+         */
         loadedModel.emit(selectedNodeGui, 'deletedNodeGui');
     });
 
@@ -53,6 +73,16 @@ function addDeleteSelectedListeners(loadedModel) {
         }
 
         delete loadedModel.links[selectedData.id];
+        /**
+         * @description Link was deleted.
+         * @event deletedLink
+         * @memberof module:model/statusEvents
+         *
+         * @param {object} link - The deleted link object.
+         * @example tool.addListener('deletedLink', function(link) {
+         *     console.log('Link with id:', link.id, 'was deleted');
+         * })
+         */
         loadedModel.emit(selectedData, 'deletedLink');
     });
 
@@ -90,7 +120,7 @@ function addDeleteSelectedListeners(loadedModel) {
         loadedModel.revertedHistory = [];
 
         loadedModel.selected = false;
-        loadedModel.emit(null, 'refresh', 'resetUI', 'selected');
+        loadedModel.emit(null, 'refresh', 'resetUI', 'select');
     });
 }
 

@@ -4,6 +4,27 @@ var modelLayer   = require('./../../model_layer.js');
 var objectHelper = require('./../../object-helper.js');
 
 function addLoadModelListeners(savedModels, loadedModel) {
+    /**
+     * @module model/statusEvents
+     */
+
+    /**
+     * @description A model with the given id should be loaded.
+     * @event loadModel
+     * @memberof module:model/propagationEvents
+     *
+     * @param {integer} id - New model id.
+     */
+
+    /**
+     * @description Once a model has been replaced, either from a local source or a remote source.
+     * @event modelLoaded
+     *
+     * @param {integer} id - New model id.
+     * @example tool.addListener('modelLoaded', function(id, syncId) {
+     *     console.log('Model got replaced by:', id, syncId);
+     * });
+     */
     loadedModel.addListener('loadModel', function(option) {
         if(savedModels.local[option] === undefined) {
             if(typeof savedModels.synced[option] === 'string' || savedModels.synced[option] === undefined) {

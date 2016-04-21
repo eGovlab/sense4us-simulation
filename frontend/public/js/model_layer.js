@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * @file Model helper methods
- * @author {@link https://github.com/Rhineheart Robin Swenson}
+ * Model layer for model related helper methods.
+ * @module model
  */
 
 var network         = require('./network'),
@@ -41,45 +41,53 @@ function definePropagations(obj, keys) {
 }
 
 /**
- * Model layer for model related helper methods.
- * @module models
- */
-
-/**
  * @description Model constructor
  * @see {@link model/Model}
+ * @class
  *
- * @param {integer} id
- * @param {object} data
+ * @param {integer} id - Model id, should probably be unique.
+ * @param {object} data - Data to override keys on construction.
  */ 
 
-
 function Model(id, data) {
+    /** @member {object} */
     this.changed     = {};
+    /** @member {object} */
     this.timestamps  = {};
 
+    /** @member {integer} */
     this.id          = id;
+    /** @member {integer} */
     this.syncId      = false;
+    /** @member {boolean} */
     this.saved       = false;
+    /** @member {boolean} */
     this.synced      = false;
-    this.syncId      = null;
 
+    /** @member {integer} */
     this.nextId      = -1;
+    /** @member {object} */
     this.nodeData    = {};
+    /** @member {object} */
     this.nodeGui     = {};
+    /** @member {object} */
     this.links       = {};
 
-    this.historyLength   = 0;
+    /** @member {array} */
     this.history         = [];
+    /** @member {array} */
     this.revertedHistory = [];
 
+    /** @member {object} */
     this.selected        = false;
+    /** @member {string} */
     this.environment     = 'modelling';
+    /** @member {object} */
     this.sidebar         = settings.sidebar;
+    /** @member {array} */
     this.floatingWindows = [];
-    this.refresh         = false;
-    this.resetUI         = false;
 
+    /** @member {object} */
     this.settings = {
         name:          'New Model',
         //maxIterations: 4,
@@ -93,9 +101,12 @@ function Model(id, data) {
         //timeStepN:     0
     };
 
+    /** @member {object} */
     this.scenarios      = {};
     var __ = new Scenario(this);
     this.scenarios[__.id] = __;
+
+    /** @member {object} */
     this.loadedScenario = __;
 
     if(data) {
@@ -104,6 +115,7 @@ function Model(id, data) {
         }, this);
     }
 
+    /** @member {string} */
     this.objectId = 'model';
 }
 
@@ -123,7 +135,19 @@ function getAllModels(callback) {
     });
 }
 
+/** @module model/api */
+
+
 Model.prototype = {
+    /**
+     * @description Push a state of history onto the stack for undo/redo.
+     * @name pushHistory
+     * @function
+     *
+     * @param {object} state - A struct of history state.
+     * @param {string} state.action - History action.
+     * @param {object} state.data - Data relevant to undo and redo history.
+     */
     pushHistory: function(data) {
         if(!data.action) {
             return;
@@ -133,6 +157,11 @@ Model.prototype = {
         this.revertedHistory = [];
     },
 
+    /**
+     * @description Undo the last action of the selected model.
+     * @name undo
+     * @function
+     */
     undo: function() {
         if(this.history.length === 0) {
             return;
@@ -174,14 +203,36 @@ Model.prototype = {
                 break;
         }
 
+        /**
+         * @description Latest action in the history chain was undone.
+         * @event undone
+         * @memberof module:model/statusEvents
+         * @example tool.addListener('undone', function() {
+         *     console.log('History state undone.');
+         * });
+         */
+        this.emit('undone');
+
         this.selected = false;
-        this.emit(null, 'selected', 'refresh', 'resetUI');
+        this.emit(null, 'select', 'refresh', 'resetUI');
     },
 
+    /**
+     * @description Create a node with the given name
+     * @name createNode
+     * @function
+     *
+     * @param {string} name - Name the node should inherit. 
+     */
     createNode: function(name) {
         createNode(this, {name: name}, {}, 'template');
     },
 
+    /**
+     * @description Redo the last undone action of the selected model.
+     * @name redo
+     * @function
+     */
     redo: function() {
         if(this.revertedHistory.length === 0) {
             return;
@@ -215,10 +266,29 @@ Model.prototype = {
                 break;
         }
 
+        /**
+         * @description Latest action in the history chain was redone.
+         * @event redone
+         * @memberof module:model/statusEvents
+         * @example tool.addListener('redone', function() {
+         *     console.log('History state redone.');
+         * });
+         */
+        this.emit('redone');
+
         this.selected = false;
-        this.emit(null, 'selected', 'refresh', 'resetUI');
+        this.emit(null, 'select', 'refresh', 'resetUI');
     },
 
+    /**
+     * @description Emit an event through the model
+     * @name emit
+     * @function
+     *
+     * @param {data|array} data - Data to be sent with the event. If it's an array, it will be applied to the listener.
+     * @param {string} varargs - The rest of the parameters are treated as event identifiers.
+     * @example emit([1,2,3], 'event1', 'event2', 'event3')
+     */
     emit: function() {
         if(!this.listeners) {
             return;
@@ -254,6 +324,17 @@ Model.prototype = {
         }, this);
     },
 
+    /**
+     * @description Select the first node matchind id or string. Can't query both at the same time.
+     * @name selectNode
+     * @function
+     *
+     * @param {integer} id - Node id.
+     * @param {string} name - Node name.
+     * @fires module:model~Model#refresh
+     * @fires module:model~Model#resetUI
+     * @fires module:model~Model#selected
+     */
     selectNode: function(id, name) {
         if(id !== undefined && name !== undefined) {
             throw new Error('Can\'t select a node from id and name at the same time.');
@@ -264,7 +345,7 @@ Model.prototype = {
             this.nodeGui[id].selected = true;
             this.selected             = n;
 
-            this.emit(null, 'refresh', 'resetUI', 'selected');
+            this.emit(null, 'refresh', 'resetUI', 'select');
             return;
         }
 
@@ -273,22 +354,58 @@ Model.prototype = {
                 this.nodeGui[n.id].selected = true;
                 this.selected               = n;
 
-                this.emit(null, 'refresh', 'resetUI', 'selected');
+                this.emit(null, 'refresh', 'resetUI', 'select');
                 return false;
             }
         }, this);
     },
 
+    /**
+     * @description Helper method to select node by id.
+     * @name selectNodeById
+     * @function
+     *
+     * @param {integer} id - Node id.
+     * @fires module:model~Model#refresh
+     * @fires module:model~Model#resetUI
+     * @fires module:model~Model#selected
+     */
     selectNodeById: function(id) {
         this.selectNode(id, undefined);
     },
 
+    /**
+     * @description Helper method to select node by name.
+     * @name selectNodeByName
+     * @function
+     *
+     * @param {string} name - Node name.
+     * @fires module:model~Model#refresh
+     * @fires module:model~Model#resetUI
+     * @fires module:model~Model#selected
+     */
     selectNodeByName: function(name) {
         this.selectNode(undefined, name);
     },
 
+    /**
+     * @description Fetches all the models available for given user filter and project filter.
+     * @name getAllModels
+     * @function
+     * @returns {promise}
+     */
     getAllModels: getAllModels,
 
+    /**
+     * @description Load a model by given id.
+     * @name loadModel
+     * @function
+     *
+     * @param {integer} id - Model id.
+     * @returns {promise}
+     * @fires module:model~Model#modelLoaded
+     * @fires module:model~Model#errorLoadingModel
+     */
     loadModel: function(id) {
         var that = this;
 
@@ -330,6 +447,14 @@ Model.prototype = {
         });
     },
 
+    /**
+     * @description Save a model by given id.
+     * @name saveModel
+     * @function
+     *
+     * @param {integer} [id] - Model id. If the id is omitted, the currently loaded model is saved.
+     * @returns {promise}
+     */
     saveModel: function(id) {
         var that = this;
 
@@ -366,6 +491,14 @@ Model.prototype = {
         });
     },
 
+    /**
+     * @description Delete a model by given id.
+     * @name deleteModel
+     * @function
+     *
+     * @param {integer} [id] - Model id. If the id is omitted, the currently loaded model is deleted.
+     * @returns {promise}
+     */
     deleteModel: function(id) {
         var that = this;
 
@@ -400,8 +533,14 @@ Model.prototype = {
             that.emit([that.id, that.syncId], 'deleteModel');
         });
     },
-    
 
+    /**
+     * @description Generate and return the next id.
+     * @name generateId
+     * @function
+     *
+     * @returns {integer}
+     */
     generateId: function() {
         this.nextId++;
 

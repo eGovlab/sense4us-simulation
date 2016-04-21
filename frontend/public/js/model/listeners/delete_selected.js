@@ -54,7 +54,7 @@ function addDeleteSelectedListeners(loadedModel) {
         }
 
         loadedModel.selected = false;
-        loadedModel.emit(null, 'refresh', 'resetUI', 'selected');
+        loadedModel.emit(null, 'refresh', 'resetUI', 'select');
     });
 }
 

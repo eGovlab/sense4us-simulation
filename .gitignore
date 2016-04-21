@@ -3,6 +3,7 @@ docs/
 bundle.js
 typings/
 logs/
+frontend/public/docs
 
 local_storage
 

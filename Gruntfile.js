@@ -80,7 +80,7 @@ module.exports = function(grunt) {
 
         watch: {
             scripts: {
-                files: ["./frontend/public/js/**/*.js"],
+                files: ["./frontend/public/js/**/*.js", "./frontend/public/js/**/*.jsdoc"],
                 tasks: ["eslint", "browserify_debug"]
             }
         },
@@ -110,17 +110,19 @@ module.exports = function(grunt) {
         jsdoc: {
             dist: {
                 src: [
-                    "./frontend/public/js/*/**.js",   "./frontend/public/js/*/**.jsdoc",
-                    "./frontend/controllers/*/**.js", "./frontend/controllers/*/**.jsdoc",
-                    "./frontend/docs/*/**.jsdoc"
+                    "./frontend/public/js/**/*.js",   "./frontend/public/js/**/*.jsdoc",
+                    "./frontend/controllers/**/*.js", "./frontend/controllers/**/*.jsdoc",
+                    "./frontend/docs/**/*.jsdoc"
                 ],
+
+                dest: "./frontend/public/docs",
 
                 options: {
                     tags: {
                         "allowUnknownTags": true,
                         "dictionaries":     ["jsdoc", "closure"]
                     },
-                    destination: 'docs',
+
                     templates: {
                         "systemName":        "Sense4us Server",
                         "theme":             "flatly",
