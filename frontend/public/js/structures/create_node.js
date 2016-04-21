@@ -66,7 +66,6 @@ module.exports = function createNode(model, data, gui, type) {
     });
     model.revertedHistory = [];
 
-    console.log(nodeData, nodeGui);
     model.nodeData[id] = nodeData;
     model.nodeGui[id]  = nodeGui;
 
