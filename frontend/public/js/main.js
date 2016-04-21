@@ -11,7 +11,7 @@ function isElement(element) {
     }
 }
 
-function inflateModel(container, exportUnder, userFilter) {
+function inflateModel(container, exportUnder, userFilter, projectFilter) {
     if(!isElement(container)) {
         throw new Error('Not an element given to inflateModel');
     }
@@ -41,19 +41,20 @@ function inflateModel(container, exportUnder, userFilter) {
         }
     }
 
-    if(typeof exportUnder === 'string' && userFilter === undefined) {
-        userFilter  = exportUnder;
-        exportUnder = undefined;
+    if(typeof exportUnder === 'string' && typeof userFilter === 'string' && projectFilter === undefined) {
+        projectFilter = userFilter;
+        userFilter    = exportUnder;
+        exportUnder   = undefined;
     }
 
     var configObject = {
-        protocol:   protocol,
-        hostname:   hostname,
-        port:       parseInt(port),
-        userFilter: userFilter,
-        url:        protocol + '://' + hostname + portString
+        protocol:      protocol,
+        hostname:      hostname,
+        port:          parseInt(port),
+        userFilter:    userFilter,
+        projectFilter: projectFilter,
+        url:           protocol + '://' + hostname + portString
     };
-
 
     var objectHelper = require('./object-helper.js');
 

@@ -15,7 +15,12 @@ function addSaveModelListeners(savedModels, loadedModel) {
             throw new Error('Couldn\'t save model.');
         }
 
-        modelLayer.saveModel(loadedModel.CONFIG.url, loadedModel.CONFIG.userFilter, m, function() {
+        modelLayer.saveModel(
+                loadedModel.CONFIG.url,
+                loadedModel.CONFIG.userFilter,
+                loadedModel.CONFIG.projectFilter,
+                m,
+                function() {
             loadedModel.emit([id, syncId], 'modelSaved');
         });
     });

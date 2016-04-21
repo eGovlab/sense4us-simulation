@@ -108,11 +108,12 @@ function Model(id, data) {
 }
 
 function getAllModels(callback) {
-    var userFilter = this.CONFIG.userFilter,
-        url        = this.CONFIG.url;
+    var userFilter    = this.CONFIG.userFilter,
+        projectFilter = this.CONFIG.projectFilter,
+        url           = this.CONFIG.url;
 
     return new Promise(function(fulfill, reject) {
-        network(url, '/models/' + userFilter + '/all', function(response, error) {
+        network(url, '/models/' + userFilter + '/' + projectFilter + '/all', function(response, error) {
             if(error || response.status !== 200) {
                 return reject(error, response);
             }
@@ -579,7 +580,7 @@ module.exports = {
 
     getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
 
-    saveModel: function(url, userFilter, loadedModel, onDone) {
+    saveModel: function(url, userFilter, projectFilter, loadedModel, onDone) {
         var data = {
             modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
@@ -588,7 +589,7 @@ module.exports = {
             scenarios: loadedModel.scenariosToJson()
         };
 
-        network(url, '/models/' + userFilter + '/save', data, function(response, err) {
+        network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
             if (err) {
                 loadedModel.emit('Couldn\'t save model: ' + err.message, 'notification');
                 return;
@@ -657,10 +658,10 @@ module.exports = {
         });
     },
 
-    deleteModel: function(url, userFilter, modelId, savedModels, callback) {
+    deleteModel: function(url, userFilter, projectFilter, modelId, savedModels, callback) {
         var that = this;
         if(savedModels.local[modelId] === undefined) {
-            network(url, '/models/' + userFilter + '/' + modelId, {}, function(response, err) {
+            network(url, '/models/' + userFilter + '/' + projectFilter + '/' + modelId, {}, function(response, err) {
                 if(err) {
                     console.error(response);
                     console.error(err);
@@ -678,9 +679,9 @@ module.exports = {
         }
     },
     
-    loadSyncModel: function(url, userFilter, modelId, callback) {
+    loadSyncModel: function(url, userFilter, projectFilter, modelId, callback) {
         var that = this;
-        network(url, '/models/' + userFilter + '/bundle/' + modelId, function(response, error) {
+        network(url, '/models/' + userFilter + '/' + projectFilter + '/bundle/' + modelId, function(response, error) {
             if (error) {
                 console.error(response);
                 console.error(error);

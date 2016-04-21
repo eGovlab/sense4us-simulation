@@ -25,7 +25,7 @@ var simulate = [
                 }
             );
 
-            network(loadedModel.CONFIG.url, '/models/' + loadedModel.CONFIG.userFilter + '/simulate', data, function(response, err) {
+            network(loadedModel.CONFIG.url, '/models/' + loadedModel.CONFIG.userFilter + '/' + loadedModel.CONFIG.projectFilter + '/simulate', data, function(response, err) {
                 if(err) {
                     console.error(err);
                     console.error(response);
