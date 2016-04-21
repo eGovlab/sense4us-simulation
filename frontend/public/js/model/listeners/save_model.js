@@ -15,18 +15,7 @@ function addSaveModelListeners(savedModels, loadedModel) {
             throw new Error('Couldn\'t save model.');
         }
 
-        /*objectHelper.forEach.call(
-            m,
-            function(value, key) {
-                loadedModel[key] = value;
-            }
-        );*/
-
-        modelLayer.saveModel(loadedModel.CONFIG.url, m, function() {
-            /*if(loadedModel.syncId === syncId || loadedModel.id === id) {
-                objectHelper.forEach.call(m, function(v, k){loadedModel[k] = v;});
-            }*/
-
+        modelLayer.saveModel(loadedModel.CONFIG.url, loadedModel.CONFIG.userFilter, m, function() {
             loadedModel.emit([id, syncId], 'modelSaved');
         });
     });

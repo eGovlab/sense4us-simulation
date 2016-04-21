@@ -6,7 +6,7 @@
 <div class="col-lg-8">
 <div
     id            = "model-builder-1"
-    data-protocol = "<%= locals.protocol || 'http' %>"
+    data-protocol = "<%= locals.protocol || 'https' %>"
     data-hostname = "<%= locals.hostname || 'localhost' %>"
     data-port     = "<%= locals.port || 3000 %>"
     style         = "height: 600px; width: 100%;"
@@ -20,7 +20,7 @@
 <div class="panel-body">
 <div
     id            = "model-builder-2"
-    data-protocol = "<%= locals.protocol || 'http' %>"
+    data-protocol = "<%= locals.protocol || 'https' %>"
     data-hostname = "<%= locals.hostname || 'localhost' %>"
     data-port     = "<%= locals.port || 3000 %>"
     style         = "height: 600px; width: 100%;"
@@ -34,8 +34,8 @@
         var modelBuilder1 = document.getElementById("model-builder-1");
         var modelBuilder2 = document.getElementById("model-builder-2");
 
-        window.sense4us.inflateModel(modelBuilder1);
-        window.sense4us.inflateModel(modelBuilder2);
+        window.sense4us.inflateModel(modelBuilder1, "sample");
+        window.sense4us.inflateModel(modelBuilder2, "sample");
 
         /*var loadedModel = window.sense4us.loadedModel;
         loadedModel.addListener("selected", function() {

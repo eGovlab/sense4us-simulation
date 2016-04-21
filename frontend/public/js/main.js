@@ -11,7 +11,7 @@ function isElement(element) {
     }
 }
 
-function inflateModel(container, exportUnder) {
+function inflateModel(container, exportUnder, userFilter) {
     if(!isElement(container)) {
         throw new Error('Not an element given to inflateModel');
     }
@@ -41,11 +41,17 @@ function inflateModel(container, exportUnder) {
         }
     }
 
+    if(typeof exportUnder === 'string' && userFilter === undefined) {
+        userFilter  = exportUnder;
+        exportUnder = undefined;
+    }
+
     var configObject = {
-        protocol: protocol,
-        hostname: hostname,
-        port:     parseInt(port),
-        url:      protocol + '://' + hostname + portString
+        protocol:   protocol,
+        hostname:   hostname,
+        port:       parseInt(port),
+        userFilter: userFilter,
+        url:        protocol + '://' + hostname + portString
     };
 
 

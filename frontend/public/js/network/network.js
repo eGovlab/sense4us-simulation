@@ -91,7 +91,6 @@ function sendData(domain, path, jsonData, callback, method) {
     httpRequest.open(method, domain + path);
     httpRequest.setRequestHeader('Content-Type', 'application/json');
     if (jsonData && typeof jsonData !== 'function') {
-        //console.log(JSON.stringify(jsonData, null, 4));
         httpRequest.send(jsonData);
     } else {
         httpRequest.send();

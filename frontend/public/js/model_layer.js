@@ -108,9 +108,11 @@ function Model(id, data) {
 }
 
 function getAllModels(callback) {
-    var url = this.CONFIG.url;
+    var userFilter = this.CONFIG.userFilter,
+        url        = this.CONFIG.url;
+
     return new Promise(function(fulfill, reject) {
-        network(url, '/models/all', function(response, error) {
+        network(url, '/models/' + userFilter + '/all', function(response, error) {
             if(error || response.status !== 200) {
                 return reject(error, response);
             }
@@ -175,7 +177,11 @@ Model.prototype = {
         this.emit(null, 'selected', 'refresh', 'resetUI');
     },
 
-    revert: function() {
+    createNode: function(name) {
+        createNode(this, {name: name}, {}, 'template');
+    },
+
+    redo: function() {
         if(this.revertedHistory.length === 0) {
             return;
         }
@@ -289,6 +295,10 @@ Model.prototype = {
             currentSyncId = id || this.syncId;
 
         return new Promise(function(fulfill, reject) {
+            if(id === undefined || id === null || isNaN(parseInt(id))) {
+                reject(new Error('Id must be a valid number.'));
+            }
+
             var cb = function(_id, _syncId, ev) {
                 if(_id !== currentId && _syncId !== currentSyncId) {
                     return;
@@ -326,6 +336,10 @@ Model.prototype = {
             currentSyncId = id || this.syncId;
 
         return new Promise(function(fulfill, reject) {
+            if(id === undefined || id === null || isNaN(parseInt(id))) {
+                reject(new Error('Id must be a valid number.'));
+            }
+
             var cb = function(_id, _syncId, ev) {
                 if(_id !== currentId && _syncId !== currentSyncId) {
                     return;
@@ -358,6 +372,10 @@ Model.prototype = {
             currentSyncId = id || this.syncId;
 
         return new Promise(function(fulfill, reject) {
+            if(id === undefined || id === null || isNaN(parseInt(id))) {
+                reject(new Error('Id must be a valid number.'));
+            }
+
             var cb = function(_id, _syncId, ev) {
                 if(_id !== currentId && _syncId !== currentSyncId) {
                     return;
@@ -561,7 +579,7 @@ module.exports = {
 
     getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
 
-    saveModel: function(url, loadedModel, onDone) {
+    saveModel: function(url, userFilter, loadedModel, onDone) {
         var data = {
             modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
@@ -570,7 +588,7 @@ module.exports = {
             scenarios: loadedModel.scenariosToJson()
         };
 
-        network(url, '/models/save', data, function(response, err) {
+        network(url, '/models/' + userFilter + '/save', data, function(response, err) {
             if (err) {
                 loadedModel.emit('Couldn\'t save model: ' + err.message, 'notification');
                 return;
@@ -639,10 +657,10 @@ module.exports = {
         });
     },
 
-    deleteModel: function(url, modelId, savedModels, callback) {
+    deleteModel: function(url, userFilter, modelId, savedModels, callback) {
         var that = this;
         if(savedModels.local[modelId] === undefined) {
-            network(url, '/models/' + modelId, {}, function(response, err) {
+            network(url, '/models/' + userFilter + '/' + modelId, {}, function(response, err) {
                 if(err) {
                     console.error(response);
                     console.error(err);
@@ -660,9 +678,9 @@ module.exports = {
         }
     },
     
-    loadSyncModel: function(url, modelId, callback) {
+    loadSyncModel: function(url, userFilter, modelId, callback) {
         var that = this;
-        network(url, '/models/bundle/' + modelId, function(response, error) {
+        network(url, '/models/' + userFilter + '/bundle/' + modelId, function(response, error) {
             if (error) {
                 console.error(response);
                 console.error(error);

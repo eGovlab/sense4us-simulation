@@ -12,7 +12,7 @@ module.exports = {
             return;
         }
 
-        model.revert();
+        model.redo();
     },
 
     onUp: function(canvas, model, evt) {

@@ -5,7 +5,7 @@ var modelLayer   = require('./../../model_layer.js'),
 
 function addDeleteModelListeners(savedModels, loadedModel) {
     loadedModel.addListener('deleteModel', function(id, syncId) {
-        modelLayer.deleteModel(loadedModel.CONFIG.url, syncId || id, savedModels, function(message) {
+        modelLayer.deleteModel(loadedModel.CONFIG.url, loadedModel.CONFIG.userFilter, syncId || id, savedModels, function(message) {
             if(loadedModel.id === id || loadedModel.syncId === syncId) {
                 var firstLocal = objectHelper.first.call(savedModels.local);
 
