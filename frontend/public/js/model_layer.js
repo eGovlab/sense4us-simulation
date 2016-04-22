@@ -223,9 +223,11 @@ Model.prototype = {
      * @function
      *
      * @param {string} name - Name the node should inherit. 
+     * @param {string} type - Node type. 
+     * @param {string} prototypeId - Prototype id.
      */
-    createNode: function(name) {
-        createNode(this, {name: name}, {}, 'template');
+    createNode: function(name, type, prototypeId) {
+        createNode(this, {name: name, prototypeId: prototypeId, prototype_id: prototypeId}, {}, type || 'template');
     },
 
     /**
@@ -878,6 +880,8 @@ module.exports = {
                     name:           node.name,
                     description:    node.description,
                     type:           node.type,
+                    prototype_id:   node.prototype_id,
+                    prototypeId:    node.prototype_id,
                     simulateChange: 0,
 
                     objectId:       'nodeData'
