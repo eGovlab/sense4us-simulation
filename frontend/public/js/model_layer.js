@@ -227,7 +227,7 @@ Model.prototype = {
      * @param {string} prototypeId - Prototype id.
      */
     createNode: function(name, type, prototypeId) {
-        createNode(this, {name: name, prototypeId: prototypeId, prototype_id: prototypeId}, {}, type || 'template');
+        createNode(this, {name: name, prototypeId: prototypeId}, {}, type || 'template');
     },
 
     /**
@@ -343,6 +343,7 @@ Model.prototype = {
         }
 
         if(id !== undefined && this.nodeData[id] !== undefined) {
+            this.emit('deselect');
             var n                     = this.nodeData[id];
             this.nodeGui[id].selected = true;
             this.selected             = n;
@@ -353,6 +354,7 @@ Model.prototype = {
 
         objectHelper.forEach.call(this.nodeData, function(n) {
             if(n.name === name) {
+                this.emit('deselect');
                 this.nodeGui[n.id].selected = true;
                 this.selected               = n;
 
@@ -375,7 +377,8 @@ Model.prototype = {
         }
 
         objectHelper.forEach.call(this.nodeData, function(n) {
-            if(n.prototype_id === prototypeId) {
+            if(n.prototypeId === prototypeId) {
+                this.emit('deselect');
                 this.nodeGui[n.id].selected = true;
                 this.selected               = n;
 
@@ -903,7 +906,6 @@ module.exports = {
                     name:           node.name,
                     description:    node.description,
                     type:           node.type,
-                    prototype_id:   node.prototype_id,
                     prototypeId:    node.prototype_id,
                     simulateChange: 0,
 

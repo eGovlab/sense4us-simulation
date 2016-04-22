@@ -1,6 +1,19 @@
 'use strict';
 
+var objectHelper = require('./../../object-helper.js');
+
 function addSelectedListeners(sidebarManager, loadedModel) {
+    /**
+     * @description Deselect all selected nodes.
+     * @event deselect
+     * @memberof module:model/propagationEvents
+     */
+    loadedModel.addListener('deselect', function() {
+        objectHelper.forEach.call(this.nodeGui, function(gui, id) {
+            gui.selected = false;
+        });
+    });
+
     /**
      * @description Select a new item under model.selected;
      * @event select
