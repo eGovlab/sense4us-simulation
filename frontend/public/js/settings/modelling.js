@@ -6,21 +6,6 @@ var Immutable        = null,
     createActorNode  = require('../structures/create_actor');
 
 var model = [
-/*     {
-        header: 'Create Intermediate',
-        callback: createNode
-    }),
-
-     {
-        header: 'Create Origin',
-        callback: createOriginNode
-    }),
-
-     {
-        header: 'Create Actor',
-        callback: createActorNode
-    }),
-*/
     {
         header:   'Actors',
         callback: createActorNode,

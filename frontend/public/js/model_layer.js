@@ -907,6 +907,7 @@ module.exports = {
                     description:    node.description,
                     type:           node.type,
                     prototypeId:    node.prototype_id,
+                    role:           node.role,
                     simulateChange: 0,
 
                     objectId:       'nodeData'

@@ -28,7 +28,7 @@ Sidebar.prototype = {
         var label = menuBuilder.label(data.header);
         if(data.images) {
             var list = selectedMenu.createAvatarButtons(this.loadedModel.CONFIG.url, 'avatar', null, function(key, value) {
-                data.callback(that.loadedModel, {name: key}, {avatar: value});
+                data.callback(that.loadedModel, {name: key, role: data.header}, {avatar: value});
             }, data.images);
 
             this.lists.push(list);
