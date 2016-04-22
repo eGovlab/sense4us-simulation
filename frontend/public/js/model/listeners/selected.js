@@ -13,7 +13,6 @@ function addSelectedListeners(sidebarManager, loadedModel) {
         try {
             if(!this.selected) {
                 this.selected = {};
-                return;
             }
 
             if(this.selected.objectId === 'nodeGui' || this.selected.objectId === 'nodeData') {
