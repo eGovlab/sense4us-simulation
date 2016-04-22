@@ -28,12 +28,12 @@ function addSelectedListeners(sidebarManager, loadedModel) {
                  *
                  * @param {object} selected - The currently selected object.
                  * @example tool.addListener('selected', function(object) {
-                 *     if(object.objectId !== "nodeData" || object.objectId !== "nodeGui") {
+                 *     if(object.objectId !== "nodeData" && object.objectId !== "nodeGui") {
                  *         return console.log("Not a node.");
                  *     }
                  *     
-                 *     var nodeData = loadedModel.nodeData[this.selected.id];
-                 *     var nodeGui  = loadedModel.nodeGui[this.selected.id];
+                 *     var nodeData = this.nodeData[this.selected.id];
+                 *     var nodeGui  = this.nodeGui[this.selected.id];
                  *     console.log("Node selected", nodeData, nodeGui);
                  * });
                  */
