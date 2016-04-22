@@ -79,6 +79,16 @@ module.exports = function createNode(model, data, gui, type) {
     }
 
     model.emit(null, 'resetUI', 'refresh');
+
+    /**
+     * @description A new node has been created.
+     * @event newNode
+     * @memberof module:model/statusEvents
+     *
+     * @param {integer} id - New node id.
+     * @param {object} nodeData - Data relevant to the new node.
+     * @param {object} nodeGui - Gui data relevant to the new node.
+     */
     model.emit([id, nodeData, nodeGui], 'newNode');
 
     return model;

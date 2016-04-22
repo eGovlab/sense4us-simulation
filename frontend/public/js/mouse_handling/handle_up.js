@@ -126,6 +126,7 @@ function deselect(data) {
 }
 
 function select(data, error, done) {
+    data.selected = false;
     var selectedNodes = objectHelper.filter.call(
         data.nodeGui,
         function(node) {
