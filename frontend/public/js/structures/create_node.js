@@ -88,6 +88,9 @@ module.exports = function createNode(model, data, gui, type) {
      * @param {integer} id - New node id.
      * @param {object} nodeData - Data relevant to the new node.
      * @param {object} nodeGui - Gui data relevant to the new node.
+     * @example tool.addListener('newNode', function(id, nodeData, nodeGui) {
+     *     console.log(nodeData, nodeGui);
+     * })
      */
     model.emit([id, nodeData, nodeGui], 'newNode');
 
