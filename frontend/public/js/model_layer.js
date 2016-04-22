@@ -363,6 +363,29 @@ Model.prototype = {
     },
 
     /**
+     * @description Helper method to select node by prototype id.
+     * @name selectNodeByPrototypeId
+     * @function
+     *
+     * @param {string} prototypeId - Prototype id.
+     */
+    selectNodeByPrototypeId: function(prototypeId) {
+        if(typeof prototypeId !== 'string') {
+            throw new Error('Prototype id given is not of string type.');
+        }
+
+        objectHelper.forEach.call(this.nodeData, function(n) {
+            if(n.prototype_id === prototypeId) {
+                this.nodeGui[n.id].selected = true;
+                this.selected               = n;
+
+                this.emit(null, 'refresh', 'resetUI', 'select');
+                return false;
+            }
+        }, this);
+    },
+
+    /**
      * @description Helper method to select node by id.
      * @name selectNodeById
      * @function
