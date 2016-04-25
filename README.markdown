@@ -1,5 +1,12 @@
 # Sense4us Simulation
 
+## Running dead server
+1. ```cp config.json.template config.json```
+2. ```vim config.json```
+    Change relevant fields like:
+        ROOT into your root directory.
+        The SENSE4US property into whichever server you want to use.
+
 ## Compiling
 1. ```grunt```
    To build the tool.

@@ -1,6 +1,9 @@
 "use strict";
 
-var fs = require("fs");
+var fs     = require("fs"),
+    CONFIG = require("rh_config-parser");
+
+CONFIG.setConfig(__dirname + "/config.json");
 
 function traverseDir(path) {
     var files = {
@@ -53,6 +56,11 @@ module.exports = function(grunt) {
     var browserifyModules = treeToStrings(tree);
 
     browserifyModules = browserifyModules.map(function(str){return root + str + ":" + str;});
+
+    var sassFiles = {};
+    sassFiles[CONFIG.get("SASS", "dst") + "/model-builder.css"] = CONFIG.get("SASS", "src") + "/model-builder.scss";
+
+    console.log(sassFiles);
 
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
@@ -107,6 +115,16 @@ module.exports = function(grunt) {
             target: ["./frontend/public/js/**/*.js"]
         },
 
+        sass: {
+            options: {
+                outputStyle: "compressed"
+            },
+
+            dist: {
+                files: sassFiles
+            }
+        },
+
         jsdoc: {
             dist: {
                 src: [
@@ -147,6 +165,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-jsdoc");
+    grunt.loadNpmTasks("grunt-sass");
 
     grunt.registerTask("browserify_debug", function() {
         var browserifyConfig = grunt.config.get("browserify");
@@ -161,6 +180,7 @@ module.exports = function(grunt) {
     grunt.registerTask("default", [
         "eslint",
         "browserify",
-        "uglify"
+        "uglify",
+        "sass"
     ]);
 };
