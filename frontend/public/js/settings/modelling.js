@@ -7,7 +7,7 @@ var Immutable        = null,
 
 var model = [
     {
-        header:   'Actors',
+        header:   'Actor',
         callback: createActorNode,
         type:     'LIST',
         images: [
@@ -18,7 +18,7 @@ var model = [
     },
 
     {
-        header:   'Policy Instruments',
+        header:   'Policy Instrument',
         callback: createOriginNode,
         type:     'LIST',
         images: [
@@ -33,7 +33,7 @@ var model = [
     },
 
     {
-        header:   'External Factors',
+        header:   'External Factor',
         callback: createOriginNode,
         type:     'LIST',
         images: [
@@ -44,7 +44,7 @@ var model = [
     },
 
     {
-        header:   'Policy Impacts',
+        header:   'Policy Impact',
         callback: createNode,
         type:     'LIST',
         images: [
