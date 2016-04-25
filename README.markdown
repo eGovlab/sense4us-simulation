@@ -1,20 +1,21 @@
 # Sense4us Simulation
 
+## First compilation rundown
+1. ```npm install```
+2. ```cp config.json.template config.json```
+3. Change the ROOT property to your root dir.
+4. ```grunt```
+
 ## Running dead server
-1. ```cp config.json.template config.json```
-2. ```vim config.json```
-    Change relevant fields like:
-        ROOT into your root directory.
-        The SENSE4US property into whichever server you want to use.
+1. ```vim config.json```
+    Change the SENSE4US property into whichever server you want to use.
+3. ```node bin/init.js```
 
 ## Compiling
 1. ```grunt```
    To build the tool.
 2. ```grunt watch```
    To build the tool on file change.
-
-## If you want to run a server which serves the tool
-1. ```node bin/init.js```
 
 ## To generate the code documentation
 1. ```grunt jsdoc```

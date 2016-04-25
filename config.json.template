@@ -1,5 +1,5 @@
 {
-    "ROOT": "/home/rhine/projects/nodejs/project/",
+    "ROOT": "/home/rhine/projects/nodejs/sense4us-simulation/",
     "LIB":  "lib/",
     "PORT": 3000,
     "HOSTNAME": "localhost",
