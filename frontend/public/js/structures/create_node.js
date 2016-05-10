@@ -6,7 +6,6 @@ module.exports = function createNode(model, data, gui, type) {
     var id = model.generateId();
 
     var nodeData = {
-        id:              id,
         syncId:          false,
         value:           0,
         simulateChange:  [],
@@ -40,10 +39,10 @@ module.exports = function createNode(model, data, gui, type) {
     x += radius;
 
     var nodeGui = {
-        id:       id,
         x:        x,
         y:        y,
         radius:   radius,
+        links:    [],
 
         objectId: 'nodeGui'
     };
@@ -57,6 +56,9 @@ module.exports = function createNode(model, data, gui, type) {
         nodeGui = objectHelper.merge.call(nodeGui, gui);
     }
 
+    nodeData.id = id;
+    nodeGui.id  = id;
+    
     model.history.push({
         action: 'newNode',
         data:   {

@@ -53,9 +53,7 @@ function mouseUp(canvas, loadedModel, pos) {
         loadedModel.emit('resetUI');
     }
 
-    if(data.selected) {
-        loadedModel.emit('select');
-    }
+    loadedModel.emit('select');
 
     canvas.panX = -loadedModel.settings.offsetX;
     canvas.panY = -loadedModel.settings.offsetY;

@@ -65,7 +65,7 @@ function Model(id, data) {
     this.synced      = false;
 
     /** @member {integer} */
-    this.nextId      = -1;
+    this.nextId      = 0;
     /** @member {object} */
     this.nodeData    = {};
     /** @member {object} */
@@ -95,7 +95,8 @@ function Model(id, data) {
         offsetY:       0,
         zoom:          1,
         linegraph:     false,
-        objectId:      'modelSettings'
+        objectId:      'modelSettings',
+        id:            0
 
         //timeStepT:     'Week',
         //timeStepN:     0
@@ -219,6 +220,46 @@ Model.prototype = {
 
     /**
      * @description Create a node with the given name
+     * @name deleteSelected
+     * @function
+     */
+    deleteSelected: function() {
+        this.emit('deleteSelected');
+        
+        this.selected = false;
+        this.emit(null, 'select', 'refresh', 'resetUI');
+    },
+
+    /**
+     * @description Delete a node under the given id.
+     * @name deleteNode 
+     * @function
+     *
+     * @param {string} nodeId - The node id to delete.
+     */
+    deleteNode: function(id) {
+        this.emit(id, 'deleteNode');
+        
+        this.selected = false;
+        this.emit(null, 'select', 'refresh', 'resetUI');
+    },
+
+    /**
+     * @description Delete a link under the given id.
+     * @name deleteLink
+     * @function
+     *
+     * @param {string} linkId - The link id to delete.
+     */
+    deleteLink: function(id) {
+        this.emit(id, 'deleteLink');
+        
+        this.selected = false;
+        this.emit(null, 'select', 'refresh', 'resetUI');
+    },
+
+    /**
+     * @description Create a node with the given name
      * @name createNode
      * @function
      *
@@ -228,6 +269,19 @@ Model.prototype = {
      */
     createNode: function(name, type, prototypeId) {
         createNode(this, {name: name, prototypeId: prototypeId}, {}, type || 'template');
+    },
+
+    /**
+     * @description Create a node with the given structure.
+     * @name createNodeByStructure
+     * @function
+     *
+     * @param {object} nodeData - nodeData structure. 
+     * @param {object} nodeGui - nodeGui structure. 
+     */
+    createNodeByStructure: function(data, gui) {
+        gui.selected = false;
+        createNode(this, data, gui);
     },
 
     /**

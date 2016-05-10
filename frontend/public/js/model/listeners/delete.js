@@ -1,7 +1,16 @@
 'use strict';
 
 function addDeleteSelectedListeners(loadedModel) {
+    /**
+     * @description Delete node by given id.
+     * @event deleteNode
+     * @memberof module:model/propagationEvents
+     *
+     * @param {string} id - The node to delete.
+     * @example tool.emit('deleteNode', '15');
+     */
     loadedModel.addListener('deleteNode', function(id) {
+        loadedModel.selected = false;
         var selectedNodeData = loadedModel.nodeData[id];
         var selectedNodeGui  = loadedModel.nodeGui[id];
 
@@ -54,9 +63,19 @@ function addDeleteSelectedListeners(loadedModel) {
          * })
          */
         loadedModel.emit(selectedNodeGui, 'deletedNodeGui');
+        loadedModel.emit([selectedNodeData, selectedNodeGui], 'deletedNode');
     });
 
+    /**
+     * @description Delete link by given id.
+     * @event deleteLink
+     * @memberof module:model/propagationEvents
+     *
+     * @param {string} id - The link to delete.
+     * @example tool.emit('deleteLink', '15');
+     */
     loadedModel.addListener('deleteLink', function(id) {
+        loadedModel.selected = false;
         var selectedData = loadedModel.links[id];
 
         var upstream   = loadedModel.nodeGui[selectedData.node1];
@@ -86,6 +105,13 @@ function addDeleteSelectedListeners(loadedModel) {
         loadedModel.emit(selectedData, 'deletedLink');
     });
 
+    /**
+     * @description Delete selected item.
+     * @event deleteSelected
+     * @memberof module:model/propagationEvents
+     *
+     * @example tool.emit('deleteSelected');
+     */
     loadedModel.addListener('deleteSelected', function() {
         var selectedData = loadedModel.selected;
 
@@ -98,6 +124,8 @@ function addDeleteSelectedListeners(loadedModel) {
                     links: []
                 }
             };
+
+            console.log(loadedModel.nodeGui[selectedData.id]);
 
             historyData.data.gui.links.forEach(function(link) {
                 historyData.data.links.push(loadedModel.links[link]);

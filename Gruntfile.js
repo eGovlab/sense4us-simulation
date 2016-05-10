@@ -60,8 +60,6 @@ module.exports = function(grunt) {
     var sassFiles = {};
     sassFiles[CONFIG.get("SASS", "dst") + "/model-builder.css"] = CONFIG.get("SASS", "src") + "/model-builder.scss";
 
-    console.log(sassFiles);
-
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
         uglify: {
@@ -89,7 +87,7 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ["./frontend/public/js/**/*.js", "./frontend/public/js/**/*.jsdoc"],
-                tasks: ["eslint", "browserify_debug"]
+                tasks: ["eslint", "browserify_debug", "jsdoc"]
             }
         },
 

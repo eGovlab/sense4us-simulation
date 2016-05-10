@@ -138,27 +138,24 @@ SidebarManager.prototype = {
         }
 
         previouslySelected = this.selectedData.filter(function(data) {
-            if(selectedData.indexOf(data) !== -1) {
+            if(selectedData.indexOf(data) === -1) {
+                return true;
+            }
+
+            stillSelected.push(data);
+            return false;
+        }, this);
+
+        notSelected = selectedData.filter(function(data) {
+            if(stillSelected.indexOf(data) !== -1) {
                 return false;
             }
 
             return true;
         });
 
-        notSelected = selectedData.filter(function(data) {
-            if(this.selectedData.indexOf(data) !== -1) {
-                stillSelected.push(data);
-                return false;
-            }
-
-            return true;
-        }, this);
-
         previouslySelected.forEach(function(data) {
             var selectedMenu = this.selected[data.id];
-            if(!selectedMenu) {
-                return;
-            }
 
             selectedMenu.removeData(data);
             if(selectedMenu.data.length === 0) {
@@ -168,13 +165,14 @@ SidebarManager.prototype = {
 
         notSelected.forEach(function(data) {
             if(data === undefined) {
-                console.warn(selectedData);
-                console.warn(previouslySelected);
-                console.warn(notSelected);
-                console.warn(this.selectedData);
-                console.warn('NOT SELECTED?', data);
+                console.log('Current:',        selectedData);
+                console.log('Prev:',           previouslySelected);
+                console.log('Still selected:', stillSelected);
+                console.log('New:',            notSelected);
+                console.log('Menus:',          this.selected);
+                throw new Error('What the');
             }
-            
+
             var selectedMenu = this.selected[data.id];
             if(!selectedMenu) {
                 this.selected[data.id] = new SelectedMenu(this.loadedModel);
