@@ -802,6 +802,7 @@ module.exports = {
     getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
 
     saveModel: function(url, userFilter, projectFilter, loadedModel, onDone) {
+        console.log(loadedModel);
         var data = {
             modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
@@ -812,6 +813,7 @@ module.exports = {
 
         network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
             if (err) {
+                console.error(err.stack);
                 loadedModel.emit('Couldn\'t save model: ' + err.message, 'notification');
                 return;
             }
