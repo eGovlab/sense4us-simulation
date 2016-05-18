@@ -15,6 +15,7 @@ function addSaveModelListeners(savedModels, loadedModel) {
      *     console.log('Model with id:', id, syncId, 'was saved or updated.');
      * });
      */
+     
     /**
      * @description Save a model matching either synchronized id or local id.
      * @event saveModel

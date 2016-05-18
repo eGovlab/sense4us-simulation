@@ -16,6 +16,17 @@
             var sidebar = new window.sense4us.Sidebar();
             console.dir(sidebar);
 
+                var menu = new window.sense4us.Menu();
+                menu.setHeader("Modelling");
+
+                sidebar.addMenu(menu);
+
+                var input = new window.sense4us.Input();
+                input.setLabel("Hello");
+
+                menu.child.addItem(input);
+            
+
             sidebar.appendTo(document.getElementById("sidebar"));
         });
     </script>
