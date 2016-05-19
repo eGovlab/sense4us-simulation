@@ -374,3 +374,4 @@ window.sense4us              = window.sense4us || {};
 window.sense4us.lastTarget   = false;
 window.sense4us.inflateModel = inflateModel;
 window.sense4us.inflateTool  = inflateModel;
+window.sense4us.NewUI        = require('./new_ui');
