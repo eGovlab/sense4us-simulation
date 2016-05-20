@@ -22,6 +22,7 @@ var lightBlack                  = '#303040',
 var sidebarBackground           = darkerTeal,
 
     sidebarFoldButtonSize       = '30px',
+    sidebarFoldButtonFontSize   = '14px',
     sidebarFoldButtonFontColor  = tealFont,
     sidebarFoldButtonBackground = darkTeal,
     sidebarFoldButtonPaddingtop = 5,
@@ -70,6 +71,7 @@ module.exports = {
     sidebarBackground:            sidebarBackground,
 
     sidebarFoldButtonSize:        sidebarFoldButtonSize,
+    sidebarFoldButtonFontSize:    sidebarFoldButtonFontSize,
     sidebarFoldButtonFontColor:   sidebarFoldButtonFontColor,
     sidebarFoldButtonBackground:  sidebarFoldButtonBackground,
     sidebarFoldButtonPaddingtop:  sidebarFoldButtonPaddingtop,

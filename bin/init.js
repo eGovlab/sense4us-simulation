@@ -121,8 +121,8 @@
                             prefix:      "/css",
                             debug:       true
                           })
-                        , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
                         , addResponseAttributes
+                        , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
                         , httpLogger
                         , cookieCutter.middleware
                         , router

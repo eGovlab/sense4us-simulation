@@ -6,6 +6,7 @@ var Foldable  = require('./foldable.js'),
     Input     = require('./input.js'),
     Slider    = require('./slider.js'),
     IconGroup = require('./icon_group.js'),
+    Dropdown  = require('./dropdown.js'),
     Button    = require('./button.js');
 
 function MenuItem(width) {
@@ -48,14 +49,14 @@ function MenuItem(width) {
 
     this.appendChild(this.label);
 
-    this.items = [];
+    //this.items = [];
 }
 
 MenuItem.prototype = {
     addSeparator: function(height) {
         var separator = new Element('div');
 
-        this.items.push(separator);
+        //this.items.push(separator);
 
         separator.setHeight(height);
 
@@ -67,7 +68,7 @@ MenuItem.prototype = {
     addIconGroup: function(label) {
         var group = new IconGroup(label);
 
-        this.items.push(group);
+        //this.items.push(group);
         this.child.appendChild(group);
 
         group.root.style['white-space'] = 'normal';
@@ -79,7 +80,7 @@ MenuItem.prototype = {
     addButton: function(label, callback) {
         if(typeof label === 'function') {
             callback = label;
-            label = false;
+            label    = false;
         }
 
         var button = new Button();
@@ -87,7 +88,17 @@ MenuItem.prototype = {
             button.setLabel(label);
         }
 
-        button.click(callback);
+        if(callback && typeof callback === 'function') {
+            button.click(callback);
+        }
+
+        var buttonContainer = new Element('div');
+        buttonContainer.root.style['white-space'] = 'normal';
+        buttonContainer.setWidth(this.maxWidth);
+        buttonContainer.root.style.padding = '0px 8px';
+        buttonContainer.root.style.margin  = '8px 0px';
+
+        buttonContainer.appendChild(button);
 
         button.root.style.padding = '8px 0px';
 
@@ -95,12 +106,28 @@ MenuItem.prototype = {
         button.root.style.color = Colors.buttonFontColor;
         button.root.style['text-align'] = 'center';
 
-        button.root.style['white-space'] = 'normal';
-        button.setWidth(this.maxWidth);
+        button.setWidth('100%');
 
-        this.child.appendChild(button);
+        //this.items.push(button);
+        this.child.appendChild(buttonContainer);
 
         return button;
+    },
+
+    addDropdown: function(label, values, callback) {
+        var dropdown = new Dropdown(values, callback);
+        dropdown.setLabel(label);
+
+        //this.items.push(dropdown);
+
+        dropdown.root.style['white-space'] = 'normal';
+        dropdown.setWidth(this.maxWidth);
+
+        dropdown.root.style.padding        = '16px 16px';
+        dropdown.root.style['text-align']  = 'center';
+
+        this.child.appendChild(dropdown);
+        return dropdown;
     },
 
     addInput: function(label) {
@@ -116,7 +143,7 @@ MenuItem.prototype = {
         input.root.style.padding = '16px 16px';
         input.root.style['text-align'] = 'center';
 
-        this.items.push(input);
+        //this.items.push(input);
         this.child.appendChild(input);
 
         return input;
@@ -140,7 +167,7 @@ MenuItem.prototype = {
         input.root.style.padding = '16px 16px';
         input.root.style['text-align'] = 'center';
 
-        this.items.push(input);
+        //this.items.push(input);
         this.child.appendChild(input);
 
         return input;

@@ -49,6 +49,7 @@ IconGroup.prototype = {
         image.root.style.border = 'none';
 
         imageButton.root.style.margin = '6px 6px';
+        imageButton.image = image;
 
         this.icons.push(imageButton);
 

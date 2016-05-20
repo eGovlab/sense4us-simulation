@@ -62,7 +62,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     var objectHelper = require('./object-helper.js');
 
-    var menuHeader       = document.createElement('div'),
+    /*var menuHeader       = document.createElement('div'),
         upperMenu        = document.createElement('div');
 
     menuHeader.className = 'menu-header';
@@ -79,7 +79,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     sidebar.style['max-width']  = (maxWidth  - 24) + 'px';
     sidebar.style['max-height'] = (maxHeight - 44) + 'px';
 
-    sidebar.appendChild(sidebarContainer);
+    sidebar.appendChild(sidebarContainer);*/
 
     var leftMain           = document.createElement('div'),
         notificationBarDiv = document.createElement('div'),
@@ -89,16 +89,22 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     notificationBarDiv.style.left = (maxWidth - 200) + 'px';
 
     leftMain.className            = 'left main';
+    leftMain.style.position       = 'relative';
+
     notificationBarDiv.className  = 'mb-notification-bar';
     mainCanvasC.className         = 'main-canvas';
     linegraphCanvasC.className    = 'linegraph';
 
+    var NewUI = require('./new_ui');
+    var sidebar = new NewUI.Sidebar(200);
+
+    sidebar.appendTo(leftMain);
     leftMain.appendChild(notificationBarDiv);
     leftMain.appendChild(mainCanvasC);
     leftMain.appendChild(linegraphCanvasC);
 
-    container.appendChild(menuHeader);
-    container.appendChild(sidebar);
+    /*container.appendChild(menuHeader);
+    container.appendChild(sidebar);*/
     container.appendChild(leftMain);
 
     var mainCanvas       = canvas(container, mainCanvasC),
@@ -263,6 +269,135 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         refreshNamespace.drawLinkingLine
     );
 
+    var modelling = require('./settings/modelling.js');
+    function setupIconGroups(sidebar, modelling) {
+        var menuItem = new NewUI.MenuItem(300);
+        menuItem.child.clicks = [];
+        NewUI.Button.prototype.click.call(menuItem.child, function(evt) {
+            if(!evt.target.groupOwner) {
+                return;
+            }
+
+            var button = evt.target.groupOwner;
+            button.constructor(loadedModel, {
+                name: button.name,
+                role: button.role
+            }, {
+                avatar: button.nodeImageSrc
+            });
+        });
+
+        modelling.forEach(function(nodeGroup) {
+            var group = menuItem.addIconGroup(nodeGroup.header);
+            nodeGroup.images.forEach(function(image) {
+                var button                   = group.addIcon(configObject.url + '/' + image.src);
+
+                button.root.groupOwner       = button;
+                button.image.root.groupOwner = button;
+
+                button.name                  = image.header;
+                button.role                  = nodeGroup.header;
+                button.constructor           = nodeGroup.callback;
+                button.nodeImageSrc          = image.src;
+            });
+        });
+
+        sidebar.addItem(menuItem);
+
+        return menuItem;
+    }
+
+    var _ = setupIconGroups(sidebar, modelling);
+    _.setLabel('Modelling');
+
+    function setupSimulate(sidebar, simulate) {
+        var menuItem = new NewUI.MenuItem(300);
+
+        simulate.forEach(function(row) {
+            switch(row.type) {
+                case 'BUTTON':
+                    var button = menuItem.addButton(row.header, function() {
+                        row.callback(loadedModel)
+                    });
+                    break;
+                case 'DROPDOWN':
+                    var dropdown = menuItem.addDropdown(row.header, row.values, function(evt) {
+                        console.log(dropdown.getIndex(), dropdown.getValue());
+                        row.callback(loadedModel, dropdown.getValue());
+                    });
+                    break;
+            }
+        });
+
+        sidebar.addItem(menuItem);
+        return menuItem;
+    }
+
+    var _simulate = require('./settings/simulate.js');
+    var __ = setupSimulate(sidebar, _simulate);
+    __.setLabel('Simulate');
+
+    function setupLoadModel(sidebar) {
+        var menuItem = new NewUI.MenuItem(300);
+        menuItem.setLabel('Load model');
+
+        var buttons = [];
+        menuItem.refresh = function() {
+            loadedModel.getAllModels().then(function(models) {
+                console.log(models);
+                models.forEach(function(model, index) {
+                    var button;
+                    if(index < buttons.length) {
+                        button = buttons[index];
+                    } else {
+                        button = menuItem.addButton();
+                        buttons.push(button);
+                    }
+
+                    button.setLabel(model.name);
+                    button.syncId = model.id;
+                });
+
+                if(models.length < buttons.length) {
+                    button.splice(models.length, buttons.length - models.length);
+                }
+
+                /*objectHelper.forEach.call(
+                    savedModels.local,
+                    function(model) {
+                        element.addOption(model.id, model.settings.name);
+                    }
+                );
+
+                models.forEach(function(model) {
+                    if(!savedModels.synced[model.id]) {
+                        savedModels.synced[model.id] = model.name;
+                    }
+                });
+
+                objectHelper.forEach.call(
+                    savedModels.synced,
+                    function(model, key) {
+                        if(typeof model === 'string') {
+                            element.addOption(key, model);
+                        } else {
+                            element.addOption(model.syncId, model.settings.name);
+                        }
+                    }
+                );*/
+            }).catch(function(error) {
+                console.error(error);
+            });
+        };
+
+        menuItem.refresh();
+
+        sidebar.addItem(menuItem);
+        return menuItem;
+    }
+
+    setupLoadModel(sidebar);
+
     require('./model/listeners/notification.js')(notificationBarDiv, loadedModel);
     require('./model/listeners/mouse_down.js')(loadedModel);
     require('./model/listeners/mouse_move.js')(loadedModel);
@@ -277,13 +412,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
      */
     loadedModel.addListener('refresh',  refresh);
 
-    var sidebarManager = new UI.SidebarManager(sidebarContainer);
+    //var sidebarManager = new UI.SidebarManager(sidebarContainer);
 
-    loadedModel.addListener('sidebar', function() {
+    /*loadedModel.addListener('sidebar', function() {
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
-    });
+    });*/
 
-    var ScenarioEditor = require('./scenario').ScenarioEditor;
+    //var ScenarioEditor = require('./scenario').ScenarioEditor;
+
     /**
      * @description A new window should be created.
      * @event newWindow
@@ -291,15 +427,15 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
      *
      * @param {string} option - Option key
      */
-    loadedModel.addListener('newWindow', function(option) {
+    /*loadedModel.addListener('newWindow', function(option) {
         switch(option.toUpperCase()) {
             case 'SCENARIO':
                 new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
                 break;
         }
-    });
+    });*/
 
-    sidebarManager.setEnvironment(loadedModel.environment);
+    /*sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
     sidebarManager.setSelectedMenu(loadedModel.settings);
 
@@ -307,7 +443,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     menu.createMenu(loadedModel, savedModels);
 
     require('./model/listeners/selected.js')    (sidebarManager, loadedModel);
-    require('./model/listeners/reset_ui.js')    (sidebarManager, menu, savedModels, loadedModel);
+    require('./model/listeners/reset_ui.js')    (sidebarManager, menu, savedModels, loadedModel);*/
+
+
     require('./model/listeners/store_model.js') (savedModels, loadedModel);
     require('./model/listeners/load_model.js')  (savedModels, loadedModel);
     require('./model/listeners/new_model.js')   (savedModels, loadedModel);

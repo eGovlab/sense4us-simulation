@@ -18,7 +18,7 @@ function Sidebar(width, offset) {
     this.unfolded = 0;
 
     this.setHeight('100%');
-    this.root.style.position = 'relative';
+    this.root.style.position = 'absolute';
 
     this.foldable.setBackground(Colors.sidebarBackground);
     this.foldable.setHeight('inherit');
@@ -37,8 +37,9 @@ function Sidebar(width, offset) {
     this.foldButton.root.style.position = 'absolute';
     this.foldButton.root.style.top      = offset ? offset + 'px' : '0';
     this.foldButton.root.style.color    = Colors.sidebarFoldButtonFontColor;
-    this.foldButton.root.style['text-align'] = 'center';
+    this.foldButton.root.style['text-align']  = 'center';
     this.foldButton.root.style['padding-top'] = Colors.sidebarFoldButtonPaddingtop + 'px';
+    this.foldButton.root.style['font-size']   = Colors.sidebarFoldButtonFontSize;
 
     var listIcon = new Element('span');
     listIcon.root.className = 'glyphicon glyphicon-plus';

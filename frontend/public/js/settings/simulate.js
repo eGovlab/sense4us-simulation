@@ -33,6 +33,8 @@ var simulate = [
                     return;
                 }
 
+                console.log(response.response);
+
                 var timeSteps = response.response;
                 var nodeData  = loadedModel.nodeData;
                 timeSteps.forEach(function(timeStep) {
@@ -75,7 +77,7 @@ var simulate = [
             'Year'
         ],
 
-        setDefault: function(model, values) {
+        defaultValue: function(model, values) {
             var selected = model.loadedScenario.measurement;
             for(var i = 0; i < values.length; i++) {
                 if(values[i] === selected) {

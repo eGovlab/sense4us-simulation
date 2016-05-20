@@ -131,7 +131,13 @@ Element.prototype = {
 
     destroy: function() {
         if(this.removeEvents) {
-            this.removeEvents()
+            this.removeEvents();
+        }
+
+        if(this.children) {
+            this.children.forEach(function(child) {
+                child.destroy();
+            });
         }
 
         this.root.parentElement.removeChild(this.root);

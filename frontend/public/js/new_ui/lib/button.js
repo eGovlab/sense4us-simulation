@@ -10,6 +10,10 @@ function Button() {
 
 Button.prototype = {
     click: function(callback) {
+        if(!callback || typeof callback !== 'function') {
+            return;
+        }
+        
         this.clicks.push(callback);
         this.root.addEventListener('click', callback);
     },
