@@ -325,11 +325,23 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                         items[row.id] = button;
                     }
                     break;
-                case 'DROPDOWN':
-                    var dropdown = menuItem.addDropdown(row.header, row.values, function(evt) {
-                        console.log(dropdown.getIndex(), dropdown.getValue());
-                        row.callback(loadedModel, dropdown.getValue());
+                case 'CHECKBOX':
+                    var checkbox = menuItem.addCheckbox(row.header);
+
+                    checkbox.onCheck(function() {
+                        row.onCheck(loadedModel);
                     });
+
+                    checkbox.onUncheck(function() {
+                        row.onUncheck(loadedModel);
+                    });
+
+                    if(row.id) {
+                        items[row.id] = button;
+                    }
+                    break; 
+                case 'DROPDOWN':
+                    var dropdown = menuItem.addDropdown(row.header, row.values);
 
                     dropdown.defaultValue(function() {
                         return row.defaultValue(loadedModel, row.values);

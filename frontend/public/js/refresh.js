@@ -111,7 +111,7 @@ function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, next) {
             **
             ** e.g. drawNodeInSimulation(nodeGui)
             */
-            if(loadedModel.environment === 'simulate' ) {
+            if(loadedModel.static.showSimulate) {
                 if(nodeGui.timeTable) {
                     drawTimeTable(ctx, nodeGui);
                 } else if(nodeGui.type.toUpperCase() !== 'ACTOR') {

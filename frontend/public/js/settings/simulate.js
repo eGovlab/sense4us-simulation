@@ -69,6 +69,21 @@ var simulate = [
     },
 
     {
+        header: 'Show simulate changes',
+        type:   'CHECKBOX',
+
+        onCheck: function(loadedModel) {
+            loadedModel.static.showSimulate = true;
+            loadedModel.emit('refresh');
+        },
+
+        onUncheck: function(loadedModel) {
+            loadedModel.static.showSimulate = false;
+            loadedModel.emit('refresh');
+        }
+    },
+
+    {
         header: 'Time step T',
         type:   'DROPDOWN',
         values: [

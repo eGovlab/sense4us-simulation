@@ -46,7 +46,8 @@ var sidebarBackground           = darkerTeal,
     inputFontColor              = tealFont;
 
 var buttonBackground            = inputBackground,
-    buttonFontColor             = inputFontColor;
+    buttonFontColor             = inputFontColor,
+    buttonCheckedBackground     = lightOrange;
 
 module.exports = {
     lightBlack:                   lightBlack,
@@ -95,5 +96,6 @@ module.exports = {
     inputFontColor:               inputFontColor,
 
     buttonBackground:             inputBackground,
-    buttonFontColor:              inputFontColor
+    buttonFontColor:              inputFontColor,
+    buttonCheckedBackground:      buttonCheckedBackground
 };

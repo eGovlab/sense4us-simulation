@@ -7,6 +7,7 @@ var Foldable  = require('./foldable.js'),
     Slider    = require('./slider.js'),
     IconGroup = require('./icon_group.js'),
     Dropdown  = require('./dropdown.js'),
+    Checkbox  = require('./checkbox.js'),
     Button    = require('./button.js');
 
 function MenuItem(width) {
@@ -75,6 +76,47 @@ MenuItem.prototype = {
         group.setWidth(this.maxWidth);
 
         return group;
+    },
+
+    addCheckbox: function(label, onCheck, onUncheck) {
+        if(typeof label === 'function' && typeof onCheck === 'function') {
+            onUncheck = onCheck;
+            onCheck   = label;
+        }
+
+        var button = new Checkbox();
+        if(label) {
+            button.setLabel(label);
+        }
+
+        if(onCheck && typeof onCheck === 'function') {
+            button.onCheck(onCheck);
+        }
+
+        if(onUncheck && typeof onUncheck === 'function') {
+            button.onUncheck(onUncheck);
+        }
+
+        var buttonContainer = new Element('div');
+        buttonContainer.root.style['white-space'] = 'normal';
+        buttonContainer.setWidth(this.maxWidth);
+        buttonContainer.root.style.padding = '0px 8px';
+        buttonContainer.root.style.margin  = '8px 0px';
+
+        buttonContainer.appendChild(button);
+
+        button.root.style.padding = '8px 0px';
+
+        button.setBackground(Colors.buttonBackground);
+        button.root.style.color = Colors.buttonFontColor;
+        button.root.style['text-align'] = 'center';
+
+        button.setWidth('100%');
+
+        //this.items.push(button);
+        this.child.appendChild(buttonContainer);
+
+        return button;
     },
 
     addButton: function(label, callback) {
