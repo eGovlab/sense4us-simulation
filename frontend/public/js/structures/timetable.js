@@ -4,7 +4,7 @@ var menuBuilder  = require('./../menu_builder');
 var objectHelper = require('./../object-helper.js');
 
 var timeTableId = -1;
-function TimeTable(node, onChange, reference) {
+function TimeTable(node, onChange, reference, loadedModel) {
     this.id             = ++timeTableId;
     this.syncId         = false;
 
@@ -134,8 +134,6 @@ TimeTable.prototype = {
     },
 
     removeTimeRow: function() {
-        console.log(this.timeTable);
-        console.log(this.node);
         var size = objectHelper.size.call(this.timeTable);
         if (this.timeTable === undefined || this.timeTable === null || size === 0) {
             return;
@@ -150,7 +148,7 @@ TimeTable.prototype = {
 
         delete this.rows[objectHelper.lastKey.call(this.rows)];
 
-        this.node.timeTable = objectHelper.slice.call(this.node.timeTable, 0, -1);
+        //this.node.timeTable = objectHelper.slice.call(this.node.timeTable, 0, -1);
 
         this.onChange();
     },

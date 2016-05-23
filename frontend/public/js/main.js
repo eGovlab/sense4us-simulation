@@ -437,32 +437,74 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
         menuItem.child.clicks = [];
         Button.prototype.click.call(menuItem.child, function(evt) {
-            console.log('SAVED MODELS', savedModels);
-            var button = evt.target.modelButton;
-            if(!button) {
+            var button      = evt.target.modelButton;
+            var deleteModel = evt.target.deleteModel;
+
+            if(button) {
+                loadedModel.loadModel(button.syncId || button.id);
                 return;
             }
 
-
-            loadedModel.loadModel(button.syncId || button.id);
+            if(deleteModel) {
+                loadedModel.deleteModel(deleteModel.syncId || deleteModel.id);
+                return;
+            }
         });
 
         var buttons = [];
+        var createButton = function(iterator) {
+            var button;
+            if(iterator < buttons.length) {
+                button = buttons[iterator];
+            } else {
+                button = menuItem.addButton();
+                button.root.modelButton = button;
+                buttons.push(button);
+
+                button.label.root.modelButton = button;
+
+                /*var trashButton = new NewUI.Button();
+                button.appendChild(trashButton);
+
+                var trashIcon = new NewUI.Element('span');
+                trashButton.appendChild(trashIcon);
+                trashIcon.root.className = 'glyphicon glyphicon-trash';
+                trashButton.root.style['margin-right'] = '16px';
+
+                button.label.root.style.display = 'inline-block';
+                trashButton.root.style.float  = 'right';
+
+                var clearTrash = new NewUI.Element('div');
+                clearTrash.root.style.clear = 'both';
+
+                button.appendChild(clearTrash);
+                trashButton.root.deleteModel = button;
+                trashIcon.root.deleteModel = button;
+                trashButton.setWidth(20);
+                trashButton.setHeight(20);*/
+            }
+
+            return button;
+        }
+
         menuItem.refresh = function() {
             loadedModel.getAllModels().then(function(models) {
-                console.log(models);
+                console.log(models, savedModels);
                 var iterator = 0;
+                var initialSize = buttons.length;
                 models.forEach(function(model) {
-                    var button;
-                    if(iterator < buttons.length) {
-                        button = buttons[iterator];
-                    } else {
-                        button = menuItem.addButton();
-                        button.root.modelButton = button;
-                        buttons.push(button);
+                    if(savedModels.synced[model.id] && savedModels.local[savedModels.synced[model.id].id]) {
+                        return;
                     }
 
-                    button.setLabel(model.name);
+                    var button = createButton(iterator);
+
+                    if(savedModels.synced[model.id]) {
+                        button.setLabel(savedModels.synced[model.id].settings.name);
+                    } else {
+                        button.setLabel(model.name);
+                    }
+
                     button.syncId = model.id;
                     button.id     = model.id;
 
@@ -472,18 +514,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 objectHelper.forEach.call(
                     savedModels.local,
                     function(model) {
-                        var button;
-                        if(iterator < buttons.length) {
-                            button = buttons[iterator];
-                        } else {
-                            button = menuItem.addButton();
-                            button.root.modelButton = button;
-                            buttons.push(button);
-                        }
+                        var button = createButton(iterator);
 
                         button.setLabel(model.settings.name);
-
-                        button.syncId = false;
+                        button.syncId = model.syncId || false;
                         button.id     = model.id;
 
                         iterator++;
@@ -492,35 +526,12 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
                 var localSaved = objectHelper.size.call(savedModels.local);
                 if(models.length + localSaved < buttons.length) {
-                    var removedButtons = buttons.splice(models.length, buttons.length - models.length);
+                    console.log('HELLO');
+                    var removedButtons = buttons.splice(models.length + localSaved, buttons.length - models.length);
                     removedButtons.forEach(function(button) {
                         button.destroy();
                     });
                 }
-
-                /*objectHelper.forEach.call(
-                    savedModels.local,
-                    function(model) {
-                        element.addOption(model.id, model.settings.name);
-                    }
-                );
-
-                models.forEach(function(model) {
-                    if(!savedModels.synced[model.id]) {
-                        savedModels.synced[model.id] = model.name;
-                    }
-                });
-
-                objectHelper.forEach.call(
-                    savedModels.synced,
-                    function(model, key) {
-                        if(typeof model === 'string') {
-                            element.addOption(key, model);
-                        } else {
-                            element.addOption(model.syncId, model.settings.name);
-                        }
-                    }
-                );*/
             }).catch(function(error) {
                 console.error(error);
             });
@@ -533,6 +544,25 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     }
 
     setupLoadModel(sidebar);
+
+    function setupScenarioWindow(sidebar) {
+        var menuItem = new NewUI.MenuItem(300);
+        menuItem.setLabel('Scenario Editor');
+
+        menuItem.root.owner             = undefined;
+        menuItem.label.root.parentOwner = undefined;
+
+        menuItem.clicks = [];
+        menuItem.removeEvents = NewUI.Button.prototype.removeEvents;
+        NewUI.Button.prototype.click.call(menuItem, function() {
+            loadedModel.emit('SCENARIO', 'newWindow');
+        });
+
+        sidebar.addItem(menuItem);
+        return menuItem;
+    }
+
+    setupScenarioWindow(sidebar);
 
     require('./model/listeners/notification.js')(notificationBarDiv, loadedModel);
     require('./model/listeners/mouse_down.js')(loadedModel);
@@ -560,7 +590,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
     });*/
 
-    //var ScenarioEditor = require('./scenario').ScenarioEditor;
+    var ScenarioEditor = require('./scenario').ScenarioEditor;
 
     /**
      * @description A new window should be created.
@@ -569,23 +599,27 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
      *
      * @param {string} option - Option key
      */
-    /*loadedModel.addListener('newWindow', function(option) {
+    loadedModel.addListener('newWindow', function(option) {
         switch(option.toUpperCase()) {
             case 'SCENARIO':
+                loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                    floatingWindow.destroyWindow();
+                });
                 new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
                 break;
         }
-    });*/
+    });
 
     /*sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
     sidebarManager.setSelectedMenu(loadedModel.settings);
 
     var menu = new UI.Menu(upperMenu, settings.menu);
-    menu.createMenu(loadedModel, savedModels);
+    menu.createMenu(loadedModel, savedModels);*/
 
-    require('./model/listeners/selected.js')    (sidebarManager, loadedModel);
-    require('./model/listeners/reset_ui.js')    (sidebarManager, menu, savedModels, loadedModel);*/
+    require('./model/listeners/selected.js') (sidebar, loadedModel);
+    //require('./model/listeners/selected.js')    (sidebarManager, loadedModel);
+    //require('./model/listeners/reset_ui.js')    (sidebarManager, menu, savedModels, loadedModel);
 
 
     require('./model/listeners/store_model.js') (savedModels, loadedModel);

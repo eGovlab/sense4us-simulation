@@ -1,8 +1,331 @@
 'use strict';
 
 var objectHelper = require('./../../object-helper.js');
+var NewUI        = require('./../../new_ui');
 
-function addSelectedListeners(sidebarManager, loadedModel) {
+var modelling    = require('./../../settings/modelling.js');
+var roles        = {};
+
+modelling.forEach(function(group) {
+    if(!roles[group.header]) {
+        roles[group.header] = [];
+    }
+
+    roles[group.header] = roles[group.header].concat(group.images);
+});
+
+var linkModellingFilter = [
+    {property: 'type',        type: 'dropdown', values: ['halfchannel', 'fullchannel']},
+
+    {property: 'threshold',   type: 'input', check: function(value) {
+        var match = value.match(/\d+\.?\d*/);
+        if(match === null) {
+            return false;
+        }
+
+        return true;
+    }}, 
+
+    {property: 'coefficient', type: 'input', check: function(value) {
+        var match = value.match(/\d+\.?\d*/);
+        if(match === null) {
+            return false;
+        }
+        
+        return true;
+    }},
+
+    {property: 'timelag',     type: 'input', check: function(value) {
+        var match = value.match(/\d+/);
+        if(match === null) {
+            return false;
+        }
+
+        return true;
+    }}
+],
+    dataModellingFilter = [
+    {property: 'name',        type: 'input', check: function() {
+        return true;
+    }},
+    {property: 'description', type: 'input', check: function() {
+        return true;
+    }},
+    {property: 'role',        type: 'iconGroup', groups: roles}
+],
+    guiModellingFilter  = [];
+
+function getInput(loadedModel, menuItem, inputs, iterator) {
+    var input;
+    if(iterator < inputs.length) {
+        input = inputs[iterator];
+    } else {
+        input = menuItem.addInput();
+        inputs.push(input);
+
+        input.defaultValue(function() {
+            if(!input.changeProperty) {
+                return '';
+            }
+
+            return input.changeObject[input.changeProperty];
+        });
+
+        input.onChange(function() {
+            var value = input.getValue();
+            if(!input.changeCheck(value)) {
+                input.setValue(input.changeObject[input.changeProperty]);
+                return;
+            }
+
+            input.changeObject[input.changeProperty] = value;
+            loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                floatingWindow.refresh();
+            });
+
+            loadedModel.emit('refresh');
+        });
+    }
+
+    return input;
+}
+
+function getButton(loadedModel, menuItem, buttons, iterator) {
+    var button;
+    if(iterator < buttons.length) {
+        button = buttons[iterator];
+        button.removeEvents();
+    } else {
+        button = menuItem.addButton();
+        buttons.push(button);
+    }
+
+    return button;
+}
+
+function getDropdown(loadedModel, menuItem, dropdowns, iterator) {
+    var dropdown;
+    if(iterator < dropdowns.length) {
+        dropdown = dropdowns[iterator];
+    } else {
+        dropdown = menuItem.addDropdown();
+        dropdowns.push(dropdown);
+
+        dropdown.defaultValue(function() {
+            if(!dropdown.changeProperty) {
+                return '';
+            }
+
+            return dropdown.changeObject[dropdown.changeProperty];
+        });
+
+        dropdown.onChange(function() {
+            var value = dropdown.getValue();
+
+            dropdown.changeObject[dropdown.changeProperty] = value;
+            loadedModel.emit('refresh');
+        });
+    }
+
+    return dropdown;
+}
+
+function getCheckbox(loadedModel, menuItem, checkboxes, iterator) {
+
+}
+
+function getSliders(loadedModel, menuItem, sliders, iterator) {
+
+}
+
+function hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups) {
+    inputs.forEach(function(input) {
+        input.hide();
+    });
+
+    buttons.forEach(function(button) {
+        console.log(button);
+        button.buttonContainer.hide();
+    });
+
+    dropdowns.forEach(function(dropdown) {
+        dropdown.hide();
+    });
+
+    checkboxes.forEach(function(checkbox) {
+        checkbox.hide();
+    });
+
+    sliders.forEach(function(slider) {
+        slider.hide();
+    });
+
+    iconGroups.forEach(function(iconGroup) {
+        iconGroup.hide();
+    });
+}
+
+function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, nodeData, nodeGui) {
+    var inputIterator    = 0,
+        buttonIterator   = 0,
+        dropdownIterator = 0,
+        checkboxIterator = 0,
+        iconGroupIterator = 0,
+        sliderIterator   = 0;
+
+    hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups);
+
+    var deleteButton = getButton(loadedModel, menuItem, buttons, buttonIterator);
+    deleteButton.setLabel('Delete selected');
+    deleteButton.click(function() {
+        loadedModel.emit('deleteSelected');
+    });
+
+    deleteButton.buttonContainer.show();
+
+    dataModellingFilter.forEach(function(row) {
+        switch(row.type.toUpperCase()) {
+            case 'INPUT':
+                var input = getInput(loadedModel, menuItem, inputs, inputIterator);
+
+                input.changeProperty = row.property;
+                input.changeObject   = nodeData;
+                input.changeCheck    = row.check;
+
+                input.setLabel(row.property);
+                input.refresh();
+
+                input.show();
+
+                inputIterator++;
+
+                break;
+            case 'ICONGROUP':
+
+                break;
+        }
+    });
+
+    guiModellingFilter.forEach(function() {
+
+    });
+}
+
+function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link) {
+    var inputIterator     = 0,
+        buttonIterator    = 0,
+        dropdownIterator  = 0,
+        checkboxIterator  = 0,
+        iconGroupIterator = 0,
+        sliderIterator    = 0;
+
+    hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups);
+
+    var deleteButton = getButton(loadedModel, menuItem, buttons, buttonIterator);
+    deleteButton.setLabel('Delete selected');
+    deleteButton.click(function() {
+        loadedModel.emit('deleteSelected');
+    });
+
+    deleteButton.buttonContainer.show();
+
+    linkModellingFilter.forEach(function(row) {
+        console.log(row);
+        switch(row.type.toUpperCase()) {
+            case 'INPUT':
+                var input = getInput(loadedModel, menuItem, inputs, inputIterator);
+
+                input.changeProperty = row.property;
+                input.changeObject   = link;
+                input.changeCheck    = row.check;
+
+                input.setLabel(row.property);
+                input.refresh();
+
+                input.show();
+
+                inputIterator++;
+
+                break;
+            case 'DROPDOWN':
+                var dropdown = getDropdown(loadedModel, menuItem, dropdowns, dropdownIterator);
+
+                dropdown.changeProperty = row.property;
+                dropdown.changeObject   = link;
+
+                dropdown.setLabel(row.property);
+                dropdown.replaceValues(row.values);
+                dropdown.refresh();
+
+                dropdown.show();
+
+                dropdownIterator++;
+
+                break;
+        }
+    });
+}
+
+function setupSelectedMenu(sidebar, loadedModel) {
+    var menuItem = new NewUI.MenuItem(300);
+
+    menuItem.setLabel('Selected');
+
+    var inputs     = [],
+        buttons    = [],
+        dropdowns  = [],
+        checkboxes = [],
+        sliders    = [],
+        iconGroups = [];
+
+    menuItem.refresh = function() {
+        var selected = loadedModel.selected;
+        if(!selected || !selected.objectId) {
+            hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups);
+            return;
+        }
+
+        if(selected.objectId === 'nodeGui' || selected.objectId === 'nodeData') {
+            var nodeData = loadedModel.nodeData[selected.id],
+                nodeGui  = loadedModel.nodeGui[selected.id];
+
+            showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, nodeData, nodeGui);
+        } else if(selected.objectId === 'link') {
+            var link = loadedModel.links[selected.id];
+
+            showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link);
+        }
+    };
+
+    menuItem.refresh();
+
+    sidebar.addItem(menuItem);
+    return menuItem;
+}
+
+function setupSettingsMenu(sidebar, loadedModel) {
+    var menuItem = new NewUI.MenuItem(300);
+
+    menuItem.setLabel('Settings');
+
+    var name = menuItem.addInput('Name');
+    name.defaultValue(function() {
+        return loadedModel.settings.name;
+    });
+
+    name.onChange(function() {
+        loadedModel.settings.name = name.getValue();
+        loadedModel.emit('resetUI');
+    });
+
+    sidebar.addItem(menuItem);
+    return menuItem;
+}
+
+function addSelectedListeners(sidebar, loadedModel) {
+    var selectedMenu = setupSelectedMenu(sidebar, loadedModel);
+    var settingsMenu = setupSettingsMenu(sidebar, loadedModel);
+
     /**
      * @description Deselect all selected nodes.
      * @event deselect
@@ -20,6 +343,9 @@ function addSelectedListeners(sidebarManager, loadedModel) {
      * @memberof module:model/propagationEvents
      */
     loadedModel.addListener('select', function() {
+        selectedMenu.refresh();
+        return;
+
         sidebarManager.setEnvironment(loadedModel.environment);
         sidebarManager.setLoadedModel(loadedModel);
 

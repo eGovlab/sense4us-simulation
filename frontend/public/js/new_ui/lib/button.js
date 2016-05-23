@@ -3,12 +3,21 @@
 var Element = require('./element.js');
 
 function Button() {
-    this.root = document.createElement('div');
+    Element.call(this, 'div');
+
     this.root.style.cursor = 'pointer';
+    this.label = new Element('div');
+
+    this.appendChild(this.label);
+
     this.clicks = [];
 }
 
 Button.prototype = {
+    setLabel: function(label) {
+        this.label.setLabel(label);
+    },
+
     click: function(callback) {
         if(!callback || typeof callback !== 'function') {
             return;

@@ -129,6 +129,18 @@ Element.prototype = {
         return this.top || 0;
     },
 
+    hide: function() {
+        if(this.root.style.display !== 'none') {
+            this.currentStyle = this.root.style.display;
+        }
+
+        this.root.style.display = 'none';
+    },
+
+    show: function() {
+        this.root.style.display = this.currentStyle || 'block';
+    },
+
     destroy: function() {
         if(this.removeEvents) {
             this.removeEvents();

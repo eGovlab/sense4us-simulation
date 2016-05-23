@@ -347,6 +347,7 @@ Model.prototype = {
      */
     emit: function() {
         if(!this.listeners) {
+            console.log('No listeners?');
             return;
         }
 
@@ -491,8 +492,12 @@ Model.prototype = {
     loadModel: function(id) {
         var that = this;
 
-        var currentId     = id || this.id,
-            currentSyncId = id || this.syncId;
+        var currentId     = id,
+            currentSyncId = id;
+        if(typeof id !== 'number' || isNaN(parseInt(id))) {
+            currentId     = this.id;
+            currentSyncId = this.syncId;
+        }
 
         return new Promise(function(fulfill, reject) {
             if(id === undefined || id === null || isNaN(parseInt(id))) {
@@ -518,14 +523,15 @@ Model.prototype = {
             that.addListener('errorLoadingModel', cb);
 
             that.emit('storeModel');
-            if(id && (typeof id === 'string' || typeof id === 'number')) {
+            /*if(typeof id === 'string' || typeof id === 'number') {
+                console.log('Trying to load:', id);
                 that.emit([id, id], 'preLoadModel');
                 that.emit([id, id], 'loadModel');
                 return;
-            }
+            }*/
 
-            that.emit([that.id, that.syncId], 'preLoadModel');
-            that.emit([that.id, that.syncId], 'loadModel');
+            that.emit([currentId, currentSyncId], 'preLoadModel');
+            that.emit([currentId, currentSyncId], 'loadModel');
         });
     },
 
@@ -606,7 +612,7 @@ Model.prototype = {
             };
 
             that.addListener('modelDeleted', cb);
-            if(id && (typeof id === 'string' || typeof id === 'integer')) {
+            if(id && (typeof id === 'string' || typeof id === 'number')) {
                 that.emit([id, id], 'deleteModel');
                 return;
             } 

@@ -25,7 +25,8 @@ function addLoadModelListeners(savedModels, loadedModel) {
      *     console.log('Model got replaced by:', id, syncId);
      * });
      */
-    loadedModel.addListener('loadModel', function(option) {
+    loadedModel.addListener('loadModel', function(option, syncId) {
+        option = syncId || option;
         if(savedModels.local[option] === undefined) {
             if(typeof savedModels.synced[option] === 'string' || savedModels.synced[option] === undefined) {
                 modelLayer.loadSyncModel(
@@ -64,6 +65,14 @@ function addLoadModelListeners(savedModels, loadedModel) {
                             loadedModel[key] = value;
                         }
                     );
+
+                    objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
+                        objectHelper.forEach.call(scenario.data, function(timeTable) {
+                            timeTable.onChange = function() {
+                                loadedModel.emit(null, 'refresh', 'resetUI');
+                            };
+                        });
+                    });
 
                     loadedModel.emit([loadedModel.id, loadedModel.syncId], 'modelLoaded');
                     loadedModel.emit(null, 'refresh', 'resetUI');

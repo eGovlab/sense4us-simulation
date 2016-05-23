@@ -89,7 +89,9 @@ ScenarioEditor.prototype = {
             //that.scenarios[value].refresh(that.loadedModel);
             that.selectedIndex = value;
 
-            that.loadedModel.emit('resetUI');
+            that.loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                floatingWindow.refresh();
+            });
         });
 
         this.deleteScenario = menuBuilder.button('Delete scenario', function() {
@@ -110,7 +112,9 @@ ScenarioEditor.prototype = {
             that.scenarioDropdown.options[index].selected = true;
             that.selectedIndex = index;
 
-            that.loadedModel.emit('resetUI');
+            that.loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                floatingWindow.refresh();
+            });
         });
 
         this.scenarioDropdown.className = 'scenario-select';

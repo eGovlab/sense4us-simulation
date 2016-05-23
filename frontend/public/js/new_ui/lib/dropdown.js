@@ -19,7 +19,8 @@ function Dropdown(values, callback) {
     this.select.root.style.color   = Colors.buttonFontColor;
     this.select.root.style.border  = 'none';
 
-    this.values = [];
+    this.rawValues = [];
+    this.values    = [];
 
     if(values && values.forEach) {
         values.forEach(function(v){this.addValue(v)}, this);
@@ -90,7 +91,7 @@ Dropdown.prototype = {
     },
 
     setSelectedByValue: function(value) {
-        var index = this.values.indexOf(value);
+        var index = this.rawValues.indexOf(value);
         if(index === -1) {
             return;
         }
@@ -119,8 +120,13 @@ Dropdown.prototype = {
         }
 
         option.root.value = value;
+        this.rawValues.push(value);
 
         this.select.appendChild(option);
+    },
+
+    replaceValues: function(values) {
+        values.forEach(function(v){this.addValue(v)}, this);
     },
 
     __proto__: Element.prototype

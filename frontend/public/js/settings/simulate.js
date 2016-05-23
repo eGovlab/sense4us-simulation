@@ -93,14 +93,7 @@ var simulate = [
         ],
 
         defaultValue: function(model, values) {
-            var selected = model.loadedScenario.measurement;
-            for(var i = 0; i < values.length; i++) {
-                if(values[i] === selected) {
-                    return i;
-                }
-            }
-
-            return 0;
+            return model.loadedScenario.measurement;
         },
 
         onChange: function(model, value) {

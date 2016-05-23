@@ -150,6 +150,7 @@ MenuItem.prototype = {
         button.setWidth('100%');
 
         this.child.appendChild(buttonContainer);
+        button.buttonContainer = buttonContainer;
 
         this.items.push(button);
         return button;
