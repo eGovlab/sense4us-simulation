@@ -296,6 +296,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 button.root.groupOwner       = button;
                 button.image.root.groupOwner = button;
 
+                button.image.root.style['border-radius'] = '50%';
+
                 button.name                  = image.header;
                 button.role                  = nodeGroup.header;
                 button.constructor           = nodeGroup.callback;
@@ -526,7 +528,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
                 var localSaved = objectHelper.size.call(savedModels.local);
                 if(models.length + localSaved < buttons.length) {
-                    console.log('HELLO');
                     var removedButtons = buttons.splice(models.length + localSaved, buttons.length - models.length);
                     removedButtons.forEach(function(button) {
                         button.destroy();

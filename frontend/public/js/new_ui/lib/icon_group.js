@@ -24,6 +24,26 @@ function IconGroup(label) {
 }
 
 IconGroup.prototype = {
+    invalidate: function() {
+        this.icons.forEach(function(icon) {
+            icon.hide();
+        });
+    },
+
+    reuseIcon: function(img, iterator) {
+        var imageButton;
+        console.log(iterator, this.icons.length);
+        if(iterator < this.icons.length) {
+            console.log('reuse');
+            imageButton = this.icons[iterator];
+            imageButton.show();
+        } else {
+            imageButton = this.addIcon(img);
+        }
+
+        return imageButton;
+    },
+
     addIcon: function(img) {
         var imageButton    = new Button();
         var imageContainer = new Element('div');

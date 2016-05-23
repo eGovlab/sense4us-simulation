@@ -50,10 +50,11 @@ var linkModellingFilter = [
     }},
     {property: 'description', type: 'input', check: function() {
         return true;
-    }},
-    {property: 'role',        type: 'iconGroup', groups: roles}
+    }}
 ],
-    guiModellingFilter  = [];
+    guiModellingFilter  = [
+    {property: 'avatar',        type: 'iconGroup', groups: roles}
+];
 
 function getInput(loadedModel, menuItem, inputs, iterator) {
     var input;
@@ -138,13 +139,40 @@ function getSliders(loadedModel, menuItem, sliders, iterator) {
 
 }
 
+function getIconGroup(loadedModel, menuItem, iconGroups, iterator) {
+    var iconGroup;
+    if(iterator < iconGroups.length) {
+        iconGroup = iconGroups[iterator];
+
+        iconGroup.invalidate();
+    } else {
+        iconGroup = menuItem.addIconGroup();
+        iconGroups.push(iconGroup);
+
+        iconGroup.clicks = [];
+        NewUI.Button.prototype.click.call(iconGroup, function(evt) {
+            var clickedIcon = evt.target.clickedIcon;
+            if(!clickedIcon) {
+                return;
+            }
+
+            console.log(clickedIcon, iconGroup.changeObject);
+            if(iconGroup.changeObject) {
+                iconGroup.changeObject[iconGroup.changeProperty] = clickedIcon.src;
+                loadedModel.emit('refresh');
+            }
+        });
+    }
+
+    return iconGroup;
+}
+
 function hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups) {
     inputs.forEach(function(input) {
         input.hide();
     });
 
     buttons.forEach(function(button) {
-        console.log(button);
         button.buttonContainer.hide();
     });
 
@@ -166,12 +194,12 @@ function hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGro
 }
 
 function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, nodeData, nodeGui) {
-    var inputIterator    = 0,
-        buttonIterator   = 0,
-        dropdownIterator = 0,
-        checkboxIterator = 0,
+    var inputIterator     = 0,
+        buttonIterator    = 0,
+        dropdownIterator  = 0,
+        checkboxIterator  = 0,
         iconGroupIterator = 0,
-        sliderIterator   = 0;
+        sliderIterator    = 0;
 
     hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups);
 
@@ -200,14 +228,36 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 inputIterator++;
 
                 break;
-            case 'ICONGROUP':
-
-                break;
         }
     });
 
-    guiModellingFilter.forEach(function() {
+    guiModellingFilter.forEach(function(row) {
+        switch(row.type.toUpperCase()) {
+            case 'ICONGROUP':
+                var iconGroup = getIconGroup(loadedModel, menuItem, iconGroups, iconGroupIterator);
 
+                iconGroup.changeProperty = row.property;
+                iconGroup.changeObject   = nodeGui;
+
+                iconGroup.setLabel(row.property);
+
+                var iconIterator = 0;
+                console.log('iconIterator', iconIterator);
+                if(row.groups[nodeData.role]) {
+                    row.groups[nodeData.role].forEach(function(img) {
+                        console.log(img);
+                        var btn = iconGroup.reuseIcon(loadedModel.CONFIG.url + '/' + img.src, iconIterator);
+                        btn.root.clickedIcon       = img;
+                        btn.image.root.clickedIcon = img;
+                        btn.image.root.style['border-radius'] = '50%';
+                        iconIterator++;
+                    });
+                }
+
+                iconGroup.show();
+
+                break;
+        }
     });
 }
 
@@ -337,13 +387,17 @@ function addSelectedListeners(sidebar, loadedModel) {
         });
     });
 
+    var previousSelected = false;
     /**
      * @description Select a new item under model.selected;
      * @event select
      * @memberof module:model/propagationEvents
      */
     loadedModel.addListener('select', function() {
-        selectedMenu.refresh();
+        if(previousSelected !== loadedModel.selected) {
+            selectedMenu.refresh();
+            previousSelected = loadedModel.selected;
+        }
         return;
 
         sidebarManager.setEnvironment(loadedModel.environment);
