@@ -122,13 +122,13 @@ var simulate = [
         },
 
         onSlide: function(model, value) {
-            model.loadedScenario.timeStepN = value;
+            model.loadedScenario.timeStepN = parseInt(value);
 
             model.emit('refresh');
         },
 
         onChange: function(model, value) {
-            model.loadedScenario.timeStepN = value;
+            model.loadedScenario.timeStepN = parseInt(value);
         }
     },
 

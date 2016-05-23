@@ -50,31 +50,30 @@ function MenuItem(width) {
 
     this.appendChild(this.label);
 
-    //this.items = [];
+    this.items = [];
 }
 
 MenuItem.prototype = {
     addSeparator: function(height) {
         var separator = new Element('div');
 
-        //this.items.push(separator);
-
         separator.setHeight(height);
 
         this.child.appendChild(separator);
 
+        this.items.push(separator);
         return separator;
     },
 
     addIconGroup: function(label) {
         var group = new IconGroup(label);
 
-        //this.items.push(group);
         this.child.appendChild(group);
 
         group.root.style['white-space'] = 'normal';
         group.setWidth(this.maxWidth);
 
+        this.items.push(group);
         return group;
     },
 
@@ -113,9 +112,9 @@ MenuItem.prototype = {
 
         button.setWidth('100%');
 
-        //this.items.push(button);
         this.child.appendChild(buttonContainer);
 
+        this.items.push(button);
         return button;
     },
 
@@ -150,9 +149,9 @@ MenuItem.prototype = {
 
         button.setWidth('100%');
 
-        //this.items.push(button);
         this.child.appendChild(buttonContainer);
 
+        this.items.push(button);
         return button;
     },
 
@@ -160,7 +159,6 @@ MenuItem.prototype = {
         var dropdown = new Dropdown(values, callback);
         dropdown.setLabel(label);
 
-        //this.items.push(dropdown);
 
         dropdown.root.style['white-space'] = 'normal';
         dropdown.setWidth(this.maxWidth);
@@ -169,6 +167,8 @@ MenuItem.prototype = {
         dropdown.root.style['text-align']  = 'center';
 
         this.child.appendChild(dropdown);
+
+        this.items.push(dropdown);
         return dropdown;
     },
 
@@ -185,9 +185,9 @@ MenuItem.prototype = {
         input.root.style.padding = '16px 16px';
         input.root.style['text-align'] = 'center';
 
-        //this.items.push(input);
         this.child.appendChild(input);
 
+        this.items.push(input);
         return input;
     },
 
@@ -209,9 +209,9 @@ MenuItem.prototype = {
         input.root.style.padding = '16px 16px';
         input.root.style['text-align'] = 'center';
 
-        //this.items.push(input);
         this.child.appendChild(input);
 
+        this.items.push(input);
         return input;
     },
 
@@ -234,6 +234,14 @@ MenuItem.prototype = {
 
     setLabel: function(label) {
         this.label.root.innerHTML = label;
+    },
+
+    refresh: function() {
+        this.items.forEach(function(item) {
+            if(item.refresh) {
+                item.refresh();
+            }
+        });
     },
 
     __proto__: Foldable.prototype

@@ -153,7 +153,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             loadedModel.static.width  = container.offsetWidth;
             loadedModel.static.height = container.offsetHeight;
 
-            sidebar.style['max-height'] = (container.offsetHeight - 44) + 'px';
+            //sidebar.style['max-height'] = (container.offsetHeight - 44) + 'px';
 
             refresh();
         }, 500);
@@ -179,6 +179,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     }
 
     savedModels.local[loadedModel.id] = loadedModel;
+    console.log(savedModels);
     loadedModel.CONFIG                = configObject;
 
     var settings      = require('./settings');
@@ -360,6 +361,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     var slider = menuItem.addSlider(row.header, range[0], range[1]);
 
                     slider.defaultValue(function() {
+                        var range = row.range(loadedModel);
+                        slider.setMin(range[0]);
+                        slider.setMax(range[1]);
+
                         return row.defaultValue(loadedModel);
                     });
 
@@ -408,29 +413,89 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var __ = setupSimulate(sidebar, _simulate);
     __.setLabel('Simulate');
 
+    var newButton  = sidebar.addButton('file', function() {
+        console.log('New');
+        loadedModel.emit('storeModel');
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
+        loadedModel.emit('newModel');
+    });
+
+    var saveButton = sidebar.addButton('floppy-disk', function() {
+        console.log('Save');
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preSaveModel');
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'saveModel');
+    });
+
+    var deleteButton = sidebar.addButton('trash', function() {
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
+    });
+
+    var Button = NewUI.Button;
     function setupLoadModel(sidebar) {
         var menuItem = new NewUI.MenuItem(300);
         menuItem.setLabel('Load model');
+
+        menuItem.child.clicks = [];
+        Button.prototype.click.call(menuItem.child, function(evt) {
+            console.log('SAVED MODELS', savedModels);
+            var button = evt.target.modelButton;
+            if(!button) {
+                return;
+            }
+
+
+            loadedModel.loadModel(button.syncId || button.id);
+        });
 
         var buttons = [];
         menuItem.refresh = function() {
             loadedModel.getAllModels().then(function(models) {
                 console.log(models);
-                models.forEach(function(model, index) {
+                var iterator = 0;
+                models.forEach(function(model) {
                     var button;
-                    if(index < buttons.length) {
-                        button = buttons[index];
+                    if(iterator < buttons.length) {
+                        button = buttons[iterator];
                     } else {
                         button = menuItem.addButton();
+                        button.root.modelButton = button;
                         buttons.push(button);
                     }
 
                     button.setLabel(model.name);
                     button.syncId = model.id;
+                    button.id     = model.id;
+
+                    iterator++;
                 });
 
-                if(models.length < buttons.length) {
-                    button.splice(models.length, buttons.length - models.length);
+                objectHelper.forEach.call(
+                    savedModels.local,
+                    function(model) {
+                        var button;
+                        if(iterator < buttons.length) {
+                            button = buttons[iterator];
+                        } else {
+                            button = menuItem.addButton();
+                            button.root.modelButton = button;
+                            buttons.push(button);
+                        }
+
+                        button.setLabel(model.settings.name);
+
+                        button.syncId = false;
+                        button.id     = model.id;
+
+                        iterator++;
+                    }
+                );
+
+                var localSaved = objectHelper.size.call(savedModels.local);
+                if(models.length + localSaved < buttons.length) {
+                    var removedButtons = buttons.splice(models.length, buttons.length - models.length);
+                    removedButtons.forEach(function(button) {
+                        button.destroy();
+                    });
                 }
 
                 /*objectHelper.forEach.call(
@@ -474,6 +539,12 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     require('./model/listeners/mouse_move.js')(loadedModel);
     require('./model/listeners/mouse_up.js')(loadedModel);
     require('./model/listeners/delete.js')(loadedModel);
+
+    loadedModel.addListener('resetUI', function() {
+        sidebar.foldable.menuItems.forEach(function(menuItem) {
+            menuItem.refresh();
+        });
+    });
 
     loadedModel.addListener('settings', refresh);
     /**

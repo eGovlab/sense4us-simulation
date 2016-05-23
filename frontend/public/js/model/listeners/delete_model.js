@@ -37,6 +37,7 @@ function addDeleteModelListeners(savedModels, loadedModel) {
 
                 if(firstLocal === undefined) {
                     firstLocal = modelLayer.newModel();
+                    savedModels.local[firstLocal.id] = firstLocal;
                 }
 
                 objectHelper.forEach.call(

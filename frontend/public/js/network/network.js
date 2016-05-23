@@ -53,6 +53,10 @@ function sendData(domain, path, jsonData, callback, method) {
                 var rt    = JSON.parse(httpRequest.responseText);
                 rt.status = httpRequest.status;
 
+                if(rt.status !== 200) {
+                    console.error(rt);
+                }
+
                 try {
                     if(callback) {
                         callback(rt);
@@ -63,8 +67,6 @@ function sendData(domain, path, jsonData, callback, method) {
                     console.warn(httpRequest);
                     callback(rt, err);
                 }
-                
-                
             } catch(err) {
                 console.warn(httpRequest);
                 callback(undefined, err);

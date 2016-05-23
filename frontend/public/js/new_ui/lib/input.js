@@ -32,6 +32,14 @@ function Input() {
 }
 
 Input.prototype = {
+    refresh: function() {
+        if(!this.updateValue) {
+            return;
+        }
+        
+        this.updateValue();
+    },
+    
     defaultValue: function(callback) {
         if(!callback && typeof callback !== 'function') {
             throw new Error('Trying to set callback which is not a function');

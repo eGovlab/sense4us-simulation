@@ -79,7 +79,8 @@ Slider.prototype = {
     },
 
     setValue: function(value) {
-        if(typeof value !== 'number') {
+        value = parseInt(value);
+        if(isNaN(value)) {
             throw new Error('Value given is not a number');
         }
 

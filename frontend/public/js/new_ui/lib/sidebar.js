@@ -77,6 +77,9 @@ Sidebar.prototype = {
         button.appendChild(span);
 
         this.foldable.addButton(button);
+        if(callback && typeof callback === 'function') {
+            button.click(callback);
+        }
 
         return button;
     },
