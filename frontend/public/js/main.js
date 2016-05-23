@@ -416,14 +416,12 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     __.setLabel('Simulate');
 
     var newButton  = sidebar.addButton('file', function() {
-        console.log('New');
         loadedModel.emit('storeModel');
         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
         loadedModel.emit('newModel');
     });
 
     var saveButton = sidebar.addButton('floppy-disk', function() {
-        console.log('Save');
         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preSaveModel');
         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'saveModel');
     });
@@ -491,7 +489,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
         menuItem.refresh = function() {
             loadedModel.getAllModels().then(function(models) {
-                console.log(models, savedModels);
                 var iterator = 0;
                 var initialSize = buttons.length;
                 models.forEach(function(model) {

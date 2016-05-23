@@ -1,7 +1,9 @@
 'use strict';
 
-var objectHelper = require('./../../object-helper.js');
-var NewUI        = require('./../../new_ui');
+var objectHelper = require('./../../object-helper.js'),
+    NewUI        = require('./../../new_ui');
+
+var Colors = NewUI.Colors;
 
 var modelling    = require('./../../settings/modelling.js');
 var roles        = {};
@@ -156,9 +158,16 @@ function getIconGroup(loadedModel, menuItem, iconGroups, iterator) {
                 return;
             }
 
-            console.log(clickedIcon, iconGroup.changeObject);
             if(iconGroup.changeObject) {
-                iconGroup.changeObject[iconGroup.changeProperty] = clickedIcon.src;
+                if(iconGroup.lastActive) {
+                    var lastRoot = iconGroup.lastActive.image.root;
+                    lastRoot.style.border = 'none';
+                }
+
+                iconGroup.lastActive = clickedIcon;
+                clickedIcon.image.root.style.border = '4px solid ' + Colors.activeAvatar;
+
+                iconGroup.changeObject[iconGroup.changeProperty] = clickedIcon.currentImage.src;
                 loadedModel.emit('refresh');
             }
         });
@@ -242,14 +251,22 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 iconGroup.setLabel(row.property);
 
                 var iconIterator = 0;
-                console.log('iconIterator', iconIterator);
                 if(row.groups[nodeData.role]) {
                     row.groups[nodeData.role].forEach(function(img) {
-                        console.log(img);
                         var btn = iconGroup.reuseIcon(loadedModel.CONFIG.url + '/' + img.src, iconIterator);
-                        btn.root.clickedIcon       = img;
-                        btn.image.root.clickedIcon = img;
+                        btn.root.clickedIcon       = btn;
+                        btn.image.root.clickedIcon = btn;
+
+                        btn.currentImage = img;
+
+                        btn.image.root.style.border = 'none';
                         btn.image.root.style['border-radius'] = '50%';
+
+                        if(nodeGui[row.property] === img.src) {
+                            btn.image.root.style.border = '4px solid ' + Colors.activeAvatar;
+                            iconGroup.lastActive = btn;
+                        }
+
                         iconIterator++;
                     });
                 }
@@ -280,7 +297,6 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
     deleteButton.buttonContainer.show();
 
     linkModellingFilter.forEach(function(row) {
-        console.log(row);
         switch(row.type.toUpperCase()) {
             case 'INPUT':
                 var input = getInput(loadedModel, menuItem, inputs, inputIterator);

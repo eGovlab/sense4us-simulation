@@ -32,9 +32,7 @@ IconGroup.prototype = {
 
     reuseIcon: function(img, iterator) {
         var imageButton;
-        console.log(iterator, this.icons.length);
         if(iterator < this.icons.length) {
-            console.log('reuse');
             imageButton = this.icons[iterator];
             imageButton.show();
         } else {
