@@ -88,7 +88,7 @@ var simulate = [
             return 0;
         },
 
-        callback: function(model, value) {
+        onChange: function(model, value) {
             model.loadedScenario.measurement = value;
         }
     },
@@ -96,6 +96,7 @@ var simulate = [
     {
         header: 'Time step N',
         type:   'SLIDER',
+        id:     'timestep',
 
         defaultValue: function(model) {
             return model.loadedScenario.timeStepN;
@@ -111,7 +112,7 @@ var simulate = [
             model.emit('refresh');
         },
 
-        callback: function(model, value) {
+        onChange: function(model, value) {
             model.loadedScenario.timeStepN = value;
         }
     },
@@ -119,6 +120,7 @@ var simulate = [
     {
         header: 'Max iterations',
         type:   'INPUT',
+        id:     'iterations',
 
         defaultValue: function(model) {
             return model.loadedScenario.maxIterations;

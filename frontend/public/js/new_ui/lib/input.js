@@ -32,12 +32,29 @@ function Input() {
 }
 
 Input.prototype = {
+    defaultValue: function(callback) {
+        if(!callback && typeof callback !== 'function') {
+            throw new Error('Trying to set callback which is not a function');
+        }
+        
+        var that = this;
+        this.updateValue = function() {
+            that.setValue(callback());
+        };
+
+        this.updateValue();
+    },
+
     setLabel: function(label) {
         this.label.root.innerHTML = label;
     },
 
     setValue: function(value) {
         this.input.root.value = value;
+    },
+
+    getValue: function() {
+        return this.input.root.value;
     },
 
     onChange: function(callback) {

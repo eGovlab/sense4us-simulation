@@ -312,6 +312,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     function setupSimulate(sidebar, simulate) {
         var menuItem = new NewUI.MenuItem(300);
+        var items    = {};
 
         simulate.forEach(function(row) {
             switch(row.type) {
@@ -319,12 +320,70 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     var button = menuItem.addButton(row.header, function() {
                         row.callback(loadedModel)
                     });
+
+                    if(row.id) {
+                        items[row.id] = button;
+                    }
                     break;
                 case 'DROPDOWN':
                     var dropdown = menuItem.addDropdown(row.header, row.values, function(evt) {
                         console.log(dropdown.getIndex(), dropdown.getValue());
                         row.callback(loadedModel, dropdown.getValue());
                     });
+
+                    dropdown.defaultValue(function() {
+                        return row.defaultValue(loadedModel, row.values);
+                    });
+
+                    dropdown.onChange(function() {
+                        row.onChange(loadedModel, dropdown.getValue());
+                    });
+
+                    if(row.id) {
+                        items[row.id] = dropdown;
+                    }
+                    break;
+                case 'SLIDER':
+                    var range = row.range(loadedModel);
+                    var slider = menuItem.addSlider(row.header, range[0], range[1]);
+
+                    slider.defaultValue(function() {
+                        return row.defaultValue(loadedModel);
+                    });
+
+                    if(row.onSlide) {
+                        slider.onInput(function() {
+                            row.onSlide(loadedModel, slider.getValue());
+                        });
+                    }
+
+                    slider.onChange(function() {
+                        row.onChange(loadedModel, slider.getValue());
+                    });
+
+                    if(row.id) {
+                        items[row.id] = slider;
+                    }
+                    break;
+
+                case 'INPUT':
+                    var input = menuItem.addInput(row.header);
+                    input.defaultValue(function() {
+                        return row.defaultValue(loadedModel);
+                    });
+
+                    input.onChange(function() {
+                        var value = input.getValue();
+                        if(row.id === 'iterations') {
+                            items.timestep.setMax(value);
+                        }
+
+                        row.onChange(loadedModel, value);
+                    });
+
+                    if(row.id) {
+                        items[row.id] = input;
+                    }
                     break;
             }
         });

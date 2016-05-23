@@ -50,6 +50,34 @@ function Slider(min, max) {
 }
 
 Slider.prototype = {
+    setMax: function(value) {
+        value = parseInt(value);
+        if(isNaN(value)) {
+            throw new Error('Not a number given to setMax.');
+        }
+
+        this.input.root.setAttribute('max', value);
+        this.maxValueDiv.setLabel(value);
+
+        if(this.getValue() >= value) {
+            this.setValue(value);
+        }
+    },
+
+    setMin: function(value) {
+        value = parseInt(value);
+        if(isNaN(value)) {
+            throw new Error('Not a number given to setMin.');
+        }
+        
+        this.input.root.setAttribute('min', value);
+        this.minValueDiv.setLabel(value);
+
+        if(this.getValue() <= value) {
+            this.setValue(value);
+        }
+    },
+
     setValue: function(value) {
         if(typeof value !== 'number') {
             throw new Error('Value given is not a number');

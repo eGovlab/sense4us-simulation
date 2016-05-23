@@ -35,6 +35,19 @@ function Dropdown(values, callback) {
 }
 
 Dropdown.prototype = {
+    defaultValue: function(callback) {
+        if(!callback && typeof callback !== 'function') {
+            throw new Error('Trying to set callback which is not a function');
+        }
+
+        var that = this;
+        this.updateValue = function() {
+            that.setSelectedByValue(callback());
+        };
+
+        this.updateValue();
+    },
+
     onChange: function(callback) {
         this.select.root.addEventListener('change', callback);
         this.changes.push(callback);
@@ -76,6 +89,8 @@ Dropdown.prototype = {
 
         this.select.root.selectedIndex = index;
     },
+
+    setValue: this.setSelectedByValue,
 
     getValue: function() {
         return this.select.root.value;
