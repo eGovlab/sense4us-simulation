@@ -1,18 +1,17 @@
 {
-    "ROOT": "/home/rhine/projects/nodejs/project/",
+    "ROOT": "/home/rhine/projects/nodejs/sense4us-simulation/",
     "LIB":  "lib/",
     "PORT": 3000,
     "HOSTNAME": "localhost",
 
     "ROUTER": {
-        "environments": [
-            ["dev", "development"],
-            ["prod", "production"]
-        ],
+        "printExposed": true,
+        "printRequired": true
+    },
 
-        "environment": "development",
-        "printexposed": true,
-        "printonlynew": true
+    "SASS": {
+        "src": "frontend/sass",
+        "dst": "frontend/public/css"
     },
 
     "LOGGER": {
@@ -23,7 +22,17 @@
         "headers":      true,
         "status":       true,
         "cookies":      true,
-        "request":      true
+        "request":      true,
+        "errorDir":     "logs/errors",
+        "logDir":       "logs/http"
+    },
+
+    "SENSE4US": {
+        "tool": {
+            "protocol": "http",
+            "hostname": "",
+            "port":     4000
+        }
     },
 
     "CONTROLLERS":  "frontend/controllers/",

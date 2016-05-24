@@ -1,144 +1,179 @@
 'use strict';
 
-var middleware = require('./../middleware.js'),
-	hitTest      = require('./../collisions.js').hitTest,
-	linker       = require('./../linker.js'),
-	Immutable    = require('Immutable'),
-	modelLayer   = require('./../model_layer.js');
+var middleware   = require('./../middleware.js'),
+    hitTest      = require('./../collisions.js').hitTest,
+    linker       = require('./../linker.js'),
+    Immutable    = null,
+    modelLayer   = require('./../model_layer.js'),
+    generateLink = require('./../util/generate_link.js'),
+    objectHelper = require('./../object-helper.js'),
+    createLink   = require('../structures/create_link');
 
 var mouseDownWare = middleware([
-	link,
-	//stopClicked,
-	stopLinking,
-	stopMovingIcon,
-	deselect,
-	select
+    link,
+    deselect,
+    stopLinking,
+    stopMovingIcon,
+    select
 ]);
 
-function stopClicked(data) {
-	data.nodeGui = data.nodeGui.merge(
-			data.nodeGui.filter(function(obj) { return obj.get('clicked') === true; })
-				.map(function(obj) { return obj.delete('clicked').delete('offsetX').delete('offsetY'); })
-	);
+function generateHexColor() {
+    return Math.round(Math.random() * 255).toString(16);
+}
 
-	return data;
+function generateColor() {
+    return '#' + generateHexColor() + generateHexColor() + generateHexColor();
 }
 
 function link(data) {
-	data.nodeGui
-		.filter(function(node) { return node.get('linking') === true; })
-		.forEach(function(node) {
-			var hit = data.nodeGui.filter(function(maybeCollidingNode) {
-				return maybeCollidingNode.get('linking') !== true && hitTest(maybeCollidingNode, linker(node));
-			}).slice(-1);
-
-			hit = hit.forEach(function(collided) {
-				var id;
-				if(data.nextId !== undefined) {
-					id = data.nextId
-					data.nextId += 1;
-				} else {
-					id = data.links.size;
-				}
-
-				var nodeLinks = node.get('links');
-				if(nodeLinks === undefined) {
-					node = node.set('links', Immutable.List());
-				}
-
-				var collidedLinks = collided.get('links');
-				if(collidedLinks === undefined) {
-					collided = collided.set('links', Immutable.List());
-				}
-
-				var nodeId     = node.get('id'),
-					collidedId = collided.get('id');
-
-				data.nodeGui = data.nodeGui.set(nodeId, data.nodeGui.get(nodeId).merge(Immutable.Map({
-						links: node.get('links').push(id)
-					})
-				)).set(collidedId, data.nodeGui.get(collidedId).merge(Immutable.Map({
-						links: collided.get('links').push(id)
-					})
-				));
-
-				data.links = data.links.set(id, Immutable.Map({
-					id: id,
-					node1:       node.get('id'),
-					node2:       collided.get('id'),
-					coefficient: 1,
-					type:        'fullchannel',
-					timelag:     0,
-					width:       14
-				}));
-			});
-		});
-
-	return data;
-}
-
-function stopLinking(data) {
-	data.nodeGui = data.nodeGui.merge(
-		data.nodeGui
-		.filter(function(node) { return node.get('linking') === true; })
-		.map(function(node) {
-			return node.delete('linkerX').delete('linkerY').delete('linking');
-		})
-	);
-
-	return data;
-}
-
-function stopMovingIcon(data) {
-	data.nodeGui = data.nodeGui.merge(
-		data.nodeGui
-		.filter(function(node) { return node.get('movingIcon') === true; })
-		.map(function(node) {
-			return node.delete('movingIcon');
-		})
-	);
-
-	return data;
-}
-
-function deselect(data) {
-    data.nodeGui = data.nodeGui.merge(
-        data.nodeGui.
-            filter(function(node) { return node.get('selected') === true && !node.get('clicked'); }).
-            map(function(node)    { return node.delete('selected').delete('offsetX').delete('offsetY'); })
-    );
-
-    data.links = data.links.merge(
-        data.links.
-            filter(function(node) { return node.get('selected') === true && !node.get('clicked'); }).
-            map(function(node)    { return node.delete('selected').delete('offsetX').delete('offsetY'); })
-    );
+    generateLink(data.loadedModel);
 
     return data;
 }
 
-var doubleTap      = false,
-	doubleTapTimer = false;
+function stopLinking(data) {
+    var linkers = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.linking === true;
+        }
+    );
+
+    linkers = objectHelper.map.call(
+        linkers,
+        function(node) {
+            delete node.linkerX;
+            delete node.linkerY;
+            delete node.linking;
+            
+            node.clicked = true;
+            return node;
+        }
+    );
+
+    data.nodeGui = objectHelper.merge.call(data.nodeGui);
+
+    return data;
+}
+
+function stopMovingIcon(data) {
+    var icons = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.movingIcon === true;
+        }
+    );
+
+    icons = objectHelper.map.call(
+        icons,
+        function(node) {
+            return node.delete('movingIcon');
+        }
+    );
+
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, icons);
+
+    return data;
+}
+
+function deselect(data) {
+    if(data.didDrag) {
+        return data;
+    }
+
+    var selectedNodes = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.selected === true && !node.clicked && !node.linking
+        }
+    );
+
+    selectedNodes = objectHelper.map.call(
+        selectedNodes,
+        function(node) {
+            data.selected = {};
+            delete node.selected;
+            delete node.offsetX;
+            delete node.offsetY;
+
+            return node;
+        }
+    );
+
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, selectedNodes);
+
+    var selectedLinks = objectHelper.filter.call(
+        data.links,
+        function(link) {
+            return link.selected === true && !link.clicked;
+        }
+    );
+
+    selectedLinks = objectHelper.map.call(
+        selectedLinks,
+        function(link) {
+            data.selected = {};
+            delete link.selected;
+            delete link.offsetX;
+            delete link.offsetY;
+            return link;
+        }
+    );
+
+    data.links = objectHelper.merge.call(data.links, selectedLinks);
+
+    return data;
+}
+
 function select(data, error, done) {
-	if(doubleTap === false) {
-		if(doubleTapTimer === false) {
-			doubleTapTimer = setTimeout(function() {
-				doubleTap      = false;
-				doubleTapTimer = false;
-			}, 200);
-		}
+    var selectedNodes = objectHelper.filter.call(
+        data.nodeGui,
+        function(node) {
+            return node.clicked;
+        }
+    );
+    
+    selectedNodes = objectHelper.map.call(
+        selectedNodes,
+        function(node) {
+            if(node.msSinceClicked !== undefined && node.msSinceClicked + 300 > Date.now()) {
+                data.selected = node;
+                node.selected = true;
+                delete node.msSinceClicked;
+                return node;
+            }
 
-		var selectedNodes = data.nodeGui.filter(function(node) {
-			return node.get('clicked');
-		});
+            node.linegraph  = data.linegraph ? !node.linegraph : false,
+            node.graphColor = generateColor();
+            node.msSinceClicked = Date.now();
+            return node;
+        }
+    );
 
-		doubleTap = selectedNodes;
-		return data;
-	}
+    var selectedLinks = objectHelper.filter.call(
+        data.links,
+        function(link) {
+            return link.clicked;
+        }
+    );
 
-	data.nodeGui = data.nodeGui.merge(doubleTap.map(function(node) {
-		return node.set('selected', true);
-	}));
+    selectedLinks = objectHelper.map.call(
+        selectedLinks,
+        function(link) {
+            if(link.msSinceClicked !== undefined && link.msSinceClicked + 300 > Date.now()) {
+                data.selected = link;
+                link.selected = true;
+                delete link.msSinceClicked;
+                return link;
+            }
+
+            link.msSinceClicked = Date.now();
+            return link;
+        }
+    );
+
+    data.nodeGui = objectHelper.merge.call(data.nodeGui, selectedNodes);
+    data.links   = objectHelper.merge.call(data.links,   selectedLinks);
 
     return data;
 }

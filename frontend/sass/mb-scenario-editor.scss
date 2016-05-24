@@ -1,0 +1,44 @@
+@import "colors";
+
+.mb-scenario-editor {
+    overflow: auto;
+}
+
+.mb-scenario-editor .options {
+    
+}
+
+.mb-scenario-editor .options select,
+.mb-scenario-editor .options button {
+    border: none;
+
+    padding: 6px;
+    margin:  4px;
+
+    cursor: pointer;
+}
+
+.mb-scenario-editor .options .scenario-select {
+
+}
+
+.mb-scenario-editor .options .scenario-delete {
+
+}
+
+.mb-scenario-editor .options .scenario-new {
+
+}
+
+.mb-scenario-editor .mb-table-container {
+    overflow: auto;
+}
+
+.mb-scenario-editor .mb-scenario .mb-time-table .time-row span {
+    color: #202020;
+}
+
+.mb-scenario-editor .mb-scenario .mb-time-table button {
+    color: #202020;
+    width: auto;
+}

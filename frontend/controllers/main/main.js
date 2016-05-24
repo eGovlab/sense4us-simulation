@@ -1,20 +1,29 @@
 'use strict';
 
-var FEController = require('rh_fe-controller');
+var CONFIG = require("rh_config-parser");
 
-function Main() {
-    this.getRoutes = function() {
-        return [
-            {path: '/', fp: this.root, root:true}
-        ];
-    };
+var protocol = CONFIG.get("SENSE4US", "tool", "protocol"),
+    hostname = CONFIG.get("SENSE4US", "tool", "hostname"),
+    port     = CONFIG.get("SENSE4US", "tool", "port");
 
-    this.root = function(req, res, next) {
-        this.render(res, 'main');
-    }
+function root(req, res, next) {
+    res.render("main", {locals: {
+        protocol: protocol,
+        hostname: hostname,
+        port:     port
+    }});
 }
 
-Main.prototype = new FEController();
-Main.prototype.constructor = Main;
+function wizard(req, res, next) {
+    res.render("wizard");
+}
 
-module.exports = Main;
+function sidebarTesting(req, res, next) {
+    res.render("sidebar/index");
+}
+
+module.exports = [
+    {path: "/",        callback: root,           root: true},
+    {path: "/wizard",  callback: wizard,         root: true},
+    {path: "/sidebar", callback: sidebarTesting, root: true}
+];

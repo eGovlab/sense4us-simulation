@@ -1,0 +1,4 @@
+{
+    "name": "scenario",
+    "main": "./scenario_index.js"
+}

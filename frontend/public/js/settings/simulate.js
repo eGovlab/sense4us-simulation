@@ -1,66 +1,143 @@
 'use strict';
 
-var Immutable = require('Immutable'),
-    breakout  = require('./../breakout.js'),
-    network   = require('./../network');
+var Immutable       = null,
+    network         = require('./../network'),
+    breakout        = require('./../breakout.js'),
+    objectHelper    = require('./../object-helper.js');
 
-var simulate = Immutable.List([
-    Immutable.Map( {
+var simulate = [
+    {
         header: 'Simulate',
+        type:   'BUTTON',
         ajax:   true,
-        callback: function(refresh, changeCallbacks) {
-            var loadedModel = changeCallbacks.get('loadedModel'),
-                newState    = loadedModel();
-
+        callback: function(loadedModel) {
             var data = {
-                timestep: 1,
-                nodes: breakout.nodes(newState),
-                links: breakout.links(newState)
+                timestep: loadedModel.loadedScenario.maxIterations,
+                nodes:    breakout.nodes(loadedModel),
+                links:    breakout.links(loadedModel),
+                scenario: loadedModel.loadedScenario.toJson()
             };
 
-            network.postData('/models/simulate', data, function(response, err) {
+            objectHelper.forEach.call(
+                loadedModel.nodeData,
+                function(node) {
+                    node.simulateChange = [];
+                }
+            );
+
+            network(loadedModel.CONFIG.url, '/models/' + loadedModel.CONFIG.userFilter + '/' + loadedModel.CONFIG.projectFilter + '/simulate', data, function(response, err) {
                 if(err) {
-                    console.log(err);
-                    console.log(response);
+                    console.error(err);
+                    console.error(response);
+                    loadedModel.emit(response.response.message, 'notification');
                     return;
                 }
 
-                var nodes = response.response.nodes;
-                nodes.forEach(function(node) {
-                    var nodeData = newState.get('nodeData');
-                    nodeData = nodeData.set(node.id, nodeData.get(node.id).set('simulateChange', node.relativeChange));
-                    newState = newState.set('nodeData', nodeData);
+                console.log(response.response);
+
+                var timeSteps = response.response;
+                var nodeData  = loadedModel.nodeData;
+                timeSteps.forEach(function(timeStep) {
+                    timeStep.forEach(function(node) {
+                        var currentNode = nodeData[node.id];
+                        currentNode.simulateChange.push(node.relativeChange);
+                    });
                 });
 
-                loadedModel(newState);
-                refresh();
+                //loadedModel.refresh  = true;
+                loadedModel.settings = loadedModel.settings;
+                //loadedModel.propagate();
+
+                loadedModel.emit(null, 'settings', 'refresh');
             });
         }
-    }),
+    },
 
-    Immutable.Map( {
+    {
+        header: 'Linegraph',
+        type:   'BUTTON',
+        ajax:   true,
+        callback: function(loadedModel) {
+            var settings       = loadedModel.settings;
+            settings.linegraph = !settings.linegraph
+
+            /*loadedModel.refresh = true;
+            loadedModel.propagate();*/
+
+            loadedModel.emit('refresh');
+        }
+    },
+
+    {
+        header: 'Show simulate changes',
+        type:   'CHECKBOX',
+
+        onCheck: function(loadedModel) {
+            loadedModel.static.showSimulate = true;
+            loadedModel.emit('refresh');
+        },
+
+        onUncheck: function(loadedModel) {
+            loadedModel.static.showSimulate = false;
+            loadedModel.emit('refresh');
+        }
+    },
+
+    {
         header: 'Time step T',
         type:   'DROPDOWN',
         values: [
-            "Week",
-            "Month",
-            "Year"
+            'Week',
+            'Month',
+            'Year'
         ],
-        select: function(model, values) {
-            var selected = model.get('settings').get('timeStepT');
-            for(var i = 0; i < values.length; i++) {
-                if(values[i] === selected) {
-                    return i;
-                }
-            }
 
-            return 0;
+        defaultValue: function(model, values) {
+            return model.loadedScenario.measurement;
         },
-        callback: function(model, attrs, value) {
-            model = model.set('settings', model.get('settings').set('timeStepT', value));
-            return model;
+
+        onChange: function(model, value) {
+            model.loadedScenario.measurement = value;
         }
-    }),
-]);
+    },
+
+    {
+        header: 'Time step N',
+        type:   'SLIDER',
+        id:     'timestep',
+
+        defaultValue: function(model) {
+            return model.loadedScenario.timeStepN;
+        },
+
+        range: function(model) {
+            return [0, model.loadedScenario.maxIterations];
+        },
+
+        onSlide: function(model, value) {
+            model.loadedScenario.timeStepN = parseInt(value);
+
+            model.emit('refresh');
+        },
+
+        onChange: function(model, value) {
+            model.loadedScenario.timeStepN = parseInt(value);
+        }
+    },
+
+    {
+        header: 'Max iterations',
+        type:   'INPUT',
+        id:     'iterations',
+
+        defaultValue: function(model) {
+            return model.loadedScenario.maxIterations;
+        },
+
+        onChange: function(model, value) {
+            model.loadedScenario.maxIterations = parseInt(value);
+        }
+    }
+];
 
 module.exports = simulate;

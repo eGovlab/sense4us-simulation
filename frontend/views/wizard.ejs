@@ -1,0 +1,102 @@
+<% layout("layout") %>
+<link rel="stylesheet" href="/css/wizard.css" />
+
+<form class="wizard-form" action="/" method="POST">
+    <div class="wizard-group">
+        <div class="wizard-header">Policy issue</div>
+        <div class="wizard-left">
+            <label for="title">Title</label>
+        </div>
+        <div class="wizard-right">
+            <input name="title" type="text" />
+        </div>
+        <div class="wizard-clear"></div>
+    </div>
+    <div class="wizard-group">
+        <div class="wizard-left">
+            <label for="question">Question</label>
+        </div>
+        <div class="wizard-right">
+            <input name="question" type="text" />
+        </div>
+        <div class="wizard-clear"></div>
+    </div>
+    
+    <div class="wizard-group">
+        <div class="wizard-header">Geographical level</div>
+
+        <div class="wizard-left">
+            <div>
+                <input id="global" type="radio" name="level" value="global" disabled>
+                <label for="global">Global</label>
+            </div>
+
+            <div>
+                <input id="national" type="radio" name="level" value="national" checked disabled>
+                <label for="national">National</label>
+            </div>
+
+            <div>
+                <input id="local" type="radio" name="level" value="local" disabled>
+                <label for="local">local</label>
+            </div>
+        </div>
+
+        <div class="wizard-right">
+            <select>
+                <option>Sweden</option>
+            </select>
+        </div>
+        <div class="wizard-clear"></div>
+    </div>
+
+    <div class="wizard-radio-group">
+        <div class="wizard-header">Time aspect</div>
+        <input id="short" type="radio" name="time" value="short" checked>
+        <label for="short">Short term</label>
+
+        <input id="medium" type="radio" name="time" value="medium">
+        <label for="medium">Medium</label>
+
+        <input id="long" type="radio" name="time" value="long">
+        <label for="long">Long term</label>
+    </div>
+
+    <div class="wizard-checkbox-group">
+        <div class="wizard-header">Impact assessment</div>
+
+        <div>
+            <input id="allocation" type="checkbox" name="allocation">
+            <label for="allocation">Optimize the allocation of resources</label>
+        </div>
+
+        <div>
+            <input id="opportunities" type="checkbox" name="opportunities">
+            <label for="opportunities">Identify opportunities and search for innovative solutins</label>
+        </div>
+
+        <div>
+            <input id="risk" type="checkbox" name="risk">
+            <label for="risk">Identify risks and anticipate future problems and emergencies</label>
+        </div>
+
+        <div>
+            <input id="behavioural" type="checkbox" name="behavioural">
+            <label for="behavioural">Encourage behavioural change and update</label>
+        </div>
+
+        <div>
+            <input id="legislation" type="checkbox" name="legislation">
+            <label for="legislation">Address legislation failure</label>
+        </div>
+
+        <div>
+            <input id="crisis" type="checkbox" name="crisis">
+            <label for="crisis">Crisis management scenario</label>
+        </div>
+    </div>
+
+    <div class="wizard-group wizard-center">
+        <input class="wizard-submit" type="submit" value="Generate">
+    </div>
+</form>

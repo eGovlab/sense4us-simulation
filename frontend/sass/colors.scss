@@ -1,0 +1,37 @@
+/*
+** General
+*/
+
+$bodyBackground: #eaeaea;
+
+/*
+** Floating Window
+*/
+
+$floatingWindowBackground:           #eaeaea;
+$floatingWindowTitleBackground:      #eaeaea;
+$floatingWindowKillBackground:       #D34;
+$floatingWindowKillFontColor:        #fafafa;
+
+
+/*
+** Sidebar
+*/
+$sidebarHoverFadeIn:           rgba(100, 100, 114, 0);
+$sidebarHoverBackground:       rgba(100, 100, 114, 1);
+
+$sidebarButtonFontColor:       #90a0a0;
+$sidebarButtonHoverFontColor:  #fafafa;
+$sidebarButtonHoverBackground: $sidebarHoverBackground;
+$sidebarButtonFontShadow:      0 0px 4px rgba(0,0,0,0.55);
+
+$sidebarAvatarHoverBackground: $sidebarHoverBackground;
+
+/*
+** Notification bar
+*/
+
+//$popupBackground: #226472;
+$popupBackground: rgba(160, 160, 160, 1);
+$popupBoxShadow:  0px 10px 15px 0px rgba(20, 20, 20, 0.4);
+$popupTextShadow: 0 0px 4px rgba(0,0,0,0.55);

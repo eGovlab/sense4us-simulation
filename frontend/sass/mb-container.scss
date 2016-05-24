@@ -1,0 +1,91 @@
+.mb-container {
+    /*border-top-right-radius: 4px;
+    border-top-left-radius: 4px;*/
+    //background-color: #2b3846;
+    height: 100%;
+    overflow: hidden;
+
+    font-family: Helvetica;
+
+    /*-webkit-box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.5);
+    -moz-box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.5);
+    box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.5);*/
+}
+
+.mb-container > .header,
+.mb-container > .menu-header {
+    height: 42px;
+    //margin-bottom: 1px;
+}
+
+.mb-container > .menu-header {
+    height: 20px;
+    background-color: #efefef;
+}
+
+.mb-container .header {
+    background-color: #E7D520;  
+    color: #202020;
+}
+
+.mb-container .header > * {
+    display: inline-block;
+    padding: 10px 8px;
+    margin: 0;
+
+    font-size: 18px;
+}
+
+.mb-container .menu-header {
+}
+
+.mb-container .header h3 {
+    
+}
+
+.mb-container .header input {
+    border: none;
+    //border-radius: 0;
+
+    background-color: inherit;  
+    cursor: pointer;
+}
+
+.mb-container .left {
+    float: left;
+}
+
+.mb-container .mb-sidebar {
+    position: absolute;
+    width: 240px;
+    background-color: rgba(100, 100, 100, 0.7); 
+    margin-left: 4px;
+    margin-top: 4px;
+    padding: 8px;
+    border-radius: 4px;
+    max-height: 800px;
+    overflow-x: hidden;
+    overflow: auto;
+}
+
+.mb-container .main {
+    width:  100%;
+    height: 100%;
+}
+
+/* #334354 */
+.mb-container .main canvas {
+    background-color: #FFF;
+}
+
+.mb-container .main .linegraph {
+    margin-top: -4px
+}
+
+.mb-container .right {
+    float: right;
+}
+
+.mb-container .clear {
+    clear: both;
+}

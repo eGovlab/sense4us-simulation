@@ -1,13 +1,14 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var objectHelper = require('./../object-helper');
 
-module.exports = Immutable.List([
-    Immutable.Map({
+module.exports = [
+    {
         header: 'Delete selected',
         ignoreModelSettings: true,
-        callback: function(object) {
-            return object.set('delete', true);
+        replacingObj:        true,
+        callback: function(loadedModel, selectedData) {
+            loadedModel.emit('deleteSelected');
         }
-    })
-]);
+    }
+];

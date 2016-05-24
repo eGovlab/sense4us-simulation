@@ -1,78 +1,72 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable        = null,
+    createNode       = require('../structures/create_node'),
+    createOriginNode = require('../structures/create_origin'),
+    createActorNode  = require('../structures/create_actor');
 
-var createNode = function(model, type, data, gui) {
-    var id = model.get('nextId');
-    model = model.set('nextId', id + 1);
+var model = [
+    {
+        header:   'Actor',
+        callback: createActorNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/executive_actor.png',   header: 'Executive actor'},
+            {src: 'img/avatars/legislative_actor.png', header: 'Legislative actor'},
+            {src: 'img/avatars/unofficial_actor.png',  header: 'Unofficial actor'}
+        ]
+    },
 
-    var nodeData = Immutable.Map({
-        id:             id,
-        value:          0,
-        relativeChange: 0,
-        simulateChange: 0,
-        type:           type || 'intermediate',
-        description:    ''
-    });
+    {
+        header:   'Policy Instrument',
+        callback: createOriginNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/instrument_financial.png',        header: 'Financial instrument'},
+            {src: 'img/avatars/instrument_fiscal.png',           header: 'Fiscal instrument'},
+            {src: 'img/avatars/instrument_market.png',           header: 'Market instrument'},
+            {src: 'img/avatars/instrument_regulatory.png',       header: 'Regulatory instrument'},
+            {src: 'img/avatars/instrument_informational.png',    header: 'Informational instrument'},
+            {src: 'img/avatars/instrument_capacitybuilding.png', header: 'Capacity-building instrument'},
+            {src: 'img/avatars/instrument_cooperation.png',      header: 'Cooperation instrument'}
+        ]
+    },
 
-    var nodeGui = Immutable.Map({
-        id:     id,
-        x:      200,
-        y:      100,
-        radius: 75
-    });
+    {
+        header:   'External Factor',
+        callback: createOriginNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/barriers_and_forces.png', header: 'Drivers and barriers'},
+            {src: 'img/avatars/constraints.png',         header: 'External factors and constraints'},
+            {src: 'img/avatars/social_change.png',       header: 'Social, demographic, and behavioural change'}
+        ]
+    },
 
-    if(data !== undefined) {
-        nodeData = nodeData.merge(data);
+    {
+        header:   'Policy Impact',
+        callback: createNode,
+        type:     'LIST',
+        images: [
+            {src: 'img/avatars/Impact_node1.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node2.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node3.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node4.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node5.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node6.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node7.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node8.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node9.png',  header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node10.png', header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node11.png', header: 'Impact of change'},
+            {src: 'img/avatars/Impact_node12.png', header: 'Impact of change'}
+        ]
     }
 
-    if(gui !== undefined) {
-        nodeGui = nodeGui.merge(gui);
-    }
-
-    model = model.set('nodeData', model.get('nodeData').set(id, nodeData));
-    model = model.set('nodeGui', model.get('nodeGui').set(id, nodeGui));
-
-    return model;
-};
-
-var createOriginNode = function(model, data, gui) {
-    if(!data) {
-        data = Immutable.Map({});
-    }
-    
-    data = data.set('timeTable', Immutable.Map({
-        0: 0,
-        1: 10,
-        2: -4
-    }));
-    
-    return createNode(model, 'origin', data, gui);
-};
-
-var createActorNode = function(model, data, gui) {
-    return createNode(model, 'actor', data, gui);
-};
-
-var model = Immutable.List([
-/*    Immutable.Map( {
-        header: 'Create Intermediate',
-        callback: createNode
-    }),
-
-    Immutable.Map( {
-        header: 'Create Origin',
-        callback: createOriginNode
-    }),
-
-    Immutable.Map( {
-        header: 'Create Actor',
-        callback: createActorNode
-    }),
-*/
-    Immutable.Map({
+    /*{
         header: 'Policy Instruments',
         callback: createActorNode,
+        type: 'LIST',
         images: [
             {
                 src: 'img/avatars/barriers_and_forces.png'
@@ -95,9 +89,10 @@ var model = Immutable.List([
         ]
     }),
 
-    Immutable.Map({
+    {
         header: 'Controllable actors',
         callback: createOriginNode,
+        type: 'LIST',
         images: [
             {
                 src: 'img/avatars/instrument_capacitybuilding.png'
@@ -112,7 +107,7 @@ var model = Immutable.List([
                 src: 'img/avatars/instrument_market.png'
             }
         ]
-    })
-]);
+    })*/
+];
 
 module.exports = model;

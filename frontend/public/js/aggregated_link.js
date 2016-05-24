@@ -1,19 +1,23 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var Immutable = null;
 
-function aggregatedLink(link, nodes) {
-    return Immutable.Map({
-        selected:     link.get('selected'),
-        loop:         link.get('loop'),
-        x1:           nodes.get(link.get('node1')).get('x'),
-        y1:           nodes.get(link.get('node1')).get('y'),
-        x2:           nodes.get(link.get('node2')).get('x'),
-        y2:           nodes.get(link.get('node2')).get('y'),
-        width:        parseFloat(link.get('width')),
-        fromRadius:   parseFloat(nodes.get(link.get('node1')).get('radius')),
-        targetRadius: parseFloat(nodes.get(link.get('node2')).get('radius'))
-    });
+function aggregatedLink(link, nodeGui) {
+    return {
+        selected:     link.selected,
+        loop:         link.loop,
+        type:         link.type,
+        coefficient:  link.coefficient,
+        timelag:      link.timelag,
+        debugNode:    nodeGui[link.node1].selected,
+        x1:           nodeGui[link.node1].x,
+        y1:           nodeGui[link.node1].y,
+        x2:           nodeGui[link.node2].x,
+        y2:           nodeGui[link.node2].y,
+        width:        parseFloat(link.width),
+        fromRadius:   parseFloat(nodeGui[link.node1].radius),
+        targetRadius: parseFloat(nodeGui[link.node2].radius)
+    };
 };
 
 module.exports = aggregatedLink;

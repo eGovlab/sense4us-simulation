@@ -1,0 +1,44 @@
+@-webkit-keyframes DROPDOWN_FADEIN {
+    0%   {
+        background-color: rgba(239, 239, 239, 0);
+    }
+
+    100% {
+        background-color: rgba(255, 255, 255, 1);
+    }
+}
+
+@-moz-keyframes DROPDOWN_FADEIN {
+    0%   {
+        background-color: rgba(239, 239, 239, 0);
+    }
+
+    100% {
+        background-color: rgba(255, 255, 255, 1);
+    }
+}
+
+@keyframes DROPDOWN_FADEIN {
+    0%   {
+        background-color: rgba(239, 239, 239, 0);
+    }
+
+    100% {
+        background-color: rgba(255, 255, 255, 1);
+    }
+}
+
+@-webkit-keyframes CONTAINER_FADEIN {
+    0%   {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@-moz-keyframes CONTAINER_FADEIN {
+    0%   {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@keyframes CONTAINER_FADEIN {
+    0%   {opacity: 0;}
+    100% {opacity: 1;}
+}

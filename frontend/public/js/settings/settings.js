@@ -43,7 +43,7 @@ var data = {
         },
         {
             header: 'Controlling actors',
-            type: 'origin',
+            type:   'origin',
             images: [
                 {
                     src: 'img/avatars/barriers_and_forces.png'

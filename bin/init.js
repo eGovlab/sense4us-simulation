@@ -14,6 +14,7 @@
         process.abort();
     });
 
+    var _ROOT = CONFIG.get("ROOT");
     var _LIB = CONFIG.get("ROOT") + CONFIG.get("LIB") || __dirname + "/../lib/";
 
     var express          = require("express"),
@@ -21,42 +22,41 @@
         bodyParser       = require("body-parser"),
         ejs              = require("ejs-locals"),
         fs               = require("fs"),
-        constants        = require("constants"),
-        router           = require("rh_router"),
+        sass             = require("node-sass-middleware"),
         logger           = require("rh_logger"),
-        fe               = require("rh_fe"),
+        controllerLayer  = require("rh_controller-layer"),
         CookieCutter     = require("rh_cookie-cutter");
 
     var _PORT = CONFIG.get("PORT") || 3000;
 
-    logger.setConfig(CONFIG.get("LOGGER"));
-    var routerOptions = CONFIG.get("ROUTER");
-    routerOptions.hostname = CONFIG.get("HOSTNAME");
-    router.setConfig(routerOptions);
-
-    router.addMethod("dev", router.devMethod());
-    router.addMethod("dev", fe.devMethod(router));
-
-    fe.domain(CONFIG.get("HOSTNAME"));
-    fe.setPorts(parseInt(_PORT), 443);
-    fe.setPath(CONFIG.get("ROOT") + CONFIG.get("CONTROLLERS"));
-    router.addRoute(fe.parseControllers());
+    var loggerConfig = CONFIG.get("LOGGER");
+    loggerConfig.errorDir = _ROOT + loggerConfig.errorDir;
+    loggerConfig.logDir   = _ROOT + loggerConfig.logDir;
+    var httpLogger = logger.httpLogger(loggerConfig);
 
     var cookieCutter = new CookieCutter();
     cookieCutter.addCookieCutter("template", "template", function(data){return true;});
 
-    var setupGlobalView = function(req, res, next) {
-        if (!res.globalView) {
-            res.globalView = {};
+    var addResponseAttributes = function(req, res, next) {
+        res.request = {
+            path:   req.path,
+            method: req.method
+            
+        };
+
+        if(Object.keys(req.body).length > 0) {
+            res.request.data = req.body;
         }
 
-        next();
-    };
+        res.set("Access-Control-Allow-Origin",  "*");
+        res.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type");
+        res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT, PATCH");
 
-    var addPathToGlobal = function(req, res, next) {
-        res.globalView.path = req._parsedUrl.path;
-
-        next();
+        if(req.method === "OPTIONS") {
+            res.send({response: "Options sent."});
+        } else {
+            next();
+        }
     };
 
     var notFound = function(req, res, next) {
@@ -105,23 +105,38 @@
         }
     };
 
-    var expressDaemon = express();
-    expressDaemon.set("views", CONFIG.get("ROOT") + CONFIG.get("VIEWS"));
-    expressDaemon.set("view engine", "ejs");
-    expressDaemon.engine("ejs", ejs);
-    expressDaemon.use(bodyParser.json()
-                    , bodyParser.urlencoded({extended: true})
-                    , cookieParser()
-                    , setupGlobalView
-                    , addPathToGlobal
-                    , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
-                    , logger.middleware
-                    , cookieCutter.middleware
-                    , router.middleware
-                    , notFound
-                    , errorHandler);
+    function onDone(router) {
+        var expressDaemon = express();
+        expressDaemon.set("views", CONFIG.get("ROOT") + CONFIG.get("VIEWS"));
+        expressDaemon.set("view engine", "ejs");
+        expressDaemon.engine("ejs", ejs);
+        expressDaemon.use(bodyParser.json()
+                        , bodyParser.urlencoded({extended: true})
+                        , cookieParser()
+                        , sass({
+                            src:   CONFIG.get("ROOT") + CONFIG.get("SASS", "src"),
+                            dest:  CONFIG.get("ROOT") + CONFIG.get("SASS", "dst"),
+                            
+                            outputStyle: "compressed",
+                            prefix:      "/css",
+                            debug:       true
+                          })
+                        , addResponseAttributes
+                        , express.static(CONFIG.get("ROOT") + CONFIG.get("PUBLIC"))
+                        , httpLogger
+                        , cookieCutter.middleware
+                        , router
+                        , notFound
+                        , errorHandler);
 
-    httpCB(expressDaemon, _PORT);
+        httpCB(expressDaemon, _PORT);
+    }
+
+    controllerLayer.bundleControllers(CONFIG.get("ROOT") + CONFIG.get("CONTROLLERS"), function(bundle) {
+        var router = express.Router();
+        controllerLayer.addControllerToRouter(router, bundle, CONFIG.get("ROUTER", "printExposed"));
+        onDone(router);
+    }, CONFIG.get("ROUTER", "printRequired"));
 }(function(daemon, _PORT) {
     var http = require("http");
     http.createServer(daemon).listen(_PORT, function() {
