@@ -2,14 +2,22 @@
 
 var arithmetics = require('../canvas/arithmetics.js');
 
-module.exports = function(canvas, startCallback, updateCallback, endCallback, missCallback) {
+module.exports = function(canvas, loadedModel, startCallback, updateCallback, endCallback, missCallback) {
 	var active = false;
 
-	var startPos = {x: 0, y: 0};
-	var endPos = {x: 0, y: 0};
-	var lastPos = {x: 0, y: 0};
+	var startPos = {x: 0, y: 0},
+		endPos   = {x: 0, y: 0},
+		lastPos  = {x: 0, y: 0};
 
 	var deltaPos = {x: 0, y: 0};
+
+	var stopContextMenu = function(evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		return false;
+	};
+
+	canvas.addEventListener('contextmenu', stopContextMenu);
 
 	var mouseDown = function(event) {
 		active = true;
@@ -17,10 +25,13 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 		startPos = arithmetics.mouseToCanvas({x: event.clientX, y: event.clientY}, canvas);
 		lastPos = {x: startPos.x, y: startPos.y};
 
-		var result = startCallback(startPos);
+		loadedModel.didDrag = false;
+
+		var result = startCallback(canvas, loadedModel, startPos);
+		//loadedModel.propagate();
 
 		if (result) {
-			if (updateCallback) {
+			if (updateCallback) {
 				window.addEventListener('mousemove', mouseMove);
 			}
 
@@ -28,7 +39,7 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 				window.addEventListener('mouseup', mouseUp);
 			}
 		} else if (missCallback) {
-			missCallback(startPos);
+			missCallback(canvas, loadedModel, startPos);
 		}
 	};
 
@@ -45,7 +56,10 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 		startPos.x = endPos.x;
 		startPos.y = endPos.y;
 
-		updateCallback(endPos, deltaPos);
+		loadedModel.didDrag = true;
+
+		updateCallback(canvas, loadedModel, endPos, deltaPos);
+		loadedModel.propagate();
 		
 		lastPos = {x: endPos.x, y: endPos.y};
 	};
@@ -58,6 +72,7 @@ module.exports = function(canvas, startCallback, updateCallback, endCallback, mi
 		window.removeEventListener('mousemove', mouseMove);
 		window.removeEventListener('mouseup', mouseUp);
 
-		endCallback(endPos);
+		endCallback(canvas, loadedModel, endPos);
+		loadedModel.propagate();
 	};
 };

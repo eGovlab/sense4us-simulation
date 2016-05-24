@@ -7,33 +7,33 @@ var settings = [
     {
         color: 'rgba(255, 85, 85, 1)',
         conditions: [
-            function(node) { return node.get('type') === 'actor'; },
-            function(node) { return node.get('selected') === true; }
+            function(node) { return node.type === 'actor'; },
+            function(node) { return node.selected === true; }
         ]
     },
     {
         color: 'rgba(255, 75, 75, 0.9)',
         conditions: [
-            function(node) { return node.get('type') === 'actor'; }
+            function(node) { return node.type === 'actor'; }
         ]
     },
     {
         color: 'rgba(195, 85, 255, 1)',
         conditions: [
-            function(node) { return node.get('type') === 'origin'; },
-            function(node) { return node.get('selected') === true; }
+            function(node) { return node.type === 'origin'; },
+            function(node) { return node.selected === true; }
         ]
     },
     {
         color: 'rgba(175, 75, 255, 0.9)',
         conditions: [
-            function(node) { return node.get('type') === 'origin'; }
+            function(node) { return node.type === 'origin'; }
         ]
     },
     {
         color: 'rgba(255, 195, 85, 1)',
         conditions: [
-            function(node) { return node.get('selected') === true; }
+            function(node) { return node.selected === true; }
         ]
     },
     {
@@ -44,7 +44,7 @@ var settings = [
 
 module.exports = function drawNode(ctx, map) {
     /*
-    if (map.get('selected') === true) {
+    if (map.selected === true) {
         ctx.fillStyle = 'rgba(255, 175, 75, 0.8)';
     } else {
         ctx.fillStyle = 'rgba(255, 175, 75, 0.6)';
@@ -61,37 +61,50 @@ module.exports = function drawNode(ctx, map) {
         return true;
     });
 
-    if (map.get('avatar')) {
-        drawPicture(ctx, map.get('avatar'), map, function(_ctx, _imagePath, _map, _refresh) {
+    if (map.avatar) {
+        drawPicture(ctx, map.avatar, map, function(_ctx, _imagePath, _map, _refresh) {
             drawNode(ctx, map);
         });
     } else {
         ctx.fillStyle = colors[0].color;
         
         ctx.beginPath();
-        ctx.arc(map.get('x'), map.get('y'), map.get('radius'), 0, 360);
+        ctx.arc(map.x, map.y, map.radius, 0, 360);
         ctx.fill();
     }
+
+    if(map.linegraph && map.graphColor) {
+        ctx.strokeStyle = map.graphColor;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(map.x, map.y, map.radius + 8, 0, 360);
+        ctx.stroke();
+    }
     
-    if (map.get('icon')) {
+    if (map.icon) {
         var iconCircle = require('../icon')(map);
         
         drawCircle(ctx, iconCircle, colors[0].color);
-        drawPicture(ctx, map.get('icon'), iconCircle, function() {
+        drawPicture(ctx, map.icon, iconCircle, function() {
             drawNode(ctx, map);
         });
     }
+
+    return;
     
-    var text = map.get('description');
-    /*if (map.get('type') === 'actor') {
-        text = 'Actor' + map.get('id');
-    } else if (map.get('type') === 'origin') {
-        text = map.get('relativeChange') + '';
+    var text = map.description;
+    if(!text) {
+        return;
+    }
+    /*if (map.type === 'actor') {
+        text = 'Actor' + map.id;
+    } else if (map.type === 'origin') {
+        text = map.relativeChange + '';
     } else {
         if (env === 'modelling') {
-            text = map.get('value') + '';
+            text = map.value + '';
         } else if (env === 'simulate') {
-            text = map.get('simulateChange') + '';
+            text = map.simulateChange + '';
         }
     }*/
 
@@ -104,18 +117,18 @@ module.exports = function drawNode(ctx, map) {
     ctx.fillStyle = 'rgba(80, 80, 80, 1.0)';
     
     var size = 48 - text.length * 2.4;
-    size = size < 12 ? 12 : size;
+    size = size < 16 ? 16 : size;
     ctx.font = size + 'px sans-serif';
     var textData = ctx.measureText(text);
-    ctx.fillText(text, map.get('x') - textData.width / 2, map.get('y') + map.get('radius') + 4);
+    ctx.fillText(text, map.x - textData.width / 2, map.y + map.radius + 4);
 
     /*
     // Draw node description above the node
     var descriptionSize = 22;
     ctx.font = descriptionSize + 'px sans-serif';
     ctx.textBaseline = 'bottom';
-    var description = map.get('description');
+    var description = map.description;
     var descriptionData = ctx.measureText(description)
-    ctx.fillText(description, map.get('x') - descriptionData.width / 2, map.get('y') - map.get('radius'));
+    ctx.fillText(description, map.x - descriptionData.width / 2, map.y - map.radius);
     */
 };

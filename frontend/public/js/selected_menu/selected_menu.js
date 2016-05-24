@@ -1,28 +1,22 @@
 'use strict';
 
-var Immutable   = require('Immutable'),
+var Immutable   = null,
     menuBuilder = require('./../menu_builder'),
     settings    = require('./../settings'),
     buttons     = require('./buttons.js');
 
-function createButtons(list, model, onChangeCallback) {
-    var containerDiv = menuBuilder.div();
-    containerDiv.className = 'menu';
+var objectHelper = require('./../object-helper.js');
+var TimeTable    = require('./../structures/timetable.js');
 
-    list.forEach(function(button) {
-        if(model.get('maxIterations') !== undefined && button.get('ignoreModelSettings') === true) {
-            return;
-        }
-
-        containerDiv.appendChild(menuBuilder.button(button.get('header'), function() {
-            onChangeCallback(button.get('callback')(model));
-        }));
-    });
-
-    return containerDiv;
+function generateHexColor() {
+    return Math.round(Math.random() * 255).toString(16);
 }
 
-function generateAvatarDiv(avatar, selected, name) {
+function generateColor() {
+    return '#' + generateHexColor() + generateHexColor() + generateHexColor();
+}
+
+function generateAvatarDiv(url, avatar, selected, name) {
     var avatarDiv = menuBuilder.div();
     var img = menuBuilder.img();
 
@@ -32,34 +26,40 @@ function generateAvatarDiv(avatar, selected, name) {
         avatarDiv.className += ' selected';
     }
 
-    img.src = avatar.src;
+    img.src         = url + '/' + avatar.src;
     avatarDiv.value = avatar.src;
-    avatarDiv.name = name;
+    avatarDiv.name  = avatar.header || name;
 
     avatarDiv.appendChild(img);
 
     return avatarDiv;
 }
 
-function createAvatarButtons(header, value, callback, images) {
-    var avatarsDiv   = menuBuilder.div();
+function createAvatarButtons(url, header, value, callback, images) {
+    var avatarsDiv = menuBuilder.div();
     
     avatarsDiv.className = 'avatars';
-    
+
     images.forEach(function(avatar) {
-        var avatarDiv = generateAvatarDiv(avatar, value, header);
+        var avatarDiv = generateAvatarDiv(url, avatar, value, header);
 
         menuBuilder.addValueCallback(avatarDiv, callback, 'click');
 
         avatarsDiv.appendChild(avatarDiv);
     });
 
+    avatarsDiv.deleteEvents = function() {
+        for(var i = 0; i < avatarsDiv.children.length; i++) {
+            var child = avatarsDiv.children[i];
+            child.deleteEvents();
+        }
+    };
+
     return avatarsDiv;
 }
 
 function createAvatarSelector(header, value, callback) {
     var containerDiv = menuBuilder.div();
-
     containerDiv.appendChild(menuBuilder.label(header));
 
     settings.avatars.forEach(function(avatarGroup) {
@@ -67,7 +67,7 @@ function createAvatarSelector(header, value, callback) {
             function(key, value) {
                 var oldAvatar = avatarsDiv.querySelectorAll('.selected')[0];
                 if (oldAvatar) {
-                    oldAvatar.className = 'avatarPreview';            
+                    oldAvatar.className = 'avatarPreview';
                 }
                 
                 var newAvatar = avatarsDiv.querySelectorAll('[src="' + value + '"]')[0].parentElement;
@@ -84,280 +84,334 @@ function createAvatarSelector(header, value, callback) {
     return containerDiv;
 }
 
-function createTimeTableEditor(key, timeTable, callback) {
-    var containerDiv = menuBuilder.div();
+function Data(loadedModel, filter, data) {
+    this.data = data;
+    this.container = menuBuilder.div('menu');
+    this.filter = filter;
 
-    (function addToContainer(key, timeTable, callback) {
-        containerDiv.appendChild(menuBuilder.label(key));
+    this.loadedModel = loadedModel;
 
-        if (timeTable !== undefined && timeTable.forEach !== undefined) {
-            timeTable.forEach(function(value, rowNumber) {
-                containerDiv.appendChild(menuBuilder.label('T' + rowNumber));
-                var input = menuBuilder.input('T' + rowNumber, value, function whenTimeTableChanges(inputName, value) {
-                    timeTable = timeTable.set(rowNumber, value);
-                    callback(key, timeTable);
-                    input.value = value;
-                });
-                containerDiv.appendChild(input);
-            });
+    this.timetable;
+    this.timetableDiv;
+    this.rowContainer;
+    this.rows = {};
+
+    this.dropdowns  = {};
+    this.inputs     = {};
+}
+
+Data.prototype = {
+    refresh: function() {
+        this.inputs.forEach(function(input, key) {
+            input.value = this.data[key];
+        });
+    },
+
+    updateFilter: function(filter) {
+        this.filter = filter;
+        this.createMenu();
+    },
+
+    deleteEvents: function() {
+        objectHelper.forEach.call(
+            this.rows,
+            function(row, key) {
+                row.stepInput.deleteEvents();
+                row.valueInput.deleteEvents();
+            }
+        );
+
+        objectHelper.forEach.call(
+            this.dropdowns,
+            function(dropdown) {
+                dropdown.deleteEvents();
+            }
+        );
+
+        objectHelper.forEach.call(
+            this.inputs,
+            function(input) {
+                input.deleteEvents();
+            }
+        );
+    },
+
+    refreshTimeTable: function() {
+        this.timetable.refreshTimeTable();
+    },
+
+    generateDropdown: function(key, options, value) {
+        var that = this;
+        var containerSelect = menuBuilder.select(key, function(evt) {
+            that.data[key] = this.value;
+
+            /*that.loadedModel.refresh = true;
+            that.loadedModel.propagate();*/
+
+            that.loadedModel.emit('refresh');
+        });
+
+        options.forEach(function(option) {
+            var optionElement = menuBuilder.option(option, option);
+            if(option === value) {
+                optionElement.selected = 'selected';
+            }
+            
+            containerSelect.appendChild(optionElement);
+        });
+
+        return containerSelect;
+    },
+
+    generateInput: function(key, value) {
+        var container = menuBuilder.div();
+
+        var that = this;
+        container.appendChild(menuBuilder.label(key));
+
+        this.inputs[key] = menuBuilder.input(
+            key,
+            value,
+            function(thatKey, newValue) {
+                that.data[thatKey] = newValue;
+
+                /*that.loadedModel.refresh = true;
+                that.loadedModel.resetUI = true;
+                that.loadedModel.propagate();*/
+                that.loadedModel.emit(null, 'refresh', 'resetUI');
+            }
+        );
+
+        /*var focus = function(evt) {
+            console.log('Document:', document.activeElement);
+            console.log('Focused:', that.inputs[key]);
+            console.log(evt);
+        };
+
+        var focusOut = function(evt) {
+            console.log('Document:', document.activeElement);
+            console.log('Focus lost:', that.inputs[key]);
+            console.log(evt);
+        };
+
+        var deleteFocus = function() {
+            that.inputs[key].removeEventListener('focus', focus);
+            that.inputs[key].removeEventListener('focusout', focusout);
+        };
+
+        this.inputs[key].deleteEvent = function() {
+            deleteFocus();
+            this.inputs[key].deleteEvents();
         }
 
-        containerDiv.appendChild(menuBuilder.button('Add row', function addTimeTableRow() {
-            if (timeTable === undefined || timeTable === null) {
-                timeTable = Immutable.Map({0: 0});
-            } else {
-                timeTable = timeTable.set(timeTable.size, 0);
+        this.inputs[key].addEventListener('focus',    focus);
+        this.inputs[key].addEventListener('focusout', focusOut);*/
+
+        container.appendChild(this.inputs[key]);
+
+        return container;
+    },
+
+    createMenu: function() {
+        var element = this.container;
+        while(element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+
+        var that = this;
+        if(this.data.type && this.data.type.toUpperCase() === 'ACTOR') {
+            var randomColor = menuBuilder.button('Randomize color', function() {
+                that.loadedModel.nodeGui[that.data.id].color = generateColor();
+                /*that.loadedModel.refresh = true;
+                that.loadedModel.propagate();*/
+                that.loadedModel.emit('refresh');
+            });
+
+            element.appendChild(randomColor);
+            var links = this.loadedModel.nodeGui[this.data.id].links;
+            if(!links) {
+                links = [];
             }
 
-            callback(key, timeTable);
-            containerDiv.innerHTML = '';
-            addToContainer(key, timeTable, callback);
-        }));
+            links.forEach(function(link) {
+                link = this.loadedModel.links[link];
+                if(!link) {
+                    return;
+                }
 
-        containerDiv.appendChild(menuBuilder.button('Remove row', function removeTimeTableRow() {
-            if (timeTable === undefined || timeTable === null) {
-            } else {
-                timeTable = timeTable.slice(0, -1);
+                var targetedNode = this.loadedModel.nodeData[link.node2];
+                var button = menuBuilder.button('Delete acting upon ' + targetedNode.name, function() {
+                    delete that.loadedModel.links[link.id];
+
+                    var linkArr = that.loadedModel.nodeGui[link.node1].links;
+                    var index   = linkArr.indexOf(link.id);
+
+                    if(index !== -1) {
+                        linkArr.splice(index, 1);
+                    }
+
+                    linkArr = that.loadedModel.nodeGui[link.node2].links;
+                    index   = linkArr.indexOf(link.id);
+
+                    if(index !== -1) {
+                        linkArr.splice(index, 1);
+                    }
+
+                    that.loadedModel.emit(null, 'refresh', 'resetUI');
+                });
+
+                element.appendChild(button);
+            }, this);
+        }
+
+        objectHelper.forEach.call(this.data, function(value, key) {
+            if(this.filter.indexOf(key) === -1) {
+                return;
             }
 
-            callback(key, timeTable);
-            containerDiv.innerHTML = '';
-            addToContainer(key, timeTable, callback);
-        }));
-    }(key, timeTable, callback));
+            if (key === 'timeTable') {
+                var timeTable = new TimeTable(this.data, function(step, value) {
+                    that.loadedModel.emit(null, 'refresh', 'resetUI');
+                }, this.loadedModel.loadedScenario.data[this.data.id].data);
 
-    return containerDiv;
+                timeTable.generateTimeTable();
+
+                this.timetable    = timeTable;
+                this.timetableDiv = timeTable.timeTableDiv;
+
+                element.appendChild(this.timetableDiv);
+            } else if(this.data.coefficient !== undefined && key === 'type') {
+                element.appendChild(this.generateDropdown(key, ['fullchannel', 'halfchannel'], value));
+            } else {
+                element.appendChild(this.generateInput(key, value));
+            }
+        }, this);
+
+        return element;
+    }
+};
+
+function SelectedMenu(loadedModel) {
+    this.dataObjects = [];
+    this.data        = [];
+    this.container   = menuBuilder.div();
+    this.inputs      = {};
+
+    this.loadedModel = loadedModel;
+
+    this.buttons;
 }
 
-function generateInput(key, value, callback) {
-    var containerDiv = menuBuilder.div();
+SelectedMenu.prototype = {
+    show: function() {
+        this.container.style.display = 'block';
+    },
 
-    containerDiv.appendChild(menuBuilder.label(key));
-    containerDiv.appendChild(menuBuilder.input(key, value, callback));
+    hide: function() {
+        this.container.style.display = 'none';
+    },
 
-    return containerDiv;
-}
+    refresh: function() {
+        this.data.forEach(function(obj) {
+            obj.refresh();
+        });
+    },
 
-function createMenu(map, onChangeCallback, includedAttributes) {
-    var menu = Immutable.Map({
-        element: menuBuilder.div()
-    });
+    updateFilter: function(filter) {
+        this.data.forEach(function(obj) {
+            obj.updateFilter(filter);
+        });
+    },
 
-    var element = menu.get('element');
+    loopData: function(callback, thisArg) {
+        this.data.forEach(function(obj, key) {
+            callback.call(this, obj, key);
+        }, thisArg);
+    },
 
-    element.className = 'menu';
-    element.appendChild(createButtons(buttons, map, onChangeCallback));
-
-    var appendToEnd = [];
-
-    map.forEach(function(value, key) {
-        if (includedAttributes !== null && includedAttributes !== undefined && includedAttributes.indexOf(key) === -1) {
+    addData: function(filter, data) {
+        if(this.dataObjects.indexOf(data) !== -1) {
+            console.warn('Exists');
+            console.warn(this.dataObjects, data);
             return;
         }
 
-        if(key === 'avatar' || key === 'icon') {
-            appendToEnd.push(createAvatarSelector(key, value, onChangeCallback));
-        } else if (key === 'timeTable') {
-            appendToEnd.push(createTimeTableEditor(key, value, onChangeCallback));
-        } else {
-            appendToEnd.push(generateInput(key, value, onChangeCallback));
-        }
-    });
+        this.dataObjects.push(data);
+        this.data.push(new Data(this.loadedModel, filter, data));
 
-    appendToEnd.forEach(function(c) {
-        element.appendChild(c);
-    });
-
-    return menu;
-}
-
-function updateMenu(menu, map) {
-    var menuElement = menu.get('element');
-    map.forEach(function(value, key) {
-        var elements = menuElement.querySelectorAll('[name="' + key + '"]');
-        var element = elements[0];
-
-        if (element) {
-            element.setAttribute('value', value);
-            element.value = value;
-        }
-    });
-    
-    menu = menu.set('element', menuElement);
-    
-    return menu;
-}
-
-var namespace = {
-    createAvatarSelector: createAvatarSelector,
-    createAvatarButtons:  createAvatarButtons,
-    drawSelectedMenu: function(container, menu, map, changeCallback, includedAttributes) {
-        if (map === null || map === undefined) {
-            if (menu !== null) {
-                try {
-                    container.removeChild(menu.get('element'));
-                } catch(e) {
-                    /* Node not found. Removed by other means? */
-                }
-            }
-
-            return null;
+        if(!this.buttons) {
+            this.buttons = this.generateButtons(buttons);
+            this.container.appendChild(this.buttons);
         }
 
-        if (menu === null || menu.get('element') === undefined) {
-            menu = createMenu(map, function(key, value) {
-                menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
-                changeCallback(menu.get('map_obj'));
-            }, includedAttributes);
-            menu = menu.set('map_obj', map);
-
-            container.appendChild(menu.get('element'));
-
-            return menu;
-        } else if (menu.get('map_obj') !== map) {
-            if (menu.get('map_obj').get('id') === map.get('id')) {
-                // update menu
-                menu = updateMenu(menu, map);
-                //container.appendChild(menu.get('element'));
-                menu = menu.set('map_obj', map);
-            } else {
-                // remake menu
-                try {
-                    container.removeChild(menu.get('element'));
-                } catch(err) {
-                    /* Node not found -- continuing. */
-                }
-        
-                menu = createMenu(map, function(key, value) {
-                    menu = menu.set('map_obj', menu.get('map_obj').set(key, value));
-                    changeCallback(menu.get('map_obj'));
-                }, includedAttributes);
-                
-                container.appendChild(menu.get('element'));
-                menu = menu.set('map_obj', map);
-        
-                return menu;
-            }
-        }
-
-        return menu;
+        this.container.appendChild(this.data[this.data.length - 1].createMenu());
     },
 
-    updateSelected: function(refresh, UIRefresh, changeCallbacks, newSelected) {
-        var _loadedModel = changeCallbacks.get('loadedModel'),
-            loadedModel  = _loadedModel(),
-            _savedModels = changeCallbacks.get('savedModels'),
-            savedModels  = _savedModels();
-
-        if (newSelected.get('timelag') !== undefined && newSelected.get('coefficient') !== undefined) {
-            var coefficient = parseFloat(newSelected.get('coefficient')),
-                timelag     = parseInt(newSelected.get('timelag')),
-                type        = newSelected.get('type');
-
-            if (isNaN(coefficient) || isNaN(timelag)) {
-                console.log('Coefficient:', newSelected.get('coefficient'));
-                console.log('Timelag:',     newSelected.get('timelag'));
-                return;
+    removeData: function(data) {
+        var i = 0;
+        this.dataObjects = this.dataObjects.filter(function(keptData, index) {
+            if(keptData === data) {
+                i = index;
+                return false;
             }
 
-            if(newSelected.get('delete') === true) {
-                var links = loadedModel.get('links');
+            return true;
+        });
 
-                links = links.delete(newSelected.get('id'));
-                loadedModel = loadedModel.set('links', links);
-
-                _loadedModel(loadedModel);
-                
-                refresh();
-                return;
-            }
-            
-            _loadedModel(loadedModel.set('links', loadedModel.get('links').set(newSelected.get('id'),
-                loadedModel.get('links').get(newSelected.get('id')).merge(Immutable.Map({
-                        coefficient: newSelected.get('coefficient'),
-                        timelag:     newSelected.get('timelag'),
-                        type:        newSelected.get('type')
-                    })
-                )
-            )));
-        } else if (newSelected.get('offsetY') !== undefined || newSelected.get('offsetX') !== undefined) {
-            _loadedModel(loadedModel.set('settings', newSelected));
-        } else {
-            var nodeData = loadedModel.get('nodeData'),
-                nodeGui  = loadedModel.get('nodeGui'),
-                node     = null;
-
-            if(newSelected.get('delete') === true) {
-                node = nodeGui.get(newSelected.get('id'));
-                var links = loadedModel.get('links');
-
-                if(node.get('links') !== undefined){
-                    node.get('links').forEach(function(link) {
-                        links = links.delete(link);
-                    });
-                }
-
-                nodeData = nodeData.delete(newSelected.get('id'));
-                nodeGui  = nodeGui.delete(newSelected.get('id'));
-
-                loadedModel = loadedModel.set('nodeData', nodeData);
-                loadedModel = loadedModel.set('nodeGui', nodeGui);
-                loadedModel = loadedModel.set('links', links);
-
-                _loadedModel(loadedModel);
-
-                refresh();
-
-                return;
-            }
-
-            node = nodeData.get(newSelected.get('id'));
-            node = node.merge(Immutable.Map({
-                id:             newSelected.get('id'),
-                value:          newSelected.get('value'),
-                relativeChange: newSelected.get('relativeChange'),
-                description:    newSelected.get('description'),
-                type:           newSelected.get('type'),
-                timeTable:      newSelected.get('timeTable')
-            }));
-
-            nodeData = nodeData.set(node.get('id'), node);
-            loadedModel = loadedModel.set('nodeData', nodeData);
-
-            node = nodeGui.get(newSelected.get('id'));
-            node = node.merge(Immutable.Map({
-                radius: newSelected.get('radius'),
-                avatar: newSelected.get('avatar'),
-                icon:   newSelected.get('icon')
-            }));
-
-            nodeGui = nodeGui.set(node.get('id'), node);
-            loadedModel = loadedModel.set('nodeGui', nodeGui);
-
-            _loadedModel(loadedModel);
+        if(!this.data[i]) {
+            return;
         }
 
-        if(savedModels.get('synced').get(loadedModel.get('id')) !== undefined) {
-            _savedModels(savedModels.set('synced',
-                savedModels.get('synced').set(loadedModel.get('id'),
-                    loadedModel.set('settings', loadedModel.get('settings').set('saved',
-                        false)
-                    )
-                )
-            ));
-        } else {
-            _savedModels(savedModels.set('local',
-                savedModels.get('local').set(loadedModel.get('id'),
-                    loadedModel.set('settings', loadedModel.get('settings').set('saved',
-                        false)
-                    )
-                )
-            ));
-        }
+        this.data[i].deleteEvents();
+        var element = this.data[i].container;
+        this.container.removeChild(element);
 
-        //UIRefresh();
-        refresh();
+        this.data = this.data.slice(0, i).concat(this.data.slice(i+1));
+
+        if(this.data.length === 0 && this.dataObjects.length === 0) {
+            this.container.parentElement.removeChild(this.container);
+        }
+    },
+
+    setDataFilter: function(dataFilter) {
+        this.dataFilter = dataFilter;
+    },
+
+    generateButtons: function(list) {
+        var containerDiv = menuBuilder.div();
+        containerDiv.className = 'menu';
+
+        var isModel = false;
+        this.data.forEach(function(obj) {
+            if(obj.data.maxIterations) {
+                isModel = true;
+            }
+        });
+
+        var that = this;
+        list.forEach(function(button) {
+            if(isModel && button.ignoreModelSettings === true) {
+                return;
+            }
+
+            if(button.replacingObj) {
+                containerDiv.appendChild(menuBuilder.button(button.header, function() {
+                    button.callback(that.loadedModel, that.data);
+                }));
+            } else {
+                /* No buttons are not replacing obj right now. There is one button. */
+            }
+        }, this);
+
+        return containerDiv;
     }
+};
+
+var namespace = {
+    Data:                 Data,
+    SelectedMenu:         SelectedMenu,
+    createAvatarSelector: createAvatarSelector,
+    createAvatarButtons:  createAvatarButtons
 };
 
 module.exports = namespace;

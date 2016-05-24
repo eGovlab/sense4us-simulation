@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%; padding: 0; margin: 0;">
+    <head>
+        <title>
+            Sidebar
+        </title>
+
+        <script src="/static/js/jquery-1.11.2.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+
+        <script src="/static/js/doc-ready.js"></script>
+        <script src="/static/js/sidebar.js"></script>
+
+        <script src="/static/js/model-builder.debug.js"></script>
+
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    </head>
+    <body style="width: 100%; height: 100%; padding: 0; margin: 0;">
+        <div id="sidebar" style="height: 100%; width: 0px"></div>
+    </body>
+    <script>
+        docReady(function() {
+            var NewUI    = window.sense4us.NewUI;
+            var MenuItem = NewUI.MenuItem;
+            var Sidebar  = NewUI.Sidebar;
+
+            var sidebar = new Sidebar(200, 0);
+
+            var newButton  = sidebar.addButton("file", function(){});
+            var saveButton = sidebar.addButton("floppy-disk", function(){});
+
+            var modelling = new MenuItem(300);
+            modelling.setLabel("Modelling");
+
+            var actors = modelling.addIconGroup("Actor");
+            for(var i = 0; i < 3; i++) {
+                actors.addIcon();
+            }
+
+            var instruments = modelling.addIconGroup("Policy Instrument");
+            for(var i = 0; i < 7; i++) {
+                instruments.addIcon();
+            }
+
+            var factors = modelling.addIconGroup("External Factor");
+            for(var i = 0; i < 3; i++) {
+                factors.addIcon();
+            }
+
+            var impacts = modelling.addIconGroup("Policy Impact");
+            for(var i = 0; i < 12; i++) {
+                impacts.addIcon();
+            }
+
+            modelling.addSeparator(26);
+
+            var testing = new MenuItem(300);
+            testing.setLabel("Testing");
+            sidebar.addItem(modelling);
+            sidebar.addItem(testing);
+
+            var input  = testing.addInput("Oh my god. This is one longass string. What is uuuup?!");
+            var slider = testing.addSlider("Such a slider", 0, 10);
+            var button = testing.addButton("Click me!", function(){console.log("Clicked");});
+
+            sidebar.appendTo(document.getElementById("sidebar"));
+        });
+    </script>
+</html>

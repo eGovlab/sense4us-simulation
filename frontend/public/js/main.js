@@ -1,339 +1,709 @@
 'use strict';
 
-var curry      = require('./curry.js'),
-    Immutable  = require('Immutable'),
-    canvas     = require('./canvas'),
-    linker     = require('./linker.js'),
-    generateId = require('./generate_id.js');
-
-var mainCanvas = canvas(document.getElementById('canvas'), refresh);
-
-var drawSelectedMenu = curry(require('./selected_menu').drawSelectedMenu, document.getElementById('sidebar')),
-    drawLinker       = curry(require('./graphics/draw_linker.js'), mainCanvas.getContext('2d'), linker),
-    drawLink         = curry(require('./graphics/draw_link.js'), mainCanvas.getContext('2d')),
-    modelLayer       = require('./model_layer.js'),
-    menuBuilder      = require('./menu_builder'),
-    notificationBar  = require('./notification_bar'),
-    network          = require('./network'),
-    CONFIG           = require('rh_config-parser'),
-    /* UIRefresh is curried after changeCallbacks is defined. */
-    UIRefresh        = require('./ui');
-
-notificationBar.setContainer(document.getElementById('notification-bar'));
-
-CONFIG.setConfig(require('./config.js'));
-network.setDomain(CONFIG.get('BACKEND_HOSTNAME'));
-
-var selectedMenu = Immutable.Map({}),
-    /*
-    ** modelLayer.newModel(id) 
-    ** (USE PARAMETER WITH HIGH CAUTION.
-    **  MIGHT FUCK SHIT UP WITH SAVED MODELS.
-    **  See model_layer.js for more info.)
-    ** returns:
-    **
-    ** Immutable.Map({
-    **     id:       id || generateId,
-    **     saved:    false,
-    **     synced:   false,
-    **     syncId:   null,
-    **
-    **     nextId:   0,
-    **     nodeData: Immutable.Map({}),
-    **     nodeGui:  Immutable.Map({}),
-    **     links:    Immutable.Map({}),
-    **     settings: Immutable.Map({
-    **         name:     "New Model",
-    **         maxIterable: 0
-    **     })
-    ** });
-    */
-    loadedModel   = modelLayer.newModel(),
-    savedModels   = Immutable.Map({
-        local:  Immutable.Map().set(loadedModel.get('id'), loadedModel),
-        synced: Immutable.Map()
-    }),
-    environment   = 'modelling';
-
-var settings = require('./settings');
-
-var UIData = Immutable.Map({
-    sidebar:      settings.sidebar,
-    menu:         settings.menu,
-    selectedMenu: Immutable.List()
-});
-
-/*
-** Object to give buttons a callback to relate and influence the current state.
-** This is used within the UIRefresh() context below.
-*/
-var changeCallbacks = Immutable.Map({
-    loadedModel: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
-            return loadedModel;
-        }
-
-        return loadedModel = arg;
-    },
-
-    selectedMenu: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
-            return selectedMenu;
-        }
-
-        return selectedMenu = arg;
-    },
-
-    environment: function(arg) {
-        if(arg === undefined || typeof arg !== 'string') {
-            return environment;
-        }
-
-        return environment = arg;
-    },
-
-    savedModels: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
-            return savedModels;
-        }
-
-        return savedModels = arg;
-    },
-
-    UIData: function(arg) {
-        if(arg === undefined || !Immutable.Map.isMap(arg)) {
-            return UIData;
-        }
-
-        return UIData = arg;
+function isElement(element) {
+    try {
+        return element instanceof HTMLElement;
+    } catch(e) {
+        return    (typeof element           === 'object')
+               && (obj.nodeType             === 1)
+               && (typeof obj.style         === 'object')
+               && (typeof obj.ownerDocument === 'object');
     }
-});
-
-UIRefresh = curry(UIRefresh, refresh, changeCallbacks);
-
-var drawNode      = require('./graphics/draw_node.js'),
-    drawTimeTable = require('./graphics/draw_time_table.js');
-    drawNode      = curry(drawNode, mainCanvas.getContext('2d'));
-    drawTimeTable = curry(drawTimeTable, mainCanvas.getContext('2d'));
-
-window.Immutable  = Immutable;
-window.collisions = require('./collisions.js');
-
-var context = mainCanvas.getContext('2d');
-
-var fixInputForLink = function(link) {
-    link = link.concat({
-        node1: parseInt(link.get('node1')),
-        node2: parseInt(link.get('node2'))
-    });
-
-    return link;
-};
-
-var dragHandler   = require('./mechanics/drag_handler.js'),
-    mouseDownWare = require('./mouse_handling/handle_down.js'),
-    mouseMoveWare = require('./mouse_handling/handle_drag.js'),
-    mouseUpWare   = require('./mouse_handling/handle_up.js');
-
-dragHandler(
-    mainCanvas,
-    function mouseDown(pos) {
-        var data = mouseDownWare({env: environment, pos: Immutable.Map(pos), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')}, environment);
-        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
-        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
-
-        refresh();
-
-        return true;
-    },
-
-    function mouseMove(pos, deltaPos) {
-        var data = mouseMoveWare({pos: Immutable.Map(pos), deltaPos: Immutable.Map(deltaPos), settings: loadedModel.get('settings'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
-        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
-        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
-        loadedModel = loadedModel.set('settings', loadedModel.get('settings').merge(data.settings));
-
-        refresh();
-    },
-    
-    function mouseUp(pos) {
-        var data = mouseUpWare({pos: Immutable.Map(pos), nextId: loadedModel.get('nextId'), nodeGui: loadedModel.get('nodeGui'), links: loadedModel.get('links')});
-        loadedModel = loadedModel.set('nodeGui', loadedModel.get('nodeGui').merge(data.nodeGui));
-        loadedModel = loadedModel.set('links', loadedModel.get('links').merge(data.links));
-        loadedModel = loadedModel.set('nextId', data.nextId);
-
-        mainCanvas.panX = -loadedModel.get('settings').get('offsetX');
-        mainCanvas.panY = -loadedModel.get('settings').get('offsetY');
-
-        refresh();
-    }
-);
-
-//mainCanvas.addEventListener("mousewheel",     MouseWheelHandler, false);
-//mainCanvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-
-var zoom = 1;
-function MouseWheelHandler(e) {
-	var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
-	var mouse_canvas_y = e.y - mainCanvas.offsetTop;
-    var scaleX = loadedModel.get('settings').get('scaleX') || 1;
-    var scaleY = loadedModel.get('settings').get('scaleX') || 1;
-	var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.get('settings').get('offsetX') || 0) / scaleX;
-	var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.get('settings').get('offsetY') || 0) / scaleY;
-
-	if (Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) > 0)
-		zoom = 1.05;
-	else
-		zoom = 1/1.05;
-    
-	scaleX = scaleY *= zoom;
-
-	var mouse_stage_new_x = mouse_canvas_x / scaleX - (loadedModel.get('settings').get('offsetX') || 0) / scaleX;
-	var mouse_stage_new_y = mouse_canvas_y / scaleY - (loadedModel.get('settings').get('offsetY') || 0) / scaleY;
-
-	var zoom_effect_x = (mouse_stage_new_x - mouse_stage_x) * scaleX;
-	var zoom_effect_y = (mouse_stage_new_y - mouse_stage_y) * scaleY;
-    
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetX', (loadedModel.get('settings').get('offsetX') || 0) + zoom_effect_x));
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('offsetY', (loadedModel.get('settings').get('offsetY') || 0) + zoom_effect_y));
-    
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('scaleX', scaleX));
-    loadedModel = loadedModel.set('settings', loadedModel.get('settings').set('scaleY', scaleY));
-    
-    refresh();
 }
 
-/* This method is retarded. */
-UIRefresh();
+function inflateModel(container, exportUnder, userFilter, projectFilter) {
+    if(!isElement(container)) {
+        throw new Error('Not an element given to inflateModel');
+    }
 
-var updateSelected = curry(require('./selected_menu').updateSelected, refresh, UIRefresh, changeCallbacks);
-var aggregatedLink = require('./aggregated_link.js');
-function _refresh() {
-    context.clearRect(
-        (-loadedModel.get('settings').get('offsetX') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
-        (-loadedModel.get('settings').get('offsetY') || 0) * (2 - loadedModel.get('settings').get('scaleX') || 1),
-        mainCanvas.width  * (2 - (loadedModel.get('settings').get('scaleX') || 1)),
-        mainCanvas.height * (2 - (loadedModel.get('settings').get('scaleY') || 1))
-    );
-    
-    context.setTransform(
-        loadedModel.get('settings').get('scaleX')  || 1,
-        0,
-        0,
-        loadedModel.get('settings').get('scaleY')  || 1,
-        loadedModel.get('settings').get('offsetX') || 0,
-        loadedModel.get('settings').get('offsetY') || 0
-    );
+    container.className = 'mb-container';
 
-    // draw the links and arrows
-    loadedModel.get('links').forEach(function(link) {
-        drawLink(aggregatedLink(link, loadedModel.get('nodeGui')));
-    });
+    var curry       = require('./curry.js'),
+        strictCurry = require('./strict_curry.js'),
+        Immutable   = null,
+        canvas      = require('./canvas'),
+        linker      = require('./linker.js'),
+        generateId  = require('./generate_id.js');
 
-    // get all the selected objects
-    var selected = loadedModel.get('nodeData')
-        .filter(function(node) { return loadedModel.get('nodeGui').get(node.get('id')).get('selected') === true; })
-        .map(function(node) {
-            return Immutable.Map({
-                id:             node.get('id'),
-                type:           node.get('type'),
-                value:          node.get('value'),
-                relativeChange: node.get('relativeChange'),
-                description:    node.get('description'),
-                timeTable:      node.get('timeTable')
-            }).merge(
-                Immutable.Map({
-                        radius: loadedModel.get('nodeGui').get(node.get('id')).get('radius'),
-                        avatar: loadedModel.get('nodeGui').get(node.get('id')).get('avatar'),
-                        icon:   loadedModel.get('nodeGui').get(node.get('id')).get('icon')
-                    })
-            );
-            
-            //return node.merge(loadedModel.get('nodeGui').get(node.get('id')));
-        })
-        .merge(
-            loadedModel.get('links').filter(function(link) {return link.get('selected') === true;})
-            .map(function(link) {
-                return Immutable.Map({
-                    id:          link.get('id'),
-                    timelag:     link.get('timelag'),
-                    coefficient: link.get('coefficient'),
-                    type:        link.get('type'),
-                    node1:       link.get('node1'),
-                    node2:       link.get('node2')
-                });
-            })
-        );
+    var maxWidth  = container.offsetWidth,
+        maxHeight = container.offsetHeight;
 
-    // if there are nodes selected that aren't currently linking, we want to draw the linker
-    loadedModel.get('nodeGui').filter(function(node) {return node.get('selected') === true && node.get('linking') !== true;}).forEach(drawLinker);
+    var protocol   = container.getAttribute('data-protocol') || 'http',
+        hostname   = container.getAttribute('data-hostname') || 'localhost',
+        port       = container.getAttribute('data-port'),
+        portString = '';
 
-    // if we are currently linking, we want to draw the link we're creating
-    loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(function(node) {
-        var linkerForNode = linker(node);
-        drawLink(
-            Immutable.Map({
-                type:         'fullchannel',
-                x1:           node.get('x'),
-                y1:           node.get('y'),
-                x2:           node.get('linkerX'),
-                y2:           node.get('linkerY'),
-                fromRadius:   node.get('radius'),
-                targetRadius: 0,
-                width:        14
-            })
-        );
-    });
-
-    // draw all the nodes
-    loadedModel.get('nodeData').forEach(
-        function(n) { 
-            var nodeGui = n.merge(loadedModel.get('nodeGui').get(n.get('id')));
-            drawNode(nodeGui);
-
-            /*
-            ** If you add more environment specific code, please bundle
-            ** it up into another method.
-            **
-            ** e.g. drawNodeInSimulation(nodeGui)
-            */
-            if(environment === 'simulate' && nodeGui.get('timeTable')) {
-                drawTimeTable(nodeGui);
-            }
+    if(port !== null) {
+        if(protocol === 'http' && port !== '80') {
+            portString = ':' + port;
+        } else if(protocol === 'https' && port !== '443') {
+            portString = ':' + port;
         }
-    );
+    }
 
-    // if we are linking, we want to draw the dot above everything else
-    loadedModel.get('nodeGui').filter(function(node) {return node.get('linking') === true; }).forEach(drawLinker);
+    if(typeof exportUnder === 'string' && typeof userFilter === 'string' && projectFilter === undefined) {
+        projectFilter = userFilter;
+        userFilter    = exportUnder;
+        exportUnder   = undefined;
+    }
 
-    //update the menu
-    var sidebar = document.getElementById('sidebar');
-    if(selected.last()) {
-        sidebar.firstElementChild.style.display = 'none';
+    if(typeof projectFilter !== 'string' || typeof userFilter !== 'string') {
+        throw new Error('Need to initialize inflateModel with a user and project id.');
+    }
+
+    var configObject = {
+        protocol:      protocol,
+        hostname:      hostname,
+        port:          parseInt(port),
+        userFilter:    userFilter,
+        projectFilter: projectFilter,
+        url:           protocol + '://' + hostname + portString
+    };
+
+    var objectHelper = require('./object-helper.js');
+
+    /*var menuHeader       = document.createElement('div'),
+        upperMenu        = document.createElement('div');
+
+    menuHeader.className = 'menu-header';
+    upperMenu.className  = 'mb-upper-menu';
+
+    menuHeader.appendChild(upperMenu);
+
+    var sidebar          = document.createElement('div'),
+        sidebarContainer = document.createElement('div');
+
+    sidebar.className           = 'mb-sidebar';
+    sidebarContainer.className  = 'sidebar-container';
+
+    sidebar.style['max-width']  = (maxWidth  - 24) + 'px';
+    sidebar.style['max-height'] = (maxHeight - 44) + 'px';
+
+    sidebar.appendChild(sidebarContainer);*/
+
+    var leftMain           = document.createElement('div'),
+        notificationBarDiv = document.createElement('div'),
+        mainCanvasC        = document.createElement('canvas'),
+        linegraphCanvasC   = document.createElement('canvas');
+
+    notificationBarDiv.style.left = (maxWidth - 200) + 'px';
+
+    leftMain.className            = 'left main';
+    leftMain.style.position       = 'relative';
+
+    notificationBarDiv.className  = 'mb-notification-bar';
+    mainCanvasC.className         = 'main-canvas';
+    linegraphCanvasC.className    = 'linegraph';
+
+    var NewUI   = require('./new_ui');
+    var Colors  = NewUI.Colors,
+        sidebar = new NewUI.Sidebar(200);
+
+    sidebar.appendTo(leftMain);
+    leftMain.appendChild(notificationBarDiv);
+    leftMain.appendChild(mainCanvasC);
+    leftMain.appendChild(linegraphCanvasC);
+
+    /*container.appendChild(menuHeader);
+    container.appendChild(sidebar);*/
+    container.appendChild(leftMain);
+
+    var mainCanvas       = canvas(container, mainCanvasC),
+        linegraphCanvas  = canvas(container, linegraphCanvasC);
+
+    /*var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
+    var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);*/
+
+    var colorValues      = require('./graphics/value_colors.js'),
+        modelLayer       = require('./model_layer.js'),
+        menuBuilder      = require('./menu_builder'),
+        notification     = require('./notification_bar'),
+        network          = require('./network'),
+        informationTree  = require('./information_tree'),
+        UI               = require('./ui');
+
+    //notificationBar.setContainer(notificationBarDiv);
+    
+    var selectedMenu  = {},
+        textStrings   = {
+            unsorted: [],
+            saved:    []
+        },
+        loadedModel   = modelLayer.newModel(),
+        savedModels   = {
+            local:  {},
+            synced: {}
+        };
+
+    loadedModel.static        = {};
+    loadedModel.static.width  = container.offsetWidth;
+    loadedModel.static.height = container.offsetHeight;
+
+    var timer = null;
+    window.addEventListener('resize', function() {
+        if (timer !== null) {
+            clearTimeout(timer);
+        }
+
+        timer = setTimeout(function() {
+            mainCanvas.width            = container.offsetWidth;
+            linegraphCanvas.width       = container.offsetWidth;
+            /*mainCanvas.height           = container.offsetHeight;
+            linegraphCanvas.height      = container.offsetHeight;*/
+
+            loadedModel.static.width  = container.offsetWidth;
+            loadedModel.static.height = container.offsetHeight;
+
+            //sidebar.style['max-height'] = (container.offsetHeight - 44) + 'px';
+
+            refresh();
+        }, 500);
+    });
+
+    if(!window.sense4us[container.getAttribute('id')]) {
+        window.sense4us[container.getAttribute('id')] = {};
+    }
+
+    if(!window.sense4us.models) {
+        window.sense4us.models = {
+            unsorted: []
+        };
+    }
+
+    if(exportUnder && typeof exportUnder === 'string' && exportUnder !== 'unsorted') {
+        window.sense4us.models[exportUnder] = loadedModel;
     } else {
-        sidebar.firstElementChild.style.display = 'block';
+        if(exportUnder === 'unsorted') {
+            console.warn('Can\'t add a model with id unsorted.');
+        }
+        window.sense4us.models.unsorted.push(loadedModel);
     }
 
-    switch(environment) {
-        case 'modelling':
-            if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, null);
-            } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, loadedModel.get('settings').delete('timeStepT'), updateSelected, null);
-            }
-            break;
-        case 'simulate':
-            if(selected.last()) {
-                selectedMenu = drawSelectedMenu(selectedMenu, selected.last(), updateSelected, ['timeTable']);
-            } else {
-                selectedMenu = drawSelectedMenu(selectedMenu, null, null, null);
-            }
-            break;
+    savedModels.local[loadedModel.id] = loadedModel;
+    console.log(savedModels);
+    loadedModel.CONFIG                = configObject;
+
+    var settings      = require('./settings');
+
+    window.Immutable  = Immutable;
+    window.collisions = require('./collisions.js');
+
+    var context       = mainCanvas.getContext('2d');
+
+    var mouseHandler  = require('./mechanics/mouse_handler.js');
+
+    mouseHandler(mainCanvas, loadedModel);
+
+    container.addEventListener('mousedown', function(ev) {
+        window.sense4us.lastTarget = ev.target;
+    });
+    
+    var keyboardHandler = require('./mechanics/keyboard_handler.js'),
+        hotkeyE         = require('./input/hotkey_e.js'),
+        hotkeyZ         = require('./input/hotkey_z.js'),
+        hotkeyY         = require('./input/hotkey_y.js'),
+        hotkeyESC       = require('./input/hotkey_esc.js');
+
+    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);
+
+    var zoom = 1;
+    function MouseWheelHandler(e) {
+        var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
+        var mouse_canvas_y = e.y - mainCanvas.offsetTop;
+        var scaleX = loadedModel.settings.scaleX || 1;
+        var scaleY = loadedModel.settings.scaleY || 1;
+        var mouse_stage_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
+        var mouse_stage_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
+
+        if (Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) > 0) {
+            zoom = 1.05;
+        } else {
+            zoom = 1/1.05;
+        }
+        
+        scaleX = scaleY *= zoom;
+
+        var mouse_stage_new_x = mouse_canvas_x / scaleX - (loadedModel.settings.offsetX || 0) / scaleX;
+        var mouse_stage_new_y = mouse_canvas_y / scaleY - (loadedModel.settings.offsetY || 0) / scaleY;
+
+        var zoom_effect_x = (mouse_stage_new_x - mouse_stage_x) * scaleX;
+        var zoom_effect_y = (mouse_stage_new_y - mouse_stage_y) * scaleY;
+        
+        loadedModel.settings.offsetX = ((loadedModel.settings.offsetX || 0) + zoom_effect_x);
+        loadedModel.settings.offsetY = ((loadedModel.settings.offsetY || 0) + zoom_effect_y);
+
+        loadedModel.settings.scaleX = scaleX;
+        loadedModel.settings.scaleY = scaleY;
     }
+
+    var aggregatedLink   = require('./aggregated_link.js');
+    var refreshNamespace = require('./refresh');
+
+    var asyncMiddleware  = require('./async_middleware');
+
+    var lastShow;
+    function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
+        var show   = loadedModel.settings.linegraph;
+
+        if(show) {
+            mainCanvas.height      = Math.ceil(((container.offsetHeight-20) * 0.5));
+            linegraphCanvas.height = Math.floor(((container.offsetHeight-20) * 0.5));
+
+            linegraphRefresh();
+        } else {
+            mainCanvas.height      = container.offsetHeight;
+            linegraphCanvas.height = 0;
+        }
+
+        lastShow = show;
+        next();
+    }
+
+    var ctx = mainCanvas.getContext('2d');
+    var refreshParams = asyncMiddleware(ctx, mainCanvas, loadedModel, selectedMenu);
+    var _refresh = refreshParams(
+        showLineGraph,
+        refreshNamespace.clearCanvasAndTransform,
+        refreshNamespace.drawNodes,
+        refreshNamespace.drawLinks,
+        refreshNamespace.drawNodeDescriptions,
+        refreshNamespace._drawLinker,
+        refreshNamespace.drawLinkingLine
+    );
+
+    var modelling = require('./settings/modelling.js');
+    function setupIconGroups(sidebar, modelling) {
+        var menuItem = new NewUI.MenuItem(300);
+        menuItem.child.clicks = [];
+        NewUI.Button.prototype.click.call(menuItem.child, function(evt) {
+            if(!evt.target.groupOwner) {
+                return;
+            }
+
+            var button = evt.target.groupOwner;
+            button.constructor(loadedModel, {
+                name: button.name,
+                role: button.role
+            }, {
+                avatar: button.nodeImageSrc
+            });
+        });
+
+        modelling.forEach(function(nodeGroup) {
+            var group = menuItem.addIconGroup(nodeGroup.header);
+            nodeGroup.images.forEach(function(image) {
+                var button                   = group.addIcon(configObject.url + '/' + image.src);
+
+                button.root.groupOwner       = button;
+                button.image.root.groupOwner = button;
+
+                button.image.root.style['border-radius'] = '50%';
+
+                button.name                  = image.header;
+                button.role                  = nodeGroup.header;
+                button.constructor           = nodeGroup.callback;
+                button.nodeImageSrc          = image.src;
+            });
+        });
+
+        sidebar.addItem(menuItem);
+
+        return menuItem;
+    }
+
+    var _ = setupIconGroups(sidebar, modelling);
+    _.setLabel('Modelling');
+
+    function setupSimulate(sidebar, simulate) {
+        var menuItem = new NewUI.MenuItem(300);
+        var items    = {};
+
+        simulate.forEach(function(row) {
+            switch(row.type) {
+                case 'BUTTON':
+                    var button = menuItem.addButton(row.header, function() {
+                        row.callback(loadedModel)
+                    });
+
+                    if(row.id) {
+                        items[row.id] = button;
+                    }
+                    break;
+                case 'CHECKBOX':
+                    var checkbox = menuItem.addCheckbox(row.header);
+
+                    checkbox.onCheck(function() {
+                        row.onCheck(loadedModel);
+                    });
+
+                    checkbox.onUncheck(function() {
+                        row.onUncheck(loadedModel);
+                    });
+
+                    if(row.id) {
+                        items[row.id] = button;
+                    }
+                    break; 
+                case 'DROPDOWN':
+                    var dropdown = menuItem.addDropdown(row.header, row.values);
+
+                    dropdown.defaultValue(function() {
+                        return row.defaultValue(loadedModel, row.values);
+                    });
+
+                    dropdown.onChange(function() {
+                        row.onChange(loadedModel, dropdown.getValue());
+                    });
+
+                    if(row.id) {
+                        items[row.id] = dropdown;
+                    }
+                    break;
+                case 'SLIDER':
+                    var range = row.range(loadedModel);
+                    var slider = menuItem.addSlider(row.header, range[0], range[1]);
+
+                    slider.defaultValue(function() {
+                        var range = row.range(loadedModel);
+                        slider.setMin(range[0]);
+                        slider.setMax(range[1]);
+
+                        return row.defaultValue(loadedModel);
+                    });
+
+                    if(row.onSlide) {
+                        slider.onInput(function() {
+                            row.onSlide(loadedModel, slider.getValue());
+                        });
+                    }
+
+                    slider.onChange(function() {
+                        row.onChange(loadedModel, slider.getValue());
+                    });
+
+                    if(row.id) {
+                        items[row.id] = slider;
+                    }
+                    break;
+
+                case 'INPUT':
+                    var input = menuItem.addInput(row.header);
+                    input.defaultValue(function() {
+                        return row.defaultValue(loadedModel);
+                    });
+
+                    input.onChange(function() {
+                        var value = input.getValue();
+                        if(row.id === 'iterations') {
+                            items.timestep.setMax(value);
+                        }
+
+                        row.onChange(loadedModel, value);
+                    });
+
+                    if(row.id) {
+                        items[row.id] = input;
+                    }
+                    break;
+            }
+        });
+
+        sidebar.addItem(menuItem);
+        return menuItem;
+    }
+
+    var _simulate = require('./settings/simulate.js');
+    var __ = setupSimulate(sidebar, _simulate);
+    __.setLabel('Simulate');
+
+    var newButton  = sidebar.addButton('file', function() {
+        loadedModel.emit('storeModel');
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
+        loadedModel.emit('newModel');
+    });
+
+    var saveButton = sidebar.addButton('floppy-disk', function() {
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preSaveModel');
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'saveModel');
+    });
+
+    var deleteButton = sidebar.addButton('trash', function() {
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
+    });
+
+    var Button = NewUI.Button;
+    function setupLoadModel(sidebar) {
+        var menuItem = new NewUI.MenuItem(300);
+        menuItem.setLabel('Load model');
+
+        menuItem.child.clicks = [];
+        Button.prototype.click.call(menuItem.child, function(evt) {
+            var button      = evt.target.modelButton;
+            var deleteModel = evt.target.deleteModel;
+
+            if(button) {
+                loadedModel.loadModel(button.syncId || button.id);
+                return;
+            }
+
+            if(deleteModel) {
+                loadedModel.deleteModel(deleteModel.syncId || deleteModel.id);
+                return;
+            }
+        });
+
+        var buttons = [];
+        var createButton = function(iterator) {
+            var button;
+            if(iterator < buttons.length) {
+                button = buttons[iterator];
+            } else {
+                button = menuItem.addButton();
+                button.root.modelButton = button;
+                buttons.push(button);
+
+                button.label.root.modelButton = button;
+
+                /*var trashButton = new NewUI.Button();
+                button.appendChild(trashButton);
+
+                var trashIcon = new NewUI.Element('span');
+                trashButton.appendChild(trashIcon);
+                trashIcon.root.className = 'glyphicon glyphicon-trash';
+                trashButton.root.style['margin-right'] = '16px';
+
+                button.label.root.style.display = 'inline-block';
+                trashButton.root.style.float  = 'right';
+
+                var clearTrash = new NewUI.Element('div');
+                clearTrash.root.style.clear = 'both';
+
+                button.appendChild(clearTrash);
+                trashButton.root.deleteModel = button;
+                trashIcon.root.deleteModel = button;
+                trashButton.setWidth(20);
+                trashButton.setHeight(20);*/
+            }
+
+            return button;
+        }
+
+        var lastActiveModelButton = false;
+        menuItem.refresh = function() {
+            loadedModel.getAllModels().then(function(models) {
+                var iterator = 0;
+                var initialSize = buttons.length;
+                models.forEach(function(model) {
+                    if(savedModels.synced[model.id] && savedModels.local[savedModels.synced[model.id].id]) {
+                        return;
+                    }
+
+                    var button = createButton(iterator);
+
+                    if(savedModels.synced[model.id]) {
+                        button.setLabel(savedModels.synced[model.id].settings.name);
+                    } else {
+                        button.setLabel(model.name);
+                    }
+
+                    button.syncId = model.id;
+                    button.id     = model.id;
+
+                    if(loadedModel.syncId === model.id) {
+                        if(lastActiveModelButton) {
+                            lastActiveModelButton.setBackground(Colors.buttonBackground);
+                        }
+
+                        button.setBackground(Colors.buttonCheckedBackground);
+                        lastActiveModelButton = button;
+                    }
+
+                    iterator++;
+                });
+
+                objectHelper.forEach.call(
+                    savedModels.local,
+                    function(model) {
+                        var button = createButton(iterator);
+
+                        button.setLabel(model.settings.name);
+                        button.syncId = model.syncId || false;
+                        button.id     = model.id;
+
+                        if(loadedModel.id === model.id) {
+                            if(lastActiveModelButton) {
+                                lastActiveModelButton.setBackground(Colors.buttonBackground);
+                            }
+                            
+                            button.setBackground(Colors.buttonCheckedBackground);
+                            lastActiveModelButton = button;
+                        }
+
+                        iterator++;
+                    }
+                );
+
+                var localSaved = objectHelper.size.call(savedModels.local);
+                if(models.length + localSaved < buttons.length) {
+                    var removedButtons = buttons.splice(models.length + localSaved, buttons.length - models.length);
+                    removedButtons.forEach(function(button) {
+                        button.destroy();
+                    });
+                }
+            }).catch(function(error) {
+                console.error(error);
+            });
+        };
+
+        menuItem.refresh();
+
+        sidebar.addItem(menuItem);
+        return menuItem;
+    }
+
+    setupLoadModel(sidebar);
+
+    function setupScenarioWindow(sidebar) {
+        var menuItem = new NewUI.MenuItem(300);
+        menuItem.setLabel('Scenario Editor');
+
+        menuItem.root.owner             = undefined;
+        menuItem.label.root.parentOwner = undefined;
+
+        menuItem.clicks = [];
+        menuItem.removeEvents = NewUI.Button.prototype.removeEvents;
+        NewUI.Button.prototype.click.call(menuItem, function() {
+            loadedModel.emit('SCENARIO', 'newWindow');
+        });
+
+        sidebar.addItem(menuItem);
+        return menuItem;
+    }
+
+    setupScenarioWindow(sidebar);
+
+    require('./model/listeners/notification.js')(notificationBarDiv, loadedModel);
+    require('./model/listeners/mouse_down.js')(loadedModel);
+    require('./model/listeners/mouse_move.js')(loadedModel);
+    require('./model/listeners/mouse_up.js')(loadedModel);
+    require('./model/listeners/delete.js')(loadedModel);
+
+    loadedModel.addListener('resetUI', function() {
+        sidebar.foldable.menuItems.forEach(function(menuItem) {
+            menuItem.refresh();
+        });
+    });
+
+    loadedModel.addListener('settings', refresh);
+    /**
+     * @description Renders a new frame for the canvas.
+     * @event refresh
+     * @memberof module:model/propagationEvents
+     */
+    loadedModel.addListener('refresh',  refresh);
+
+    //var sidebarManager = new UI.SidebarManager(sidebarContainer);
+
+    /*loadedModel.addListener('sidebar', function() {
+        sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
+    });*/
+
+    var ScenarioEditor = require('./scenario').ScenarioEditor;
+
+    /**
+     * @description A new window should be created.
+     * @event newWindow
+     * @memberof module:model/propagationEvents
+     *
+     * @param {string} option - Option key
+     */
+    loadedModel.addListener('newWindow', function(option) {
+        switch(option.toUpperCase()) {
+            case 'SCENARIO':
+                loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                    floatingWindow.destroyWindow();
+                });
+                new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
+                break;
+        }
+    });
+
+    /*sidebarManager.setEnvironment(loadedModel.environment);
+    sidebarManager.setLoadedModel(loadedModel);
+    sidebarManager.setSelectedMenu(loadedModel.settings);
+
+    var menu = new UI.Menu(upperMenu, settings.menu);
+    menu.createMenu(loadedModel, savedModels);*/
+
+    require('./model/listeners/selected.js') (sidebar, loadedModel);
+    //require('./model/listeners/selected.js')    (sidebarManager, loadedModel);
+    //require('./model/listeners/reset_ui.js')    (sidebarManager, menu, savedModels, loadedModel);
+
+
+    require('./model/listeners/store_model.js') (savedModels, loadedModel);
+    require('./model/listeners/load_model.js')  (savedModels, loadedModel);
+    require('./model/listeners/new_model.js')   (savedModels, loadedModel);
+    require('./model/listeners/delete_model.js')(savedModels, loadedModel);
+    require('./model/listeners/save_model.js')  (savedModels, loadedModel);
+
+    require('./model/listeners/settings.js')(loadedModel);
+    loadedModel.addListener('settings', function() {
+        if(loadedModel.settings.linegraph) {
+            linegraphRefresh();
+        }
+    });
+
+    loadedModel.emit(null, 'refresh', 'resetUI', 'settings', 'sidebar');
+    loadedModel.emit('Initialized', 'notification');
+
+    var drawLineGraph = require('./graphics/draw_line_graph.js');
+    function _linegraphRefresh() {
+        var lctx = linegraphCanvas.getContext('2d');
+        lctx.clearRect(
+            0,
+            0,
+            linegraphCanvas.width,
+            linegraphCanvas.height
+        );
+
+        var selectedNodes = objectHelper.filter.call(
+            loadedModel.nodeGui,
+            function(node) {
+                return node.linegraph;
+            }
+        );
+
+        var nodeData = loadedModel.nodeData;
+        var lineValues = objectHelper.map.call(
+            selectedNodes,
+            function(nodegui) {
+                var node = nodeData[nodegui.id];
+                return {
+                    name:   node.name,
+                    values: node.simulateChange,
+                    color:  nodegui.graphColor
+                }
+            }
+        );
+
+        drawLineGraph(lctx, 20, 20, linegraphCanvas.width - 40, linegraphCanvas.height - 30, lineValues);
+    }
+
+    function refresh() {
+        window.requestAnimationFrame(_refresh);
+    }
+
+    function linegraphRefresh() {
+        window.requestAnimationFrame(_linegraphRefresh);
+    }
+
+    linegraphRefresh();
+
+    return loadedModel;
 }
 
-function refresh() {
-    window.requestAnimationFrame(_refresh);
-}
-
-refresh();
+window.sense4us              = window.sense4us || {};
+window.sense4us.lastTarget   = false;
+window.sense4us.inflateModel = inflateModel;
+window.sense4us.inflateTool  = inflateModel;
+window.sense4us.NewUI        = require('./new_ui');

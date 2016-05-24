@@ -1,37 +1,100 @@
 'use strict';
 
-var Immutable = require('Immutable');
+var objectHelper = require('./../object-helper.js');
 
-module.exports = function createNode(model, type, data, gui) {
-    var id = model.get('nextId');
-    model = model.set('nextId', id + 1);
+module.exports = function createNode(model, data, gui, type) {
+    var id = model.generateId();
 
-    var nodeData = Immutable.Map({
-        id:             id,
-        value:          0,
-        relativeChange: 0,
-        simulateChange: 0,
-        type:           type || 'intermediate',
-        description:    ''
+    var nodeData = {
+        syncId:          false,
+        value:           0,
+        simulateChange:  [],
+        type:            type || 'intermediate',
+        initialValue:    0,
+        measurementUnit: '',
+        description:     '',
+
+        objectId: 'nodeData'
+    };
+
+    var x      = 400;
+    var y      = 100;
+    var radius = gui ? gui.radius || 45 : 45;
+
+    var offsetX     = model.settings.offsetX;
+    var offsetY     = model.settings.offsetY;
+    var modelWidth  = model.static.width  || -1;
+    var modelHeight = model.static.height || -1;
+
+    objectHelper.forEach.call(model.nodeGui, function(n) {
+        if(n.x < Math.abs(offsetX) || n.x > modelWidth + Math.abs(offsetX)) {
+            return;
+        }
+
+        if(n.x > x) {
+            x = n.x;
+        }
     });
 
-    var nodeGui = Immutable.Map({
-        id:     id,
-        x:      200,
-        y:      100,
-        radius: 75
-    });
+    x += radius;
+
+    var nodeGui = {
+        x:        x,
+        y:        y,
+        radius:   radius,
+        links:    [],
+
+        objectId: 'nodeGui'
+    };
+
 
     if(data !== undefined) {
-        nodeData = nodeData.merge(data);
+        nodeData = objectHelper.merge.call(nodeData, data);
     }
 
     if(gui !== undefined) {
-        nodeGui = nodeGui.merge(gui);
+        nodeGui = objectHelper.merge.call(nodeGui, gui);
     }
 
-    model = model.set('nodeData', model.get('nodeData').set(id, nodeData));
-    model = model.set('nodeGui', model.get('nodeGui').set(id, nodeGui));
+    nodeData.id = id;
+    nodeGui.id  = id;
+    
+    model.history.push({
+        action: 'newNode',
+        data:   {
+            data: nodeData,
+            gui:  nodeGui
+        }
+    });
+    model.revertedHistory = [];
+
+    model.nodeData[id] = nodeData;
+    model.nodeGui[id]  = nodeGui;
+
+    if(nodeData.timeTable) {
+        objectHelper.forEach.call(
+            model.scenarios,
+            function(scenario) {
+                scenario.refresh(model);
+            }
+        );
+    }
+
+    model.emit(null, 'resetUI', 'refresh');
+
+    /**
+     * @description A new node has been created.
+     * @event newNode
+     * @memberof module:model/statusEvents
+     *
+     * @param {integer} id - New node id.
+     * @param {object} nodeData - Data relevant to the new node.
+     * @param {object} nodeGui - Gui data relevant to the new node.
+     * @example tool.addListener('newNode', function(id, nodeData, nodeGui) {
+     *     console.log(nodeData, nodeGui);
+     * })
+     */
+    model.emit([id, nodeData, nodeGui], 'newNode');
 
     return model;
 };
