@@ -95,8 +95,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     mainCanvasC.className         = 'main-canvas';
     linegraphCanvasC.className    = 'linegraph';
 
-    var NewUI = require('./new_ui');
-    var sidebar = new NewUI.Sidebar(200);
+    var NewUI   = require('./new_ui');
+    var Colors  = NewUI.Colors,
+        sidebar = new NewUI.Sidebar(200);
 
     sidebar.appendTo(leftMain);
     leftMain.appendChild(notificationBarDiv);
@@ -487,6 +488,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             return button;
         }
 
+        var lastActiveModelButton = false;
         menuItem.refresh = function() {
             loadedModel.getAllModels().then(function(models) {
                 var iterator = 0;
@@ -507,6 +509,15 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     button.syncId = model.id;
                     button.id     = model.id;
 
+                    if(loadedModel.syncId === model.id) {
+                        if(lastActiveModelButton) {
+                            lastActiveModelButton.setBackground(Colors.buttonBackground);
+                        }
+
+                        button.setBackground(Colors.buttonCheckedBackground);
+                        lastActiveModelButton = button;
+                    }
+
                     iterator++;
                 });
 
@@ -518,6 +529,15 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                         button.setLabel(model.settings.name);
                         button.syncId = model.syncId || false;
                         button.id     = model.id;
+
+                        if(loadedModel.id === model.id) {
+                            if(lastActiveModelButton) {
+                                lastActiveModelButton.setBackground(Colors.buttonBackground);
+                            }
+                            
+                            button.setBackground(Colors.buttonCheckedBackground);
+                            lastActiveModelButton = button;
+                        }
 
                         iterator++;
                     }
