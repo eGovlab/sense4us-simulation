@@ -35,6 +35,10 @@ IconGroup.prototype = {
         if(iterator < this.icons.length) {
             imageButton = this.icons[iterator];
             imageButton.show();
+
+            if(img) {
+                imageButton.image.root.src = img;
+            }
         } else {
             imageButton = this.addIcon(img);
         }
