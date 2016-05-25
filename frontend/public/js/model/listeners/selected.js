@@ -237,13 +237,17 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 input.changeObject   = nodeData;
                 input.changeCheck    = row.check;
 
+                input.setObjectValue = false;
+                if(row.set) {
+                    input.setObjectValue = row.set;
+                }
+
                 input.setLabel(row.property);
                 input.refresh();
 
                 input.show();
 
                 inputIterator++;
-
                 break;
         }
     });
@@ -256,6 +260,11 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 input.changeProperty = row.property;
                 input.changeObject   = nodeGui;
                 input.changeCheck    = row.check;
+                
+                input.setObjectValue = false;
+                if(row.set) {
+                    input.setObjectValue = row.set;
+                }
 
                 input.setLabel(row.property);
                 input.refresh();
@@ -263,7 +272,6 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 input.show();
 
                 inputIterator++;
-
                 break;
             case 'ICONGROUP':
                 var iconGroup = getIconGroup(loadedModel, menuItem, iconGroups, iconGroupIterator);
@@ -295,7 +303,6 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 }
 
                 iconGroup.show();
-
                 break;
         }
     });
