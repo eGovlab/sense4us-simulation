@@ -43,6 +43,7 @@ module.exports = function createNode(model, data, gui, type) {
         y:        y,
         radius:   radius,
         links:    [],
+        color:    '',
 
         objectId: 'nodeGui'
     };
