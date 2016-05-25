@@ -812,7 +812,6 @@ module.exports = {
     getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
 
     saveModel: function(url, userFilter, projectFilter, loadedModel, onDone) {
-        console.log('WAKKA', loadedModel);
         var data = {
             modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
@@ -820,8 +819,6 @@ module.exports = {
             links:     breakout.links(loadedModel),
             scenarios: loadedModel.scenariosToJson()
         };
-
-        console.log('SAVING MODEL', data);
 
         network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
             if (err) {

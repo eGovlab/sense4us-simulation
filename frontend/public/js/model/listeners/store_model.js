@@ -14,6 +14,9 @@ function addStoreModelListeners(savedModels, loadedModel) {
         if(loadedModel.synced === true) {
             m = modelLayer.moveModel(loadedModel);
             savedModels.synced[loadedModel.syncId] = m;
+            if(savedModels.local[m.id]) {
+                savedModels.local[m.id] = m;
+            }
         } else {
             m = modelLayer.moveModel(loadedModel);
             savedModels.local[loadedModel.id] = m;

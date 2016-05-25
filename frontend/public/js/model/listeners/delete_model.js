@@ -25,6 +25,7 @@ function addDeleteModelListeners(savedModels, loadedModel) {
      * @param {integer} syncId - Synchronized id
      */
     loadedModel.addListener('deleteModel', function(id, syncId) {
+        console.log('delete model', id, syncId)
         modelLayer.deleteModel(
                 loadedModel.CONFIG.url,
                 loadedModel.CONFIG.userFilter,

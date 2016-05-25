@@ -38,9 +38,11 @@ function addSaveModelListeners(savedModels, loadedModel) {
                 m,
                 function() {
 
-            console.log('Here');
             savedModels.synced[m.syncId] = m;
             //delete savedModels.local[m.id];
+            if(id === loadedModel.id) {
+                loadedModel.syncId = m.syncId;
+            }
 
             loadedModel.emit([m.id, m.syncId], 'modelSaved');
         });

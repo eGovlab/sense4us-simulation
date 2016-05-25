@@ -27,7 +27,6 @@ function addLoadModelListeners(savedModels, loadedModel) {
      */
     loadedModel.addListener('loadModel', function(option, syncId) {
         option = syncId || option;
-        console.log('option', option);
         if(savedModels.local[option] === undefined) {
             if(typeof savedModels.synced[option] === 'string' || savedModels.synced[option] === undefined) {
                 modelLayer.loadSyncModel(

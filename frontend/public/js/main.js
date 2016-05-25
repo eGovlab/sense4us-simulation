@@ -179,7 +179,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         window.sense4us.models.unsorted.push(loadedModel);
     }
 
-    console.log(savedModels);
     loadedModel.CONFIG                = configObject;
 
     var settings      = require('./settings');
@@ -497,13 +496,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     return arr[arr.length - (index + 1)];
                 });
 
-                console.log(savedModels);
-                console.log(loadedModel.id, loadedModel.syncId);
-                console.log('models', models);
                 models.forEach(function(model) {
-                    console.log(model.id)
                     if(savedModels.synced[model.id] && savedModels.local[savedModels.synced[model.id].id]) {
-                        console.log('ignored');
                         return;
                     }
 
@@ -519,7 +513,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     button.id     = model.id;
 
                     if(loadedModel.syncId === model.id) {
-                        console.log('setting synced', model.id);
                         if(lastActiveModelButton) {
                             lastActiveModelButton.setBackground(Colors.buttonBackground);
                         }
@@ -541,7 +534,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                         button.id     = model.id;
 
                         if(loadedModel.id === model.id) {
-                            console.log('setting local', model.id);
                             if(lastActiveModelButton) {
                                 lastActiveModelButton.setBackground(Colors.buttonBackground);
                             }
