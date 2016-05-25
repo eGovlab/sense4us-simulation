@@ -29,9 +29,9 @@ module.exports = function(container, canvas, loadedModel, hotkeys) {
     }
 
     container.addEventListener('keydown', function(evt) {
-        if(loadedModel.static.modifiers.indexOf(ALT) !== -1) {
+        /*if(loadedModel.static.modifiers.indexOf(ALT) !== -1) {
             console.log(evt.keyCode);
-        }
+        }*/
 
         switch(evt.keyCode) {
             case CTRL:

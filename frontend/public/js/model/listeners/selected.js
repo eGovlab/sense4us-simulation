@@ -55,6 +55,11 @@ var linkModellingFilter = [
     }}
 ],
     guiModellingFilter  = [
+    {property: 'color',         type: 'input', check: function(value) {
+        var match = value.match(/^#[0-9a-fA-F]{3}$|^#[0-9a-fA-F]{6}$/);
+        console.log(value, match);
+        return match !== null;
+    }},
     {property: 'avatar',        type: 'iconGroup', groups: roles}
 ];
 
@@ -242,6 +247,21 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
 
     guiModellingFilter.forEach(function(row) {
         switch(row.type.toUpperCase()) {
+            case 'INPUT':
+                var input = getInput(loadedModel, menuItem, inputs, inputIterator);
+
+                input.changeProperty = row.property;
+                input.changeObject   = nodeGui;
+                input.changeCheck    = row.check;
+
+                input.setLabel(row.property);
+                input.refresh();
+
+                input.show();
+
+                inputIterator++;
+
+                break;
             case 'ICONGROUP':
                 var iconGroup = getIconGroup(loadedModel, menuItem, iconGroups, iconGroupIterator);
 

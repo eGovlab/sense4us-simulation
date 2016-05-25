@@ -546,8 +546,12 @@ Model.prototype = {
     saveModel: function(id) {
         var that = this;
 
-        var currentId     = id || this.id,
-            currentSyncId = id || this.syncId;
+        var currentId     = id,
+            currentSyncId = id;
+        if(typeof id !== 'number' || isNaN(parseInt(id))) {
+            currentId     = this.id;
+            currentSyncId = this.syncId;
+        }
 
         return new Promise(function(fulfill, reject) {
             if(id === undefined || id === null || isNaN(parseInt(id))) {
@@ -808,7 +812,7 @@ module.exports = {
     getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
 
     saveModel: function(url, userFilter, projectFilter, loadedModel, onDone) {
-        console.log(loadedModel);
+        console.log('WAKKA', loadedModel);
         var data = {
             modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
@@ -816,6 +820,8 @@ module.exports = {
             links:     breakout.links(loadedModel),
             scenarios: loadedModel.scenariosToJson()
         };
+
+        console.log('SAVING MODEL', data);
 
         network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
             if (err) {

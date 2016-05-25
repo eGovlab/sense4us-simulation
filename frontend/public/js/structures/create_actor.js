@@ -4,7 +4,13 @@ var Immutable  = null,
     createNode = require('./create_node');
 
 function generateHexColor() {
-    return Math.round(Math.random() * 255).toString(16);
+    var n = Math.round(Math.random() * 255).toString(16);
+
+    if(n.length === 1) {
+        n = '0' + n;
+    }
+
+    return n;
 }
 
 function generateColor() {
