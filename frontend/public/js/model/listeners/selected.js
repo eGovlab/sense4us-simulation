@@ -20,7 +20,7 @@ var linkModellingFilter = [
     {property: 'type',        type: 'dropdown', values: ['halfchannel', 'fullchannel']},
 
     {property: 'threshold',   type: 'input', check: function(value) {
-        var match = value.match(/^\d+\.?\d*$/);
+        var match = value.match(/^-?\d+\.?\d*$/);
         if(match === null) {
             return false;
         }
@@ -29,7 +29,7 @@ var linkModellingFilter = [
     }, set: function(value){return parseFloat(value);}}, 
 
     {property: 'coefficient', type: 'input', check: function(value) {
-        var match = value.match(/^\d+\.?\d*$/);
+        var match = value.match(/^-?\d+\.?\d*$/);
         if(match === null) {
             return false;
         }
