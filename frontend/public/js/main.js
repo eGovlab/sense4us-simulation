@@ -202,9 +202,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         hotkeyE         = require('./input/hotkey_e.js'),
         hotkeyZ         = require('./input/hotkey_z.js'),
         hotkeyY         = require('./input/hotkey_y.js'),
+        hotkeyV         = require('./input/hotkey_v.js'),
         hotkeyESC       = require('./input/hotkey_esc.js');
 
-    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);
+    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC, hotkeyV]);
 
     var zoom = 1;
     function MouseWheelHandler(e) {
@@ -586,6 +587,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     setupScenarioWindow(sidebar);
 
+    loadedModel.addListener('invertSidebar', function() {
+        sidebar.invert();
+    });
+
     require('./model/listeners/notification.js')(notificationBarDiv, loadedModel);
     require('./model/listeners/mouse_down.js')(loadedModel);
     require('./model/listeners/mouse_move.js')(loadedModel);
@@ -702,6 +707,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     }
 
     linegraphRefresh();
+
+    sidebar.invert();
 
     return loadedModel;
 }
