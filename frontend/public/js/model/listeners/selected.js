@@ -57,7 +57,6 @@ var linkModellingFilter = [
     guiModellingFilter  = [
     {property: 'color',         type: 'input', check: function(value) {
         var match = value.match(/^#[0-9a-fA-F]{3}$|^#[0-9a-fA-F]{6}$/);
-        console.log(value, match);
         return match !== null;
     }},
     {property: 'avatar',        type: 'iconGroup', groups: roles}
