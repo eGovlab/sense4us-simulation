@@ -179,7 +179,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         window.sense4us.models.unsorted.push(loadedModel);
     }
 
-    savedModels.local[loadedModel.id] = loadedModel;
     console.log(savedModels);
     loadedModel.CONFIG                = configObject;
 
@@ -499,10 +498,12 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 });
 
                 console.log(savedModels);
+                console.log(loadedModel.id, loadedModel.syncId);
                 console.log('models', models);
                 models.forEach(function(model) {
                     console.log(model.id)
                     if(savedModels.synced[model.id] && savedModels.local[savedModels.synced[model.id].id]) {
+                        console.log('ignored');
                         return;
                     }
 
@@ -518,6 +519,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     button.id     = model.id;
 
                     if(loadedModel.syncId === model.id) {
+                        console.log('setting synced', model.id);
                         if(lastActiveModelButton) {
                             lastActiveModelButton.setBackground(Colors.buttonBackground);
                         }
@@ -539,6 +541,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                         button.id     = model.id;
 
                         if(loadedModel.id === model.id) {
+                            console.log('setting local', model.id);
                             if(lastActiveModelButton) {
                                 lastActiveModelButton.setBackground(Colors.buttonBackground);
                             }
@@ -658,6 +661,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     require('./model/listeners/delete_model.js')(savedModels, loadedModel);
     require('./model/listeners/save_model.js')  (savedModels, loadedModel);
 
+    var localId = loadedModel.id;
+    loadedModel.emit('storeModel');
+    loadedModel.emit([localId, false], 'loadModel');
+
     require('./model/listeners/settings.js')(loadedModel);
     loadedModel.addListener('settings', function() {
         if(loadedModel.settings.linegraph) {
@@ -711,7 +718,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     linegraphRefresh();
 
-    sidebar.invert();
+    sidebar.foldButton.root.click();
 
     return loadedModel;
 }

@@ -432,6 +432,16 @@ function addSelectedListeners(sidebar, loadedModel) {
         });
 
         selectedMenu.child.fold();
+
+        /**
+         * @description Item was deselected by any means.
+         * @event deselected
+         * @memberof module:model/statusEvents
+         *
+         * @example tool.addListener('deselected', function() {
+         *     console.log("Nothing is selected.");
+         * });
+         */
         loadedModel.emit('deselected');
     });
 
@@ -449,23 +459,7 @@ function addSelectedListeners(sidebar, loadedModel) {
                 loadedModel.emit('deselect');
             } else {
                 selectedMenu.child.unfold();
-            }
-        }
-        return;
 
-        sidebarManager.setEnvironment(loadedModel.environment);
-        sidebarManager.setLoadedModel(loadedModel);
-
-        try {
-            if(!this.selected) {
-                this.selected = {};
-            }
-
-            if(this.selected.objectId === 'nodeGui' || this.selected.objectId === 'nodeData') {
-                var nodeData = loadedModel.nodeData[this.selected.id];
-                var nodeGui  = loadedModel.nodeGui[this.selected.id];
-
-                sidebarManager.setSelectedMenu(nodeData, nodeGui);
                 /**
                  * @description Item was selected.
                  * @event selected
@@ -483,25 +477,7 @@ function addSelectedListeners(sidebar, loadedModel) {
                  * });
                  */
                 loadedModel.emit(this.selected, 'selected');
-            } else if(this.selected.objectId === 'link') {
-                sidebarManager.setSelectedMenu(this.selected);
-                loadedModel.emit(this.selected, 'selected');
-            } else {
-                sidebarManager.setSelectedMenu(loadedModel.settings);
-                /**
-                 * @description Item was deselected by any means.
-                 * @event deselected
-                 * @memberof module:model/statusEvents
-                 *
-                 * @example tool.addListener('deselected', function() {
-                 *     console.log("Nothing is selected.");
-                 * });
-                 */
-                loadedModel.emit('deselected');
             }
-        } catch(err) {
-            console.error('Selected menu broke down.');
-            console.error(err);
         }
     });
 }
