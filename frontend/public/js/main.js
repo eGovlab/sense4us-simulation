@@ -493,6 +493,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             loadedModel.getAllModels().then(function(models) {
                 var iterator = 0;
                 var initialSize = buttons.length;
+                models = models.map(function(model, index, arr) {
+                    return arr[arr.length - (index + 1)];
+                });
+
                 models.forEach(function(model) {
                     if(savedModels.synced[model.id] && savedModels.local[savedModels.synced[model.id].id]) {
                         return;
