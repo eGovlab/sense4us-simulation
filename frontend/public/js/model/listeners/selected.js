@@ -20,31 +20,31 @@ var linkModellingFilter = [
     {property: 'type',        type: 'dropdown', values: ['halfchannel', 'fullchannel']},
 
     {property: 'threshold',   type: 'input', check: function(value) {
-        var match = value.match(/\d+\.?\d*/);
+        var match = value.match(/^\d+\.?\d*$/);
         if(match === null) {
             return false;
         }
 
         return true;
-    }}, 
+    }, set: function(value){return parseFloat(value);}}, 
 
     {property: 'coefficient', type: 'input', check: function(value) {
-        var match = value.match(/\d+\.?\d*/);
+        var match = value.match(/^\d+\.?\d*$/);
         if(match === null) {
             return false;
         }
         
         return true;
-    }},
+    }, set: function(value){return parseFloat(value);}},
 
     {property: 'timelag',     type: 'input', check: function(value) {
-        var match = value.match(/\d+/);
+        var match = value.match(/^\d+$/);
         if(match === null) {
             return false;
         }
 
         return true;
-    }}
+    }, set: function(value){return parseInt(value);}}
 ],
     dataModellingFilter = [
     {property: 'name',        type: 'input', check: function() {
@@ -85,7 +85,11 @@ function getInput(loadedModel, menuItem, inputs, iterator) {
                 return;
             }
 
-            input.changeObject[input.changeProperty] = value;
+            if(input.setObjectValue) {
+               input.changeObject[input.changeProperty] = input.setObjectValue(value);
+            } else {
+               input.changeObject[input.changeProperty] = value;
+            }
             loadedModel.floatingWindows.forEach(function(floatingWindow) {
                 floatingWindow.refresh();
             });
@@ -322,6 +326,11 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
 
                 input.changeProperty = row.property;
                 input.changeObject   = link;
+
+                input.setObjectValue = false;
+                if(row.set) {
+                    input.setObjectValue = row.set;
+                }
                 input.changeCheck    = row.check;
 
                 input.setLabel(row.property);
@@ -375,9 +384,16 @@ function setupSelectedMenu(sidebar, loadedModel) {
             var nodeData = loadedModel.nodeData[selected.id],
                 nodeGui  = loadedModel.nodeGui[selected.id];
 
+            if(!nodeData || !nodeGui) {
+                return loadedModel.emit('deselect');
+            }
+
             showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, nodeData, nodeGui);
         } else if(selected.objectId === 'link') {
             var link = loadedModel.links[selected.id];
+            if(!link) {
+                return loadedModel.emit('deselect');
+            }
 
             showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link);
         }

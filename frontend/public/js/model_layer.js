@@ -554,21 +554,16 @@ Model.prototype = {
         }
 
         return new Promise(function(fulfill, reject) {
-            if(id === undefined || id === null || isNaN(parseInt(id))) {
-                reject(new Error('Id must be a valid number.'));
-            }
-
             var cb = function(_id, _syncId, ev) {
                 if(_id !== currentId && _syncId !== currentSyncId) {
                     return;
                 }
 
                 if(ev === 'errorSavingModel') {
-                    return reject(id);
+                    return reject(_id);
                 }
 
-                that.emit([currentId, currentSyncId], 'loadModel');
-                fulfill(id);
+                fulfill(_syncId);
             };
 
             that.addListener('modelSaved', cb);
@@ -581,6 +576,10 @@ Model.prototype = {
             that.emit('storeModel');
             that.emit([currentId, currentSyncId], 'preSaveModel');
             that.emit([currentId, currentSyncId], 'saveModel');
+        }).then(function(){
+            that.emit('refresh', 'resetUI');
+        }).catch(function(err) {
+            console.error(err);
         });
     },
 
@@ -774,7 +773,7 @@ module.exports = {
         newModel.synced          = model.synced;
         newModel.syncId          = model.syncId;
         newModel.nextId          = model.nextId;
-        newModel.selected        = false;
+        newModel.selected        = model.selected;
         newModel.nodeData        = model.nodeData;
         newModel.nodeGui         = model.nodeGui;
         newModel.links           = model.links;
