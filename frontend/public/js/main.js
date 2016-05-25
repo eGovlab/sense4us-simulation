@@ -708,7 +708,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     linegraphRefresh();
 
-    sidebar.invert();
+    sidebar.foldButton.root.click();
 
     return loadedModel;
 }
