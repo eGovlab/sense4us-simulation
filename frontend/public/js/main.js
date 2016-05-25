@@ -498,7 +498,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     return arr[arr.length - (index + 1)];
                 });
 
+                console.log(savedModels);
+                console.log('models', models);
                 models.forEach(function(model) {
+                    console.log(model.id)
                     if(savedModels.synced[model.id] && savedModels.local[savedModels.synced[model.id].id]) {
                         return;
                     }
