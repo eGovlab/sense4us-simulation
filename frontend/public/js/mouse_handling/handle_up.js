@@ -96,7 +96,7 @@ function deselect(data) {
     selectedNodes = objectHelper.map.call(
         selectedNodes,
         function(node) {
-            data.selected = {};
+            data.selected = false;
             delete node.selected;
             delete node.offsetX;
             delete node.offsetY;
@@ -117,7 +117,7 @@ function deselect(data) {
     selectedLinks = objectHelper.map.call(
         selectedLinks,
         function(link) {
-            data.selected = {};
+            data.selected = false;
             delete link.selected;
             delete link.offsetX;
             delete link.offsetY;

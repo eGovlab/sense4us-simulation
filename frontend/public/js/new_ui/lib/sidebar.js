@@ -9,7 +9,7 @@ var Element  = require('./element.js'),
 
 var easeOutCirc = Tween.easeOutCirc;
 
-function Sidebar(width, offset) {
+function Sidebar(width) {
     this.maxWidth = width;
     this.foldable = new Menu(width);
     this.root     = document.createElement('div'); 
@@ -35,7 +35,7 @@ function Sidebar(width, offset) {
     this.foldButton.setBackground(Colors.sidebarFoldButtonBackground);
 
     this.foldButton.root.style.position = 'absolute';
-    this.foldButton.root.style.top      = offset ? offset + 'px' : '0';
+    this.foldButton.root.style.top      = '0';
     this.foldButton.root.style.color    = Colors.sidebarFoldButtonFontColor;
     this.foldButton.root.style['text-align']  = 'center';
     this.foldButton.root.style['padding-top'] = Colors.sidebarFoldButtonPaddingtop + 'px';

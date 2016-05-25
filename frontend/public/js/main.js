@@ -205,7 +205,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         hotkeyV         = require('./input/hotkey_v.js'),
         hotkeyESC       = require('./input/hotkey_esc.js');
 
-    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC, hotkeyV]);
+    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);
 
     var zoom = 1;
     function MouseWheelHandler(e) {

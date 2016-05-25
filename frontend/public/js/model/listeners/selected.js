@@ -355,6 +355,7 @@ function setupSelectedMenu(sidebar, loadedModel) {
     var menuItem = new NewUI.MenuItem(300);
 
     menuItem.setLabel('Selected');
+    menuItem.root.style.display = 'none';
 
     var inputs     = [],
         buttons    = [],
@@ -385,6 +386,15 @@ function setupSelectedMenu(sidebar, loadedModel) {
     menuItem.refresh();
 
     sidebar.addItem(menuItem);
+
+    var sidebarParent = sidebar.root.parentElement;
+    sidebarParent.insertBefore(menuItem.child.root, sidebar.root.nextSibling);
+
+    menuItem.child.root.style.right = '0';
+    menuItem.child.root.style.top   = '0';
+    menuItem.child.setHeight('100%');
+    menuItem.child.root.style['max-height'] = '100%';
+
     return menuItem;
 }
 
@@ -420,6 +430,9 @@ function addSelectedListeners(sidebar, loadedModel) {
         objectHelper.forEach.call(this.nodeGui, function(gui, id) {
             gui.selected = false;
         });
+
+        selectedMenu.child.fold();
+        loadedModel.emit('deselected');
     });
 
     var previousSelected = false;
@@ -432,6 +445,11 @@ function addSelectedListeners(sidebar, loadedModel) {
         if(previousSelected !== loadedModel.selected) {
             selectedMenu.refresh();
             previousSelected = loadedModel.selected;
+            if(loadedModel.selected === false) {
+                loadedModel.emit('deselect');
+            } else {
+                selectedMenu.child.unfold();
+            }
         }
         return;
 
