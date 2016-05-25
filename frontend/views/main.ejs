@@ -34,9 +34,11 @@
         var modelBuilder1 = document.getElementById("model-builder-1");
         var modelBuilder2 = document.getElementById("model-builder-2");
 
-        window.sense4us.inflateModel(modelBuilder1, "sample", "project");
+        window.sense4us.inflateModel(modelBuilder1, "tool", "sample", "project");
         window.sense4us.inflateModel(modelBuilder2, "sample", "project");
 
+        var tool = window.sense4us.models.tool;
+        setInterval(function(){tool.saveModel();}, 1000 * 5);
         /*var loadedModel = window.sense4us.loadedModel;
         loadedModel.addListener("selected", function() {
             var nodeData = this.nodeData[this.selected.id];

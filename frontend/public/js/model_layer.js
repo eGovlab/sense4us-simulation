@@ -567,6 +567,7 @@ Model.prototype = {
                     return reject(id);
                 }
 
+                that.emit([currentId, currentSyncId], 'loadModel');
                 fulfill(id);
             };
 

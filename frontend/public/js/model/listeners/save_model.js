@@ -44,7 +44,7 @@ function addSaveModelListeners(savedModels, loadedModel) {
                 loadedModel.syncId = m.syncId;
             }
 
-            loadedModel.emit([m.id, m.syncId], 'modelSaved');
+            loadedModel.emit([m.id, m.syncId, m], 'modelSaved');
         });
     });
 
