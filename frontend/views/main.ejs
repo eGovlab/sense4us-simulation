@@ -38,7 +38,18 @@
         window.sense4us.inflateModel(modelBuilder2, "sample", "project");
 
         var tool = window.sense4us.models.tool;
-        setInterval(function(){tool.saveModel();}, 1000 * 5);
+
+        tool.getAllModels().then(function(models) {
+            if(models.length === 0) {
+                return;
+            }
+            
+            return tool.loadModel(models[models.length - 1].id);
+        }).then(function() {
+            setInterval(function(){tool.saveModel();}, 1000 * 5);
+        }).catch(function(err) {
+            console.log(err);
+        });
         /*var loadedModel = window.sense4us.loadedModel;
         loadedModel.addListener("selected", function() {
             var nodeData = this.nodeData[this.selected.id];

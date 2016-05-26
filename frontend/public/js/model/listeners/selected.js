@@ -380,7 +380,13 @@ function setupSelectedMenu(sidebar, loadedModel) {
         sliders    = [],
         iconGroups = [];
 
+    var previousSelected = false;
     menuItem.refresh = function() {
+        if(previousSelected === loadedModel.selected) {
+            return;
+        }
+
+        previousSelected = loadedModel.selected;
         var selected = loadedModel.selected;
         if(!selected || !selected.objectId) {
             hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups);

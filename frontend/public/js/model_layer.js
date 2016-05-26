@@ -771,14 +771,13 @@ module.exports = {
         newModel.id              = model.id;
         newModel.environment     = model.environment;
         newModel.sidebar         = model.sidebar;
-        newModel.refresh         = false;
-        newModel.resetUI         = false;
         newModel.floatingWindows = model.floatingWindows;
         newModel.saved           = model.saved;
         newModel.synced          = model.synced;
         newModel.syncId          = model.syncId;
         newModel.nextId          = model.nextId;
-        newModel.selected        = model.selected;
+        //newModel.selected        = model.selected;
+        delete newModel.selected;
         newModel.nodeData        = model.nodeData;
         newModel.nodeGui         = model.nodeGui;
         newModel.links           = model.links;

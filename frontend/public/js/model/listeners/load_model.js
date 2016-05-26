@@ -85,7 +85,6 @@ function addLoadModelListeners(savedModels, loadedModel) {
                 objectHelper.forEach.call(
                     savedModel,
                     function(value, key) {
-                        console.log(key, value);
                         loadedModel[key] = value;
                     }
                 );
