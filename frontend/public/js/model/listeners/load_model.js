@@ -58,6 +58,15 @@ function addLoadModelListeners(savedModels, loadedModel) {
                     loadedModel.nodeGui  = {};
                     loadedModel.nodeData = {};
 
+                    newState.selected = false;
+                    loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                        floatingWindow.destroyWindow();
+
+                        if(floatingWindow.hide) {
+                            floatingWindow.hide();
+                        }
+                    });
+
                     savedModels.synced[option] = newState;
                     objectHelper.forEach.call(
                         newState,
@@ -81,7 +90,20 @@ function addLoadModelListeners(savedModels, loadedModel) {
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
 
+
                 var savedModel = savedModels.synced[option];
+
+                if(loadedModel.id !== savedModel.id && loadedModel.syncId !== savedModel.syncId) {
+                    savedModel.selected = false;
+                    loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                        floatingWindow.destroyWindow();
+
+                        if(floatingWindow.hide) {
+                            floatingWindow.hide();
+                        }
+                    });
+                }
+
                 objectHelper.forEach.call(
                     savedModel,
                     function(value, key) {
@@ -97,6 +119,17 @@ function addLoadModelListeners(savedModels, loadedModel) {
             loadedModel.nodeData = {};
             
             var savedModel = savedModels.local[option];
+            if(loadedModel.id !== savedModel.id && loadedModel.syncId !== savedModel.syncId) {
+                savedModel.selected = false;
+                loadedModel.floatingWindows.forEach(function(floatingWindow) {
+                    floatingWindow.destroyWindow();
+
+                    if(floatingWindow.hide) {
+                        floatingWindow.hide();
+                    }
+                });
+            }
+
             objectHelper.forEach.call(
                 savedModel,
                 function(value, key) {

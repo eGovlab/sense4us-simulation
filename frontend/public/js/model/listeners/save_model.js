@@ -55,9 +55,9 @@ function addSaveModelListeners(savedModels, loadedModel) {
             throw new Error('Model data corrupted.');
         }
 
-        objectHelper.forEach.call(m, function(value, key) {
+        /*objectHelper.forEach.call(m, function(value, key) {
             loadedModel[key] = value;
-        });
+        });*/
 
         loadedModel.emit('Model \'' + m.settings.name + '\' saved.', 'notification');
     });

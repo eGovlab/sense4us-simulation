@@ -776,7 +776,9 @@ module.exports = {
         newModel.synced          = model.synced;
         newModel.syncId          = model.syncId;
         newModel.nextId          = model.nextId;
-        //newModel.selected        = model.selected;
+        
+        // Saving and reloading the current model would fuck up the sidebar
+        // if this property existed, since it would overwrite the currently selected value.
         delete newModel.selected;
         newModel.nodeData        = model.nodeData;
         newModel.nodeGui         = model.nodeGui;
@@ -789,15 +791,15 @@ module.exports = {
         newModel.static          = model.static;
         newModel.history         = model.history;
 
-        model.floatingWindows.forEach(function(floatingWindow) {
+        /*model.floatingWindows.forEach(function(floatingWindow) {
             floatingWindow.destroyWindow();
 
             if(floatingWindow.hide) {
                 floatingWindow.hide();
             }
-        });
+        });*/
 
-        model.floatingWindows = [];
+        //model.floatingWindows = [];
         model.nodeData        = {};
         model.nodeGui         = {};
         model.links           = {};

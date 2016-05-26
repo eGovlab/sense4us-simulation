@@ -386,6 +386,10 @@ function setupSelectedMenu(sidebar, loadedModel) {
             return;
         }
 
+        if(loadedModel.selected === false) {
+            return loadedModel.emit('deselect');        
+        }
+
         previousSelected = loadedModel.selected;
         var selected = loadedModel.selected;
         if(!selected || !selected.objectId) {
