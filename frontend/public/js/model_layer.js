@@ -549,6 +549,7 @@ Model.prototype = {
         var currentId     = id,
             currentSyncId = id;
         if(typeof id !== 'number' || isNaN(parseInt(id))) {
+            id = false;
             currentId     = this.id;
             currentSyncId = this.syncId;
         }
@@ -578,6 +579,10 @@ Model.prototype = {
             } 
 
             that.emit('storeModel');
+            if(!id) {
+                that.emit([currentId, currentSyncId], 'loadModel');
+            }
+            
             that.emit([currentId, currentSyncId], 'preSaveModel');
             that.emit([currentId, currentSyncId], 'saveModel');
         });
