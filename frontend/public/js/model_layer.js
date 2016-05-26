@@ -555,20 +555,16 @@ Model.prototype = {
         }
 
         return new Promise(function(fulfill, reject) {
-            if(id === undefined || id === null || isNaN(parseInt(id))) {
-                reject(new Error('Id must be a valid number.'));
-            }
-
             var cb = function(_id, _syncId, ev) {
                 if(_id !== currentId && _syncId !== currentSyncId) {
                     return;
                 }
 
                 if(ev === 'errorSavingModel') {
-                    return reject(id);
+                    return reject(_id);
                 }
 
-                fulfill(id);
+                fulfill(_syncId);
             };
 
             that.addListener('modelSaved', cb);
@@ -585,6 +581,10 @@ Model.prototype = {
             
             that.emit([currentId, currentSyncId], 'preSaveModel');
             that.emit([currentId, currentSyncId], 'saveModel');
+        }).then(function(){
+            that.emit('refresh', 'resetUI');
+        }).catch(function(err) {
+            console.error(err);
         });
     },
 
@@ -778,7 +778,7 @@ module.exports = {
         newModel.synced          = model.synced;
         newModel.syncId          = model.syncId;
         newModel.nextId          = model.nextId;
-        newModel.selected        = false;
+        newModel.selected        = model.selected;
         newModel.nodeData        = model.nodeData;
         newModel.nodeGui         = model.nodeGui;
         newModel.links           = model.links;
@@ -817,7 +817,6 @@ module.exports = {
     getAllModels: function(loadedModel){return getAllModels.call(loadedModel);},
 
     saveModel: function(url, userFilter, projectFilter, loadedModel, onDone) {
-        console.log('WAKKA', loadedModel);
         var data = {
             modelId:   loadedModel.syncId,
             settings:  loadedModel.settings,
@@ -825,8 +824,6 @@ module.exports = {
             links:     breakout.links(loadedModel),
             scenarios: loadedModel.scenariosToJson()
         };
-
-        console.log('SAVING MODEL', data);
 
         network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
             if (err) {

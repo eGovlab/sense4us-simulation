@@ -126,6 +126,11 @@ Dropdown.prototype = {
     },
 
     replaceValues: function(values) {
+        while(this.select.root.firstChild) {
+            this.select.root.removeChild(this.select.root.firstChild);
+        }
+
+        this.values = [];
         values.forEach(function(v){this.addValue(v)}, this);
     },
 

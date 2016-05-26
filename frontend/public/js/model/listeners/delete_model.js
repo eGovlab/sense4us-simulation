@@ -25,6 +25,7 @@ function addDeleteModelListeners(savedModels, loadedModel) {
      * @param {integer} syncId - Synchronized id
      */
     loadedModel.addListener('deleteModel', function(id, syncId) {
+        console.log('delete model', id, syncId)
         modelLayer.deleteModel(
                 loadedModel.CONFIG.url,
                 loadedModel.CONFIG.userFilter,
@@ -32,13 +33,20 @@ function addDeleteModelListeners(savedModels, loadedModel) {
                 syncId || id,
                 savedModels,
                 function(message) {
+            console.log(loadedModel.id, loadedModel.syncId, id, syncId)
             if(loadedModel.id === id || loadedModel.syncId === syncId) {
                 var firstLocal = objectHelper.first.call(savedModels.local);
+                if(firstLocal && (firstLocal.id === loadedModel.id || firstLocal.syncId === loadedModel.syncId)) {
+                    delete savedModels.local[firstLocal.id];
+                    firstLocal = undefined;
+                }
 
                 if(firstLocal === undefined) {
                     firstLocal = modelLayer.newModel();
                     savedModels.local[firstLocal.id] = firstLocal;
                 }
+
+                console.log('firstLocal', firstLocal)
 
                 objectHelper.forEach.call(
                     firstLocal,

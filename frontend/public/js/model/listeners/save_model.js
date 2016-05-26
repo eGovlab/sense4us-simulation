@@ -38,24 +38,28 @@ function addSaveModelListeners(savedModels, loadedModel) {
                 m,
                 function() {
 
-            console.log('Here');
             savedModels.synced[m.syncId] = m;
             //delete savedModels.local[m.id];
+            if(id === loadedModel.id) {
+                loadedModel.syncId = m.syncId;
+            }
 
-            loadedModel.emit([m.id, m.syncId], 'modelSaved');
+            loadedModel.emit([m.id, m.syncId, m], 'modelSaved');
         });
     });
 
     loadedModel.addListener('modelSaved', function(id, syncId) {
         var m = savedModels.synced[syncId] || savedModels.local[id];
         if(!m || typeof m === 'string') {
-            console.log(savedModels);
             loadedModel.emit('Model was not stored in correct location. Saving probably finished, but wut.', 'notification');
             throw new Error('Model data corrupted.');
         }
 
+        objectHelper.forEach.call(m, function(value, key) {
+            loadedModel[key] = value;
+        });
+
         loadedModel.emit('Model \'' + m.settings.name + '\' saved.', 'notification');
-        loadedModel.emit(null, 'refresh', 'resetUI');
     });
 }
 

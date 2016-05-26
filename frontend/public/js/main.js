@@ -179,8 +179,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         window.sense4us.models.unsorted.push(loadedModel);
     }
 
-    savedModels.local[loadedModel.id] = loadedModel;
-    console.log(savedModels);
     loadedModel.CONFIG                = configObject;
 
     var settings      = require('./settings');
@@ -654,6 +652,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     require('./model/listeners/new_model.js')   (savedModels, loadedModel);
     require('./model/listeners/delete_model.js')(savedModels, loadedModel);
     require('./model/listeners/save_model.js')  (savedModels, loadedModel);
+
+    var localId = loadedModel.id;
+    loadedModel.emit('storeModel');
+    loadedModel.emit([localId, false], 'loadModel');
 
     require('./model/listeners/settings.js')(loadedModel);
     loadedModel.addListener('settings', function() {
