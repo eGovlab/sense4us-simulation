@@ -282,7 +282,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             var button = evt.target.groupOwner;
             button.constructor(loadedModel, {
                 name: button.name,
-                role: button.role
+                role: button.role.toUpperCase()
             }, {
                 avatar: button.nodeImageSrc
             });

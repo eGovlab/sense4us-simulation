@@ -46,6 +46,7 @@
             
             return tool.loadModel(models[models.length - 1].id);
         }).then(function() {
+            tool.createNode("Hello", "origin", "exTERnal faCTor");
             setInterval(function(){tool.saveModel();}, 1000 * 5);
         }).catch(function(err) {
             console.log(err);
