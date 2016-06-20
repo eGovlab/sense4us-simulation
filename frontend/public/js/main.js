@@ -710,6 +710,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 borderColor:      nodegui.color
             };
         });
+        
 
         Chart.Line(lctx, {
             data: {
