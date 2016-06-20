@@ -13,6 +13,7 @@ module.exports = function createNode(model, data, gui, type) {
         initialValue:    0,
         measurementUnit: '',
         description:     '',
+        baseline:        0,
 
         objectId: 'nodeData'
     };

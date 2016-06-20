@@ -8,8 +8,6 @@ module.exports = function createOriginNode(model, data, gui) {
         data = {};
     }
 
-    data.baseline = 0;
-    
     data.timeTable = {
         0: 0,
         1: 10,

@@ -55,19 +55,13 @@ var linkModellingFilter = [
         return true;
     }},
     {property: 'baseline', type: 'input', check: function(value) {
-        var match = value.match(/^-?\d+%?$/);
+        var match = value.match(/^-?\d+$/);
         if(match === null) {
             return false;
         }
 
         return true;
     }, set: function(value) {
-        if(value.charAt(value.length - 1) !== '%') {
-            this.setValue(value + '%');
-        } else {
-            this.setValue(value);
-        }
-
         return parseFloat(value);
     }}
 ],
