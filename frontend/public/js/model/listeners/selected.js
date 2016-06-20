@@ -9,6 +9,7 @@ var modelling    = require('./../../settings/modelling.js');
 var roles        = {};
 
 modelling.forEach(function(group) {
+    group.header = group.header.toUpperCase();
     if(!roles[group.header]) {
         roles[group.header] = [];
     }

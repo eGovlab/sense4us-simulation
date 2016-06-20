@@ -267,8 +267,12 @@ Model.prototype = {
      * @param {string} type - Node type. 
      * @param {string} prototypeId - Prototype id.
      */
-    createNode: function(name, type, prototypeId) {
-        createNode(this, {name: name, prototypeId: prototypeId}, {}, type || 'template');
+    createNode: function(name, type, role, prototypeId) {
+        createNode(this, {
+            name:        name,
+            prototypeId: prototypeId,
+            role:        role.toUpperCase()
+        }, {}, type || 'template');
     },
 
     /**
