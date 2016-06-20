@@ -73,8 +73,8 @@ module.exports = function drawNode(ctx, map) {
         ctx.fill();
     }
 
-    if(map.linegraph && map.graphColor) {
-        ctx.strokeStyle = map.graphColor;
+    if(map.linegraph && map.color) {
+        ctx.strokeStyle = map.color;
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.arc(map.x, map.y, map.radius + 8, 0, 360);

@@ -242,14 +242,17 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     var lastShow;
     function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
-        var show   = loadedModel.settings.linegraph;
+        var show = loadedModel.settings.linegraph;
 
-        if(show) {
+        if(show && lastShow !== show) {
             mainCanvas.height      = Math.ceil(((container.offsetHeight-20) * 0.5));
             linegraphCanvas.height = Math.floor(((container.offsetHeight-20) * 0.5));
 
-            linegraphRefresh();
-        } else {
+            console.log('Shown again.');
+            if(lastShow !== show) {
+                linegraphRefresh();
+            }
+        } else if(!show) {
             mainCanvas.height      = container.offsetHeight;
             linegraphCanvas.height = 0;
         }
@@ -664,13 +667,69 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         }
     });
 
+    loadedModel.addListener('refreshLinegraph', function() {
+        if(loadedModel.settings.linegraph) {
+            console.log('Refreshing linegraph.');
+            linegraphRefresh();
+        }
+    });
+
     loadedModel.emit(null, 'refresh', 'resetUI', 'settings', 'sidebar');
     loadedModel.emit('Initialized', 'notification');
 
+    var Chart = require('chart.js');
     var drawLineGraph = require('./graphics/draw_line_graph.js');
     function _linegraphRefresh() {
         var lctx = linegraphCanvas.getContext('2d');
-        lctx.clearRect(
+
+        var labels   = [];
+        for(var i = 0; i <= loadedModel.loadedScenario.maxIterations; i++) {
+            labels.push(''+i);
+        }
+
+        var selectedNodes = objectHelper.filter.call(
+            loadedModel.nodeGui,
+            function(node) {
+                return node.linegraph;
+            }
+        );
+
+        var nodeData = loadedModel.nodeData;
+        var nodeGui  = loadedModel.nodeGui;
+        var datasets = Object.keys(selectedNodes).map(function(key) {
+            var nodegui = nodeGui[key];
+            var node    = nodeData[key];
+
+            return {
+                label:            node.name,
+                data:             node.simulateChange,
+                fill:             false,
+                lineTension:      0.1,
+                backgroundColor:  nodegui.color,
+                pointBorderColor: nodegui.color,
+                borderColor:      nodegui.color
+            };
+        });
+
+        Chart.Line(lctx, {
+            data: {
+                labels:   labels,
+                datasets: datasets
+            },
+
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+         
+        return;
+        /*lctx.clearRect(
             0,
             0,
             linegraphCanvas.width,
@@ -684,7 +743,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             }
         );
 
-        var nodeData = loadedModel.nodeData;
+        var nodeData   = loadedModel.nodeData;
         var lineValues = objectHelper.map.call(
             selectedNodes,
             function(nodegui) {
@@ -692,12 +751,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 return {
                     name:   node.name,
                     values: node.simulateChange,
-                    color:  nodegui.graphColor
+                    color:  nodegui.color
                 }
             }
         );
 
-        drawLineGraph(lctx, 20, 20, linegraphCanvas.width - 40, linegraphCanvas.height - 30, lineValues);
+        console.log('Linegraph cleared.');
+
+        drawLineGraph(lctx, 20, 20, linegraphCanvas.width - 40, linegraphCanvas.height - 30, lineValues);*/
     }
 
     function refresh() {

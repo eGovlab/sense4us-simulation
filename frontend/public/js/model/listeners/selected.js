@@ -52,6 +52,22 @@ var linkModellingFilter = [
     }},
     {property: 'description', type: 'input', check: function() {
         return true;
+    }},
+    {property: 'baseline', type: 'input', check: function(value) {
+        var match = value.match(/^-?\d+%?$/);
+        if(match === null) {
+            return false;
+        }
+
+        return true;
+    }, set: function(value) {
+        if(value.charAt(value.length - 1) !== '%') {
+            this.setValue(value + '%');
+        } else {
+            this.setValue(value);
+        }
+
+        return parseFloat(value);
     }}
 ],
     guiModellingFilter  = [
@@ -86,7 +102,7 @@ function getInput(loadedModel, menuItem, inputs, iterator) {
             }
 
             if(input.setObjectValue) {
-               input.changeObject[input.changeProperty] = input.setObjectValue(value);
+               input.changeObject[input.changeProperty] = input.setObjectValue.call(input, value);
             } else {
                input.changeObject[input.changeProperty] = value;
             }
@@ -391,7 +407,7 @@ function setupSelectedMenu(sidebar, loadedModel) {
         }
 
         previousSelected = loadedModel.selected;
-        var selected = loadedModel.selected;
+        var selected     = loadedModel.selected;
         if(!selected || !selected.objectId) {
             hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups);
             return;
@@ -472,7 +488,7 @@ function addSelectedListeners(sidebar, loadedModel) {
          * @memberof module:model/statusEvents
          *
          * @example tool.addListener('deselected', function() {
-         *     console.log("Nothing is selected.");
+         *     console.log('Nothing is selected.');
          * });
          */
         loadedModel.emit('deselected');
@@ -500,13 +516,13 @@ function addSelectedListeners(sidebar, loadedModel) {
                  *
                  * @param {object} selected - The currently selected object.
                  * @example tool.addListener('selected', function(object) {
-                 *     if(object.objectId !== "nodeData" && object.objectId !== "nodeGui") {
-                 *         return console.log("Not a node.");
+                 *     if(object.objectId !== 'nodeData' && object.objectId !== 'nodeGui') {
+                 *         return console.log('Not a node.');
                  *     }
                  *     
                  *     var nodeData = this.nodeData[this.selected.id];
                  *     var nodeGui  = this.nodeGui[this.selected.id];
-                 *     console.log("Node selected", nodeData, nodeGui);
+                 *     console.log('Node selected', nodeData, nodeGui);
                  * });
                  */
                 loadedModel.emit(this.selected, 'selected');

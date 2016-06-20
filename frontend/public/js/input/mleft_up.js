@@ -53,6 +53,10 @@ function mouseUp(canvas, loadedModel, pos) {
         loadedModel.emit('resetUI');
     }
 
+    if(data.refreshLinegraph) {
+        loadedModel.emit('refreshLinegraph');
+    }
+
     loadedModel.emit('select');
 
     canvas.panX = -loadedModel.settings.offsetX;

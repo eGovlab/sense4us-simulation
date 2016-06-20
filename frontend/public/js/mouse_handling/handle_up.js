@@ -148,8 +148,15 @@ function select(data, error, done) {
                 return node;
             }
 
-            node.linegraph  = data.linegraph ? !node.linegraph : false,
-            node.graphColor = generateColor();
+            if(!data.didDrag) {
+                node.linegraph  = data.linegraph ? !node.linegraph : false;
+                data.refreshLinegraph = true;
+
+                if(!node.color) {
+                    node.color = generateColor();
+                }
+            }
+
             node.msSinceClicked = Date.now();
             return node;
         }
