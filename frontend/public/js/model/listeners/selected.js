@@ -45,7 +45,23 @@ var linkModellingFilter = [
         }
 
         return true;
-    }, set: function(value){return parseInt(value);}}
+    }, set: function(value){return parseInt(value);}},
+
+    {property: 'bidirectional', type: 'checkbox'},
+
+    {property: 'bidirectionalTimelag', type: 'input', check: function() {
+        var match = value.match(/^\d+$/);
+        if(match === null) {
+            return false;
+        }
+
+        return true;
+    }, set: function(value) {
+        return parseInt(value);
+    }, showCondition: function(link) {
+        console.log(link);
+        return link.bidirectional;
+    }}
 ],
     dataModellingFilter = [
     {property: 'name',        type: 'input', check: function() {
@@ -53,6 +69,16 @@ var linkModellingFilter = [
     }},
     {property: 'description', type: 'input', check: function() {
         return true;
+    }},
+    {property: 'baseline', type: 'input', check: function(value) {
+        var match = value.match(/^-?\d+$/);
+        if(match === null) {
+            return false;
+        }
+
+        return true;
+    }, set: function(value) {
+        return parseFloat(value);
     }}
 ],
     guiModellingFilter  = [
@@ -87,7 +113,7 @@ function getInput(loadedModel, menuItem, inputs, iterator) {
             }
 
             if(input.setObjectValue) {
-               input.changeObject[input.changeProperty] = input.setObjectValue(value);
+               input.changeObject[input.changeProperty] = input.setObjectValue.call(input, value);
             } else {
                input.changeObject[input.changeProperty] = value;
             }
@@ -143,7 +169,18 @@ function getDropdown(loadedModel, menuItem, dropdowns, iterator) {
 }
 
 function getCheckbox(loadedModel, menuItem, checkboxes, iterator) {
+    var checkbox;
+    if(iterator < checkboxes.length) {
+        checkbox = checkboxes[iterator];
+    } else {
+        checkbox = menuItem.addCheckbox();
+        checkboxes.push(checkbox);
 
+        checkbox.onCheck();
+        checkbox.onUncheck();
+    }
+
+    return checkbox;
 }
 
 function getSliders(loadedModel, menuItem, sliders, iterator) {
@@ -327,6 +364,7 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
 
     deleteButton.buttonContainer.show();
 
+    var showConditions = [];
     linkModellingFilter.forEach(function(row) {
         switch(row.type.toUpperCase()) {
             case 'INPUT':
@@ -334,17 +372,25 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
 
                 input.changeProperty = row.property;
                 input.changeObject   = link;
+                input.changeCheck    = row.check;
 
                 input.setObjectValue = false;
                 if(row.set) {
                     input.setObjectValue = row.set;
                 }
-                input.changeCheck    = row.check;
 
                 input.setLabel(row.property);
                 input.refresh();
 
-                input.show();
+                if(row.showCondition && !row.showCondition(link)) {
+                    showConditions.push({
+                        element:  input,
+                        callback: row.showCondition
+                    });
+                    input.hide();
+                } else {
+                    input.show();
+                }
 
                 inputIterator++;
 
@@ -366,6 +412,8 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 break;
         }
     });
+
+    return showConditions;
 }
 
 function setupSelectedMenu(sidebar, loadedModel) {
@@ -382,17 +430,28 @@ function setupSelectedMenu(sidebar, loadedModel) {
         iconGroups = [];
 
     var previousSelected = false;
+    var showConditions   = null;
     menuItem.refresh = function() {
         if(previousSelected === loadedModel.selected) {
+            if(showConditions && showConditions.length > 0) {
+                showConditions.forEach(function(condition) {
+                    if(condition.callback(previousSelected)) {
+                        condition.element.show();
+                    } else {
+                        condition.element.hide();
+                    }
+                });
+            }
             return;
         }
 
         if(loadedModel.selected === false) {
-            return loadedModel.emit('deselect');        
+            return loadedModel.emit('deselect');
         }
 
+        showConditions   = null;
         previousSelected = loadedModel.selected;
-        var selected = loadedModel.selected;
+        var selected     = loadedModel.selected;
         if(!selected || !selected.objectId) {
             hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGroups);
             return;
@@ -413,7 +472,7 @@ function setupSelectedMenu(sidebar, loadedModel) {
                 return loadedModel.emit('deselect');
             }
 
-            showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link);
+            showConditions = showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link);
         }
     };
 
@@ -473,10 +532,14 @@ function addSelectedListeners(sidebar, loadedModel) {
          * @memberof module:model/statusEvents
          *
          * @example tool.addListener('deselected', function() {
-         *     console.log("Nothing is selected.");
+         *     console.log('Nothing is selected.');
          * });
          */
         loadedModel.emit('deselected');
+    });
+
+    loadedModel.addListener('selectableObjectUpdated', function() {
+        selectedMenu.refresh();
     });
 
     var previousSelected = false;
@@ -501,13 +564,13 @@ function addSelectedListeners(sidebar, loadedModel) {
                  *
                  * @param {object} selected - The currently selected object.
                  * @example tool.addListener('selected', function(object) {
-                 *     if(object.objectId !== "nodeData" && object.objectId !== "nodeGui") {
-                 *         return console.log("Not a node.");
+                 *     if(object.objectId !== 'nodeData' && object.objectId !== 'nodeGui') {
+                 *         return console.log('Not a node.');
                  *     }
                  *     
                  *     var nodeData = this.nodeData[this.selected.id];
                  *     var nodeGui  = this.nodeGui[this.selected.id];
-                 *     console.log("Node selected", nodeData, nodeGui);
+                 *     console.log('Node selected', nodeData, nodeGui);
                  * });
                  */
                 loadedModel.emit(this.selected, 'selected');

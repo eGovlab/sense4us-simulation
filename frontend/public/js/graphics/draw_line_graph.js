@@ -166,6 +166,8 @@ function drawLineGraph(ctx, x, y, w, h, values) {
             ctx.restore();
         }
     );
+    
+    console.log('Linegraph drawn.');
 }
 
 module.exports = drawLineGraph;

@@ -55,14 +55,18 @@ var simulate = [
 
     {
         header: 'Linegraph',
-        type:   'BUTTON',
+        type:   'CHECKBOX',
         ajax:   true,
-        callback: function(loadedModel) {
+        onCheck: function(loadedModel) {
             var settings       = loadedModel.settings;
-            settings.linegraph = !settings.linegraph
+            settings.linegraph = true;
 
-            /*loadedModel.refresh = true;
-            loadedModel.propagate();*/
+            loadedModel.emit('refresh');
+        },
+
+        onUncheck: function(loadedModel) {
+            var settings       = loadedModel.settings;
+            settings.linegraph = false;
 
             loadedModel.emit('refresh');
         }
