@@ -47,6 +47,8 @@ var linkModellingFilter = [
         return true;
     }, set: function(value){return parseInt(value);}},
 
+    {property: 'bidirectional', type: 'checkbox'},
+
     {property: 'bidirectionalTimelag', type: 'input', check: function() {
         var match = value.match(/^\d+$/);
         if(match === null) {
@@ -167,7 +169,18 @@ function getDropdown(loadedModel, menuItem, dropdowns, iterator) {
 }
 
 function getCheckbox(loadedModel, menuItem, checkboxes, iterator) {
+    var checkbox;
+    if(iterator < checkboxes.length) {
+        checkbox = checkboxes[iterator];
+    } else {
+        checkbox = menuItem.addCheckbox();
+        checkboxes.push(checkbox);
 
+        checkbox.onCheck();
+        checkbox.onUncheck();
+    }
+
+    return checkbox;
 }
 
 function getSliders(loadedModel, menuItem, sliders, iterator) {
@@ -359,12 +372,12 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
 
                 input.changeProperty = row.property;
                 input.changeObject   = link;
+                input.changeCheck    = row.check;
 
                 input.setObjectValue = false;
                 if(row.set) {
                     input.setObjectValue = row.set;
                 }
-                input.changeCheck = row.check;
 
                 input.setLabel(row.property);
                 input.refresh();
