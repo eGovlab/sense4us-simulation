@@ -268,6 +268,12 @@ Model.prototype = {
      * @param {string} prototypeId - Prototype id.
      */
     createNode: function(name, type, role, prototypeId) {
+        if(    typeof name !== "string"
+            || typeof type !== "string"
+            || typeof role !== "string") {
+            throw new Error("Couldn't create node since information is lacking. Requires strings: name, type, role.");
+        }
+
         createNode(this, {
             name:        name,
             prototypeId: prototypeId,
