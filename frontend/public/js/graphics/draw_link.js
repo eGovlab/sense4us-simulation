@@ -24,6 +24,8 @@ module.exports = function drawLink(ctx, line) {
         lineWidth      = line.width,
         halfLineWidth  = lineWidth * 0.80,
 
+        arrowLength    = 25,
+
         startX         = x1 + Math.cos(angle) * (fromRadius),
         startY         = y1 + Math.sin(angle) * (fromRadius),
         
@@ -33,8 +35,8 @@ module.exports = function drawLink(ctx, line) {
         arrowMiddleX   = startX + Math.cos(angle) * ((distance - fromRadius - targetRadius) / 2),
         arrowMiddleY   = startY + Math.sin(angle) * ((distance - fromRadius - targetRadius) / 2),
         
-        arrowStartX    = x1 + Math.cos(angle) * (distance - (targetRadius + 25)),
-        arrowStartY    = y1 + Math.sin(angle) * (distance - (targetRadius + 25)),
+        arrowStartX    = x1 + Math.cos(angle) * (distance - (targetRadius + arrowLength)),
+        arrowStartY    = y1 + Math.sin(angle) * (distance - (targetRadius + arrowLength)),
         
         halfPI         = Math.PI / 2,
 
@@ -84,6 +86,26 @@ module.exports = function drawLink(ctx, line) {
 
     ctx.lineWidth = line.width * 1.2;
     ctx.beginPath();
+
+    if(line.bidirectional) {
+        var bidirectionalArrowEndX    = startX + Math.cos(angle) * (halfLineWidth),
+            bidirectionalArrowEndY    = startY + Math.sin(angle) * (halfLineWidth),
+
+            startX                    = startX + Math.cos(angle) * arrowLength,
+            startY                    = startY + Math.sin(angle) * arrowLength,
+
+            bidirectionalLeftAnchorX  = startX + Math.cos(leftAngle) * anchorDistance,
+            bidirectionalLeftAnchorY  = startY + Math.sin(leftAngle) * anchorDistance,
+
+            bidirectionalRightAnchorX = startX + Math.cos(rightAngle) * anchorDistance,
+            bidirectionalRightAnchorY = startY + Math.sin(rightAngle) * anchorDistance;
+
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(bidirectionalLeftAnchorX, bidirectionalLeftAnchorY);
+        ctx.lineTo(bidirectionalArrowEndX, bidirectionalArrowEndY);
+        ctx.lineTo(bidirectionalRightAnchorX, bidirectionalRightAnchorY);
+        ctx.lineTo(startX, startY);
+    }
 
     ctx.moveTo(startX,       startY);
     ctx.lineTo(arrowStartX,  arrowStartY);

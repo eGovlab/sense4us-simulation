@@ -45,7 +45,21 @@ var linkModellingFilter = [
         }
 
         return true;
-    }, set: function(value){return parseInt(value);}}
+    }, set: function(value){return parseInt(value);}},
+
+    {property: 'bidirectionalTimelag', type: 'input', check: function() {
+        var match = value.match(/^\d+$/);
+        if(match === null) {
+            return false;
+        }
+
+        return true;
+    }, set: function(value) {
+        return parseInt(value);
+    }, showCondition: function(link) {
+        console.log(link);
+        return link.bidirectional;
+    }}
 ],
     dataModellingFilter = [
     {property: 'name',        type: 'input', check: function() {
@@ -337,6 +351,7 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
 
     deleteButton.buttonContainer.show();
 
+    var showConditions = [];
     linkModellingFilter.forEach(function(row) {
         switch(row.type.toUpperCase()) {
             case 'INPUT':
@@ -349,12 +364,20 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 if(row.set) {
                     input.setObjectValue = row.set;
                 }
-                input.changeCheck    = row.check;
+                input.changeCheck = row.check;
 
                 input.setLabel(row.property);
                 input.refresh();
 
-                input.show();
+                if(row.showCondition && !row.showCondition(link)) {
+                    showConditions.push({
+                        element:  input,
+                        callback: row.showCondition
+                    });
+                    input.hide();
+                } else {
+                    input.show();
+                }
 
                 inputIterator++;
 
@@ -376,6 +399,8 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
                 break;
         }
     });
+
+    return showConditions;
 }
 
 function setupSelectedMenu(sidebar, loadedModel) {
@@ -392,15 +417,26 @@ function setupSelectedMenu(sidebar, loadedModel) {
         iconGroups = [];
 
     var previousSelected = false;
+    var showConditions   = null;
     menuItem.refresh = function() {
         if(previousSelected === loadedModel.selected) {
+            if(showConditions && showConditions.length > 0) {
+                showConditions.forEach(function(condition) {
+                    if(condition.callback(previousSelected)) {
+                        condition.element.show();
+                    } else {
+                        condition.element.hide();
+                    }
+                });
+            }
             return;
         }
 
         if(loadedModel.selected === false) {
-            return loadedModel.emit('deselect');        
+            return loadedModel.emit('deselect');
         }
 
+        showConditions   = null;
         previousSelected = loadedModel.selected;
         var selected     = loadedModel.selected;
         if(!selected || !selected.objectId) {
@@ -423,7 +459,7 @@ function setupSelectedMenu(sidebar, loadedModel) {
                 return loadedModel.emit('deselect');
             }
 
-            showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link);
+            showConditions = showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link);
         }
     };
 
@@ -487,6 +523,10 @@ function addSelectedListeners(sidebar, loadedModel) {
          * });
          */
         loadedModel.emit('deselected');
+    });
+
+    loadedModel.addListener('selectableObjectUpdated', function() {
+        selectedMenu.refresh();
     });
 
     var previousSelected = false;
