@@ -47,7 +47,7 @@ var linkModellingFilter = [
         return true;
     }, set: function(value){return parseInt(value);}},
 
-    {property: 'bidirectional', type: 'checkbox'},
+    //{property: 'bidirectional', type: 'checkbox'},
 
     {property: 'bidirectionalTimelag', type: 'input', check: function() {
         var match = value.match(/^\d+$/);
@@ -176,8 +176,21 @@ function getCheckbox(loadedModel, menuItem, checkboxes, iterator) {
         checkbox = menuItem.addCheckbox();
         checkboxes.push(checkbox);
 
-        checkbox.onCheck();
-        checkbox.onUncheck();
+        checkbox.onCheck(function() {
+            if(checkbox.setObjectValue) {
+                checkbox.changeObject[checkbox.changeProperty] = checkbox.setObjectValue(true);
+            } else {
+                checkbox.changeObject[checkbox.changeProperty] = true;
+            }
+        });
+
+        checkbox.onUncheck(function() {
+            if(checkbox.setObjectValue) {
+                checkbox.changeObject[checkbox.changeProperty] = checkbox.setObjectValue(false);
+            } else {
+                checkbox.changeObject[checkbox.changeProperty] = false;
+            }
+        });
     }
 
     return checkbox;
@@ -248,6 +261,111 @@ function hideEverything(inputs, buttons, dropdowns, checkboxes, sliders, iconGro
     });
 }
 
+function setupInput(loadedModel, menuItem, inputs, iteration, row, item) {
+    var input = getInput(loadedModel, menuItem, inputs, iteration);
+
+    input.changeProperty = row.property;
+    input.changeObject   = item;
+    input.changeCheck    = row.check;
+    
+    input.setObjectValue = false;
+    if(row.set) {
+        input.setObjectValue = row.set;
+    }
+
+    input.setLabel(row.property);
+    input.refresh();
+
+    if(row.showCondition && !row.showCondition(item)) {
+        input.hide();
+    } else {
+        input.show();
+    }
+
+    return input;
+}
+
+function setupIconGroup(loadedModel, menuItem, iconGroups, iteration, row, data, gui) {
+    var iconGroup = getIconGroup(loadedModel, menuItem, iconGroups, iteration);
+
+    iconGroup.changeProperty = row.property;
+    iconGroup.changeObject   = gui;
+
+    iconGroup.setLabel(row.property);
+
+    var iconIterator = 0;
+    if(row.groups[data.role]) {
+        row.groups[data.role].forEach(function(img) {
+            var btn = iconGroup.reuseIcon(loadedModel.CONFIG.url + '/' + img.src, iconIterator);
+            btn.root.clickedIcon       = btn;
+            btn.image.root.clickedIcon = btn;
+
+            btn.currentImage = img;
+
+            btn.image.root.style.border = 'none';
+            btn.image.root.style['border-radius'] = '50%';
+
+            if(gui[row.property] === img.src) {
+                btn.image.root.style.border = '4px solid ' + Colors.activeAvatar;
+                iconGroup.lastActive = btn;
+            }
+
+            iconIterator++;
+        });
+    }
+
+    if(row.showCondition && !row.showCondition(item)) {
+        iconGroup.hide();
+    } else {
+        iconGroup.show();
+    }
+
+    return iconGroup;
+}
+
+function setupDropdown(loadedModel, menuItem, dropdowns, iteration, row, item) {
+    var dropdown = getDropdown(loadedModel, menuItem, dropdowns, iteration);
+
+    dropdown.changeProperty = row.property;
+    dropdown.changeObject   = item;
+
+    dropdown.setLabel(row.property);
+    dropdown.replaceValues(row.values);
+    dropdown.refresh();
+
+    if(row.showCondition && !row.showCondition(item)) {
+        dropdown.hide();
+    } else {
+        dropdown.show();
+    }
+
+    return dropdown;
+}
+
+function setupCheckbox(loadedModel, menuItem, checkboxes, iteration, row, item) {
+    var checkbox = getCheckbox(loadedModel, menuItem, checkboxes, iteration);
+
+    checkbox.changeProperty = row.property;
+    checkbox.changeObject   = item;
+
+    if(item[row.property]) {
+        checkbox.check();
+    } else {
+        checkbox.uncheck();
+    }
+
+    checkbox.setLabel(row.property);
+    checkbox.refresh();
+
+    if(row.showCondition && !row.showCondition(item)) {
+        checkbox.hide();
+    } else {
+        checkbox.show();
+    }
+
+    return checkbox;
+}
+
 function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, nodeData, nodeGui) {
     var inputIterator     = 0,
         buttonIterator    = 0,
@@ -266,24 +384,17 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
 
     deleteButton.buttonContainer.show();
 
+    var showConditions = [];
     dataModellingFilter.forEach(function(row) {
         switch(row.type.toUpperCase()) {
             case 'INPUT':
-                var input = getInput(loadedModel, menuItem, inputs, inputIterator);
-
-                input.changeProperty = row.property;
-                input.changeObject   = nodeData;
-                input.changeCheck    = row.check;
-
-                input.setObjectValue = false;
-                if(row.set) {
-                    input.setObjectValue = row.set;
+                var input = setupInput(loadedModel, menuItem, inputs, inputIterator, row, nodeData);
+                if(row.showCondition) {
+                    showConditions.push({
+                        element:  input,
+                        callback: row.showCondition
+                    });
                 }
-
-                input.setLabel(row.property);
-                input.refresh();
-
-                input.show();
 
                 inputIterator++;
                 break;
@@ -293,57 +404,31 @@ function showNodeMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
     guiModellingFilter.forEach(function(row) {
         switch(row.type.toUpperCase()) {
             case 'INPUT':
-                var input = getInput(loadedModel, menuItem, inputs, inputIterator);
-
-                input.changeProperty = row.property;
-                input.changeObject   = nodeGui;
-                input.changeCheck    = row.check;
-                
-                input.setObjectValue = false;
-                if(row.set) {
-                    input.setObjectValue = row.set;
+                var input = setupInput(loadedModel, menuItem, inputs, inputIterator, row, nodeGui);
+                if(row.showCondition) {
+                    showConditions.push({
+                        element:  input,
+                        callback: row.showCondition
+                    });
                 }
-
-                input.setLabel(row.property);
-                input.refresh();
-
-                input.show();
 
                 inputIterator++;
                 break;
             case 'ICONGROUP':
-                var iconGroup = getIconGroup(loadedModel, menuItem, iconGroups, iconGroupIterator);
-
-                iconGroup.changeProperty = row.property;
-                iconGroup.changeObject   = nodeGui;
-
-                iconGroup.setLabel(row.property);
-
-                var iconIterator = 0;
-                if(row.groups[nodeData.role]) {
-                    row.groups[nodeData.role].forEach(function(img) {
-                        var btn = iconGroup.reuseIcon(loadedModel.CONFIG.url + '/' + img.src, iconIterator);
-                        btn.root.clickedIcon       = btn;
-                        btn.image.root.clickedIcon = btn;
-
-                        btn.currentImage = img;
-
-                        btn.image.root.style.border = 'none';
-                        btn.image.root.style['border-radius'] = '50%';
-
-                        if(nodeGui[row.property] === img.src) {
-                            btn.image.root.style.border = '4px solid ' + Colors.activeAvatar;
-                            iconGroup.lastActive = btn;
-                        }
-
-                        iconIterator++;
+                var iconGroup = setupIconGroup(loadedModel, menuItem, iconGroups, iconGroupIterator, row, nodeData, nodeGui);
+                if(row.showCondition) {
+                    showConditions.push({
+                        element:  input,
+                        callback: row.showCondition
                     });
                 }
 
-                iconGroup.show();
+                iconGroupIterator++;
                 break;
         }
     });
+
+    return showConditions;
 }
 
 function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkboxes, sliders, iconGroups, link) {
@@ -368,47 +453,37 @@ function showLinkMenu(loadedModel, menuItem, inputs, buttons, dropdowns, checkbo
     linkModellingFilter.forEach(function(row) {
         switch(row.type.toUpperCase()) {
             case 'INPUT':
-                var input = getInput(loadedModel, menuItem, inputs, inputIterator);
-
-                input.changeProperty = row.property;
-                input.changeObject   = link;
-                input.changeCheck    = row.check;
-
-                input.setObjectValue = false;
-                if(row.set) {
-                    input.setObjectValue = row.set;
-                }
-
-                input.setLabel(row.property);
-                input.refresh();
-
-                if(row.showCondition && !row.showCondition(link)) {
+                var input = setupInput(loadedModel, menuItem, inputs, inputIterator, row, link);
+                if(row.showCondition) {
                     showConditions.push({
                         element:  input,
                         callback: row.showCondition
                     });
-                    input.hide();
-                } else {
-                    input.show();
                 }
 
                 inputIterator++;
-
                 break;
             case 'DROPDOWN':
-                var dropdown = getDropdown(loadedModel, menuItem, dropdowns, dropdownIterator);
-
-                dropdown.changeProperty = row.property;
-                dropdown.changeObject   = link;
-
-                dropdown.setLabel(row.property);
-                dropdown.replaceValues(row.values);
-                dropdown.refresh();
-
-                dropdown.show();
+                var dropdown = setupDropdown(loadedModel, menuItem, dropdowns, dropdownIterator, row, link);
+                if(row.showCondition) {
+                    showConditions.push({
+                        element:  dropdown,
+                        callback: row.showCondition
+                    });
+                }
 
                 dropdownIterator++;
+                break;
+            case 'CHECKBOX':
+                var checkbox = setupCheckbox(loadedModel, menuItem, checkboxes, checkboxIterator, row, link);
+                if(row.showCondition) {
+                    showConditions.push({
+                        element:  dropdown,
+                        callback: row.showCondition
+                    });
+                }
 
+                checkboxIterator++;
                 break;
         }
     });
