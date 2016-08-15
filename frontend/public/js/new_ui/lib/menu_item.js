@@ -1,17 +1,25 @@
 'use strict';
 
-var Foldable  = require('./foldable.js'),
-    Colors    = require('./colors.js'),
-    Element   = require('./element.js'),
-    Input     = require('./input.js'),
-    Slider    = require('./slider.js'),
-    IconGroup = require('./icon_group.js'),
-    Dropdown  = require('./dropdown.js'),
-    Checkbox  = require('./checkbox.js'),
-    Button    = require('./button.js');
+var Foldable           = require('./foldable.js'),
+    VerticalFoldable   = require('./v_foldable.js'),
+    Colors             = require('./colors.js'),
+    Element            = require('./element.js'),
+    Input              = require('./input.js'),
+    Slider             = require('./slider.js'),
+    IconGroup          = require('./icon_group.js'),
+    Dropdown           = require('./dropdown.js'),
+    Checkbox           = require('./checkbox.js'),
+    Button             = require('./button.js');
 
-function MenuItem(width) {
-    Foldable.call(this, width, true);
+function MenuItem(width, vertical) {
+    if(vertical === true) {
+        VerticalFoldable.call(this, width, true);
+        this.child = new VerticalFoldable(width);
+    } else {
+        Foldable.call(this, width, true);
+        this.child = new Foldable(width);
+        this.child.root.style.position = 'absolute';
+    }
 
     this.setBackground(Colors.menuItemBackground);
 
@@ -30,8 +38,6 @@ function MenuItem(width) {
 
     this.root.style.overflow      = 'hidden';
 
-    this.child = new Foldable(width);
-    this.child.root.style.position = 'absolute';
     this.child.setBackground(Colors.itemBackground);
     this.child.root.style.color = Colors.itemFontColor;
 
@@ -40,11 +46,11 @@ function MenuItem(width) {
     this.child.root.style['white-space'] = 'nowrap';
     this.child.root.style['font-size']   = Colors.itemFontSize;
 
-    this.child.root.style['max-height'] = '80%';
+    this.child.root.style['max-height']  = '80%';
 
     this.label = new Element();
     this.label.root.style['white-space'] = 'normal';
-    this.label.root.parentOwner = this;
+    this.label.root.parentOwner          = this;
     this.label.root.style['font-weight'] = '700';
     this.label.root.style['font-size']   = Colors.menuItemFontSize;
 
@@ -116,6 +122,32 @@ MenuItem.prototype = {
 
         this.items.push(button);
         return button;
+    },
+
+    addFoldable: function(label) {
+        var foldable = new MenuItem(300, true);
+        foldable.child.wasUnfolded = false;
+        var button = this.addButton(label, function() {
+            foldable.child.invert();
+            foldable.child.wasUnfolded = !foldable.child.wasUnfolded;
+        });
+
+        foldable.destroy = function() {
+            button.destroy();
+            foldable.items.forEach(function(item) {
+                item.destroy();
+            });
+            foldable.child.destroy();
+        };
+
+        foldable.setLabel = function(buttonLabel) {
+            button.setLabel(buttonLabel);
+        };
+
+        this.items.push(foldable.child);
+        this.child.appendChild(foldable.child);
+
+        return foldable;
     },
 
     addButton: function(label, callback) {

@@ -152,7 +152,9 @@ Element.prototype = {
             });
         }
 
-        this.root.parentElement.removeChild(this.root);
+        if(this.root.parentElement) {
+            this.root.parentElement.removeChild(this.root);
+        }
     }
 };
 

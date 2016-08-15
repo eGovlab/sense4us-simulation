@@ -31,7 +31,7 @@ Foldable.prototype = {
     fold: function(onDone) {
         this.children.forEach(function(child) {
             if(child instanceof Foldable) {
-                child.unfold();
+                child.fold();
             }
         });
 
@@ -47,13 +47,15 @@ Foldable.prototype = {
             that.setWidth(currentWidth - width);
         }, onDone);
 
-        this.folded = true;
+        this.folded      = true;
     },
 
     unfold: function(onDone) {
         this.children.forEach(function(child) {
             if(child instanceof Foldable) {
-                child.unfold();
+                if(child.wasUnfolded) {
+                    child.unfold();
+                }
             }
         });
 
@@ -68,6 +70,7 @@ Foldable.prototype = {
         this.currentTween = easeOutCirc(destination, 250, function(width) {
             that.setWidth(currentWidth + width);
         }, onDone);
+
         this.folded = false;
     },
 

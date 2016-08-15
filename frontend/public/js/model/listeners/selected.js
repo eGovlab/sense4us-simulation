@@ -117,10 +117,12 @@ function getInput(loadedModel, menuItem, inputs, iterator) {
             } else {
                input.changeObject[input.changeProperty] = value;
             }
+
             loadedModel.floatingWindows.forEach(function(floatingWindow) {
                 floatingWindow.refresh();
             });
 
+            loadedModel.emit([value, input.changeProperty, input.changeObject], 'dataModified');
             loadedModel.emit('refresh');
         });
     }
@@ -161,6 +163,8 @@ function getDropdown(loadedModel, menuItem, dropdowns, iterator) {
             var value = dropdown.getValue();
 
             dropdown.changeObject[dropdown.changeProperty] = value;
+
+            loadedModel.emit([value, dropdown.changeProperty, dropdown.changeObject], 'dataModified');
             loadedModel.emit('refresh');
         });
     }
@@ -178,18 +182,26 @@ function getCheckbox(loadedModel, menuItem, checkboxes, iterator) {
 
         checkbox.onCheck(function() {
             if(checkbox.setObjectValue) {
-                checkbox.changeObject[checkbox.changeProperty] = checkbox.setObjectValue(true);
+                var v = checkbox.setObjectValue(true);
+                checkbox.changeObject[checkbox.changeProperty] = v;
+                loadedModel.emit([v, dropdown.changeProperty, dropdown.changeObject], 'dataModified');
             } else {
                 checkbox.changeObject[checkbox.changeProperty] = true;
+                loadedModel.emit([true, dropdown.changeProperty, dropdown.changeObject], 'dataModified');
             }
+
         });
 
         checkbox.onUncheck(function() {
             if(checkbox.setObjectValue) {
-                checkbox.changeObject[checkbox.changeProperty] = checkbox.setObjectValue(false);
+                var v = checkbox.setObjectValue(false);
+                checkbox.changeObject[checkbox.changeProperty] = v;
+                loadedModel.emit([v, dropdown.changeProperty, dropdown.changeObject], 'dataModified');
             } else {
                 checkbox.changeObject[checkbox.changeProperty] = false;
+                loadedModel.emit([false, dropdown.changeProperty, dropdown.changeObject], 'dataModified');
             }
+
         });
     }
 

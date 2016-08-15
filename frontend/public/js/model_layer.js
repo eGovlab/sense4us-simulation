@@ -586,6 +586,8 @@ Model.prototype = {
 
             that.emit('storeModel');
             if(!id) {
+                // If the current model is being saved, make sure to load it again after store.
+                // Storing a model will move it from the currently loaded one.
                 that.emit([currentId, currentSyncId], 'loadModel');
             }
             
@@ -861,14 +863,22 @@ module.exports = {
 
                 var nodeLookup = {};
                 nodes.forEach(function(node) {
-                    loadedModel.nodeData[node.id].syncId = node.syncId;
-                    loadedModel.nodeGui[node.id].syncId  = node.syncId;
+                    try {
+                        loadedModel.nodeData[node.id].syncId = node.syncId;
+                        loadedModel.nodeGui[node.id].syncId  = node.syncId;
 
-                    nodeLookup[node.syncId] = loadedModel.nodeData[node.id];
+                        nodeLookup[node.syncId] = loadedModel.nodeData[node.id];
+                    } catch(err) {
+                        // Node deleted locally before synchronization was made.
+                    }
                 });
 
                 links.forEach(function(link) {
-                    loadedModel.links[link.id].syncId = link.syncId;
+                    try {
+                        loadedModel.links[link.id].syncId = link.syncId;
+                    } catch(err) {
+                        // Link deleted locally before synchronization was made.
+                    }
                 });
 
                 var scenarioLookup = {};

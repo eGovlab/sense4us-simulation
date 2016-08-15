@@ -75,7 +75,7 @@ Dropdown.prototype = {
     removeEvents: function() {
         this.changes.forEach(function(callback) {
             this.select.root.removeEventListener('change', callback);
-        });
+        }, this);
     },
 
     setLabel: function(label) {

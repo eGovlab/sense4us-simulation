@@ -573,13 +573,63 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         var menuItem = new NewUI.MenuItem(300);
         menuItem.setLabel('Scenario Editor');
 
-        menuItem.root.owner             = undefined;
-        menuItem.label.root.parentOwner = undefined;
 
-        menuItem.clicks = [];
-        menuItem.removeEvents = NewUI.Button.prototype.removeEvents;
-        NewUI.Button.prototype.click.call(menuItem, function() {
-            loadedModel.emit('SCENARIO', 'newWindow');
+        /*var _dr = originFoldable.addDropdown('Scenario', ['1', '2', '3'], function(val) {
+            console.log(val);
+        });*/
+
+        // Map of references to nodes and foldables. Key being node.id
+        var origins = {};
+        menuItem.refresh = function() {
+            // Loop all nodes.
+            objectHelper.forEach.call(loadedModel.nodeData, function(node) {
+                // Check if the node is of origin type and doesn't already own a button.
+                if(node.type === 'origin' && !origins[node.id]) {
+                    // Create the folded item for this origin node.
+                    var originFoldable = menuItem.addFoldable(node.name);
+                    var addStep        = originFoldable.addButton('Add Step', function() {
+                        console.log(node);
+                    });
+
+                    // Save a reference to each origin node owning a button.
+                    origins[node.id] = {
+                        node:     node,
+                        foldable: originFoldable,
+                        addStep:  addStep
+                    };
+                }
+            });
+        };
+
+        loadedModel.addListener('dataModified', function(value, property, obj) {
+            if(origins[obj.id]) {
+                origins[obj.id].foldable.setLabel(value);
+            }
+        });
+
+        // Listen to the deletedNode event to make sure we delete buttons related to a node.
+        loadedModel.addListener('deletedNode', function(a, b) {
+            if(!origins[a.id]) {
+                return;
+            }
+
+            origins[a.id].foldable.destroy();
+            delete origins[a.id];
+        });
+
+        // Listen to modelLoaded event to make sure we delete
+        // all items related to nodes in the previous model
+        loadedModel.addListener('modelLoaded', function(id, syncId, prevId, prevSyncId) {
+            if((syncId === false && id === prevId) || (syncId !== false && syncId === prevSyncId)) {
+                return;
+            }
+
+            objectHelper.forEach.call(origins, function(item) {
+                item.foldable.destroy();
+            });
+
+            origins = {};
+            menuItem.refresh();
         });
 
         sidebar.addItem(menuItem);

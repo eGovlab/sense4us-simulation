@@ -27,6 +27,9 @@ function addLoadModelListeners(savedModels, loadedModel) {
      */
     loadedModel.addListener('loadModel', function(option, syncId) {
         option = syncId || option;
+        var previousId     = loadedModel.id;
+        var previousSyncId = loadedModel.syncId;
+
         if(savedModels.local[option] === undefined) {
             if(typeof savedModels.synced[option] === 'string' || savedModels.synced[option] === undefined) {
                 modelLayer.loadSyncModel(
@@ -83,13 +86,12 @@ function addLoadModelListeners(savedModels, loadedModel) {
                         });
                     });
 
-                    loadedModel.emit([loadedModel.id, loadedModel.syncId], 'modelLoaded');
+                    loadedModel.emit([loadedModel.id, loadedModel.syncId, previousId, previousSyncId], 'modelLoaded');
                     loadedModel.emit(null, 'refresh', 'resetUI');
                 });
             }  else {
                 loadedModel.nodeGui  = {};
                 loadedModel.nodeData = {};
-
 
                 var savedModel = savedModels.synced[option];
 
@@ -111,7 +113,7 @@ function addLoadModelListeners(savedModels, loadedModel) {
                     }
                 );
 
-                loadedModel.emit([loadedModel.id, loadedModel.syncId], 'modelLoaded');
+                loadedModel.emit([loadedModel.id, loadedModel.syncId, previousId, previousSyncId], 'modelLoaded');
                 loadedModel.emit(null, 'refresh', 'resetUI');
             }
         } else {
@@ -137,7 +139,7 @@ function addLoadModelListeners(savedModels, loadedModel) {
                 }
             );
 
-            loadedModel.emit([loadedModel.id, loadedModel.syncId], 'modelLoaded');
+            loadedModel.emit([loadedModel.id, loadedModel.syncId, previousId, previousSyncId], 'modelLoaded');
             loadedModel.emit(null, 'refresh', 'resetUI');
         }
     });

@@ -57,6 +57,10 @@ function Menu(width) {
             return;
         }
 
+        if(menuItem.refresh) {
+            menuItem.refresh();
+        }
+
         if(that.activeMenuItem) {
             return that.activeMenuItem.child.invert(function() {
                 that.activeMenuItem.setBackground(Colors.menuItemBackground);
