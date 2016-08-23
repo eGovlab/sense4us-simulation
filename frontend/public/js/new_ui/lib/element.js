@@ -17,6 +17,10 @@ Element.prototype = {
         this.root.innerHTML = label;
     },
 
+    getLabel: function() {
+        return this.root.innerHTML;
+    },
+
     appendChild: function(container) {
         if(!this.children) {
             this.children = [];
@@ -31,6 +35,36 @@ Element.prototype = {
         }
 
         this.root.appendChild(container);
+    },
+
+    removeChild: function(child) {
+        if(!this.children) {
+            try {
+                if(child.root) {
+                    this.root.removeChild(child.root);
+                } else {
+                    this.root.removeChild(child)
+                }
+            } catch(err) {
+                console.error(err);
+            }
+
+            return;
+        }
+
+        var index = this.children.indexOf(child);
+        if(index === -1) {
+            try {
+                this.root.removeChild(child);
+            } catch(err) {
+                console.error(err);
+            }
+
+            return;
+        }
+
+        this.children.splice(index, 1);
+        this.root.removeChild(child.root);
     },
 
     createFoldButton: function() {

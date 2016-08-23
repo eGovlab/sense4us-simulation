@@ -16,10 +16,10 @@ function Input() {
     this.inputDiv.appendChild(this.input);
 
     this.input.setWidth('100%');
-    this.input.root.style.border = 'none';
     this.input.setBackground(Colors.inputBackground);
-    this.input.root.style.color = Colors.inputFontColor;
-    this.input.root.style['text-align'] = 'center';
+    this.input.root.style.border           = 'none';
+    this.input.root.style.color            = Colors.inputFontColor;
+    this.input.root.style['text-align']    = 'center';
     this.label.root.style['margin-bottom'] = '8px';
 
     var that = this;

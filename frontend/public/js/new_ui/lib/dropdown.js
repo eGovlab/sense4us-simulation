@@ -12,7 +12,7 @@ function Dropdown(values, callback) {
 
     this.select.setWidth('100%');
     this.header.root.style['margin-bottom'] = '8px';
-    this.header.root.style['font-weight'] = '700';
+    this.header.root.style['font-weight']   = '700';
 
     this.select.root.style.padding = '4px 0px';
     this.select.setBackground(Colors.buttonBackground);
@@ -23,7 +23,20 @@ function Dropdown(values, callback) {
     this.values    = [];
 
     if(values && values.forEach) {
-        values.forEach(function(v){this.addValue(v)}, this);
+        values.forEach(function(v) {
+            console.log('Adding value:', v);
+            if(typeof v === 'object') {
+                if(!v.label || !v.value) {
+                    console.error('Invalid value given to dropdown');
+                    return;
+                } 
+
+                this.addValue(v.label, v.value);
+                return;
+            }
+
+            this.addValue(v);
+        }, this);
     }
 
     this.changes = [];
@@ -105,8 +118,39 @@ Dropdown.prototype = {
         return this.select.root.value;
     },
 
+    getCurrentLabel: function() {
+        var index = this.getIndex();
+        if(index < 0) {
+            return '';
+        }
+
+        return this.values[index].getLabel();
+    },
+
     getIndex: function() {
         return this.select.root.selectedIndex;
+    },
+
+    deleteCurrent: function() {
+        var index = this.getIndex();
+        if(index < 0) {
+            return;
+        }
+
+        this.select.removeChild(this.values[index]);
+
+        this.values.splice(index,    1);
+        this.rawValues.splice(index, 1);
+
+        if(index >= this.values.length) {
+            index = this.values.length - 1;
+        }
+
+        if(index < 0) {
+            return;
+        }
+
+        this.setSelectedByIndex(index);
     },
 
     addValue: function(header, value) {
@@ -125,13 +169,44 @@ Dropdown.prototype = {
         this.select.appendChild(option);
     },
 
+    changeValue: function(value, index) {
+        if(!this.values[index]) {
+            return;
+        }
+
+        this.values[index].root.value = value;
+        this.values[index].setLabel(value);
+        this.rawValues[index] = value;
+    },
+
     replaceValues: function(values) {
+        var selectedIndex = this.getIndex();
         while(this.select.root.firstChild) {
             this.select.root.removeChild(this.select.root.firstChild);
         }
 
-        this.values = [];
-        values.forEach(function(v){this.addValue(v)}, this);
+        this.values    = [];
+        this.rawValues = [];
+
+        values.forEach(function(v) {
+            if(typeof v === 'object') {
+                if(!v.label || !v.value) {
+                    console.error('Invalid value given to dropdown');
+                    return;
+                } 
+
+                this.addValue(v.label, v.value);
+                return;
+            }
+
+            this.addValue(v);
+        }, this);
+
+        if(selectedIndex >= this.values.length) {
+            return;
+        }
+
+        this.setSelectedByIndex(selectedIndex);
     },
 
     __proto__: Element.prototype

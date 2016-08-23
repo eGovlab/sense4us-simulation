@@ -112,8 +112,8 @@ function drawNodeDescriptions(ctx, canvas, loadedModel, selectedMenu, next) {
             ** e.g. drawNodeInSimulation(nodeGui)
             */
             if(loadedModel.static.showSimulate) {
-                if(nodeGui.timeTable) {
-                    drawTimeTable(ctx, nodeGui);
+                if(loadedModel.loadedScenario && loadedModel.loadedScenario.data[nodeGui.id]) {
+                    drawTimeTable(ctx, nodeGui, loadedModel.loadedScenario.data[nodeGui.id]);
                 } else if(nodeGui.type.toUpperCase() !== 'ACTOR') {
                     drawChange(ctx, nodeGui.x, nodeGui.y + nodeGui.radius / 6, nodeGui.radius, Math.round(n.simulateChange[loadedModel.loadedScenario.timeStepN] * 100) / 100);
                 }

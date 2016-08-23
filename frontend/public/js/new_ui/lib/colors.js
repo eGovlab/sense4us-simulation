@@ -15,7 +15,11 @@ var lightBlack                  = '#303040',
     darkerererTeal              = '#2A3D66',
     tealFont                    = '#D7F1F7',
     almostBlue                  = '#3F2191',
+    warningRed                  = '#E61953',
     lightOrange                 = '#D99B4A',
+    darkOrange                  = '#CF743C',
+    lightGreen                  = '#63E07C',
+    darkerLightGreen            = '#27AB5E',
 
     white                       = '#fafafa';
 
@@ -47,7 +51,7 @@ var sidebarBackground           = darkerTeal,
 
 var buttonBackground            = inputBackground,
     buttonFontColor             = inputFontColor,
-    buttonCheckedBackground     = lightOrange,
+    buttonCheckedBackground     = darkOrange,//lightOrange,
     activeAvatar                = lightOrange;
 
 module.exports = {
@@ -67,6 +71,10 @@ module.exports = {
     tealFont:                     tealFont,
     almostBlue:                   almostBlue,
     lightOrange:                  lightOrange,
+    warningRed:                   warningRed,
+    lightGreen:                   lightGreen,
+    darkOrange:                   darkOrange,
+    darkerLightGreen:             darkerLightGreen,
 
     white:                        white,
 

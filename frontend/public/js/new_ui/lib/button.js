@@ -18,6 +18,12 @@ Button.prototype = {
         this.label.setLabel(label);
     },
 
+    simulateClick: function() {
+        this.clicks.forEach(function(click) {
+            click();
+        });
+    },
+
     click: function(callback) {
         if(!callback || typeof callback !== 'function') {
             return;

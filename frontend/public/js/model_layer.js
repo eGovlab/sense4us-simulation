@@ -1071,14 +1071,33 @@ module.exports = {
                 }
             });
 
+            /*
+            ** table: {id, node: id, scenario: id}
+            ** step: {id, step: key, timetable: id, value: float}
+            */
+
             var timetableLookup = {};
             timetables.forEach(function(timetable) {
                 var node = newState.nodeData[timetable.node];
+                var timetableStructure = {
+                    id:       timetable.id,
+                    syncId:   timetable.id,
+                    scenario: timetable.scenario,
+                    node:     timetable.node,
+                    steps:    {}
+                };
+
+                newState.scenarios[timetable.scenario].data[node.id] = timetableStructure;
+                timetableLookup[timetableStructure.id] = timetableStructure;
+
+                return;
+
+                var node = newState.nodeData[timetable.node];
                 var newTimetable = new TimeTable(node, function() {
                     newState.emit(null, 'refresh', 'resetUI');
-                    /*newState.refresh = true;
-                    newState.resetUI = true;
-                    newState.propagate();*/
+                    //newState.refresh = true;
+                    //newState.resetUI = true;
+                    //newState.propagate();
                 });
 
                 timetableLookup[timetable.id] = newTimetable;
@@ -1087,6 +1106,16 @@ module.exports = {
             });
 
             timesteps.forEach(function(timestep) {
+                if(!timetableLookup[timestep.timetable]) {
+                    console.log(timestep, 'didn\'t have a timetable?');
+                    return;
+                }
+
+                var steps = timetableLookup[timestep.timetable].steps;
+                steps[timestep.step] = timestep.value;
+
+                return;
+
                 var timetable = timetableLookup[timestep.timetable];
                 if(!timetable.timeTable) {
                     timetable.timeTable = {};

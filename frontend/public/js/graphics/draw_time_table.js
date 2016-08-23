@@ -4,11 +4,11 @@ var menuBuilder  = require('../menu_builder'),
     objectHelper = require('./../object-helper.js'),
     valueColors  = require('./value_colors.js');
 
-module.exports = function drawTimeTable(ctx, map) {
-    var data = map.timeTable;
+module.exports = function drawTimeTable(ctx, gui, map) {
+    var data = map.steps;
 
     var size   = 24,
-        startY = ((map.y - size / 2) - ((size * objectHelper.size.call(data)) / 2)),
+        startY = ((gui.y - size / 2) - ((size * objectHelper.size.call(data)) / 2)),
 
         longestTimeStep = 0,
         longestSymbol   = 0,
@@ -54,7 +54,7 @@ module.exports = function drawTimeTable(ctx, map) {
         }
     );
 
-    var valueX   = map.x - map.radius - longestValue - 8,
+    var valueX   = gui.x - gui.radius - longestValue - 8,
         symbolX  = valueX - longestSymbol,
         startX   = symbolX - longestTimeStep;
 

@@ -433,6 +433,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
     });
 
+    var printLoadedModel = sidebar.addButton('alert', function() {
+        console.log(loadedModel);
+    });
+
     var Button = NewUI.Button;
     function setupLoadModel(sidebar) {
         var menuItem = new NewUI.MenuItem(300);
@@ -569,27 +573,149 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     setupLoadModel(sidebar);
 
+    function Scenario(syncId) {
+        this.id                = loadedModel.generateId();
+        this.syncId            = syncId;
+
+        this.name              = 'New scenario';
+        this.data              = {};
+
+        /*
+        data = {
+            nodeId: {
+                timeTable: {
+                    step: value
+                }
+            } 
+        };
+        */
+
+        this.measurement       = 'Week';
+        this.measurementAmount = 1;
+        this.maxIterations     = 4;
+        this.timeStepN         = 0;
+    }
+
     function setupScenarioWindow(sidebar) {
-        var menuItem = new NewUI.MenuItem(300);
+        var menuItem = new NewUI.MenuItem(340);
         menuItem.setLabel('Scenario Editor');
 
+        var scenarios = [];
+        objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
+            scenarios.push({value: scenario.id, label: scenario.name});
+        });
 
-        /*var _dr = originFoldable.addDropdown('Scenario', ['1', '2', '3'], function(val) {
-            console.log(val);
-        });*/
+        var onNew    = function(done) {
+            console.log('New scenario!');
+
+            var newScenario = new Scenario();
+            newScenario.data = objectHelper.copy.call(loadedModel.loadedScenario.data);
+            loadedModel.scenarios[newScenario.id] = newScenario;
+
+            done(newScenario.name, newScenario.id);
+        };
+
+        var onEdit = function(value) {
+            console.log('Edited scenario name!');
+        };
+
+        var onDelete = function(value) {
+            console.log('Deleted scenario!');
+        };
+
+        var onChange = function(value, header) {
+            console.log('Changed active scenario!', value, header);
+        };
+
+        var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
+
+        /*var newScenarioButton = menuItem.addButton('New scenario', function(evt) {
+            var index = editableDropdown.getIndex();
+            scenarios.push('Scenario name');
+            console.log(loadedModel);
+            editableDropdown.replaceValues(scenarios);
+
+            if(index === -1) {
+                editableDropdown.setSelectedByIndex(0);
+            }
+        });
+
+        newScenarioButton.setBackground(Colors.darkerLightGreen);*/
+
+        menuItem.addLabel('Output Nodes');
 
         // Map of references to nodes and foldables. Key being node.id
         var origins = {};
+
+        var timeStepChanged = function(value, node) {
+            console.log('Step updated:', value, node);
+        };
+
+        var timeValueChanged = function(value, node) {
+            console.log('Step value updated:', value, node);
+        };
+
+        var rowDeleted = function(step, value, node) {
+            console.log('Row deleted!', step, value, node);
+
+            if(!loadedModel.loadedScenario) {
+                return;
+            }
+
+            var timetable = loadedModel.loadedScenario.data[node.id];
+            if(!timetable) {
+                return;
+            }
+
+            delete timetable.steps[step];
+        };
+
+        var addStepCallback = function(evt) {
+            var node     = evt.target.node     || evt.target.parentElement.node;
+            var foldable = evt.target.foldable || evt.target.parentElement.foldable;
+            if(!node || !foldable) {
+                return;
+            }
+
+            var timetable = loadedModel.loadedScenario.data[node.id];
+            if(!timetable) {
+                foldable.addTimeRow(0, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
+                loadedModel.loadedScenario.data[node.id] = {
+                    id:       loadedModel.generateId(),
+                    scenario: loadedModel.loadedScenario,
+                    node:     node,
+                    steps:    {'0': 0}
+                };
+            } else {
+                var lastStep = parseInt(objectHelper.lastKey.call(timetable.steps));
+                if(isNaN(lastStep)) {
+                    lastStep = -1;
+                }
+
+                lastStep += 1;
+                foldable.addTimeRow(lastStep, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
+
+                timetable.steps[lastStep] = 0;
+            }
+        };
+
         menuItem.refresh = function() {
             // Loop all nodes.
             objectHelper.forEach.call(loadedModel.nodeData, function(node) {
                 // Check if the node is of origin type and doesn't already own a button.
                 if(node.type === 'origin' && !origins[node.id]) {
                     // Create the folded item for this origin node.
-                    var originFoldable = menuItem.addFoldable(node.name);
-                    var addStep        = originFoldable.addButton('Add Step', function() {
-                        console.log(node);
-                    });
+                    var originFoldable    = menuItem.addFoldable(node.name);
+                    var addStep           = originFoldable.addButton('Add Step', addStepCallback);
+                    addStep.root.node     = node;
+                    addStep.root.foldable = originFoldable;
+
+                    /*var steps = loadedModel.loadedScenario.data[node.id].steps;
+                    objectHelper.forEach.call(steps, function(value, key) {
+                        originFoldable.addTimeRow(value, key, function() {
+                            console.log(value, key, 'Wakka?');
+                        });
+                    });*/
 
                     // Save a reference to each origin node owning a button.
                     origins[node.id] = {
@@ -618,7 +744,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         });
 
         // Listen to modelLoaded event to make sure we delete
-        // all items related to nodes in the previous model
+        // all items related to nodes in the previous modelsl
         loadedModel.addListener('modelLoaded', function(id, syncId, prevId, prevSyncId) {
             if((syncId === false && id === prevId) || (syncId !== false && syncId === prevSyncId)) {
                 return;
@@ -627,6 +753,13 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             objectHelper.forEach.call(origins, function(item) {
                 item.foldable.destroy();
             });
+
+            var scenarios = [];
+            objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
+                scenarios.push({value: scenario.id, label: scenario.name});
+            });
+
+            editableDropdown.replaceValues(scenarios);
 
             origins = {};
             menuItem.refresh();

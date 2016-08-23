@@ -41,15 +41,23 @@ function copyArray(arr) {
     return newArr;
 }
 
-function copy() {
-    var newObj   = {};
+function copy(tree) {
+    var newObj     = {};
+    var objectTree = tree || [this];
 
     Object.keys(this).forEach(function(key) {
         var value = this[key];
         if(Array.isArray(value)) {
             newObj[key] = copyArray(value);
         } else if(typeof value === 'object' && value) {
-            newObj[key] = copy.call(value);
+            if(objectTree.indexOf(value) !== -1) {
+                throw new Error('Circular structure.');
+            }
+
+            var index = objectTree.length;
+            objectTree.push(value);
+            newObj[key] = copy.call(value, objectTree);
+            objectTree.unshift(index, 1);
         } else {
             newObj[key] = value;
         }
