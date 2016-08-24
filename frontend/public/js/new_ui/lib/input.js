@@ -24,7 +24,7 @@ function Input() {
 
     var that = this;
     this.onChange(function() {
-        that.input.root.blur()
+        that.input.root.blur();
     });
 
     this.appendChild(this.label);

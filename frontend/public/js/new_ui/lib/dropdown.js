@@ -24,7 +24,6 @@ function Dropdown(values, callback) {
 
     if(values && values.forEach) {
         values.forEach(function(v) {
-            console.log('Adding value:', v);
             if(typeof v === 'object') {
                 if(!v.label || !v.value) {
                     console.error('Invalid value given to dropdown');
@@ -118,6 +117,10 @@ Dropdown.prototype = {
         return this.select.root.value;
     },
 
+    getValueAtIndex: function(index) {
+        return this.values[index].root.value;
+    },
+
     getCurrentLabel: function() {
         var index = this.getIndex();
         if(index < 0) {
@@ -177,6 +180,14 @@ Dropdown.prototype = {
         this.values[index].root.value = value;
         this.values[index].setLabel(value);
         this.rawValues[index] = value;
+    },
+
+    changeLabel: function(label, index) {
+        if(!this.values[index]) {
+            return;
+        }
+
+        this.values[index].setLabel(label);
     },
 
     replaceValues: function(values) {

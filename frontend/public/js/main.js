@@ -606,8 +606,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         });
 
         var onNew    = function(done) {
-            console.log('New scenario!');
-
             var newScenario = new Scenario();
             newScenario.data = objectHelper.copy.call(loadedModel.loadedScenario.data);
             loadedModel.scenarios[newScenario.id] = newScenario;
@@ -615,16 +613,32 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             done(newScenario.name, newScenario.id);
         };
 
-        var onEdit = function(value) {
-            console.log('Edited scenario name!');
+        var onEdit = function(id, header) {
+            var scenario = loadedModel.scenarios[id];
+            if(!scenario) {
+                return;
+            }
+
+            scenario.name = header;
         };
 
-        var onDelete = function(value) {
-            console.log('Deleted scenario!');
+        var onDelete = function(id) {
+            if(!loadedModel.scenarios[id]) {
+                return;
+            }
+
+            delete loadedModel.scenarios[id];
         };
 
-        var onChange = function(value, header) {
-            console.log('Changed active scenario!', value, header);
+        var onChange = function(id, header) {
+            loadedModel.loadedScenario = loadedModel.scenarios[id];
+
+            objectHelper.forEach.call(origins, function(item) {
+                item.foldable.destroy();
+            });
+
+            origins = {};
+            menuItem.refresh();
         };
 
         var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
@@ -647,17 +661,54 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         // Map of references to nodes and foldables. Key being node.id
         var origins = {};
 
-        var timeStepChanged = function(value, node) {
-            console.log('Step updated:', value, node);
+        var timeStepChanged = function(previousStep, step, value, node) {
+            if(!loadedModel.loadedScenario) {
+                return;
+            }
+
+            var timetable = loadedModel.loadedScenario.data[node.id];
+            if(!timetable) {
+                loadedModel.loadedScenario.data[node.id] = {
+                    id:       loadedModel.generateId(),
+                    scenario: loadedModel.loadedScenario,
+                    node:     node,
+                    steps:    {}
+                };
+
+                timetable = loadedModel.loadedScenario.data[node.id];
+                timetable.steps[step] = value;
+                return;
+            }
+
+            if(timetable.steps[step] !== undefined) {
+                return;
+            }
+
+            timetable.steps[step] = value;
+            delete timetable.steps[previousStep];
         };
 
-        var timeValueChanged = function(value, node) {
-            console.log('Step value updated:', value, node);
+        var timeValueChanged = function(step, value, node) {
+            if(!loadedModel.loadedScenario) {
+                return;
+            }
+
+            var timetable = loadedModel.loadedScenario.data[node.id];
+            if(!timetable) {
+                loadedModel.loadedScenario.data[node.id] = {
+                    id:       loadedModel.generateId(),
+                    scenario: loadedModel.loadedScenario,
+                    node:     node,
+                    steps:    {}
+                };
+
+                timetable = loadedModel.loadedScenario.data[node.id];
+            }
+
+            timetable.steps[step] = value;
         };
 
         var rowDeleted = function(step, value, node) {
-            console.log('Row deleted!', step, value, node);
-
             if(!loadedModel.loadedScenario) {
                 return;
             }
@@ -723,6 +774,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                         foldable: originFoldable,
                         addStep:  addStep
                     };
+
+                    if(!loadedModel.loadedScenario.data[node.id]) {
+                        return;
+                    }
+
+                    objectHelper.forEach.call(loadedModel.loadedScenario.data[node.id].steps, function(value, step) {
+                        originFoldable.addTimeRow(step, value, node, timeStepChanged, timeValueChanged, rowDeleted);
+                    });
                 }
             });
         };
@@ -742,6 +801,15 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             origins[a.id].foldable.destroy();
             delete origins[a.id];
         });
+
+        var replaceOrigins = function() {
+            objectHelper.forEach.call(origins, function(item) {
+                item.foldable.destroy();
+            });
+
+            origins = {};
+            menuItem.refresh();
+        };
 
         // Listen to modelLoaded event to make sure we delete
         // all items related to nodes in the previous modelsl

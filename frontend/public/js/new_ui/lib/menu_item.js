@@ -203,6 +203,8 @@ MenuItem.prototype = {
         input.root.style['margin-bottom'] = '4px';
         input.setValue('Rock the microphone.');
 
+        input.input.setBackground(Colors.darkDarkOrange);
+
         input.root.style.display = 'none';
 
         var createButton = function() {
@@ -236,8 +238,9 @@ MenuItem.prototype = {
 
         var editMode = false;
         deleteButton.click(function() {
+            var deletedValue = dropdown.getValue();
             dropdown.deleteCurrent();
-            deleteCallback();
+            deleteCallback(deletedValue);
 
             if(editMode) {
                 input.hide();
@@ -287,8 +290,8 @@ MenuItem.prototype = {
             var value = input.getValue(),
                 index = dropdown.getIndex();
 
-            dropdown.changeValue(value, index);
-            editCallback(index, value);
+            dropdown.changeLabel(value, index);
+            editCallback(dropdown.getValueAtIndex(index), value);
         });
 
         editButton.appendChild(editIcon);
@@ -327,6 +330,7 @@ MenuItem.prototype = {
 
         var stepInput = createInput('20%', step);
         stepInput.previousValue = step;
+        stepInput.lastValue = step;
         stepInput.onInput(function() {
             if(!timeRowStepCheck(stepInput.getValue())) {
                 stepInput.setValue(stepInput.previousValue);
@@ -337,11 +341,12 @@ MenuItem.prototype = {
         });
 
         stepInput.onChange(function() {
-            stepCallback(stepInput.previousValue, node);
+            stepCallback(stepInput.lastValue, stepInput.previousValue, valueInput.previousValue, node);
+            stepInput.lastValue = stepInput.previousValue;
         });
 
         var valueInput = createInput('55%', value);
-        valueInput.previousValue = step;
+        valueInput.previousValue = value;
         valueInput.onInput(function() {
             if(!timeRowValueCheck(valueInput.getValue())) {
                 valueInput.setValue(valueInput.previousValue);
@@ -352,7 +357,7 @@ MenuItem.prototype = {
         });
 
         valueInput.onChange(function() {
-            valueCallback(valueInput.previousValue, node);
+            valueCallback(stepInput.previousValue, valueInput.previousValue, node);
         });
 
         var deleteButton = new Button();

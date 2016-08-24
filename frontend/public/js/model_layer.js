@@ -740,10 +740,27 @@ Model.prototype = {
 
     scenariosToJson: function() {
         var scenarios = [];
-        Object.keys(this.scenarios).forEach(function(key) {
-            var scenario = this.scenarios[key];
-            scenarios.push(scenario.toJson(this));
-        }, this);
+        objectHelper.forEach.call(this.scenarios, function(scenario) {
+            var scenarioData = {
+                id:                scenario.id,
+                syncId:            scenario.syncId,
+                name:              scenario.name,
+                maxIterations:     scenario.maxIterations,
+                measurement:       scenario.measurement,
+                measurementAmount: scenario.measurementAmount,
+                timeStepN:         scenario.timeStepN
+            };
+
+            scenarioData.tables = objectHelper.map.call(scenario.data, function(table) {
+                return {
+                    id:        table.id,
+                    syncId:    table.syncId,
+                    timetable: table.steps
+                };
+            });
+
+            scenarios.push(scenarioData);
+        });
 
         return scenarios;
     }
@@ -837,6 +854,8 @@ module.exports = {
             links:     breakout.links(loadedModel),
             scenarios: loadedModel.scenariosToJson()
         };
+
+        console.log(data.scenarios);
 
         network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
             if (err) {

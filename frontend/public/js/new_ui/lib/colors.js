@@ -18,6 +18,7 @@ var lightBlack                  = '#303040',
     warningRed                  = '#E61953',
     lightOrange                 = '#D99B4A',
     darkOrange                  = '#CF743C',
+    darkDarkOrange              = '#572211',
     lightGreen                  = '#63E07C',
     darkerLightGreen            = '#27AB5E',
 
@@ -75,6 +76,7 @@ module.exports = {
     lightGreen:                   lightGreen,
     darkOrange:                   darkOrange,
     darkerLightGreen:             darkerLightGreen,
+    darkDarkOrange:               darkDarkOrange,
 
     white:                        white,
 
