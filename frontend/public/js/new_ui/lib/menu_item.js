@@ -2,6 +2,7 @@
 
 var Foldable           = require('./foldable.js'),
     VerticalFoldable   = require('./v_foldable.js'),
+    Promise            = require('promise'),
     Colors             = require('./colors.js'),
     Element            = require('./element.js'),
     Input              = require('./input.js'),
@@ -341,8 +342,25 @@ MenuItem.prototype = {
         });
 
         stepInput.onChange(function() {
-            stepCallback(stepInput.lastValue, stepInput.previousValue, valueInput.previousValue, node);
-            stepInput.lastValue = stepInput.previousValue;
+            var r = stepCallback(stepInput.lastValue, stepInput.previousValue, valueInput.previousValue, node);
+
+            // Give the callback an opportunity to restore the value to
+            // its previous value.
+            if(r instanceof Promise) {
+                r.then(function(shouldResetStep) {
+                    if(!shouldResetStep) {
+                        return;
+                    }
+
+                    stepInput.previousValue = stepInput.lastValue;
+                    stepInput.setValue(stepInput.lastValue);
+                });
+            } else if(r === true) {
+                stepInput.previousValue = stepInput.lastValue;
+                stepInput.setValue(stepInput.lastValue);
+            } else {
+                stepInput.lastValue = stepInput.previousValue;
+            }
         });
 
         var valueInput = createInput('55%', value);

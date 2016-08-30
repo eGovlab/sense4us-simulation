@@ -73,15 +73,6 @@ module.exports = function createNode(model, data, gui, type) {
     model.nodeData[id] = nodeData;
     model.nodeGui[id]  = nodeGui;
 
-    if(nodeData.timeTable) {
-        objectHelper.forEach.call(
-            model.scenarios,
-            function(scenario) {
-                scenario.refresh(model);
-            }
-        );
-    }
-
     model.emit(null, 'resetUI', 'refresh');
 
     /**

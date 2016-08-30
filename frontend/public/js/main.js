@@ -18,12 +18,12 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     container.className = 'mb-container';
 
-    var curry       = require('./curry.js'),
-        strictCurry = require('./strict_curry.js'),
-        Immutable   = null,
-        canvas      = require('./canvas'),
-        linker      = require('./linker.js'),
-        generateId  = require('./generate_id.js');
+    var curry        = require('./curry.js'),
+        strictCurry  = require('./strict_curry.js'),
+        Immutable    = null,
+        canvas       = require('./canvas'),
+        linker       = require('./linker.js'),
+        generateId   = require('./generate_id.js');
 
     var maxWidth  = container.offsetWidth,
         maxHeight = container.offsetHeight;
@@ -430,7 +430,26 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     });
 
     var deleteButton = sidebar.addButton('trash', function() {
-        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
+        loadedModel.emit({
+            description: 'Do you really want to delete this model?',
+            buttons: [
+                {
+                    background: Colors.warningRed,
+                    callback: function(popup) {
+                        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
+                        popup.destroy();
+                    },
+                    label: 'Confirm'
+                },
+
+                {
+                    callback: function(popup) {
+                        popup.destroy();
+                    },
+                    label: 'Cancel'
+                }
+            ]
+        }, 'popup');
     });
 
     var printLoadedModel = sidebar.addButton('alert', function() {
@@ -580,21 +599,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         this.name              = 'New scenario';
         this.data              = {};
 
-        /*
-        data = {
-            nodeId: {
-                timeTable: {
-                    step: value
-                }
-            } 
-        };
-        */
-
         this.measurement       = 'Week';
         this.measurementAmount = 1;
         this.maxIterations     = 4;
         this.timeStepN         = 0;
     }
+
+    var algorithms = require('./algorithms');
+    var sort = algorithms.sort;
 
     function setupScenarioWindow(sidebar) {
         var menuItem = new NewUI.MenuItem(340);
@@ -605,7 +617,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             scenarios.push({value: scenario.id, label: scenario.name});
         });
 
-        var onNew    = function(done) {
+        var onNew = function(done) {
             var newScenario = new Scenario();
             newScenario.data = objectHelper.copy.call(loadedModel.loadedScenario.data);
             loadedModel.scenarios[newScenario.id] = newScenario;
@@ -639,28 +651,17 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
             origins = {};
             menuItem.refresh();
+
+            loadedModel.emit('refresh');
         };
 
         var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
 
-        /*var newScenarioButton = menuItem.addButton('New scenario', function(evt) {
-            var index = editableDropdown.getIndex();
-            scenarios.push('Scenario name');
-            console.log(loadedModel);
-            editableDropdown.replaceValues(scenarios);
-
-            if(index === -1) {
-                editableDropdown.setSelectedByIndex(0);
-            }
-        });
-
-        newScenarioButton.setBackground(Colors.darkerLightGreen);*/
-
         menuItem.addLabel('Output Nodes');
 
         // Map of references to nodes and foldables. Key being node.id
-        var origins = {};
-
+        var origins         = {};
+        var rowLookup       = {};
         var timeStepChanged = function(previousStep, step, value, node) {
             if(!loadedModel.loadedScenario) {
                 return;
@@ -681,11 +682,33 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             }
 
             if(timetable.steps[step] !== undefined) {
-                return;
+                // Restore value to previous accepted change.
+                return true;
             }
 
-            timetable.steps[step] = value;
+            // Get the foldable with all timerows.
+            var foldable = origins[node.id].foldable;
+
+            // Set the step and row lookup and delete the old step in the data object.
+            timetable.steps[step]    = value;
+            rowLookup[node.id][step] = rowLookup[node.id][previousStep];
+
             delete timetable.steps[previousStep];
+            delete rowLookup[node.id][previousStep];
+
+            // Get the indexes after data update and the current row index.
+            var a = Object.keys(rowLookup[node.id]);
+            var i = a.indexOf(step);
+
+            // If the row index is in the list, insert it before the next element.
+            // If it's on the outside, append it to the end.
+            if(i + 1 < a.length) {
+                foldable.child.root.insertBefore(rowLookup[node.id][a[i]].root, rowLookup[node.id][a[i + 1]].root);
+            } else {
+                foldable.child.root.appendChild(rowLookup[node.id][a[i]].root);
+            }
+
+            loadedModel.emit('refresh');
         };
 
         var timeValueChanged = function(step, value, node) {
@@ -697,8 +720,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             if(!timetable) {
                 loadedModel.loadedScenario.data[node.id] = {
                     id:       loadedModel.generateId(),
-                    scenario: loadedModel.loadedScenario,
-                    node:     node,
+                    /*scenario: loadedModel.loadedScenario,
+                    node:     node,*/
                     steps:    {}
                 };
 
@@ -706,6 +729,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             }
 
             timetable.steps[step] = value;
+
+            loadedModel.emit('refresh');
         };
 
         var rowDeleted = function(step, value, node) {
@@ -719,6 +744,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             }
 
             delete timetable.steps[step];
+
+            loadedModel.emit('refresh');
         };
 
         var addStepCallback = function(evt) {
@@ -730,13 +757,15 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
             var timetable = loadedModel.loadedScenario.data[node.id];
             if(!timetable) {
-                foldable.addTimeRow(0, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
+                var row = foldable.addTimeRow(0, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
                 loadedModel.loadedScenario.data[node.id] = {
-                    id:       loadedModel.generateId(),
-                    scenario: loadedModel.loadedScenario,
-                    node:     node,
-                    steps:    {'0': 0}
+                    id:        loadedModel.generateId(),
+                    /*scenario:  loadedModel.loadedScenario,
+                    node:      node,*/
+                    steps:     {'0': 0}
                 };
+
+                rowLookup[node.id]['0'] = row;
             } else {
                 var lastStep = parseInt(objectHelper.lastKey.call(timetable.steps));
                 if(isNaN(lastStep)) {
@@ -744,10 +773,18 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 }
 
                 lastStep += 1;
-                foldable.addTimeRow(lastStep, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
+                var row = foldable.addTimeRow(lastStep, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
 
-                timetable.steps[lastStep] = 0;
+                timetable.steps[lastStep]    = 0;
+                rowLookup[node.id][lastStep] = row;
             }
+
+            loadedModel.emit('refresh');
+        };
+
+        // Not used, should probably comment it out but too lazy.
+        var baselineCallback = function(evt) {
+            console.log(evt);
         };
 
         menuItem.refresh = function() {
@@ -758,15 +795,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     // Create the folded item for this origin node.
                     var originFoldable    = menuItem.addFoldable(node.name);
                     var addStep           = originFoldable.addButton('Add Step', addStepCallback);
+                    //var baseline          = originFoldable.addInput('Baseline',  baselineCallback);
+
                     addStep.root.node     = node;
                     addStep.root.foldable = originFoldable;
-
-                    /*var steps = loadedModel.loadedScenario.data[node.id].steps;
-                    objectHelper.forEach.call(steps, function(value, key) {
-                        originFoldable.addTimeRow(value, key, function() {
-                            console.log(value, key, 'Wakka?');
-                        });
-                    });*/
 
                     // Save a reference to each origin node owning a button.
                     origins[node.id] = {
@@ -775,12 +807,17 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                         addStep:  addStep
                     };
 
-                    if(!loadedModel.loadedScenario.data[node.id]) {
+                    if(!rowLookup[node.id]) {
+                        rowLookup[node.id] = {};
+                    }
+
+                    if(!loadedModel.loadedScenario.data[node.id] || !loadedModel.loadedScenario.data[node.id].steps) {
                         return;
                     }
 
                     objectHelper.forEach.call(loadedModel.loadedScenario.data[node.id].steps, function(value, step) {
-                        originFoldable.addTimeRow(step, value, node, timeStepChanged, timeValueChanged, rowDeleted);
+                        var row = originFoldable.addTimeRow(step, value, node, timeStepChanged, timeValueChanged, rowDeleted);
+                        rowLookup[node.id][step] = row;
                     });
                 }
             });
@@ -802,17 +839,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             delete origins[a.id];
         });
 
-        var replaceOrigins = function() {
-            objectHelper.forEach.call(origins, function(item) {
-                item.foldable.destroy();
-            });
-
-            origins = {};
-            menuItem.refresh();
-        };
+        // Listen to the newNode event to add 
 
         // Listen to modelLoaded event to make sure we delete
-        // all items related to nodes in the previous modelsl
+        // all items related to nodes in the previous models
         loadedModel.addListener('modelLoaded', function(id, syncId, prevId, prevSyncId) {
             if((syncId === false && id === prevId) || (syncId !== false && syncId === prevSyncId)) {
                 return;
@@ -829,8 +859,11 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
             editableDropdown.replaceValues(scenarios);
 
-            origins = {};
+            rowLookup = {};
+            origins   = {};
             menuItem.refresh();
+
+            loadedModel.emit('refresh');
         });
 
         sidebar.addItem(menuItem);
@@ -843,6 +876,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         sidebar.invert();
     });
 
+    require('./model/listeners/popup.js')(container, loadedModel);
     require('./model/listeners/notification.js')(notificationBarDiv, loadedModel);
     require('./model/listeners/mouse_down.js')(loadedModel);
     require('./model/listeners/mouse_move.js')(loadedModel);

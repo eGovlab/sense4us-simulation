@@ -15,7 +15,7 @@ var simulate = [
                 timestep: loadedModel.loadedScenario.maxIterations,
                 nodes:    breakout.nodes(loadedModel),
                 links:    breakout.links(loadedModel),
-                scenario: loadedModel.loadedScenario.toJson()
+                scenario: loadedModel.loadedScenario
             };
 
             objectHelper.forEach.call(
@@ -24,6 +24,8 @@ var simulate = [
                     node.simulateChange = [];
                 }
             );
+
+            console.log(data);
 
             network(loadedModel.CONFIG.url, '/models/' + loadedModel.CONFIG.userFilter + '/' + loadedModel.CONFIG.projectFilter + '/simulate', data, function(response, err) {
                 if(err) {

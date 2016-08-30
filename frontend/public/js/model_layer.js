@@ -855,7 +855,7 @@ module.exports = {
             scenarios: loadedModel.scenariosToJson()
         };
 
-        console.log(data.scenarios);
+        console.log(data);
 
         network(url, '/models/' + userFilter + '/' + projectFilter +'/save', data, function(response, err) {
             if (err) {
@@ -1069,15 +1069,16 @@ module.exports = {
             });
 
             scenarios.forEach(function(scenario, index) {
-                var newScenario = new Scenario(newState);
-
-                newScenario.id                = scenario.id,
-                newScenario.syncId            = scenario.id,
-                newScenario.name              = scenario.name,
-                newScenario.maxIterations     = scenario.max_iterations,
-                newScenario.timeStepN         = scenario.timestep_n,
-                newScenario.measurement       = scenario.measurement,
-                newScenario.measurementAmount = scenario.measurement_amount,
+                var newScenario = {
+                    id:                 scenario.id,
+                    syncId:             scenario.id,
+                    name:               scenario.name,
+                    maxIterations:      scenario.max_iterations,
+                    timeStepN:          scenario.timestep_n,
+                    measurement:        scenario.measurement,
+                    measurementAmount:  scenario.measurement_amount,
+                    data:               {}
+                };//new Scenario(newState);
 
                 newState.scenarios[newScenario.id] = newScenario;
 
@@ -1096,13 +1097,14 @@ module.exports = {
             */
 
             var timetableLookup = {};
+            console.log(timetables, timesteps);
             timetables.forEach(function(timetable) {
                 var node = newState.nodeData[timetable.node];
                 var timetableStructure = {
                     id:       timetable.id,
                     syncId:   timetable.id,
-                    scenario: timetable.scenario,
-                    node:     timetable.node,
+                    /*scenario: timetable.scenario,
+                    node:     timetable.node,*/
                     steps:    {}
                 };
 

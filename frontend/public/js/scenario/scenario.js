@@ -7,6 +7,19 @@ var objectHelper   = require('./../object-helper.js');
 var TimeTable      = require('./../structures/timetable.js');
 
 function Scenario(loadedModel, syncId) {
+    this.id                = loadedModel.generateId();
+    this.syncId            = syncId;
+
+    this.name              = 'New scenario';
+    this.data              = {};
+
+    this.measurement       = 'Week';
+    this.measurementAmount = 1;
+    this.maxIterations     = 4;
+    this.timeStepN         = 0;
+}
+
+/*function Scenario(loadedModel, syncId) {
     this.id     = loadedModel.generateId();
     this.syncId = syncId;
 
@@ -20,9 +33,9 @@ function Scenario(loadedModel, syncId) {
     this.timeStepN           = 0;
 
     this.changedTables = {};
-}
+}*/
 
-Scenario.prototype = {
+/*Scenario.prototype = {
     setName: function(name) {
         this.name = name;
 
@@ -36,9 +49,9 @@ Scenario.prototype = {
     },
 
     setNodes: function() {
-        /*this.loadedModel.nodeData.forEach(function(data) {
-            console.log(data);
-        });*/
+        //this.loadedModel.nodeData.forEach(function(data) {
+        //    console.log(data);
+        //});
 
         return this;
     },
@@ -95,6 +108,6 @@ Scenario.prototype = {
 
         return this;
     }
-};
+};*/
 
 module.exports = Scenario;
