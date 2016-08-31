@@ -58,7 +58,9 @@ module.exports = function(loadedModel) {
                             var link = links[sourceGui.links[i]];
                             if((link.node1 === nodeId && link.node2 === collidedId)
                                 || (link.node1 === collidedId && link.node2 === nodeId)) {
-                                link.bidirectional = true;
+                                link.bidirectional        = true;
+                                link.bidirectionalTimelag = 1;
+                                
                                 loadedModel.emit('selectableObjectUpdated');
                                 return;
                             }

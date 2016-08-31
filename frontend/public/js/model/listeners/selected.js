@@ -49,7 +49,7 @@ var linkModellingFilter = [
 
     //{property: 'bidirectional', type: 'checkbox'},
 
-    {property: 'bidirectionalTimelag', type: 'input', check: function() {
+    {property: 'bidirectionalTimelag', type: 'input', check: function(value) {
         var match = value.match(/^\d+$/);
         if(match === null) {
             return false;
@@ -70,7 +70,7 @@ var linkModellingFilter = [
     {property: 'description', type: 'input', check: function() {
         return true;
     }},
-    {property: 'baseline', type: 'input', check: function(value) {
+    {property: 'baseline',    type: 'input', check: function(value) {
         var match = value.match(/^-?\d+$/);
         if(match === null) {
             return false;

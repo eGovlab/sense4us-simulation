@@ -1057,6 +1057,9 @@ module.exports = {
                     type:        link.type || 'fullchannel',
                     width:       8,
 
+                    bidirectional:        link.bidirectional         || false,
+                    bidirectionalTimelag: link.bidirectional_timelag || 1,
+
                     objectId:    'link'
                 };
 
