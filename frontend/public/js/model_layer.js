@@ -559,7 +559,7 @@ Model.prototype = {
         var currentId     = id,
             currentSyncId = id;
         if(typeof id !== 'number' || isNaN(parseInt(id))) {
-            id = false;
+            id            = false;
             currentId     = this.id;
             currentSyncId = this.syncId;
         }
@@ -587,7 +587,7 @@ Model.prototype = {
             that.emit('storeModel');
             if(!id) {
                 // If the current model is being saved, make sure to load it again after store.
-                // Storing a model will move it from the currently loaded one.
+                // Storing a model will remove it from the currently loaded position.
                 that.emit([currentId, currentSyncId], 'loadModel');
             }
             

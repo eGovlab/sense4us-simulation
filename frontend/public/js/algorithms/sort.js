@@ -65,39 +65,21 @@ function sortedGetInsertIndex(arr, value) {
         return 0;        
     }
 
-    var length    = arr.length;
-    var middle    = parseInt(length / 2);
-    var iteration = parseInt(middle / 2);
-    while(true) {
-        if(value === arr[middle]) {
-            return middle;
-        } else if(value > arr[middle]) {
-            middle += iteration;
-        } else if(value < arr[middle]) {
-            middle -= iteration;
-        }
+    var start  = 0;
+    var length = arr.length;
 
-        if(iteration <= 1) {
-            iteration = 1;
-            break;
+    while(length >= start) {
+        var t = parseInt((start + length) / 2);
+        if(arr[t] === value) {
+            return t;
+        } else if(arr[t] < value) {
+            length = t - 1;
         } else {
-            iteration = parseInt(iteration / 2);
+            start  = t + 1;
         }
     }
 
-    while(true) {
-        if(middle <= 0 || middle >= length) {
-            return middle;
-        }
-
-        if(value > arr[middle] && value > arr[middle + 1]) {
-            middle++;
-        } else if(value < arr[middle] && value < arr[middle - 1]) {
-            middle--;
-        } else {
-            return middle;
-        }
-    }
+    return -1;
 }
 
 

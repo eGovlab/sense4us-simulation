@@ -31,14 +31,28 @@
 <script src="/static/js/model-builder.debug.js"></script>
 <script>
     docReady(function() {
-        var modelBuilder1 = document.getElementById("model-builder-1");
         var modelBuilder2 = document.getElementById("model-builder-2");
+        window.sense4us.inflateModel(modelBuilder2, "sample", "project");
+        
+        var modelBuilder1 = document.getElementById("model-builder-1");
 
         window.sense4us.inflateModel(modelBuilder1, "tool", "sample", "project");
-        window.sense4us.inflateModel(modelBuilder2, "sample", "project");
 
         var tool = window.sense4us.models.tool;
 
+        // This is called once a model has been saved.
+        tool.addListener('modelSaved', function(id, syncId) {
+            console.log("Database ID:", syncId); // 59 in my case.
+
+            // Store syncId somehow.
+        });
+
+        // Use the stored syncId to load a model.
+        // 59 in my case.
+        tool.loadModel(59).then(function() {
+            console.log("LOADED 59"); 
+        });
+/*
         tool.getAllModels().then(function(models) {
             if(models.length === 0) {
                 return;
@@ -49,7 +63,7 @@
             setInterval(function(){tool.saveModel();}, 1000 * 60);
         }).catch(function(err) {
             console.log(err);
-        });
+        });*/
         /*var loadedModel = window.sense4us.loadedModel;
         loadedModel.addListener("selected", function() {
             var nodeData = this.nodeData[this.selected.id];
