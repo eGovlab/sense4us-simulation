@@ -50,7 +50,7 @@ function treeToStrings(tree) {
 }
 
 module.exports = function(grunt) {
-    var root = __dirname + "/frontend/public/js/";
+    var root = __dirname + "/frontend/js/";
 
     var tree              = traverseDir(root);
     var browserifyModules = treeToStrings(tree);
@@ -68,7 +68,7 @@ module.exports = function(grunt) {
             },
 
             build: {
-                src:  "frontend/public/static/js/model-builder.debug.js",
+                src:  "frontend/public/static/js/debug/model-builder.debug.js",
                 dest: "frontend/public/static/js/model-builder.min.js"
             }
         },
@@ -79,8 +79,8 @@ module.exports = function(grunt) {
             },
 
             client: {
-                src:  ["./frontend/public/js/main.js"],
-                dest: "./frontend/public/static/js/model-builder.debug.js"
+                src:  ["./frontend/js/main.js"],
+                dest: "./frontend/public/static/js/debug/model-builder.debug.js"
             }
         },
 
@@ -110,7 +110,7 @@ module.exports = function(grunt) {
                     "dot-notation":   "error"
                 }
             },
-            target: ["./frontend/public/js/**/*.js"]
+            target: ["./frontend/js/**/*.js"]
         },
 
         sass: {
@@ -126,7 +126,7 @@ module.exports = function(grunt) {
         jsdoc: {
             dist: {
                 src: [
-                    "./frontend/public/js/**/*.js",   "./frontend/public/js/**/*.jsdoc",
+                    "./frontend/js/**/*.js",   "./frontend/js/**/*.jsdoc",
                     "./frontend/controllers/**/*.js", "./frontend/controllers/**/*.jsdoc",
                     "./frontend/docs/**/*.jsdoc"
                 ],

@@ -179,7 +179,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         window.sense4us.models.unsorted.push(loadedModel);
     }
 
-    loadedModel.CONFIG                = configObject;
+    loadedModel.CONFIG = configObject;
 
     var settings      = require('./settings');
 
@@ -188,9 +188,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     var context       = mainCanvas.getContext('2d');
 
-    var mouseHandler  = require('./mechanics/mouse_handler.js');
+    var mouseEventEmitter = require('./mechanics/mouse_event_emitter.js');
 
-    mouseHandler(mainCanvas, loadedModel);
+    mouseEventEmitter(mainCanvas, loadedModel);
 
     container.addEventListener('mousedown', function(ev) {
         window.sense4us.lastTarget = ev.target;
@@ -681,8 +681,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 return;
             }
 
+            // If there's already a step on this key, leave everything as is.
             if(timetable.steps[step] !== undefined) {
-                // Restore value to previous accepted change.
+                // Returning true restores the value to previous accepted change.
                 return true;
             }
 
@@ -696,18 +697,20 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             delete timetable.steps[previousStep];
             delete rowLookup[node.id][previousStep];
 
-            // Get the indexes after data update and the current row index.
+            // Get the indexes after data update.
             var a = Object.keys(rowLookup[node.id]);
+            // And the current row index.
             var i = a.indexOf(step);
 
             // If the row index is in the list, insert it before the next element.
-            // If it's on the outside, append it to the end.
+            // If it's on the edge, append it to the end.
             if(i + 1 < a.length) {
                 foldable.child.root.insertBefore(rowLookup[node.id][a[i]].root, rowLookup[node.id][a[i + 1]].root);
             } else {
                 foldable.child.root.appendChild(rowLookup[node.id][a[i]].root);
             }
 
+            // Redraw new data.
             loadedModel.emit('refresh');
         };
 
