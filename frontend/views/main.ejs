@@ -30,15 +30,197 @@
 
 <script src="/static/js/model-builder.debug.js"></script>
 <script>
+
+    /**
+     * @description Simple regex to validate a domain.
+     *
+     * @param {string} domain - The domain to validate.
+     */
+
+    function validateDomain(domain) {
+        var check = domain.match(/^(http[s]?):\/\/([a-zA-Z0-9\.]+)\/?.*$|^(http[s]?):\/\/([a-zA-Z0-9\.]+):(\d+)\/?.*$/);
+
+        if(check === null) {
+            console.error(domain);
+            throw new Error("Domain of invalid structure!");
+        }
+
+        return domain;
+    }
+
+    /**
+     * @description Send data with an XMLHttpRequest.
+     * @returns {Promise}
+     *
+     * @param {string} [domain] - Domain to hit.
+     * @param {string} path - Path of request.
+     * @param {string} [jsonData] - Optional jsonData.
+     * @param {string} [method] - Optional method. Defaults to GET
+     */
+
+    function sendData(domain, path, jsonData, method) {
+        var httpRequest = new XMLHttpRequest();
+        var p = new Promise(function(fulfill, reject) {
+            if(!method && (!jsonData || typeof jsonData === "string")) {
+                var t = domain,
+                    e = path;
+
+                domain   = "";
+                path     = t;
+                method   = jsonData;
+                jsonData = e;
+            } else {
+                validateDomain(domain);
+            }
+
+            if(typeof domain !== "string") {
+                return reject(new Error("sendData got invalid type for domain or port!"));
+            }
+
+            if(jsonData) {
+                if(typeof jsonData !== "object") {
+                    return reject(new Error("Expected JS object as jsonData."));
+                }
+
+                jsonData = JSON.stringify(jsonData, null, 4);
+            }
+
+            var requestPath;
+
+            if (!httpRequest) {
+                return reject(new Error("Giving up :( Cannot create an XMLHttp instance."))
+            }
+
+            httpRequest.onreadystatechange = function() {
+                if (httpRequest.readyState === 4) {
+                    if(httpRequest.status === 0) {
+                        return reject(new Error("Connection refused."));
+                    }
+
+                    fulfill(httpRequest);
+                }
+            };
+
+            if (!method) {
+                method = "GET";
+                if (jsonData) {
+                    method = "POST";
+                }
+            }
+
+            if(domain.charAt(domain.length - 1) === "/") {
+                domain = domain.slice(0, domain.length - 1);
+            }
+
+            if(path.charAt(0) !== "/") {
+                path = "/" + path;
+            }
+
+            httpRequest.open(method, domain + path);
+            httpRequest.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+            httpRequest.setRequestHeader("Accept", "application/json");
+            if (jsonData && typeof jsonData !== "function") {
+                httpRequest.send(jsonData);
+            } else {
+                httpRequest.send();
+            }
+        });
+
+        p.abort = function(){httpRequest.abort();};
+
+        return p;
+    }
+
+    /**
+     * @namespace
+     * @property {object} module.exports - The exported object with available helper methods for AJAX building.
+     * @property {function} module.exports.GET - Helper method for GET requests.
+     * @property {function} module.exports.POST - Helper method for POST requests.
+     * @property {function} module.exports.PUT - Helper method for PUT requests.
+     * @property {function} module.exports.PATCH - Helper method for PATCH requests.
+     * @property {function} module.exports.DELETE - Helper method for DELETE requests.
+     * @property {function} module.exports.helper - Helper method for the above helper requests. Meta.
+     * @property {function} module.exports.sendData - The method underneath all the above helper methods.
+     */
+
+    window.sense4us.network = {
+        GET: function(domain, path) {
+            return this.sendData(domain, path);
+        },
+
+        POST: function(domain, path, data) {
+            return this.sendData(domain, path, data);
+        },
+
+        PUT: function(domain, path, data) {
+            return this.helper(domain, path, data, "PUT");
+        },
+
+        PATCH: function(domain, path, data) {
+            return this.helper(domain, path, data, "PATCH");
+        },
+
+        DELETE: function(domain, path, data) {
+            return this.helper(domain, path, data, "DELETE");
+        },
+
+        helper: function(domain, path, data, method) {
+            if(!data) {
+                data   = method;
+                method = undefined;
+            }
+
+            return this.sendData(domain, path, data, method);
+        },
+
+        sendData: sendData
+    };
+</script>
+<script>
     docReady(function() {
         var modelBuilder2 = document.getElementById("model-builder-2");
         window.sense4us.inflateModel(modelBuilder2, "sample", "project");
         
         var modelBuilder1 = document.getElementById("model-builder-1");
 
+        // I inflate the builder with user "sample" and project "project".
         window.sense4us.inflateModel(modelBuilder1, "tool", "sample", "project");
 
-        var tool = window.sense4us.models.tool;
+        var tool    = window.sense4us.models.tool;
+        var network = window.sense4us.network;
+
+        tool.addListener("modelLoaded", function(id, syncId) {
+            console.log("Loaded model:", id, syncId);
+        });
+
+        // I create a model for another project, "project_two".
+        network.POST(
+            "http://localhost:3000", 
+            "/models/sample/project_two/create/new_model",
+            {}
+        ).then(function(response) {
+            if(response.status !== 200) {
+                console.error(response);
+                throw new Error("Something happened.");
+            }
+
+            var data = JSON.parse(response.responseText);
+
+            // I got a new model with an id.
+            console.log("Created new model:", data.response.id);
+
+            return data.response.id;
+        }).then(function(modelId) {
+            console.log(modelId);
+
+            // I try to load this model.
+            return tool.loadModel(modelId).then(function() {
+                console.log("Loaded model with id:", modelId); 
+            }).catch(function(err) {
+                // It failed, since this tool is inflated with project "project", not "project_two".
+                console.error(err);
+            });
+        });
 
         // This is called once a model has been saved.
         tool.addListener('modelSaved', function(id, syncId) {
@@ -49,9 +231,8 @@
 
         // Use the stored syncId to load a model.
         // 59 in my case.
-        tool.loadModel(59).then(function() {
-            console.log("LOADED 59"); 
-        });
+        /*tool.loadModel(59).then(function() {
+        });*/
 /*
         tool.getAllModels().then(function(models) {
             if(models.length === 0) {
