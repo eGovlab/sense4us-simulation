@@ -149,7 +149,7 @@ function addLoadModelListeners(savedModels, loadedModel) {
             return loadedModel.emit('newModel');
         }
 
-        loadedModel.emit(objectHelper.first.call(savedModels.local).id, 'loadModel');
+        loadedModel.emit([objectHelper.first.call(savedModels.local).id, false], 'loadModel');
     });
 }
 
