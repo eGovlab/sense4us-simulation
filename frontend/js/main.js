@@ -18,12 +18,16 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     container.className = 'mb-container';
 
-    var curry        = require('./curry.js'),
-        strictCurry  = require('./strict_curry.js'),
+    var curry        = require('curry').curry,
+        strictCurry  = require('curry').strictCurry,
         Immutable    = null,
-        canvas       = require('./canvas'),
-        linker       = require('./linker.js'),
-        generateId   = require('./generate_id.js');
+        canvas       = require('canvas'),
+        linker       = require('linker');
+
+    var t_id = 1;
+    var generateId = function() {
+        return t_id++;
+    };
 
     var maxWidth  = container.offsetWidth,
         maxHeight = container.offsetHeight;
@@ -60,7 +64,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         url:           protocol + '://' + hostname + portString
     };
 
-    var objectHelper = require('./object-helper.js');
+    var objectHelper = require('object-helper');
 
     /*var menuHeader       = document.createElement('div'),
         upperMenu        = document.createElement('div');
@@ -95,7 +99,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     mainCanvasC.className         = 'main-canvas';
     linegraphCanvasC.className    = 'linegraph';
 
-    var NewUI   = require('./new_ui');
+    var NewUI   = require('new_ui');
     var Colors  = NewUI.Colors,
         sidebar = new NewUI.Sidebar(200);
 
@@ -114,13 +118,15 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     /*var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
     var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);*/
 
-    var colorValues      = require('./graphics/value_colors.js'),
-        modelLayer       = require('./model_layer.js'),
-        menuBuilder      = require('./menu_builder'),
-        notification     = require('./notification_bar'),
-        network          = require('./network'),
-        informationTree  = require('./information_tree'),
-        UI               = require('./ui');
+    var colorValues      = require('graphics').valueColors,
+        modelLayer       = require('model_layer'),
+        menuBuilder      = require('menu_builder'),
+
+        notification     = require('notification_bar'),
+
+        network          = require('network'),
+        informationTree  = require('information_tree'),
+        UI               = require('ui');
 
     //notificationBar.setContainer(notificationBarDiv);
     
@@ -181,14 +187,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     loadedModel.CONFIG = configObject;
 
-    var settings      = require('./settings');
+    var settings      = require('settings');
 
     window.Immutable  = Immutable;
-    window.collisions = require('./collisions.js');
+    window.collisions = require('collisions');
 
     var context       = mainCanvas.getContext('2d');
 
-    var mouseEventEmitter = require('./mechanics/mouse_event_emitter.js');
+    var mouseEventEmitter = require('mechanics').mouseEventEmitter;
 
     mouseEventEmitter(mainCanvas, loadedModel);
 
@@ -196,12 +202,12 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         window.sense4us.lastTarget = ev.target;
     });
     
-    var keyboardHandler = require('./mechanics/keyboard_handler.js'),
-        hotkeyE         = require('./input/hotkey_e.js'),
-        hotkeyZ         = require('./input/hotkey_z.js'),
-        hotkeyY         = require('./input/hotkey_y.js'),
-        hotkeyV         = require('./input/hotkey_v.js'),
-        hotkeyESC       = require('./input/hotkey_esc.js');
+    var keyboardHandler = require('mechanics').keyboardHandler,
+        hotkeyE         = require('input').hotkeyE,
+        hotkeyZ         = require('input').hotkeyZ,
+        hotkeyY         = require('input').hotkeyY,
+        hotkeyV         = require('input').hotkeyV,
+        hotkeyESC       = require('input').hotkeyEsc;
 
     keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);
 
@@ -235,10 +241,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         loadedModel.settings.scaleY = scaleY;
     }
 
-    var aggregatedLink   = require('./aggregated_link.js');
-    var refreshNamespace = require('./refresh');
+    var aggregatedLink   = require('aggregated_link');
+    var refreshNamespace = require('refresh');
 
-    var asyncMiddleware  = require('./async_middleware');
+    var asyncMiddleware  = require('async_middleware');
 
     var lastShow;
     function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
@@ -273,7 +279,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         refreshNamespace.drawLinkingLine
     );
 
-    var modelling = require('./settings/modelling.js');
+    var modelling = require('settings').modelling;
     function setupIconGroups(sidebar, modelling) {
         var menuItem = new NewUI.MenuItem(300);
         menuItem.child.clicks = [];
@@ -414,7 +420,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         return menuItem;
     }
 
-    var _simulate = require('./settings/simulate.js');
+    var _simulate = require('settings').simulate;
     var __ = setupSimulate(sidebar, _simulate);
     __.setLabel('Simulate');
 
@@ -605,8 +611,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         this.timeStepN         = 0;
     }
 
-    var algorithms = require('./algorithms');
-    var sort = algorithms.sort;
+    var algorithms = require('algorithms');
+    var sort       = algorithms.sort;
 
     function setupScenarioWindow(sidebar) {
         var menuItem = new NewUI.MenuItem(340);
@@ -879,12 +885,12 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         sidebar.invert();
     });
 
-    require('./model/listeners/popup.js')(container, loadedModel);
-    require('./model/listeners/notification.js')(notificationBarDiv, loadedModel);
-    require('./model/listeners/mouse_down.js')(loadedModel);
-    require('./model/listeners/mouse_move.js')(loadedModel);
-    require('./model/listeners/mouse_up.js')(loadedModel);
-    require('./model/listeners/delete.js')(loadedModel);
+    require('model').listeners.popup(container, loadedModel);
+    require('model').listeners.notification(notificationBarDiv, loadedModel);
+    require('model').listeners.mouseDown(loadedModel);
+    require('model').listeners.mouseMove(loadedModel);
+    require('model').listeners.mouseUp(loadedModel);
+    require('model').listeners.delete(loadedModel);
 
     loadedModel.addListener('resetUI', function() {
         sidebar.foldable.menuItems.forEach(function(menuItem) {
@@ -906,7 +912,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
     });*/
 
-    var ScenarioEditor = require('./scenario').ScenarioEditor;
+    //var ScenarioEditor = require('./scenario').ScenarioEditor;
 
     /**
      * @description A new window should be created.
@@ -915,7 +921,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
      *
      * @param {string} option - Option key
      */
-    loadedModel.addListener('newWindow', function(option) {
+    /*loadedModel.addListener('newWindow', function(option) {
         switch(option.toUpperCase()) {
             case 'SCENARIO':
                 loadedModel.floatingWindows.forEach(function(floatingWindow) {
@@ -924,7 +930,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
                 break;
         }
-    });
+    });*/
 
     /*sidebarManager.setEnvironment(loadedModel.environment);
     sidebarManager.setLoadedModel(loadedModel);
@@ -933,22 +939,22 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var menu = new UI.Menu(upperMenu, settings.menu);
     menu.createMenu(loadedModel, savedModels);*/
 
-    require('./model/listeners/selected.js') (sidebar, loadedModel);
-    //require('./model/listeners/selected.js')    (sidebarManager, loadedModel);
-    //require('./model/listeners/reset_ui.js')    (sidebarManager, menu, savedModels, loadedModel);
+    require('model').listeners.selected (sidebar, loadedModel);
+    //require('model').listeners.selected    (sidebarManager, loadedModel);
+    //require('model').listeners.reset_ui    (sidebarManager, menu, savedModels, loadedModel);
 
 
-    require('./model/listeners/store_model.js') (savedModels, loadedModel);
-    require('./model/listeners/load_model.js')  (savedModels, loadedModel);
-    require('./model/listeners/new_model.js')   (savedModels, loadedModel);
-    require('./model/listeners/delete_model.js')(savedModels, loadedModel);
-    require('./model/listeners/save_model.js')  (savedModels, loadedModel);
+    require('model').listeners.storeModel (savedModels, loadedModel);
+    require('model').listeners.loadModel  (savedModels, loadedModel);
+    require('model').listeners.newModel   (savedModels, loadedModel);
+    require('model').listeners.deleteModel(savedModels, loadedModel);
+    require('model').listeners.saveModel  (savedModels, loadedModel);
 
     var localId = loadedModel.id;
     loadedModel.emit('storeModel');
     loadedModel.emit([localId, false], 'loadModel');
 
-    require('./model/listeners/settings.js')(loadedModel);
+    require('model').listeners.settings(loadedModel);
     loadedModel.addListener('settings', function() {
         if(loadedModel.settings.linegraph) {
             linegraphRefresh();
@@ -966,7 +972,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     loadedModel.emit('Initialized', 'notification');
 
     var Chart = require('chart.js');
-    var drawLineGraph = require('./graphics/draw_line_graph.js');
+    var drawLineGraph = require('graphics').drawLineGraph;
     function _linegraphRefresh() {
         var lctx = linegraphCanvas.getContext('2d');
 
@@ -1068,4 +1074,4 @@ window.sense4us              = window.sense4us || {};
 window.sense4us.lastTarget   = false;
 window.sense4us.inflateModel = inflateModel;
 window.sense4us.inflateTool  = inflateModel;
-window.sense4us.NewUI        = require('./new_ui');
+window.sense4us.NewUI        = require('new_ui');
