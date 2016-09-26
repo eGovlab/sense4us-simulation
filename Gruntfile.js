@@ -74,14 +74,14 @@ module.exports = function(grunt) {
         },
 
         browserify: {
-            options: {
+            /*options: {
                 require: browserifyModules
-            },
+            },*/
 
             client: {
                 src:  ["./frontend/js/main.js"],
                 dest: "./frontend/public/static/js/debug/model-builder.debug.js"
-            }
+            },
         },
 
         watch: {
@@ -167,6 +167,10 @@ module.exports = function(grunt) {
 
     grunt.registerTask("browserify_debug", function() {
         var browserifyConfig = grunt.config.get("browserify");
+        if(!browserifyConfig.options) {
+            browserifyConfig.options = {};
+        }
+        
         browserifyConfig.options.browserifyOptions = {
             debug: true
         };
@@ -177,7 +181,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask("default", [
         "eslint",
-        "browserify",
+        "browserify_debug",
         "uglify",
         "sass"
     ]);
