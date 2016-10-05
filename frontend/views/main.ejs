@@ -194,9 +194,9 @@
         });
 
         // I create a model for another project, "project_two".
-        network.POST(
+        /*network.POST(
             "http://localhost:3000", 
-            "/models/sample/project_two/create/new_model",
+            "/models/sample/project/create/new_model",
             {}
         ).then(function(response) {
             if(response.status !== 200) {
@@ -210,7 +210,7 @@
             console.log("Created new model:", data.response.id);
 
             return data.response.id;
-        }).then(function(modelId) {
+        })*/Promise.resolve(95).then(function(modelId) {
             console.log(modelId);
 
             // I try to load this model.
