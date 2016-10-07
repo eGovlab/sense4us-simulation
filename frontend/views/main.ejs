@@ -188,51 +188,6 @@
 
         var tool    = window.sense4us.models.tool;
         var network = window.sense4us.network;
-
-        tool.addListener("modelLoaded", function(id, syncId) {
-            console.log("Loaded model:", id, syncId);
-        });
-
-        // I create a model for another project, "project_two".
-        network.POST(
-            "http://localhost:3000", 
-            "/models/sample/project_two/create/new_model",
-            {}
-        ).then(function(response) {
-            if(response.status !== 200) {
-                console.error(response);
-                throw new Error("Something happened.");
-            }
-
-            var data = JSON.parse(response.responseText);
-
-            // I got a new model with an id.
-            console.log("Created new model:", data.response.id);
-
-            return data.response.id;
-        }).then(function(modelId) {
-            console.log(modelId);
-
-            // I try to load this model.
-            return tool.loadModel(modelId).then(function() {
-                console.log("Loaded model with id:", modelId); 
-            }).catch(function(err) {
-                // It failed, since this tool is inflated with project "project", not "project_two".
-                console.error(err);
-            });
-        });
-
-        // This is called once a model has been saved.
-        tool.addListener('modelSaved', function(id, syncId) {
-            console.log("Database ID:", syncId); // 59 in my case.
-
-            // Store syncId somehow.
-        });
-
-        // Use the stored syncId to load a model.
-        // 59 in my case.
-        /*tool.loadModel(59).then(function() {
-        });*/
 /*
         tool.getAllModels().then(function(models) {
             if(models.length === 0) {

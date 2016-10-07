@@ -189,7 +189,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     var settings      = require('settings');
 
-    window.Immutable  = Immutable;
+    window.Immutable  = Immutable;        
     window.collisions = require('collisions');
 
     var context       = mainCanvas.getContext('2d');
@@ -213,6 +213,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     var zoom = 1;
     function MouseWheelHandler(e) {
+        console.log('scrolling', e);
         var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
         var mouse_canvas_y = e.y - mainCanvas.offsetTop;
         var scaleX = loadedModel.settings.scaleX || 1;
@@ -240,6 +241,82 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         loadedModel.settings.scaleX = scaleX;
         loadedModel.settings.scaleY = scaleY;
     }
+
+    function ZoomHandler(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        var sensitivity = 0.1;
+
+        // Get direction of scrolling
+        var direction  = 0; // By default the scroll direction is zero
+        direction     += (e.deltaY > 0 ? -1 : 0); // If the scrolling is positive in the y-direction, add -1 to the direction value.
+        direction     += (e.deltaY < 0 ? +1 : 0); // If the scrolling is negative in the y-direction, add 1 to the direction value.        
+        
+        // Input Node XY (raw)
+        // Input zoom amount value
+        // Input click location XY (raw affected by panning)
+
+        var preZoom = loadedModel.settings.zoom;
+        var newZoom = loadedModel.settings.zoom + direction * sensitivity;
+        if(newZoom <= 0) {
+            return;
+        }
+        var deltaZoom = newZoom - preZoom;
+        var deltaOffsetX = loadedModel.static.xZoom * deltaZoom;
+        var deltaOffsetY = loadedModel.static.yZoom * deltaZoom;
+
+        console.log('loadedModel.static.xZoom: ', loadedModel.static.xZoom);
+        console.log('loadedModel.static.xZoom: ', loadedModel.static.xZoom);
+        console.log('deltaZoom: ', deltaZoom);
+
+        loadedModel.settings.zoom   = newZoom;
+        loadedModel.settings.scaleX = loadedModel.settings.zoom;
+        loadedModel.settings.scaleY = loadedModel.settings.zoom;
+        //loadedModel.settings.offsetX -= deltaOffsetX;
+        //loadedModel.settings.offsetY -= deltaOffsetY;
+        console.log('deltaOffsetX: ', deltaOffsetX);
+        console.log('deltaOffsetY: ', deltaOffsetY);
+        console.log('loadedModel.settings.offsetX: ', loadedModel.settings.offsetX);
+        console.log('loadedModel.settings.offsetY: ', loadedModel.settings.offsetY);
+
+        loadedModel.emit('refresh');
+
+        //console.log('direction: ', direction);
+        //console.log('container', container);
+    }
+
+    loadedModel.addListener('modelLoaded', function(id, syncId) {
+        //console.log('Model loaded:', id, syncId, 'Resetting pan.');
+        console.log(loadedModel.settings.offsetX, loadedModel.settings.offsetY);
+        // Sets the canvas panning values to the panning/offset values from the loadedModel.
+        // Makes sure canvas/arithmetics.mouseToCanvas returns a relevant number.
+        mainCanvasC.panX = -loadedModel.settings.offsetX;
+        mainCanvasC.panY = -loadedModel.settings.offsetY;
+    });
+
+    function MouseHandler(e) {
+        var zoomFactor    = loadedModel.settings.zoom;
+        var mousePosition = canvas.arithmetics.mouseToCanvas(
+            {x: e.pageX, y: e.pageY},
+            mainCanvasC
+        );
+
+        //console.log('mousePosition: ', mousePosition);
+
+        var xZoom = mousePosition.x / zoomFactor,
+            yZoom = mousePosition.y / zoomFactor;
+
+        loadedModel.static.xZoom = xZoom;
+        loadedModel.static.yZoom = yZoom;
+
+        //console.log('mousePosition: ', mousePosition);
+        //console.log('xZoom: ',         xZoom);
+    }
+
+    sidebar.root.addEventListener('wheel', function(evt){evt.stopPropagation();});
+    container.addEventListener('wheel', ZoomHandler);
+    container.addEventListener('mousemove', MouseHandler);
 
     var aggregatedLink   = require('aggregated_link');
     var refreshNamespace = require('refresh');
