@@ -29,10 +29,10 @@
 
     var _PORT = CONFIG.get("PORT") || 3000;
 
-    var loggerConfig = CONFIG.get("LOGGER");
+    var loggerConfig      = CONFIG.get("LOGGER");
     loggerConfig.errorDir = _ROOT + loggerConfig.errorDir;
     loggerConfig.logDir   = _ROOT + loggerConfig.logDir;
-    var httpLogger = logger.httpLogger(loggerConfig);
+    var httpLogger        = logger.httpLogger(loggerConfig);
 
     var cookieCutter = new CookieCutter();
     cookieCutter.addCookieCutter("template", "template", function(data){return true;});

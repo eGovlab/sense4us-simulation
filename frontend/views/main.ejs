@@ -210,7 +210,9 @@
             console.log("Created new model:", data.response.id);
 
             return data.response.id;
-        })*/Promise.resolve(95).then(function(modelId) {
+        })*/
+        
+        Promise.resolve(95).then(function(modelId) {
             console.log(modelId);
 
             // I try to load this model.
@@ -233,7 +235,8 @@
         // 59 in my case.
         /*tool.loadModel(59).then(function() {
         });*/
-/*
+
+        /*
         tool.getAllModels().then(function(models) {
             if(models.length === 0) {
                 return;

@@ -86,7 +86,7 @@ module.exports = function(grunt) {
 
         watch: {
             scripts: {
-                files: ["./frontend/public/js/**/*.js", "./frontend/public/js/**/*.jsdoc"],
+                files: ["./frontend/js/**/*.js", "./frontend/js/**/*.jsdoc"],
                 tasks: ["eslint", "browserify_debug", "jsdoc"]
             }
         },
