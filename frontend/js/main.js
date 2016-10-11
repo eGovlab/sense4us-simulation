@@ -143,6 +143,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     loadedModel.static.width        = container.offsetWidth;
     loadedModel.static.height       = container.offsetHeight;
     loadedModel.static.showSimulate = false;
+    loadedModel.static.renderChangePercent = true;
 
     var timer = null;
     window.addEventListener('resize', function() {
@@ -601,7 +602,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                         items[row.id] = button;
                     }
 
-                    menuItem.simulateCheckbox = checkbox;
+                    if(row.id) {
+                        menuItem[row.id] = checkbox;
+                    }
                     break; 
                 case 'DROPDOWN':
                     var dropdown = menuItem.addDropdown(row.header, row.values);
@@ -870,257 +873,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var algorithms = require('algorithms');
     var sort       = algorithms.sort;
 
-    function setupScenarioWindow(sidebar) {
-        var menuItem = new NewUI.MenuItem(340);
-        menuItem.setLabel('Scenario Editor');
-
-        menuItem.addLabel('Output Nodes');
-
-        // Map of references to nodes and foldables. Key being node.id
-        var origins         = {};
-        var rowLookup       = {};
-        var timeStepChanged = function(previousStep, step, value, node) {
-            if(!loadedModel.loadedScenario) {
-                return;
-            }
-
-            var timetable = loadedModel.loadedScenario.data[node.id];
-            if(!timetable) {
-                loadedModel.loadedScenario.data[node.id] = {
-                    id:       loadedModel.generateId(),
-                    scenario: loadedModel.loadedScenario,
-                    node:     node,
-                    steps:    {}
-                };
-
-                timetable = loadedModel.loadedScenario.data[node.id];
-                timetable.steps[step] = value;
-                return;
-            }
-
-            // If there's already a step on this key, leave everything as is.
-            if(timetable.steps[step] !== undefined) {
-                // Returning true restores the value to previous accepted change.
-                return true;
-            }
-
-            // Get the foldable with all timerows.
-            var foldable = origins[node.id].foldable;
-
-            // Set the step and row lookup and delete the old step in the data object.
-            timetable.steps[step]    = value;
-            rowLookup[node.id][step] = rowLookup[node.id][previousStep];
-
-            delete timetable.steps[previousStep];
-            delete rowLookup[node.id][previousStep];
-
-            // Get the indexes after data update.
-            var a = Object.keys(rowLookup[node.id]);
-            // And the current row index.
-            var i = a.indexOf(step);
-
-            // If the row index is in the list, insert it before the next element.
-            // If it's on the edge, append it to the end.
-            if(i + 1 < a.length) {
-                foldable.child.root.insertBefore(rowLookup[node.id][a[i]].root, rowLookup[node.id][a[i + 1]].root);
-            } else {
-                foldable.child.root.appendChild(rowLookup[node.id][a[i]].root);
-            }
-
-            // Redraw new data.
-            loadedModel.emit('refresh');
-        };
-
-        var timeValueChanged = function(step, value, node) {
-            if(!loadedModel.loadedScenario) {
-                return;
-            }
-
-            var timetable = loadedModel.loadedScenario.data[node.id];
-            if(!timetable) {
-                loadedModel.loadedScenario.data[node.id] = {
-                    id:       loadedModel.generateId(),
-                    /*scenario: loadedModel.loadedScenario,
-                    node:     node,*/
-                    steps:    {}
-                };
-
-                timetable = loadedModel.loadedScenario.data[node.id];
-            }
-
-            timetable.steps[step] = value;
-
-            loadedModel.emit('refresh');
-        };
-
-        var rowDeleted = function(step, value, node, foldable) {
-            if(!loadedModel.loadedScenario) {
-                return;
-            }
-
-            var timetable = loadedModel.loadedScenario.data[node.id];
-            if(!timetable) {
-                return;
-            }
-
-            delete timetable.steps[step];
-
-            if(objectHelper.size.call(timetable.steps) === 0) {
-                foldable.labelRow.root.style.display = 'none';
-            }
-
-            loadedModel.emit('refresh');
-        };
-
-        var addStepCallback = function(evt) {
-            var node     = evt.target.node     || evt.target.parentElement.node;
-            var foldable = evt.target.foldable || evt.target.parentElement.foldable;
-            if(!node || !foldable) {
-                return;
-            }
-
-            var timetable = loadedModel.loadedScenario.data[node.id];
-            if(!timetable) {
-                var row = foldable.addTimeRow(0, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
-                loadedModel.loadedScenario.data[node.id] = {
-                    id:        loadedModel.generateId(),
-                    /*scenario:  loadedModel.loadedScenario,
-                    node:      node,*/
-                    steps:     {'0': 0}
-                };
-
-                rowLookup[node.id]['0'] = row;
-            } else {
-                var lastStep = parseInt(objectHelper.lastKey.call(timetable.steps));
-                if(isNaN(lastStep)) {
-                    lastStep = -1;
-                }
-
-                lastStep += 1;
-                var row = foldable.addTimeRow(lastStep, 0, node, timeStepChanged, timeValueChanged, rowDeleted);
-
-                timetable.steps[lastStep]    = 0;
-                rowLookup[node.id][lastStep] = row;
-            }
-
-            if(objectHelper.size.call(timetable.steps) > 0) {
-                foldable.labelRow.root.style.display = 'block';
-            }
-
-            loadedModel.emit('refresh');
-        };
-
-        // Not used, should probably comment it out but too lazy.
-        var baselineCallback = function(evt) {
-            console.log(evt);
-        };
-
-        menuItem.refresh = function() {
-            // Loop all nodes.
-            objectHelper.forEach.call(loadedModel.nodeData, function(node) {
-                // Check if the node is of origin type and doesn't already own a button.
-                if(node.type === 'origin' && !origins[node.id]) {
-                    // Create the folded item for this origin node.
-                    var originFoldable    = menuItem.addFoldable(node.name, 160);
-                    originFoldable.addInput('Baseline');
-                    var addStep           = originFoldable.addButton('Add Step', addStepCallback);
-
-                    var labelRow = originFoldable.addSeparator();
-
-                    labelRow.root.style.padding        = '0px 8px';
-                    labelRow.root.style['margin-top']  = '16px';
-
-                    var stepLabel   = originFoldable.addLabel('Step');
-                    var changeLabel = originFoldable.addLabel('Change');
-
-                    stepLabel.root.style.display   = 'inline-block';
-                    changeLabel.root.style.display = 'inline-block';
-
-                    stepLabel.root.style.padding   = '0px';
-                    changeLabel.root.style.padding = '0px';
-
-                    stepLabel.root.style.margin    = '0px 4px';
-                    changeLabel.root.style.margin  = '0px 4px';
-
-                    stepLabel.setWidth('20%');
-                    changeLabel.setWidth('55%');
-
-                    labelRow.appendChild(stepLabel);
-                    labelRow.appendChild(changeLabel);
-
-                    originFoldable.labelRow                    = labelRow;
-                    originFoldable.labelRow.root.style.display = 'none';
-
-                    //var baseline          = originFoldable.addInput('Baseline',  baselineCallback);
-
-                    addStep.root.node     = node;
-                    addStep.root.foldable = originFoldable;
-
-                    // Save a reference to each origin node owning a button.
-                    origins[node.id] = {
-                        node:     node,
-                        foldable: originFoldable,
-                        addStep:  addStep
-                    };
-
-                    if(!rowLookup[node.id]) {
-                        rowLookup[node.id] = {};
-                    }
-
-                    if(!loadedModel.loadedScenario.data[node.id] || !loadedModel.loadedScenario.data[node.id].steps) {
-                        return;
-                    }
-
-                    objectHelper.forEach.call(loadedModel.loadedScenario.data[node.id].steps, function(value, step) {
-                        var row = originFoldable.addTimeRow(step, value, node, timeStepChanged, timeValueChanged, rowDeleted);
-                        rowLookup[node.id][step] = row;
-                    });
-                }
-            });
-        };
-
-        loadedModel.addListener('dataModified', function(value, property, obj) {
-            if(origins[obj.id]) {
-                origins[obj.id].foldable.setLabel(value);
-            }
-        });
-
-        // Listen to the deletedNode event to make sure we delete buttons related to a node.
-        loadedModel.addListener('deletedNode', function(a, b) {
-            if(!origins[a.id]) {
-                return;
-            }
-
-            origins[a.id].foldable.destroy();
-            delete origins[a.id];
-        });
-
-        // Listen to the newNode event to add 
-
-        // Listen to modelLoaded event to make sure we delete
-        // all items related to nodes in the previous models
-        loadedModel.addListener('modelLoaded', function(id, syncId, prevId, prevSyncId) {
-            if((syncId === false && id === prevId) || (syncId !== false && syncId === prevSyncId)) {
-                return;
-            }
-
-            objectHelper.forEach.call(origins, function(item) {
-                item.foldable.destroy();
-            });
-
-            rowLookup = {};
-            origins   = {};
-            menuItem.refresh();
-
-            loadedModel.emit('refresh');
-        });
-
-        sidebar.addItem(menuItem);
-        return menuItem;
-    }
-
-    //setupScenarioWindow(sidebar);
-
     loadedModel.addListener('invertSidebar', function() {
         sidebar.invert();
     });
@@ -1146,42 +898,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
      */
     loadedModel.addListener('refresh',  refresh);
 
-    //var sidebarManager = new UI.SidebarManager(sidebarContainer);
-
-    /*loadedModel.addListener('sidebar', function() {
-        sidebarManager.addSidebar(loadedModel.sidebar, loadedModel);
-    });*/
-
-    //var ScenarioEditor = require('./scenario').ScenarioEditor;
-
-    /**
-     * @description A new window should be created.
-     * @event newWindow
-     * @memberof module:model/propagationEvents
-     *
-     * @param {string} option - Option key
-     */
-    /*loadedModel.addListener('newWindow', function(option) {
-        switch(option.toUpperCase()) {
-            case 'SCENARIO':
-                loadedModel.floatingWindows.forEach(function(floatingWindow) {
-                    floatingWindow.destroyWindow();
-                });
-                new ScenarioEditor(loadedModel, container.offsetLeft + 208, container.offsetTop + 28);
-                break;
-        }
-    });*/
-
-    /*sidebarManager.setEnvironment(loadedModel.environment);
-    sidebarManager.setLoadedModel(loadedModel);
-    sidebarManager.setSelectedMenu(loadedModel.settings);
-
-    var menu = new UI.Menu(upperMenu, settings.menu);
-    menu.createMenu(loadedModel, savedModels);*/
-
     require('model').listeners.selected (sidebar, loadedModel);
-    //require('model').listeners.selected    (sidebarManager, loadedModel);
-    //require('model').listeners.reset_ui    (sidebarManager, menu, savedModels, loadedModel);
 
 
     require('model').listeners.storeModel (savedModels, loadedModel);
