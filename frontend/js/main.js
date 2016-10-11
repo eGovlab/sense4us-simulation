@@ -120,13 +120,11 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     var colorValues      = require('graphics').valueColors,
         modelLayer       = require('model_layer'),
-        menuBuilder      = require('menu_builder'),
 
         notification     = require('notification_bar'),
 
         network          = require('network'),
-        informationTree  = require('information_tree'),
-        UI               = require('ui');
+        informationTree  = require('information_tree');
 
     //notificationBar.setContainer(notificationBarDiv);
     
@@ -141,9 +139,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             synced: {}
         };
 
-    loadedModel.static        = {};
-    loadedModel.static.width  = container.offsetWidth;
-    loadedModel.static.height = container.offsetHeight;
+    loadedModel.static              = {};
+    loadedModel.static.width        = container.offsetWidth;
+    loadedModel.static.height       = container.offsetHeight;
+    loadedModel.static.showSimulate = false;
 
     var timer = null;
     window.addEventListener('resize', function() {
@@ -509,7 +508,72 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
     function setupSimulate(sidebar, simulate) {
         var menuItem = new NewUI.MenuItem(300);
-        var items    = {};
+        var scenarios = [];
+        objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
+            scenarios.push({value: scenario.id, label: scenario.name});
+        });
+
+        var onNew = function(done) {
+            var newScenario = new Scenario();
+            newScenario.data = objectHelper.copy.call(loadedModel.loadedScenario.data);
+            loadedModel.scenarios[newScenario.id] = newScenario;
+
+            done(newScenario.name, newScenario.id);
+        };
+
+        var onEdit = function(id, header) {
+            var scenario = loadedModel.scenarios[id];
+            if(!scenario) {
+                return;
+            }
+
+            scenario.name = header;
+        };
+
+        var onDelete = function(id) {
+            if(!loadedModel.scenarios[id]) {
+                return;
+            }
+
+            delete loadedModel.scenarios[id];
+        };
+
+        var onChange = function(id, header) {
+            loadedModel.loadedScenario = loadedModel.scenarios[id];
+            loadedModel.emit('refresh');
+        };
+
+        var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
+        loadedModel.addListener('modelLoaded', function(id, syncId, prevId, prevSyncId) {
+            if((syncId === false && id === prevId) || (syncId !== false && syncId === prevSyncId)) {
+                return;
+            }
+
+            var scenarios = [];
+            objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
+                scenarios.push({value: scenario.id, label: scenario.name});
+            });
+
+            editableDropdown.replaceValues(scenarios);
+
+            loadedModel.emit('refresh');
+        });
+
+        var items = {};
+
+        menuItem.child.on('unfolded', function() {
+            if(loadedModel.static.showSimulate === true) {
+                menuItem.simulateCheckbox.check();
+            }
+        });
+
+        loadedModel.addListener('showSimulate', function(shouldCheck) {
+            if(shouldCheck) {
+                menuItem.simulateCheckbox.check();
+            } else {
+                menuItem.simulateCheckbox.uncheck();
+            }
+        });
 
         simulate.forEach(function(row) {
             switch(row.type) {
@@ -536,6 +600,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     if(row.id) {
                         items[row.id] = button;
                     }
+
+                    menuItem.simulateCheckbox = checkbox;
                     break; 
                 case 'DROPDOWN':
                     var dropdown = menuItem.addDropdown(row.header, row.values);
@@ -553,8 +619,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     }
                     break;
                 case 'SLIDER':
-                    var range = row.range(loadedModel);
-                    var slider = menuItem.addSlider(row.header, range[0], range[1]);
+                    var range  = row.range(loadedModel),
+                        slider = menuItem.addSlider(row.header, range[0], range[1]);
 
                     slider.defaultValue(function() {
                         var range = row.range(loadedModel);
@@ -628,6 +694,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             buttons: [
                 {
                     background: Colors.warningRed,
+                    color:      Colors.white,
                     callback: function(popup) {
                         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
                         popup.destroy();
@@ -636,6 +703,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 },
 
                 {
+                    background: Colors.white,
                     callback: function(popup) {
                         popup.destroy();
                     },
@@ -655,6 +723,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         menuItem.setLabel('Load model');
 
         menuItem.child.clicks = [];
+        
         Button.prototype.click.call(menuItem.child, function(evt) {
             var button      = evt.target.modelButton;
             var deleteModel = evt.target.deleteModel;
@@ -805,51 +874,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         var menuItem = new NewUI.MenuItem(340);
         menuItem.setLabel('Scenario Editor');
 
-        var scenarios = [];
-        objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
-            scenarios.push({value: scenario.id, label: scenario.name});
-        });
-
-        var onNew = function(done) {
-            var newScenario = new Scenario();
-            newScenario.data = objectHelper.copy.call(loadedModel.loadedScenario.data);
-            loadedModel.scenarios[newScenario.id] = newScenario;
-
-            done(newScenario.name, newScenario.id);
-        };
-
-        var onEdit = function(id, header) {
-            var scenario = loadedModel.scenarios[id];
-            if(!scenario) {
-                return;
-            }
-
-            scenario.name = header;
-        };
-
-        var onDelete = function(id) {
-            if(!loadedModel.scenarios[id]) {
-                return;
-            }
-
-            delete loadedModel.scenarios[id];
-        };
-
-        var onChange = function(id, header) {
-            loadedModel.loadedScenario = loadedModel.scenarios[id];
-
-            objectHelper.forEach.call(origins, function(item) {
-                item.foldable.destroy();
-            });
-
-            origins = {};
-            menuItem.refresh();
-
-            loadedModel.emit('refresh');
-        };
-
-        var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
-
         menuItem.addLabel('Output Nodes');
 
         // Map of references to nodes and foldables. Key being node.id
@@ -929,7 +953,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             loadedModel.emit('refresh');
         };
 
-        var rowDeleted = function(step, value, node) {
+        var rowDeleted = function(step, value, node, foldable) {
             if(!loadedModel.loadedScenario) {
                 return;
             }
@@ -940,6 +964,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             }
 
             delete timetable.steps[step];
+
+            if(objectHelper.size.call(timetable.steps) === 0) {
+                foldable.labelRow.root.style.display = 'none';
+            }
 
             loadedModel.emit('refresh');
         };
@@ -975,6 +1003,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 rowLookup[node.id][lastStep] = row;
             }
 
+            if(objectHelper.size.call(timetable.steps) > 0) {
+                foldable.labelRow.root.style.display = 'block';
+            }
+
             loadedModel.emit('refresh');
         };
 
@@ -989,8 +1021,36 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 // Check if the node is of origin type and doesn't already own a button.
                 if(node.type === 'origin' && !origins[node.id]) {
                     // Create the folded item for this origin node.
-                    var originFoldable    = menuItem.addFoldable(node.name);
+                    var originFoldable    = menuItem.addFoldable(node.name, 160);
+                    originFoldable.addInput('Baseline');
                     var addStep           = originFoldable.addButton('Add Step', addStepCallback);
+
+                    var labelRow = originFoldable.addSeparator();
+
+                    labelRow.root.style.padding        = '0px 8px';
+                    labelRow.root.style['margin-top']  = '16px';
+
+                    var stepLabel   = originFoldable.addLabel('Step');
+                    var changeLabel = originFoldable.addLabel('Change');
+
+                    stepLabel.root.style.display   = 'inline-block';
+                    changeLabel.root.style.display = 'inline-block';
+
+                    stepLabel.root.style.padding   = '0px';
+                    changeLabel.root.style.padding = '0px';
+
+                    stepLabel.root.style.margin    = '0px 4px';
+                    changeLabel.root.style.margin  = '0px 4px';
+
+                    stepLabel.setWidth('20%');
+                    changeLabel.setWidth('55%');
+
+                    labelRow.appendChild(stepLabel);
+                    labelRow.appendChild(changeLabel);
+
+                    originFoldable.labelRow                    = labelRow;
+                    originFoldable.labelRow.root.style.display = 'none';
+
                     //var baseline          = originFoldable.addInput('Baseline',  baselineCallback);
 
                     addStep.root.node     = node;
@@ -1048,13 +1108,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 item.foldable.destroy();
             });
 
-            var scenarios = [];
-            objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
-                scenarios.push({value: scenario.id, label: scenario.name});
-            });
-
-            editableDropdown.replaceValues(scenarios);
-
             rowLookup = {};
             origins   = {};
             menuItem.refresh();
@@ -1066,7 +1119,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         return menuItem;
     }
 
-    setupScenarioWindow(sidebar);
+    //setupScenarioWindow(sidebar);
 
     loadedModel.addListener('invertSidebar', function() {
         sidebar.invert();
