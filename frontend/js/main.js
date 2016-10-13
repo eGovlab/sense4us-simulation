@@ -938,6 +938,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             labels.push(''+i);
         }
 
+        console.log('We are here.');
+
         var selectedNodes = objectHelper.filter.call(
             loadedModel.nodeGui,
             function(node) {
@@ -950,6 +952,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         var datasets = Object.keys(selectedNodes).map(function(key) {
             var nodegui = nodeGui[key];
             var node    = nodeData[key];
+
+            console.log(node);
 
             return {
                 label:            node.name,
