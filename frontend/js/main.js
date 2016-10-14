@@ -16,7 +16,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         throw new Error('Not an element given to inflateModel');
     }
 
-    container.className = 'mb-container';
+    //container.className = 'mb-container';
+    container.style.overflow = 'hidden';
 
     var curry        = require('curry').curry,
         strictCurry  = require('curry').strictCurry,
@@ -88,20 +89,57 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var leftMain           = document.createElement('div'),
         notificationBarDiv = document.createElement('div'),
         mainCanvasC        = document.createElement('canvas'),
-        linegraphCanvasC   = document.createElement('canvas');
+        linegraphCanvasC   = document.createElement('canvas'),
+        animationStyling   = document.createElement('style');
 
     notificationBarDiv.style.left = (maxWidth - 200) + 'px';
 
-    leftMain.className            = 'left main';
+    //leftMain.className            = 'left main';
     leftMain.style.position       = 'relative';
+    leftMain.style.width          = '100%';
+    leftMain.style.height         = '100%';
 
-    notificationBarDiv.className  = 'mb-notification-bar';
-    mainCanvasC.className         = 'main-canvas';
-    linegraphCanvasC.className    = 'linegraph';
+    //notificationBarDiv.className  = 'mb-notification-bar';
+    notificationBarDiv.style.position      = 'absolute';
+    notificationBarDiv.style.width         = '200px';
+    notificationBarDiv.style['margin-top'] = '4px';
+
+    //mainCanvasC.className         = 'main-canvas';
+    //linegraphCanvasC.className    = 'linegraph';
+
+    mainCanvasC.style['background-color']      = '#fff';
+    linegraphCanvasC.style['margin-top']       = '-4px';
+    linegraphCanvasC.style['background-color'] = '#fff';
+
 
     var NewUI   = require('new_ui');
     var Colors  = NewUI.Colors,
         sidebar = new NewUI.Sidebar(200);
+
+    leftMain.appendChild(animationStyling);
+    animationStyling.addEventListener('load', function() {
+        animationStyling = animationStyling.sheet;
+        if(!animationStyling.ownerNode || animationStyling.ownerNode.parentElement !== leftMain) {
+            throw new Error('Couldn\'t setup a stylesheet.');
+        }
+
+        try {
+            animationStyling.insertRule('@-webkit-keyframes NOTIFY_FADEIN {0% {opacity: 0;} 100% {opacity: 1;}}', 0);
+            animationStyling.insertRule('@-webkit-keyframes NOTIFY_FADEOUT {0% {opacity: 1;} 100% {opacity: 0;}}', 1);
+        } catch(e) {
+
+        } try {
+            animationStyling.insertRule('@-moz-keyframes NOTIFY_FADEIN {0% {opacity: 0;} 100% {opacity: 1;}}', 0);
+            animationStyling.insertRule('@-moz-keyframes NOTIFY_FADEOUT {0% {opacity: 1;} 100% {opacity: 0;}}', 1);
+        } catch(e) {
+
+        } try {
+            animationStyling.insertRule('@keyframes NOTIFY_FADEIN {0% {opacity: 0;} 100% {opacity: 1;}}', 0);
+            animationStyling.insertRule('@keyframes NOTIFY_FADEOUT {0% {opacity: 1;} 100% {opacity: 0;}}', 1);
+        } catch(e) {
+
+        }
+    });
 
     sidebar.appendTo(leftMain);
     leftMain.appendChild(notificationBarDiv);
@@ -982,38 +1020,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                 }
             }
         });
-         
-        return;
-        /*lctx.clearRect(
-            0,
-            0,
-            linegraphCanvas.width,
-            linegraphCanvas.height
-        );
-
-        var selectedNodes = objectHelper.filter.call(
-            loadedModel.nodeGui,
-            function(node) {
-                return node.linegraph;
-            }
-        );
-
-        var nodeData   = loadedModel.nodeData;
-        var lineValues = objectHelper.map.call(
-            selectedNodes,
-            function(nodegui) {
-                var node = nodeData[nodegui.id];
-                return {
-                    name:   node.name,
-                    values: node.simulateChange,
-                    color:  nodegui.color
-                }
-            }
-        );
-
-        console.log('Linegraph cleared.');
-
-        drawLineGraph(lctx, 20, 20, linegraphCanvas.width - 40, linegraphCanvas.height - 30, lineValues);*/
     }
 
     function refresh() {

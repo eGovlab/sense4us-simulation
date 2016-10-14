@@ -24,6 +24,7 @@
     0%   {opacity: 1;}
     100% {opacity: 0;}
 }
+
 @keyframes NOTIFY_FADEOUT {
     0%   {opacity: 1;}
     100% {opacity: 0;}
@@ -48,12 +49,12 @@
 
 .mb-notification-bar .fade-in {
     -webkit-animation: NOTIFY_FADEIN 1s 1;
-    -moz-animation: NOTIFY_FADEIN 1s 1;
-    animation: NOTIFY_FADEIN 1s 1;
+    -moz-animation:    NOTIFY_FADEIN 1s 1;
+    animation:         NOTIFY_FADEIN 1s 1;
 }
 
 .mb-notification-bar .fade-out {
     -webkit-animation: NOTIFY_FADEOUT 1s 1;
-    -moz-animation: NOTIFY_FADEOUT 1s 1;
-    animation: NOTIFY_FADEOUT 1s 1;
+    -moz-animation:    NOTIFY_FADEOUT 1s 1;
+    animation:         NOTIFY_FADEOUT 1s 1;
 }
