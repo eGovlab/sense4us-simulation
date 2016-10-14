@@ -95,7 +95,7 @@ module.exports = function(grunt) {
             options: {
                 format: require("eslint-tap"),
                 parserOptions: {
-                    ecmaVersion: 5,
+                    ecmaVersion: 6,
                     ecmaFeatures: {
                         impliedStrict: true
                     }
@@ -182,7 +182,6 @@ module.exports = function(grunt) {
     grunt.registerTask("default", [
         "eslint",
         "browserify_debug",
-        "uglify",
         "sass"
     ]);
 };

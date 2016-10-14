@@ -23,12 +23,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         strictCurry  = require('curry').strictCurry,
         Immutable    = null,
         canvas       = require('canvas'),
-        linker       = require('linker');
-
-    var t_id = 1;
-    var generateId = function() {
-        return t_id++;
-    };
+        linker       = require('linker'),
+        Tool         = require('tool');
 
     var maxWidth  = container.offsetWidth,
         maxHeight = container.offsetHeight;
@@ -57,6 +53,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     }
 
     var configObject = {
+        container:     container,
         protocol:      protocol,
         hostname:      hostname,
         port:          parseInt(port),
@@ -65,26 +62,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         url:           protocol + '://' + hostname + portString
     };
 
+    var currentTool  = new Tool(configObject);
     var objectHelper = require('object-helper');
-
-    /*var menuHeader       = document.createElement('div'),
-        upperMenu        = document.createElement('div');
-
-    menuHeader.className = 'menu-header';
-    upperMenu.className  = 'mb-upper-menu';
-
-    menuHeader.appendChild(upperMenu);
-
-    var sidebar          = document.createElement('div'),
-        sidebarContainer = document.createElement('div');
-
-    sidebar.className           = 'mb-sidebar';
-    sidebarContainer.className  = 'sidebar-container';
-
-    sidebar.style['max-width']  = (maxWidth  - 24) + 'px';
-    sidebar.style['max-height'] = (maxHeight - 44) + 'px';
-
-    sidebar.appendChild(sidebarContainer);*/
 
     var leftMain           = document.createElement('div'),
         notificationBarDiv = document.createElement('div'),
@@ -110,7 +89,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     mainCanvasC.style['background-color']      = '#fff';
     linegraphCanvasC.style['margin-top']       = '-4px';
     linegraphCanvasC.style['background-color'] = '#fff';
-
 
     var NewUI   = require('new_ui');
     var Colors  = NewUI.Colors,
@@ -146,15 +124,10 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     leftMain.appendChild(mainCanvasC);
     leftMain.appendChild(linegraphCanvasC);
 
-    /*container.appendChild(menuHeader);
-    container.appendChild(sidebar);*/
     container.appendChild(leftMain);
 
     var mainCanvas       = canvas(container, mainCanvasC),
         linegraphCanvas  = canvas(container, linegraphCanvasC);
-
-    /*var mainCanvas       = canvas(document.getElementById('canvas'),    refresh);
-    var linegraphCanvas  = canvas(document.getElementById('linegraph'), refresh);*/
 
     var colorValues      = require('graphics').valueColors,
         modelLayer       = require('model_layer'),
@@ -164,24 +137,16 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         network          = require('network'),
         informationTree  = require('information_tree');
 
-    //notificationBar.setContainer(notificationBarDiv);
-    
-    var selectedMenu  = {},
-        textStrings   = {
+    var textStrings   = {
             unsorted: [],
             saved:    []
-        },
-        loadedModel   = modelLayer.newModel(),
-        savedModels   = {
-            local:  {},
-            synced: {}
         };
 
-    loadedModel.static              = {};
-    loadedModel.static.width        = container.offsetWidth;
-    loadedModel.static.height       = container.offsetHeight;
-    loadedModel.static.showSimulate = false;
-    loadedModel.static.renderChangePercent = true;
+    currentTool.static              = {};
+    currentTool.static.width        = container.offsetWidth;
+    currentTool.static.height       = container.offsetHeight;
+    currentTool.static.showSimulate = false;
+    currentTool.static.renderChangePercent = true;
 
     var timer = null;
     window.addEventListener('resize', function() {
@@ -195,8 +160,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             /*mainCanvas.height           = container.offsetHeight;
             linegraphCanvas.height      = container.offsetHeight;*/
 
-            loadedModel.static.width  = container.offsetWidth;
-            loadedModel.static.height = container.offsetHeight;
+            currentTool.static.width  = container.offsetWidth;
+            currentTool.static.height = container.offsetHeight;
 
             //sidebar.style['max-height'] = (container.offsetHeight - 44) + 'px';
 
@@ -215,15 +180,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     }
 
     if(exportUnder && typeof exportUnder === 'string' && exportUnder !== 'unsorted') {
-        window.sense4us.models[exportUnder] = loadedModel;
+        window.sense4us.models[exportUnder] = currentTool;
     } else {
         if(exportUnder === 'unsorted') {
             console.warn('Can\'t add a model with id unsorted.');
         }
-        window.sense4us.models.unsorted.push(loadedModel);
-    }
 
-    loadedModel.CONFIG = configObject;
+        window.sense4us.models.unsorted.push(currentTool);
+    }
 
     var settings      = require('settings');
 
@@ -245,6 +209,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             return;
         }
 
+        var loadedModel = currentTool.loadedModel;
         var data = middleware({
             env:       loadedModel.environment,
             pos:       startPos,
@@ -264,6 +229,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             return;
         }
 
+        var loadedModel = currentTool.loadedModel;
         loadedModel.didDrag = true;
         var data = middleware({
             env:       loadedModel.environment,
@@ -287,6 +253,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             return;
         }
 
+        var loadedModel = currentTool.loadedModel;
         var data = middleware({
             env:        loadedModel.environment,
             pos:        endPos,
@@ -340,6 +307,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         window.sense4us.lastTarget = ev.target;
     });
     
+    /*
     var keyboardHandler = require('mechanics').keyboardHandler,
         hotkeyE         = require('input').hotkeyE,
         hotkeyZ         = require('input').hotkeyZ,
@@ -347,9 +315,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         hotkeyV         = require('input').hotkeyV,
         hotkeyESC       = require('input').hotkeyEsc;
 
-    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);
+    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);*/
 
-    var zoom = 1;
+    /*var zoom = 1;
     function MouseWheelHandler(e) {
         console.log('scrolling', e);
         var mouse_canvas_x = e.x - mainCanvas.offsetLeft;
@@ -387,7 +355,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         // Makes sure canvas/arithmetics.mouseToCanvas returns a relevant number.
         mainCanvasC.panX = -loadedModel.settings.offsetX;
         mainCanvasC.panY = -loadedModel.settings.offsetY;
-    });
+    });*/
 
     if(container.getAttribute('data-experimental') === 'true') {
         function MouseHandler(e) {
@@ -470,7 +438,8 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var asyncMiddleware  = require('async_middleware');
 
     var lastShow;
-    function showLineGraph(ctx, canvas, loadedModel, selectedMenu, next) {
+    function showLineGraph(ctx, canvas, tool, loadedModel, next) {
+        var loadedModel = currentTool.loadedModel;
         var show = loadedModel.settings.linegraph;
 
         if(show && lastShow !== show) {
@@ -491,7 +460,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     }
 
     var ctx = mainCanvas.getContext('2d');
-    var refreshParams = asyncMiddleware(ctx, mainCanvas, loadedModel, selectedMenu);
+    /*var refreshParams = asyncMiddleware(ctx, mainCanvas);
     var _refresh = refreshParams(
         showLineGraph,
         refreshNamespace.clearCanvasAndTransform,
@@ -500,7 +469,43 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         refreshNamespace.drawNodeDescriptions,
         refreshNamespace._drawLinker,
         refreshNamespace.drawLinkingLine
-    );
+    );*/
+
+    var refreshChain = [
+        showLineGraph,
+        refreshNamespace.clearCanvasAndTransform,
+        refreshNamespace.drawNodes,
+        refreshNamespace.drawLinks,
+        refreshNamespace.drawNodeDescriptions,
+        refreshNamespace._drawLinker,
+        refreshNamespace.drawLinkingLine
+    ];
+
+    function refresh() {
+        window.requestAnimationFrame(function(){
+            refreshChain.forEach(function(cb) {
+                cb(ctx, mainCanvas, currentTool, currentTool.loadedModel, function(){});
+            });
+
+            //_refresh(currentTool.loadedModel);
+        });
+    }
+
+    var previousModel = currentTool.loadedModel;
+    currentTool.on('loadedModel', function(model) {
+        previousModel.removeListener('refresh', refresh);
+        model.on('refresh', refresh);
+
+        previousModel = model;
+
+        // Makes sure the collision detection works on a loaded panned model.
+        mainCanvas.panX = -model.settings.offsetX;
+        mainCanvas.panY = -model.settings.offsetY;
+
+        model.emit('refresh');
+    });
+
+    refresh();
 
     var modelling = require('settings').modelling;
     function setupIconGroups(sidebar, modelling) {
@@ -512,12 +517,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             }
 
             var button = evt.target.groupOwner;
-            button.constructor(loadedModel, {
-                name: button.name,
-                role: button.role.toUpperCase()
-            }, {
-                avatar: button.nodeImageSrc
-            });
+            currentTool.loadedModel[button.constructor](
+                {
+                    name: button.name,
+                    role: button.role.toUpperCase()
+                }, {
+                    avatar: button.nodeImageSrc
+                }
+            );
         });
 
         modelling.forEach(function(nodeGroup) {
@@ -545,7 +552,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var _ = setupIconGroups(sidebar, modelling);
     _.setLabel('Modelling');
 
+
     function setupSimulate(sidebar, simulate) {
+        var loadedModel = currentTool.loadedModel;
         var menuItem = new NewUI.MenuItem(300);
         var scenarios = [];
         objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
@@ -554,6 +563,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
         var onNew = function(done) {
             var newScenario = new Scenario();
+            newScenario.id = loadedModel.generateId();
             newScenario.data = objectHelper.copy.call(loadedModel.loadedScenario.data);
             loadedModel.scenarios[newScenario.id] = newScenario;
 
@@ -582,43 +592,44 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
             loadedModel.emit('refresh');
         };
 
-        var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
-        loadedModel.addListener('modelLoaded', function(id, syncId, prevId, prevSyncId) {
-            if((syncId === false && id === prevId) || (syncId !== false && syncId === prevSyncId)) {
-                return;
-            }
-
-            var scenarios = [];
-            objectHelper.forEach.call(loadedModel.scenarios, function(scenario) {
-                scenarios.push({value: scenario.id, label: scenario.name});
-            });
-
-            editableDropdown.replaceValues(scenarios);
-
-            loadedModel.emit('refresh');
-        });
-
-        var items = {};
-
-        menuItem.child.on('unfolded', function() {
-            if(loadedModel.static.showSimulate === true) {
-                menuItem.simulateCheckbox.check();
-            }
-        });
-
-        loadedModel.addListener('showSimulate', function(shouldCheck) {
+        var showSimulate = function(shouldCheck) {
             if(shouldCheck) {
                 menuItem.simulateCheckbox.check();
             } else {
                 menuItem.simulateCheckbox.uncheck();
             }
+        };
+
+        var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
+        currentTool.addListener('loadedModel', function(model) {
+            var scenarios = [];
+            objectHelper.forEach.call(model.scenarios, function(scenario) {
+                scenarios.push({value: scenario.id, label: scenario.name});
+            });
+
+            editableDropdown.replaceValues(scenarios);
+
+            loadedModel.removeListener('showSimulate', showSimulate);
+            model.addListener('showSimulate', showSimulate);
+
+            loadedModel = model;
         });
+
+        var items = {};
+
+        menuItem.child.on('unfolded', function() {
+            if(currentTool.static.showSimulate === true) {
+                menuItem.simulateCheckbox.check();
+            }
+        });
+
+        loadedModel.addListener('showSimulate', showSimulate);
 
         simulate.forEach(function(row) {
             switch(row.type) {
                 case 'BUTTON':
                     var button = menuItem.addButton(row.header, function() {
-                        row.callback(loadedModel)
+                        row.callback(currentTool, loadedModel)
                     });
 
                     if(row.id) {
@@ -629,11 +640,11 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     var checkbox = menuItem.addCheckbox(row.header);
 
                     checkbox.onCheck(function() {
-                        row.onCheck(loadedModel);
+                        row.onCheck(currentTool, loadedModel);
                     });
 
                     checkbox.onUncheck(function() {
-                        row.onUncheck(loadedModel);
+                        row.onUncheck(currentTool, loadedModel);
                     });
 
                     if(row.id) {
@@ -717,27 +728,40 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     __.setLabel('Simulate');
 
     var newButton  = sidebar.addButton('file', function() {
-        loadedModel.emit('storeModel');
+        currentTool.newModel().then(function(model) {
+            console.log('New model', model);
+        }).catch(function(err) {
+            console.error(err);
+        });
+        /*loadedModel.emit('storeModel');
         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
-        loadedModel.emit('newModel');
+        loadedModel.emit('newModel');*/
     });
 
     var saveButton = sidebar.addButton('floppy-disk', function() {
-        loadedModel.emit('storeModel');
+        currentTool.saveModel().then(function(model) {
+            console.log('Model saved:', model)
+        }).catch(function(err) {
+            console.error(err);
+        });
+        /*loadedModel.emit('storeModel');
         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'loadModel');
         loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preSaveModel');
-        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'saveModel');
+        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'saveModel');*/
     });
 
     var deleteButton = sidebar.addButton('trash', function() {
-        loadedModel.emit({
+        currentTool.popup({
             description: 'Do you really want to delete this model?',
             buttons: [
                 {
                     background: Colors.warningRed,
                     color:      Colors.white,
                     callback: function(popup) {
-                        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'deleteModel');
+                        currentTool.deleteModel().catch(function(err) {
+                            console.error(err);
+                        });
+                        
                         popup.destroy();
                     },
                     label: 'Confirm'
@@ -751,7 +775,7 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
                     label: 'Cancel'
                 }
             ]
-        }, 'popup');
+        });
     });
 
     var printLoadedModel = sidebar.addButton('alert', function() {
@@ -893,10 +917,9 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         return menuItem;
     }
 
-    setupLoadModel(sidebar);
+    //setupLoadModel(sidebar);
 
     function Scenario(syncId) {
-        this.id                = loadedModel.generateId();
         this.syncId            = syncId;
 
         this.name              = 'New scenario';
@@ -911,11 +934,11 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     var algorithms = require('algorithms');
     var sort       = algorithms.sort;
 
-    loadedModel.addListener('invertSidebar', function() {
+    currentTool.addListener('invertSidebar', function() {
         sidebar.invert();
     });
 
-    require('model').listeners.popup(container, loadedModel);
+    /*require('model').listeners.popup(container, loadedModel);
     require('model').listeners.notification(notificationBarDiv, loadedModel);
     require('model').listeners.mouseDown(loadedModel);
     require('model').listeners.mouseMove(loadedModel);
@@ -926,18 +949,17 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         sidebar.foldable.menuItems.forEach(function(menuItem) {
             menuItem.refresh();
         });
-    });
+    });*/
 
-    loadedModel.addListener('settings', refresh);
+    //loadedModel.addListener('settings', refresh);
     /**
      * @description Renders a new frame for the canvas.
      * @event refresh
      * @memberof module:model/propagationEvents
      */
-    loadedModel.addListener('refresh',  refresh);
+    //loadedModel.addListener('refresh',  refresh);
 
-    require('model').listeners.selected (sidebar, loadedModel);
-
+    /*require('model').listeners.selected (sidebar, loadedModel);
 
     require('model').listeners.storeModel (savedModels, loadedModel);
     require('model').listeners.loadModel  (savedModels, loadedModel);
@@ -949,26 +971,23 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
     loadedModel.emit('storeModel');
     loadedModel.emit([localId, false], 'loadModel');
 
-    require('model').listeners.settings(loadedModel);
-    loadedModel.addListener('settings', function() {
-        if(loadedModel.settings.linegraph) {
-            linegraphRefresh();
-        }
-    });
+    require('model').listeners.settings(loadedModel);*/
 
-    loadedModel.addListener('refreshLinegraph', function() {
+    currentTool.addListener('refreshLinegraph', function() {
+        var loadedModel = currentTool.loadedModel;
         if(loadedModel.settings.linegraph) {
             console.log('Refreshing linegraph.');
             linegraphRefresh();
         }
     });
 
-    loadedModel.emit(null, 'refresh', 'resetUI', 'settings', 'sidebar');
-    loadedModel.emit('Initialized', 'notification');
+    /*loadedModel.emit(null, 'refresh', 'resetUI', 'settings', 'sidebar');
+    loadedModel.emit('Initialized', 'notification');*/
 
     var Chart = require('chart.js');
     var drawLineGraph = require('graphics').drawLineGraph;
     function _linegraphRefresh() {
+        var loadedModel = currentTool.loadedModel;
         var lctx = linegraphCanvas.getContext('2d');
 
         var labels   = [];
@@ -1022,19 +1041,14 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         });
     }
 
-    function refresh() {
-        window.requestAnimationFrame(_refresh);
-    }
-
     function linegraphRefresh() {
         window.requestAnimationFrame(_linegraphRefresh);
     }
 
     linegraphRefresh();
-
     sidebar.foldButton.root.click();
 
-    return loadedModel;
+    return currentTool;
 }
 
 window.sense4us              = window.sense4us || {};
