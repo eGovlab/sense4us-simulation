@@ -179,39 +179,22 @@
 <script>
     docReady(function() {
         var modelBuilder2 = document.getElementById("model-builder-2");
-        window.sense4us.inflateModel(modelBuilder2, "sample", "project");
+        var secondTool = window.sense4us.inflateModel(
+            modelBuilder2,
+            "sample",
+            "project"
+        );
         
         var modelBuilder1 = document.getElementById("model-builder-1");
 
         // I inflate the builder with user "sample" and project "project".
-        window.sense4us.inflateModel(modelBuilder1, "tool", "sample", "project");
-
-        var tool    = window.sense4us.models.tool;
+        var tool    = window.sense4us.inflateModel(modelBuilder1, "sample", "project");
         var network = window.sense4us.network;
 
-        tool.addListener("modelLoaded", function(id, syncId) {
+        tool.on("loadedModel", function(id, syncId) {
             console.log("Loaded model:", id, syncId);
         });
 
-        // I create a model for another project, "project_two".
-        /*network.POST(
-            "http://localhost:3000", 
-            "/models/sample/project/create/new_model",
-            {}
-        ).then(function(response) {
-            if(response.status !== 200) {
-                console.error(response);
-                throw new Error("Something happened.");
-            }
-
-            var data = JSON.parse(response.responseText);
-
-            // I got a new model with an id.
-            console.log("Created new model:", data.response.id);
-
-            return data.response.id;
-        })*/
-        
         Promise.resolve(1).then(function(modelId) {
             console.log(modelId);
 
@@ -227,33 +210,6 @@
         // This is called once a model has been saved.
         tool.addListener('modelSaved', function(id, syncId) {
             console.log("Database ID:", syncId); // 59 in my case.
-
-            // Store syncId somehow.
         });
-
-        // Use the stored syncId to load a model.
-        // 59 in my case.
-        /*tool.loadModel(59).then(function() {
-        });*/
-
-        /*
-        tool.getAllModels().then(function(models) {
-            if(models.length === 0) {
-                return;
-            }
-            
-            return tool.loadModel(models[models.length - 1].id);
-        }).then(function() {
-            setInterval(function(){tool.saveModel();}, 1000 * 60);
-        }).catch(function(err) {
-            console.log(err);
-        });*/
-        /*var loadedModel = window.sense4us.loadedModel;
-        loadedModel.addListener("selected", function() {
-            var nodeData = this.nodeData[this.selected.id];
-            if(nodeData) {
-                console.log("Name:", nodeData.name);
-            }
-        });*/
     });
 </script>

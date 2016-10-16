@@ -11,7 +11,7 @@ function isElement(element) {
     }
 }
 
-function inflateModel(container, exportUnder, userFilter, projectFilter) {
+function inflateModel(container, userFilter, projectFilter) {
     if(!isElement(container)) {
         throw new Error('Not an element given to inflateModel');
     }
@@ -40,12 +40,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         } else if(protocol === 'https' && port !== '443') {
             portString = ':' + port;
         }
-    }
-
-    if(typeof exportUnder === 'string' && typeof userFilter === 'string' && projectFilter === undefined) {
-        projectFilter = userFilter;
-        userFilter    = exportUnder;
-        exportUnder   = undefined;
     }
 
     if(typeof projectFilter !== 'string' || typeof userFilter !== 'string') {
@@ -179,16 +173,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         };
     }
 
-    if(exportUnder && typeof exportUnder === 'string' && exportUnder !== 'unsorted') {
-        window.sense4us.models[exportUnder] = currentTool;
-    } else {
-        if(exportUnder === 'unsorted') {
-            console.warn('Can\'t add a model with id unsorted.');
-        }
-
-        window.sense4us.models.unsorted.push(currentTool);
-    }
-
     var settings      = require('settings');
 
     window.Immutable  = Immutable;        
@@ -255,16 +239,16 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
 
         var loadedModel = currentTool.loadedModel;
         var data = middleware({
-            env:        loadedModel.environment,
-            pos:        endPos,
-            nodeData:   loadedModel.nodeData,
-            nodeGui:    loadedModel.nodeGui,
-            links:      loadedModel.links,
-            didDrag:    loadedModel.didDrag,
-            settings:   loadedModel.settings,
-            selected:   loadedModel.selected,
-            history:    loadedModel.history,
-            generateId: function(){return loadedModel.generateId()},
+            loadedModel: loadedModel,
+            env:         loadedModel.environment,
+            pos:         endPos,
+            nodeData:    loadedModel.nodeData,
+            nodeGui:     loadedModel.nodeGui,
+            links:       loadedModel.links,
+            didDrag:     loadedModel.didDrag,
+            settings:    loadedModel.settings,
+            history:     loadedModel.history,
+            generateId:  function(){return loadedModel.generateId()},
 
             newLinks:   []
         });
@@ -277,10 +261,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         data.newLinks.forEach(function(newLink) {
             loadedModel.emit(newLink, 'newLink');
         });
-
-        if(loadedModel.selected !== data.selected) {
-            loadedModel.selected = data.selected;
-        }
 
         if(data.resetUI) {
             loadedModel.emit('resetUI');
@@ -491,10 +471,28 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         });
     }
 
+    var SelectedMenu = require('selected-menu');
+    var selectedMenu = new SelectedMenu(sidebar);
+
+    var onSelect = function(c) {
+        selectedMenu.refresh(c, currentTool.loadedModel);
+    };
+
+    var onDeselect = function() {
+        selectedMenu.hide();
+    };
+
     var previousModel = currentTool.loadedModel;
     currentTool.on('loadedModel', function(model) {
-        previousModel.removeListener('refresh', refresh);
-        model.on('refresh', refresh);
+        selectedMenu.hide();
+        
+        previousModel.removeListener('refresh',  refresh);
+        previousModel.removeListener('selected', onSelect);
+        previousModel.removeListener('deselected', onDeselect);
+
+        model.on('refresh',    refresh);
+        model.on('selected',   onSelect);
+        model.on('deselected', onDeselect);
 
         previousModel = model;
 
@@ -994,8 +992,6 @@ function inflateModel(container, exportUnder, userFilter, projectFilter) {
         for(var i = 0; i <= loadedModel.loadedScenario.maxIterations; i++) {
             labels.push(''+i);
         }
-
-        console.log('We are here.');
 
         var selectedNodes = objectHelper.filter.call(
             loadedModel.nodeGui,
