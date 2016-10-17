@@ -271,7 +271,7 @@ function inflateModel(container, userFilter, projectFilter) {
         }
 
         if(data.refreshLinegraph) {
-            loadedModel.emit('refreshLinegraph');
+            currentTool.emit('refreshLinegraph');
         }
 
         loadedModel.emit('select');
@@ -472,10 +472,12 @@ function inflateModel(container, userFilter, projectFilter) {
     }
 
     var SelectedMenu = require('selected-menu');
-    var selectedMenu = new SelectedMenu(sidebar);
+    var selectedMenu = new SelectedMenu(currentTool, sidebar);
 
     var onSelect = function(c) {
-        selectedMenu.refresh(c, currentTool.loadedModel);
+        selectedMenu.refresh(c, currentTool.loadedModel).then(function() {
+            return selectedMenu.show();
+        });
     };
 
     var onDeselect = function() {
@@ -501,6 +503,12 @@ function inflateModel(container, userFilter, projectFilter) {
         mainCanvas.panY = -model.settings.offsetY;
 
         model.emit('refresh');
+    });
+
+    currentTool.on('refresh', refresh);
+
+    selectedMenu.on('dataModified', function(object, property, value) {
+        refresh();
     });
 
     refresh();
@@ -777,14 +785,13 @@ function inflateModel(container, userFilter, projectFilter) {
     });
 
     var printLoadedModel = sidebar.addButton('alert', function() {
-        console.log(loadedModel);
+        console.log(currentTool);
     });
 
     var Button = NewUI.Button;
     function setupLoadModel(sidebar) {
         var menuItem = new NewUI.MenuItem(300);
         menuItem.setLabel('Load model');
-
         menuItem.child.clicks = [];
         
         Button.prototype.click.call(menuItem.child, function(evt) {
@@ -792,12 +799,13 @@ function inflateModel(container, userFilter, projectFilter) {
             var deleteModel = evt.target.deleteModel;
 
             if(button) {
-                loadedModel.loadModel(button.syncId || button.id);
+                console.log(button);
+                currentTool.loadModel(button.syncId || button.id);
                 return;
             }
 
             if(deleteModel) {
-                loadedModel.deleteModel(deleteModel.syncId || deleteModel.id);
+                currentTool.deleteModel(deleteModel.syncId || deleteModel.id);
                 return;
             }
         });
@@ -838,9 +846,21 @@ function inflateModel(container, userFilter, projectFilter) {
             return button;
         }
 
+        var savedModels = currentTool.savedModels;
         var lastActiveModelButton = false;
         menuItem.refresh = function() {
-            loadedModel.getAllModels().then(function(models) {
+            buttons.forEach(function(button) {
+                if(button.syncId === currentTool.loadedModel.syncId
+                && button.id     === currentTool.loadedModel.id) {
+                    button.setBackground(Colors.buttonCheckedBackground);
+                } else {
+                    button.setBackground(Colors.buttonBackground);
+                }
+            });
+        };
+
+        menuItem.refill = function() {
+            return currentTool.getAllModels().then(function(models) {
                 var iterator = 0;
                 var initialSize = buttons.length;
                 models = models.map(function(model, index, arr) {
@@ -863,7 +883,7 @@ function inflateModel(container, userFilter, projectFilter) {
                     button.syncId = model.id;
                     button.id     = model.id;
 
-                    if(loadedModel.syncId === model.id) {
+                    if(currentTool.loadedModel.syncId === model.id) {
                         if(lastActiveModelButton) {
                             lastActiveModelButton.setBackground(Colors.buttonBackground);
                         }
@@ -884,11 +904,11 @@ function inflateModel(container, userFilter, projectFilter) {
                         button.syncId = model.syncId || false;
                         button.id     = model.id;
 
-                        if(loadedModel.id === model.id) {
+                        if(currentTool.loadedModel.id === model.id) {
                             if(lastActiveModelButton) {
                                 lastActiveModelButton.setBackground(Colors.buttonBackground);
                             }
-                            
+                           
                             button.setBackground(Colors.buttonCheckedBackground);
                             lastActiveModelButton = button;
                         }
@@ -909,13 +929,60 @@ function inflateModel(container, userFilter, projectFilter) {
             });
         };
 
-        menuItem.refresh();
+        menuItem.refill().then(function() {
+            menuItem.refresh();
+        });
 
         sidebar.addItem(menuItem);
         return menuItem;
     }
 
-    //setupLoadModel(sidebar);
+    var modelList = setupLoadModel(sidebar);
+    modelList.child.on('unfolded', function HEREMF() {
+        modelList.refill().then(function() {
+            modelList.refresh();
+        });
+    });
+
+    currentTool.on('deletedSyncedModel', function(id) {
+        if(modelList.child.folded) {
+            return;
+        }
+
+        modelList.refill().then(function() {
+            modelList.refresh();
+        });
+    });
+
+    currentTool.on('loadedModel', function() {
+        if(modelList.child.folded) {
+            return;
+        }
+
+        modelList.refill().then(function() {
+            modelList.refresh();
+        });
+    });
+
+    function setupSettings(sidebar) {
+        var menuItem = new NewUI.MenuItem(300);
+
+        menuItem.setLabel('Settings');
+
+        var name = menuItem.addInput('Name');
+        name.defaultValue(function() {
+            return currentTool.loadedModel.settings.name;
+        });
+
+        name.onChange(function() {
+            currentTool.loadedModel.settings.name = name.getValue();
+        });
+
+        sidebar.addItem(menuItem);
+        return menuItem;
+    }
+
+    setupSettings(sidebar);
 
     function Scenario(syncId) {
         this.syncId            = syncId;
