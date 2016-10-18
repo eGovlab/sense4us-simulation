@@ -287,7 +287,7 @@ function inflateModel(container, userFilter, projectFilter) {
         window.sense4us.lastTarget = ev.target;
     });
     
-    /*
+    
     var keyboardHandler = require('mechanics').keyboardHandler,
         hotkeyE         = require('input').hotkeyE,
         hotkeyZ         = require('input').hotkeyZ,
@@ -295,7 +295,7 @@ function inflateModel(container, userFilter, projectFilter) {
         hotkeyV         = require('input').hotkeyV,
         hotkeyESC       = require('input').hotkeyEsc;
 
-    keyboardHandler(document.body, mainCanvas, loadedModel, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);*/
+    keyboardHandler(document.body, mainCanvas, currentTool, [hotkeyE, hotkeyZ, hotkeyY, hotkeyESC]);
 
     /*var zoom = 1;
     function MouseWheelHandler(e) {
