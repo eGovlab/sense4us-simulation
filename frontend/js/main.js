@@ -598,14 +598,6 @@ function inflateModel(container, userFilter, projectFilter) {
             loadedModel.emit('refresh');
         };
 
-        var showSimulate = function(shouldCheck) {
-            if(shouldCheck) {
-                menuItem.simulateCheckbox.check();
-            } else {
-                menuItem.simulateCheckbox.uncheck();
-            }
-        };
-
         var editableDropdown = menuItem.addEditableDropdown('Scenario', scenarios, onNew, onEdit, onDelete, onChange);
         currentTool.addListener('loadedModel', function(model) {
             var scenarios = [];
@@ -614,9 +606,6 @@ function inflateModel(container, userFilter, projectFilter) {
             });
 
             editableDropdown.replaceValues(scenarios);
-
-            loadedModel.removeListener('showSimulate', showSimulate);
-            model.addListener('showSimulate', showSimulate);
 
             loadedModel = model;
         });
@@ -629,8 +618,6 @@ function inflateModel(container, userFilter, projectFilter) {
             }
         });
 
-        loadedModel.addListener('showSimulate', showSimulate);
-
         simulate.forEach(function(row) {
             switch(row.type) {
                 case 'BUTTON':
@@ -640,6 +627,10 @@ function inflateModel(container, userFilter, projectFilter) {
 
                     if(row.id) {
                         items[row.id] = button;
+                    }
+
+                    if(row.id) {
+                        menuItem[row.id] = button;
                     }
                     break;
                 case 'CHECKBOX':
@@ -733,15 +724,37 @@ function inflateModel(container, userFilter, projectFilter) {
     var __ = setupSimulate(sidebar, _simulate);
     __.setLabel('Simulate');
 
+    var userActivated = false;
+    __.simulateCheckbox.on('clicked', function() {
+        userActivated = !__.simulateCheckbox.checked;
+    });
+
+    __.simulateButton.on('clicked', function() {
+        userActivated = true;
+        __.simulateCheckbox.check();
+        currentTool.emit('refresh');
+    });
+
+    selectedMenu.on('showSimulate', function(shouldShow) {
+        if(shouldShow === false && userActivated) {
+            return;
+        }
+
+        if(shouldShow) {
+            __.simulateCheckbox.check();
+        } else {
+            __.simulateCheckbox.uncheck();
+        }
+
+        currentTool.static.showSimulate = shouldShow;
+    });
+
     var newButton  = sidebar.addButton('file', function() {
         currentTool.newModel().then(function(model) {
             console.log('New model', model);
         }).catch(function(err) {
             console.error(err);
         });
-        /*loadedModel.emit('storeModel');
-        loadedModel.emit([loadedModel.id, loadedModel.syncId], 'preNewModel');
-        loadedModel.emit('newModel');*/
     });
 
     var saveButton = sidebar.addButton('floppy-disk', function() {
