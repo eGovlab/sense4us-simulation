@@ -774,7 +774,7 @@ function inflateModel(container, userFilter, projectFilter) {
             description: 'Do you really want to delete this model?',
             buttons: [
                 {
-                    background: Colors.warningRed,
+                    background: Colors.warning,
                     color:      Colors.white,
                     callback: function(popup) {
                         currentTool.deleteModel().catch(function(err) {
@@ -989,6 +989,32 @@ function inflateModel(container, userFilter, projectFilter) {
 
         name.onChange(function() {
             currentTool.loadedModel.settings.name = name.getValue();
+        });
+
+        var deletedCheckbox;
+        menuItem.child.on('unfolded', function() {
+            if(!currentTool.loadedModel.settings.deleted) {
+                if(deletedCheckbox) {
+                    deletedCheckbox.hide();
+                }
+
+                return;
+            }
+
+            if(!deletedCheckbox) {
+                deletedCheckbox = menuItem.addCheckbox('Deleted flag');
+
+                deletedCheckbox.onCheck(function() {
+                    currentTool.loadedModel.settings.deleted = true;
+                });
+
+                deletedCheckbox.onUncheck(function() {
+                    currentTool.loadedModel.settings.deleted = false;
+                });
+            }
+
+            deletedCheckbox.check();
+            deletedCheckbox.show();
         });
 
         sidebar.addItem(menuItem);
