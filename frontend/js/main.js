@@ -812,7 +812,6 @@ function inflateModel(container, userFilter, projectFilter) {
             var deleteModel = evt.target.deleteModel;
 
             if(button) {
-                console.log(button);
                 currentTool.loadModel(button.syncId || button.id);
                 return;
             }
@@ -865,9 +864,11 @@ function inflateModel(container, userFilter, projectFilter) {
             buttons.forEach(function(button) {
                 if(button.syncId === currentTool.loadedModel.syncId
                 && button.id     === currentTool.loadedModel.id) {
-                    button.setBackground(Colors.buttonCheckedBackground);
+                    button.setBackground(Colors.buttonCheckboxCircleBorder);
+                    button.root.style.color = Colors.white;
                 } else {
                     button.setBackground(Colors.buttonBackground);
+                    button.root.style.color = '#202020';
                 }
             });
         };
@@ -881,8 +882,11 @@ function inflateModel(container, userFilter, projectFilter) {
                 });
 
                 models.forEach(function(model) {
-                    if(savedModels.synced[model.id] && savedModels.local[savedModels.synced[model.id].id]) {
-                        return;
+                    if(savedModels.synced[model.id]) {
+                        var storedModel = savedModels.synced[model.id];
+                        if(savedModels.local[storedModel.id]) {
+                            return;
+                        }
                     }
 
                     var button = createButton(iterator);
@@ -894,14 +898,16 @@ function inflateModel(container, userFilter, projectFilter) {
                     }
 
                     button.syncId = model.id;
-                    button.id     = model.id;
+                    button.id     = null;
 
                     if(currentTool.loadedModel.syncId === model.id) {
                         if(lastActiveModelButton) {
                             lastActiveModelButton.setBackground(Colors.buttonBackground);
+                            lastActiveModelButton.root.style.color = '#202020';
                         }
 
-                        button.setBackground(Colors.buttonCheckedBackground);
+                        button.setBackground(Colors.buttonCheckboxCircleBorder);
+                        button.root.style.color = Colors.white;
                         lastActiveModelButton = button;
                     }
 
@@ -920,9 +926,11 @@ function inflateModel(container, userFilter, projectFilter) {
                         if(currentTool.loadedModel.id === model.id) {
                             if(lastActiveModelButton) {
                                 lastActiveModelButton.setBackground(Colors.buttonBackground);
+                                lastActiveModelButton.root.style.color = '#202020';
                             }
                            
-                            button.setBackground(Colors.buttonCheckedBackground);
+                            button.setBackground(Colors.buttonCheckboxCircleBorder);
+                            button.root.style.color = Colors.white;
                             lastActiveModelButton = button;
                         }
 
@@ -930,13 +938,13 @@ function inflateModel(container, userFilter, projectFilter) {
                     }
                 );
 
-                var localSaved = objectHelper.size.call(savedModels.local);
+                /*var localSaved = objectHelper.size.call(savedModels.local);
                 if(models.length + localSaved < buttons.length) {
                     var removedButtons = buttons.splice(models.length + localSaved, buttons.length - models.length);
                     removedButtons.forEach(function(button) {
                         button.destroy();
                     });
-                }
+                }*/
             }).catch(function(error) {
                 console.error(error);
             });
@@ -972,6 +980,12 @@ function inflateModel(container, userFilter, projectFilter) {
             return;
         }
 
+        modelList.refill().then(function() {
+            modelList.refresh();
+        });
+    });
+
+    currentTool.on('savedModel', function() {
         modelList.refill().then(function() {
             modelList.refresh();
         });
