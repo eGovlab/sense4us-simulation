@@ -426,7 +426,6 @@ function inflateModel(container, userFilter, projectFilter) {
             mainCanvas.height      = Math.ceil(((container.offsetHeight-20) * 0.5));
             linegraphCanvas.height = Math.floor(((container.offsetHeight-20) * 0.5));
 
-            console.log('Shown again.');
             if(lastShow !== show) {
                 linegraphRefresh();
             }
