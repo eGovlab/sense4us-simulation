@@ -771,6 +771,7 @@ function inflateModel(container, userFilter, projectFilter) {
 
     var deleteButton = sidebar.addButton('trash', function() {
         currentTool.popup({
+            header: 'Delete model',
             description: 'Do you really want to delete this model?',
             buttons: [
                 {
