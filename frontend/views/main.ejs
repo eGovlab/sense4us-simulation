@@ -191,6 +191,8 @@
         var tool    = window.sense4us.inflateModel(modelBuilder1, "sample", "project");
         var network = window.sense4us.network;
 
+        window.tool = tool;
+
         tool.on("loadedModel", function(id, syncId) {
             console.log("Loaded model:", id, syncId);
         });

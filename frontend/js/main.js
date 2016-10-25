@@ -46,8 +46,18 @@ function inflateModel(container, userFilter, projectFilter) {
         throw new Error('Need to initialize inflateModel with a user and project id.');
     }
 
+    
+    var objectHelper = require('object-helper');
+
+    var leftMain           = document.createElement('div'),
+        notificationBarDiv = document.createElement('div'),
+        mainCanvasC        = document.createElement('canvas'),
+        linegraphCanvasC   = document.createElement('canvas'),
+        animationStyling   = document.createElement('style');
+
     var configObject = {
         container:     container,
+        notification:  notificationBarDiv,
         protocol:      protocol,
         hostname:      hostname,
         port:          parseInt(port),
@@ -57,15 +67,9 @@ function inflateModel(container, userFilter, projectFilter) {
     };
 
     var currentTool  = new Tool(configObject);
-    var objectHelper = require('object-helper');
 
-    var leftMain           = document.createElement('div'),
-        notificationBarDiv = document.createElement('div'),
-        mainCanvasC        = document.createElement('canvas'),
-        linegraphCanvasC   = document.createElement('canvas'),
-        animationStyling   = document.createElement('style');
-
-    notificationBarDiv.style.left = (maxWidth - 200) + 'px';
+    //notificationBarDiv.style.left = (maxWidth - 200) + 'px';
+    notificationBarDiv.style.right = '0px';
 
     //leftMain.className            = 'left main';
     leftMain.style.position       = 'relative';
@@ -120,6 +124,7 @@ function inflateModel(container, userFilter, projectFilter) {
 
     container.appendChild(leftMain);
 
+
     var mainCanvas       = canvas(container, mainCanvasC),
         linegraphCanvas  = canvas(container, linegraphCanvasC);
 
@@ -130,11 +135,6 @@ function inflateModel(container, userFilter, projectFilter) {
 
         network          = require('network'),
         informationTree  = require('information_tree');
-
-    var textStrings   = {
-            unsorted: [],
-            saved:    []
-        };
 
     currentTool.static              = {};
     currentTool.static.width        = container.offsetWidth;
@@ -731,6 +731,8 @@ function inflateModel(container, userFilter, projectFilter) {
     __.simulateButton.on('clicked', function() {
         userActivated = true;
         __.simulateCheckbox.check();
+
+        currentTool.emit('refreshLinegraph');
         currentTool.emit('refresh');
     });
 
@@ -758,8 +760,18 @@ function inflateModel(container, userFilter, projectFilter) {
 
     var saveButton = sidebar.addButton('floppy-disk', function() {
         currentTool.saveModel().then(function(model) {
+            currentTool.notify({
+                text:       'Model \''+model.settings.name+'\' saved.',
+                background: Colors.darkerLightGreen
+            });
+
             console.log('Model saved:', model)
         }).catch(function(err) {
+            currentTool.notify({
+                text:       err.message,
+                background: Colors.warning
+            });
+
             console.error(err);
         });
         /*loadedModel.emit('storeModel');
@@ -779,6 +791,10 @@ function inflateModel(container, userFilter, projectFilter) {
                     callback: function(popup) {
                         currentTool.deleteModel().catch(function(err) {
                             console.error(err);
+                            currentTool.notify({
+                                text:       err.message,
+                                background: Colors.warning
+                            });
                         });
                         
                         popup.destroy();
@@ -858,12 +874,19 @@ function inflateModel(container, userFilter, projectFilter) {
             return button;
         }
 
-        var savedModels = currentTool.savedModels;
+        var savedModels           = currentTool.savedModels;
         var lastActiveModelButton = false;
         menuItem.refresh = function() {
             buttons.forEach(function(button) {
                 if(button.syncId === currentTool.loadedModel.syncId
                 && button.id     === currentTool.loadedModel.id) {
+                    console.log('Activated',
+                        button.syncId,
+                        button.id,
+                        '|',
+                        currentTool.loadedModel.syncId,
+                        currentTool.loadedModel.id
+                    );
                     button.setBackground(Colors.buttonCheckboxCircleBorder);
                     button.root.style.color = Colors.white;
                 } else {
@@ -938,13 +961,13 @@ function inflateModel(container, userFilter, projectFilter) {
                     }
                 );
 
-                /*var localSaved = objectHelper.size.call(savedModels.local);
+                var localSaved = objectHelper.size.call(savedModels.local);
                 if(models.length + localSaved < buttons.length) {
                     var removedButtons = buttons.splice(models.length + localSaved, buttons.length - models.length);
                     removedButtons.forEach(function(button) {
                         button.destroy();
                     });
-                }*/
+                }
             }).catch(function(error) {
                 console.error(error);
             });
@@ -965,6 +988,13 @@ function inflateModel(container, userFilter, projectFilter) {
         });
     });
 
+    currentTool.on('deletedModel', function(removedModel) {
+        currentTool.notify({
+            text:       'Model \''+removedModel.settings.name+'\' deleted.',
+            background: Colors.darkerLightGreen
+        });
+    })
+
     currentTool.on('deletedSyncedModel', function(id) {
         if(modelList.child.folded) {
             return;
@@ -975,7 +1005,12 @@ function inflateModel(container, userFilter, projectFilter) {
         });
     });
 
-    currentTool.on('loadedModel', function() {
+    currentTool.on('loadedModel', function(model, id) {
+        currentTool.notify({
+            text:       'Model \''+model.settings.name+'\' loaded.',
+            background: Colors.darkerLightGreen
+        });
+
         if(modelList.child.folded) {
             return;
         }
@@ -1102,7 +1137,7 @@ function inflateModel(container, userFilter, projectFilter) {
     /*loadedModel.emit(null, 'refresh', 'resetUI', 'settings', 'sidebar');
     loadedModel.emit('Initialized', 'notification');*/
 
-    var Chart = require('chart.js');
+    var Chart         = require('chart.js');
     var drawLineGraph = require('graphics').drawLineGraph;
     function _linegraphRefresh() {
         var loadedModel = currentTool.loadedModel;
@@ -1139,6 +1174,8 @@ function inflateModel(container, userFilter, projectFilter) {
             };
         });
 
+        console.log(datasets);
+
         Chart.Line(lctx, {
             data: {
                 labels:   labels,
@@ -1163,6 +1200,16 @@ function inflateModel(container, userFilter, projectFilter) {
 
     linegraphRefresh();
     sidebar.foldButton.root.click();
+
+    currentTool.notify({
+        text:       'Initialized.',
+        background: Colors.darkerLightGreen//'#20A050'
+    });/*.then(function() {
+        return currentTool.notify({
+            text:       'Errors everywhere welcome to the bonezone.',
+            background: Colors.warning//'#20A050'
+        });
+    });*/
 
     return currentTool;
 }
